@@ -151,13 +151,14 @@
     if (state.isPlatform) {
       // Super admin has its own chrome: no tenant items (register club, my account).
       nav.innerHTML = '<span class="sa-tag">SUPER ADMIN</span><a href="#/platform">Console</a>' +
-        '<a href="#/">Public site</a><span class="muted-w">' + esc(state.user.email) + "</span>" +
+        '<a href="#/">Public site</a><span id="bellslot"></span><span class="muted-w">' + esc(state.user.email) + "</span>" +
         '<button id="signout" class="linkbtn">Sign out</button>';
       document.getElementById("signout").onclick = async function () { await sb.auth.signOut(); await refreshSession(); go("/"); };
+      if (window.DS && window.DS.notify) window.DS.notify.mount();
       return;
     }
     if (state.user) {
-      h += '<a href="#/me">My account</a><a href="#/register-club" class="pill">Register your club</a>' +
+      h += '<span id="bellslot"></span><a href="#/me">My account</a><a href="#/register-club" class="pill">Register your club</a>' +
            '<button id="signout" class="linkbtn">Sign out</button>';
     } else {
       h += '<a href="#/auth">Sign in</a><a href="#/register-club" class="pill">Register your club</a>';
@@ -165,6 +166,7 @@
     nav.innerHTML = h;
     var so = document.getElementById("signout");
     if (so) so.onclick = async function () { await sb.auth.signOut(); await refreshSession(); go("/"); };
+    if (window.DS && window.DS.notify) window.DS.notify.mount(); // bell (or clean up when signed out)
   }
   function requireUser(next) {
     if (state.user) return true;
@@ -174,393 +176,15 @@
 
   // ------------------------------------------------------------------ views
   async function viewHome() {
-    var fallbackImages = [
-      "https://lh3.googleusercontent.com/aida/ADBb0uhF1F56iA2o15k6p2p0x8V2u1xY7y9Z0q1w2e3r4t5y6u7i8o9p0a1s2d3f4g5h6j7k8l9z0x1c2v3b4n5m",
-      "https://lh3.googleusercontent.com/aida/ADBb0ugw3e4r5t6y7u8i9o0p1a2s3d4f5g6h7j8k9l0z1x2c3v4b5n6m7q8w9e0r1t2y3u4i5o6p7a8s9d0f1g2h",
-      "https://lh3.googleusercontent.com/aida/ADBb0ujk8l9z0x1c2v3b4n5m6q7w8e9r0t1y2u3i4o5p6a7s8d9f0g1h2j3k4l5z6x7c8v9b0n1m2q3w4e5r6t7y",
-      "https://lh3.googleusercontent.com/aida/ADBb0ul1z2x3c4v5b6n7m8q9w0e1r2t3y4u5i6o7p8a9s0d1f2g3h4j5k6l7z8x9c0v1b2n3m4q5w6e7r8t9y0u"
-    ];
-
-    app.innerHTML =
-      '<div id="ds-home-screen" class="relative overflow-hidden bg-surface text-on-surface">' +
-        '<!-- HERO SECTION -->' +
-        '<section class="relative pt-12 pb-20 lg:pt-20 lg:pb-28 overflow-hidden">' +
-          '<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-primary/10 blur-[140px] rounded-full pointer-events-none -z-10"></div>' +
-          '<div class="absolute top-40 right-0 w-[400px] h-[400px] bg-secondary/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>' +
-          '<div class="max-w-7xl mx-auto px-margin lg:px-margin-desktop">' +
-            '<div class="text-center max-w-4xl mx-auto mb-12">' +
-              '<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40 mb-6">' +
-                '<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>' +
-                '<span class="font-label-md text-primary tracking-wider uppercase">🎾 THE #1 PICKLEBALL RESERVATION &amp; DUPR NETWORK</span>' +
-              '</div>' +
-              '<h1 class="font-headline-display-mobile lg:font-headline-display text-on-surface tracking-tight mb-6">' +
-                'Book Your Slot. <br class="hidden sm:inline"/>' +
-                '<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-container to-secondary">Own the Court.</span>' +
-              '</h1>' +
-              '<p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10">' +
-                'Instant court reservations, automated split-payments, and live DUPR skill-matched open play at premier pickleball venues near you.' +
-              '</p>' +
-              '<!-- Interactive Quick Search Bar -->' +
-              '<div class="bg-surface-container/90 backdrop-blur-xl p-3 rounded-lg border border-outline-variant/40 shadow-2xl max-w-4xl mx-auto">' +
-                '<div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">' +
-                  '<div class="md:col-span-4 flex items-center gap-3 bg-surface-container-lowest px-4 py-3.5 rounded-DEFAULT border border-transparent focus-within:border-primary/50 transition-colors text-left">' +
-                    '<span class="material-symbols-outlined text-primary text-xl">location_on</span>' +
-                    '<div class="flex-1 min-w-0">' +
-                      '<label for="q" class="block font-label-sm text-outline uppercase tracking-wider">Location or Club</label>' +
-                      '<input id="q" type="search" placeholder="Search clubs or cities..." aria-label="Search clubs" class="w-full bg-transparent text-on-surface font-body-md focus:outline-none placeholder:text-outline/60 truncate border-0 p-0"/>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="md:col-span-3 flex items-center gap-3 bg-surface-container-lowest px-4 py-3.5 rounded-DEFAULT border border-transparent focus-within:border-primary/50 transition-colors text-left">' +
-                    '<span class="material-symbols-outlined text-primary text-xl">apartment</span>' +
-                    '<div class="flex-1 min-w-0">' +
-                      '<label for="city" class="block font-label-sm text-outline uppercase tracking-wider">City Filter</label>' +
-                      '<select id="city" aria-label="City" class="w-full bg-transparent text-on-surface font-body-md focus:outline-none border-0 p-0 cursor-pointer">' +
-                        '<option value="" class="bg-surface-container-lowest text-on-surface">All cities</option>' +
-                      '</select>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="md:col-span-2 flex items-center gap-3 bg-surface-container-lowest px-4 py-3.5 rounded-DEFAULT border border-transparent text-left">' +
-                    '<span class="material-symbols-outlined text-primary text-xl">schedule</span>' +
-                    '<div class="flex-1 min-w-0">' +
-                      '<label class="block font-label-sm text-outline uppercase tracking-wider">Schedule</label>' +
-                      '<div class="text-on-surface font-body-md truncate">Today • Prime</div>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="md:col-span-3">' +
-                    '<button id="find-courts-btn" type="button" class="w-full h-full min-h-[56px] bg-primary-container hover:bg-primary text-on-primary font-body-md font-bold rounded-DEFAULT flex items-center justify-center gap-2 transition-all shadow-[0_0_25px_rgba(163,230,53,0.3)] border-0 cursor-pointer">' +
-                      '<span class="material-symbols-outlined text-xl">search</span>' +
-                      '<span>Find Courts</span>' +
-                    '</button>' +
-                  '</div>' +
-                '</div>' +
-                '<!-- Quick Surface Filter Pills -->' +
-                '<div class="flex flex-wrap items-center justify-between gap-2 pt-3 mt-3 border-t border-outline-variant/20 px-2">' +
-                  '<div class="flex items-center gap-2 flex-wrap">' +
-                    '<span class="font-label-sm text-outline uppercase mr-1">Surface:</span>' +
-                    '<button type="button" data-filter="all" class="surf-pill px-3 py-1 rounded-full bg-primary/15 text-primary border border-primary/30 font-label-sm transition-colors cursor-pointer">All Courts</button>' +
-                    '<button type="button" data-filter="indoor" class="surf-pill px-3 py-1 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface-variant font-label-sm transition-colors border-0 cursor-pointer">Indoor Cushioned</button>' +
-                    '<button type="button" data-filter="outdoor" class="surf-pill px-3 py-1 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface-variant font-label-sm transition-colors border-0 cursor-pointer">Outdoor Pro-Turf</button>' +
-                  '</div>' +
-                  '<div class="flex items-center gap-1.5 text-primary font-label-sm">' +
-                    '<span class="material-symbols-outlined text-sm">bolt</span>' +
-                    '<span id="ccount">Loading live slots...</span>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-            '<!-- Trust Proof Stats -->' +
-            '<div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-4 border-t border-outline-variant/20 text-center">' +
-              '<div class="p-3">' +
-                '<div class="font-headline-md text-on-surface">500+</div>' +
-                '<div class="font-label-md text-on-surface-variant uppercase mt-0.5">Verified Clubs</div>' +
-              '</div>' +
-              '<div class="p-3">' +
-                '<div class="font-headline-md text-primary">45,000+</div>' +
-                '<div class="font-label-md text-on-surface-variant uppercase mt-0.5">Active Players</div>' +
-              '</div>' +
-              '<div class="p-3">' +
-                '<div class="font-headline-md text-on-surface">99.8%</div>' +
-                '<div class="font-label-md text-on-surface-variant uppercase mt-0.5">Booking Reliability</div>' +
-              '</div>' +
-              '<div class="p-3">' +
-                '<div class="font-headline-md text-secondary">DUPR™</div>' +
-                '<div class="font-label-md text-on-surface-variant uppercase mt-0.5">Direct API Sync</div>' +
-              '</div>' +
-            '</div>' +
-            '<!-- Hero Court Visual Showcase -->' +
-            '<div class="mt-12 relative rounded-lg overflow-hidden border border-outline-variant/30 shadow-2xl bg-surface-container-low">' +
-              '<div class="aspect-[21/9] w-full relative">' +
-                '<img alt="Modern indoor dark-mode pickleball stadium with neon green court lines and players in action" class="w-full h-full object-cover object-center opacity-80" src="https://lh3.googleusercontent.com/aida/ADBb0uiW6uG5_2dM5p9Y8fV4mN0c3xR1tL7qP2wK9jH4sB6vX8zC0nF2gD4kM6pQ8rS0tU2vW4xY6zA8bC0dE2fG4hI6jK8lM0nO2pQ4rS6tU8vW0xY2z"/>' +
-                '<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-transparent"></div>' +
-                '<div class="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">' +
-                  '<div class="bg-surface-container-lowest/90 backdrop-blur-md p-4 rounded-DEFAULT border border-outline-variant/40">' +
-                    '<div class="flex items-center gap-2 mb-1">' +
-                      '<span class="px-2 py-0.5 rounded bg-primary-container text-on-primary font-label-sm font-bold uppercase">Featured Arena</span>' +
-                      '<span class="font-label-md text-on-surface-variant">• Championship Pro Surface</span>' +
-                    '</div>' +
-                    '<div class="font-headline-sm text-on-surface">Stadium Central Court No. 1</div>' +
-                  '</div>' +
-                  '<div class="flex items-center gap-3 bg-surface-container-lowest/90 backdrop-blur-md px-4 py-3 rounded-DEFAULT border border-outline-variant/40">' +
-                    '<span class="w-2.5 h-2.5 rounded-full bg-primary-container animate-ping"></span>' +
-                    '<span class="font-label-md text-on-surface">LIVE BROADCAST &amp; INSTANT QR CHECK-IN ACTIVE</span>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</section>' +
-
-        '<!-- FEATURED CLUBS & LIVE AVAILABILITY -->' +
-        '<section id="clubs-section" class="py-16 lg:py-24 bg-surface-container-lowest border-y border-outline-variant/20">' +
-          '<div class="max-w-7xl mx-auto px-margin lg:px-margin-desktop">' +
-            '<div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">' +
-              '<div>' +
-                '<div class="font-label-md text-primary uppercase tracking-widest mb-2">LIVE COURT INVENTORY</div>' +
-                '<h2 class="font-headline-lg-mobile lg:font-headline-lg text-on-surface">Featured Clubs &amp; Availability</h2>' +
-              '</div>' +
-              '<div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">' +
-                '<button type="button" data-tab="all" class="club-tab px-4 py-2 rounded-full bg-primary-container text-on-primary font-body-sm font-semibold whitespace-nowrap border-0 cursor-pointer">All Clubs</button>' +
-                '<button type="button" data-tab="indoor" class="club-tab px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-body-sm font-medium whitespace-nowrap transition-colors border-0 cursor-pointer">Indoor AC</button>' +
-                '<button type="button" data-tab="pro" class="club-tab px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-body-sm font-medium whitespace-nowrap transition-colors border-0 cursor-pointer">Pro Lit Courts</button>' +
-                '<button type="button" data-tab="open" class="club-tab px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-body-sm font-medium whitespace-nowrap transition-colors border-0 cursor-pointer">Open Play Today</button>' +
-              '</div>' +
-            '</div>' +
-            '<!-- Club Cards Grid -->' +
-            '<div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg">' +
-              '<p class="text-on-surface-variant font-body-md col-span-full">Loading clubs...</p>' +
-            '</div>' +
-          '</div>' +
-        '</section>' +
-
-        '<!-- VALUE PROPOSITION SECTION -->' +
-        '<section id="features" class="py-16 lg:py-24 bg-surface relative">' +
-          '<div class="max-w-7xl mx-auto px-margin lg:px-margin-desktop">' +
-            '<div class="text-center max-w-3xl mx-auto mb-16">' +
-              '<div class="font-label-md text-primary uppercase tracking-widest mb-2">ENGINEERED FOR THE MODERN GAME</div>' +
-              '<h2 class="font-headline-lg-mobile lg:font-headline-lg text-on-surface mb-4">Why Players &amp; Club Owners Choose DINKSLOT</h2>' +
-              '<p class="font-body-md text-on-surface-variant">Everything you need to find a game, level up your rating, or run a high-margin multi-court pickleball facility.</p>' +
-            '</div>' +
-            '<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">' +
-              '<div class="bg-surface-container p-8 rounded-DEFAULT border border-outline-variant/30 hover:border-primary/40 transition-all group">' +
-                '<div class="w-12 h-12 rounded-DEFAULT bg-primary/15 border border-primary/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">' +
-                  '<span class="material-symbols-outlined text-primary text-2xl">bolt</span>' +
-                '</div>' +
-                '<div class="font-label-sm text-primary uppercase tracking-wider mb-2">01 / INSTANT ACCESS</div>' +
-                '<h3 class="font-headline-md text-on-surface mb-3">Frictionless Booking &amp; Split-Pay</h3>' +
-                '<p class="font-body-md text-on-surface-variant mb-6">' +
-                  'Reserve courts in 3 taps. Automatically split court fees among all 4 players at checkout and unlock the facility gate with your dynamic QR pass.' +
-                '</p>' +
-                '<ul class="space-y-2.5 border-t border-outline-variant/20 pt-5">' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Automated 4-way payment splitting</span>' +
-                  '</li>' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Apple Wallet &amp; smart-lock QR integration</span>' +
-                  '</li>' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Instant SMS waitlist notifications</span>' +
-                  '</li>' +
-                '</ul>' +
-              '</div>' +
-              '<div class="bg-surface-container p-8 rounded-DEFAULT border border-outline-variant/30 hover:border-primary/40 transition-all group relative overflow-hidden">' +
-                '<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>' +
-                '<div class="w-12 h-12 rounded-DEFAULT bg-primary/15 border border-primary/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">' +
-                  '<span class="material-symbols-outlined text-primary text-2xl">Query_Stats</span>' +
-                '</div>' +
-                '<div class="font-label-sm text-primary uppercase tracking-wider mb-2">02 / COMPETITIVE BALANCING</div>' +
-                '<h3 class="font-headline-md text-on-surface mb-3">Integrated DUPR Ratings</h3>' +
-                '<p class="font-body-md text-on-surface-variant mb-6">' +
-                  'Say goodbye to lopsided rec games. Join skill-verified Open Play sessions gated by real-time DUPR brackets and log match results directly from your phone.' +
-                '</p>' +
-                '<ul class="space-y-2.5 border-t border-outline-variant/20 pt-5">' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Two-way official DUPR rating sync</span>' +
-                  '</li>' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Skill-gated round robins &amp; ladders</span>' +
-                  '</li>' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Post-match partner &amp; opponent verification</span>' +
-                  '</li>' +
-                '</ul>' +
-              '</div>' +
-              '<div class="bg-surface-container p-8 rounded-DEFAULT border border-outline-variant/30 hover:border-primary/40 transition-all group">' +
-                '<div class="w-12 h-12 rounded-DEFAULT bg-primary/15 border border-primary/30 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">' +
-                  '<span class="material-symbols-outlined text-primary text-2xl">monitoring</span>' +
-                '</div>' +
-                '<div class="font-label-sm text-primary uppercase tracking-wider mb-2">03 / VENUE OPERATING SYSTEM</div>' +
-                '<h3 class="font-headline-md text-on-surface mb-3">Club Management Suite</h3>' +
-                '<p class="font-body-md text-on-surface-variant mb-6">' +
-                  'Maximize court utilization with dynamic prime-time pricing, automated membership billing, pro-shop POS, and hardware lighting automation.' +
-                '</p>' +
-                '<ul class="space-y-2.5 border-t border-outline-variant/20 pt-5">' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Peak vs. off-peak dynamic pricing rules</span>' +
-                  '</li>' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Automated court light &amp; PIN-pad control</span>' +
-                  '</li>' +
-                  '<li class="flex items-center gap-2 font-body-sm text-on-surface">' +
-                    '<span class="material-symbols-outlined text-primary text-base">check_circle</span>' +
-                    '<span>Real-time revenue &amp; utilization telemetry</span>' +
-                  '</li>' +
-                '</ul>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</section>' +
-
-        '<!-- INTERACTIVE MATCHMAKING & OPEN PLAY PREVIEW -->' +
-        '<section id="open-play" class="py-16 lg:py-24 bg-surface-container-low border-t border-outline-variant/20">' +
-          '<div class="max-w-7xl mx-auto px-margin lg:px-margin-desktop">' +
-            '<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">' +
-              '<div class="lg:col-span-5">' +
-                '<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 mb-4">' +
-                  '<span class="font-label-sm text-primary uppercase">SOLO PLAYER? NO PROBLEM</span>' +
-                '</div>' +
-                '<h2 class="font-headline-lg-mobile lg:font-headline-lg text-on-surface mb-4">Drop Into Skill-Matched Open Play</h2>' +
-                '<p class="font-body-md text-on-surface-variant mb-8">' +
-                  'Don\'t have a full foursome? Browse live Open Play lobbies across your city, see the exact DUPR ratings of registered players, and claim the 4th spot in seconds.' +
-                '</p>' +
-                '<div class="space-y-4 mb-8">' +
-                  '<div class="flex items-start gap-4 p-4 rounded-DEFAULT bg-surface-container border border-outline-variant/30">' +
-                    '<span class="material-symbols-outlined text-primary text-2xl mt-0.5">verified_user</span>' +
-                    '<div>' +
-                      '<h4 class="font-body-md font-bold text-on-surface">Verified Skill Brackets</h4>' +
-                      '<p class="font-body-sm text-on-surface-variant">Automatic enforcement prevents 2.5 beginners from accidentally booking into 4.5+ money-ball lobbies.</p>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="flex items-start gap-4 p-4 rounded-DEFAULT bg-surface-container border border-outline-variant/30">' +
-                    '<span class="material-symbols-outlined text-primary text-2xl mt-0.5">group_add</span>' +
-                    '<div>' +
-                      '<h4 class="font-body-md font-bold text-on-surface">1-Click Rotating Round Robins</h4>' +
-                      '<p class="font-body-sm text-on-surface-variant">Digital court-board assignments automatically rotate partners every 15 minutes.</p>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-                '<a href="#clubs-section" class="inline-flex items-center gap-2 font-body-md font-bold text-primary hover:underline">' +
-                  '<span>Explore all 142 Open Play sessions tonight</span>' +
-                  '<span class="material-symbols-outlined text-lg">arrow_forward</span>' +
-                '</a>' +
-              '</div>' +
-              '<div class="lg:col-span-7">' +
-                '<div class="bg-surface-container rounded-lg border border-outline-variant/40 p-6 shadow-2xl">' +
-                  '<div class="flex items-center justify-between pb-4 mb-6 border-b border-outline-variant/30">' +
-                    '<div class="flex items-center gap-2">' +
-                      '<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>' +
-                      '<span class="font-headline-sm text-on-surface">Live Open Dinking Sessions</span>' +
-                    '</div>' +
-                    '<span class="font-label-sm text-outline uppercase">AUTO-REFRESHING</span>' +
-                  '</div>' +
-                  '<div class="space-y-4">' +
-                    '<div class="p-4 rounded-DEFAULT bg-surface-container-high border border-outline-variant/40 hover:border-primary/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">' +
-                      '<div>' +
-                        '<div class="flex items-center gap-2 mb-1">' +
-                          '<span class="px-2 py-0.5 rounded bg-primary/20 text-primary font-label-sm font-bold">DUPR 4.0 – 4.5+</span>' +
-                          '<span class="font-label-sm text-on-surface-variant">• Tonight, 7:00 PM – 9:00 PM</span>' +
-                        '</div>' +
-                        '<h4 class="font-body-lg font-bold text-on-surface">Advanced King of the Court Shootout</h4>' +
-                        '<p class="font-body-sm text-on-surface-variant">BGC Kitchen Club • Court 1 &amp; 2 (Indoor Pro)</p>' +
-                      '</div>' +
-                      '<div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">' +
-                        '<div class="flex items-center gap-2">' +
-                          '<div class="flex -space-x-2">' +
-                            '<span class="w-7 h-7 rounded-full bg-surface-bright border border-surface flex items-center justify-center font-label-sm text-primary">4.2</span>' +
-                            '<span class="w-7 h-7 rounded-full bg-surface-bright border border-surface flex items-center justify-center font-label-sm text-primary">4.4</span>' +
-                            '<span class="w-7 h-7 rounded-full bg-surface-bright border border-surface flex items-center justify-center font-label-sm text-primary">4.1</span>' +
-                          '</div>' +
-                          '<span class="font-label-sm text-tertiary">1 Spot Left!</span>' +
-                        '</div>' +
-                        '<a href="#clubs-section" class="px-4 py-2 rounded-full bg-primary-container hover:bg-primary text-on-primary font-body-sm font-bold transition-colors no-underline">' +
-                          'Join Session • PHP 350' +
-                        '</a>' +
-                      '</div>' +
-                    '</div>' +
-                    '<div class="p-4 rounded-DEFAULT bg-surface-container-high border border-outline-variant/40 hover:border-primary/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">' +
-                      '<div>' +
-                        '<div class="flex items-center gap-2 mb-1">' +
-                          '<span class="px-2 py-0.5 rounded bg-secondary/20 text-secondary font-label-sm font-bold">DUPR 3.25 – 3.75</span>' +
-                          '<span class="font-label-sm text-on-surface-variant">• Tonight, 7:30 PM – 9:30 PM</span>' +
-                        '</div>' +
-                        '<h4 class="font-body-lg font-bold text-on-surface">Intermediate Social Mixer &amp; Drinks</h4>' +
-                        '<p class="font-body-sm text-on-surface-variant">Makati Smash Arena • Courts 3–6</p>' +
-                      '</div>' +
-                      '<div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">' +
-                        '<div class="flex items-center gap-2">' +
-                          '<div class="flex -space-x-2">' +
-                            '<span class="w-7 h-7 rounded-full bg-surface-bright border border-surface flex items-center justify-center font-label-sm text-secondary">3.5</span>' +
-                            '<span class="w-7 h-7 rounded-full bg-surface-bright border border-surface flex items-center justify-center font-label-sm text-secondary">3.4</span>' +
-                          '</div>' +
-                          '<span class="font-label-sm text-on-surface-variant">2 Spots Left</span>' +
-                        '</div>' +
-                        '<a href="#clubs-section" class="px-4 py-2 rounded-full bg-primary-container hover:bg-primary text-on-primary font-body-sm font-bold transition-colors no-underline">' +
-                          'Join Session • PHP 300' +
-                        '</a>' +
-                      '</div>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</section>' +
-
-        '<!-- FOR CLUB OWNERS BANNER -->' +
-        '<section class="py-16 lg:py-20 bg-surface">' +
-          '<div class="max-w-7xl mx-auto px-margin lg:px-margin-desktop">' +
-            '<div class="rounded-lg bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-lowest border border-outline-variant/50 p-8 md:p-12 lg:p-16 relative overflow-hidden">' +
-              '<div class="absolute -right-20 -bottom-20 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none"></div>' +
-              '<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">' +
-                '<div class="lg:col-span-8">' +
-                  '<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary font-label-sm uppercase mb-4">' +
-                    'DINKSLOT PARTNER PRO' +
-                  '</div>' +
-                  '<h2 class="font-headline-lg-mobile lg:font-headline-lg text-on-surface mb-4">' +
-                    'Own or Operate a Pickleball Facility?' +
-                  '</h2>' +
-                  '<p class="font-body-lg text-on-surface-variant max-w-2xl mb-6">' +
-                    'Boost off-peak court utilization by up to 42% and eliminate front-desk check-in bottlenecks. Migrate your courts to DINKSLOT in under 24 hours.' +
-                  '</p>' +
-                  '<div class="flex flex-wrap gap-6 text-on-surface font-body-sm">' +
-                    '<div class="flex items-center gap-2">' +
-                      '<span class="material-symbols-outlined text-primary">verified</span>' +
-                      '<span>Zero setup fees</span>' +
-                    '</div>' +
-                    '<div class="flex items-center gap-2">' +
-                      '<span class="material-symbols-outlined text-primary">verified</span>' +
-                      '<span>Automated GCash &amp; QR payouts</span>' +
-                    '</div>' +
-                    '<div class="flex items-center gap-2">' +
-                      '<span class="material-symbols-outlined text-primary">verified</span>' +
-                      '<span>Custom white-label member app</span>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-                '<div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-end">' +
-                  '<a href="#/register-club" class="w-full py-4 px-6 rounded-full bg-primary-container hover:bg-primary text-on-primary font-body-md font-bold text-center transition-all shadow-[0_0_25px_rgba(163,230,53,0.3)] no-underline">' +
-                    'Register Your Club' +
-                  '</a>' +
-                  '<a href="#/register-club" class="w-full py-4 px-6 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-body-md font-semibold text-center border border-outline-variant/40 transition-colors no-underline">' +
-                    'Partner Onboarding' +
-                  '</a>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</section>' +
-
-        '<!-- BOTTOM CALL-TO-ACTION BANNER -->' +
-        '<section class="py-16 lg:py-24 bg-surface-container-lowest relative overflow-hidden border-t border-outline-variant/20">' +
-          '<div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(163,230,53,0.12)_0%,transparent_70%)] pointer-events-none"></div>' +
-          '<div class="max-w-4xl mx-auto px-margin lg:px-margin-desktop text-center relative z-10">' +
-            '<h2 class="font-headline-display-mobile lg:font-headline-display text-on-surface mb-6">' +
-              'Ready to rule the court?' +
-            '</h2>' +
-            '<p class="font-body-lg text-on-surface-variant max-w-xl mx-auto mb-10">' +
-              'Create your free DINKSLOT player pass in 30 seconds. Connect your DUPR ID, discover local courts, and lock in your next match.' +
-            '</p>' +
-            '<div class="flex flex-col sm:flex-row items-center justify-center gap-4">' +
-              '<a href="#/auth?mode=up" class="w-full sm:w-auto px-8 py-4 rounded-full bg-primary-container hover:bg-primary text-on-primary font-body-lg font-bold transition-all shadow-[0_0_30px_rgba(163,230,53,0.4)] flex items-center justify-center gap-2 no-underline">' +
-                '<span>Get Started for Free</span>' +
-                '<span class="material-symbols-outlined">sports_tennis</span>' +
-              '</a>' +
-              '<a href="#clubs-section" class="w-full sm:w-auto px-8 py-4 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface font-body-lg font-semibold border border-outline-variant/40 transition-colors no-underline">' +
-                'Browse Courts Near Me' +
-              '</a>' +
-            '</div>' +
-          '</div>' +
-        '</section>' +
-      '</div>';
+    var fallbackImages = ["assets/landing-court.jpg", "https://lh3.googleusercontent.com/aida-public/AB6AXuDa-S4ZZLLHmDYjKc8jdOeivM48hq2Qj2IqFuRxX2hADLZf5dpoz_DzwkjANk85daWcgZKSX1cffRITeTLxzyjSsjNlO1Bqz_tgV4j4U6poyMx0TQPg8_yyefZEeoJTy72ReeAY9qFY1iO-YZi4GFAuAxUlxggfu_u3G1iXveA0waHB6wpajCG39pvud6Emlh1fLyERceM6GY6GWbYQkiHSA9iPFl9a2VFe05ZWoBM", "https://lh3.googleusercontent.com/aida-public/AB6AXuBGSaPhy8orPp4MmLU3UD1NAkEuv79MCKLmSqux31YkuqHjdJDO2Siblof4trUQnf9-Q5xI2ZUm6A55A3VlOclA1NJQVbPOs0ZEwbKHu92YIqANJlYhfpj9dszyZVYixENabP05CJAkqj4CK8meuL-94T-WvSTZiAdf_k7jg1U2tnkt5lwRCTuKBOYnKPZQnpe7SHAZmoRGtDrJMogZM7Uu9X3ORmH_aD3-r5w_pf4", "https://lh3.googleusercontent.com/aida-public/AB6AXuATvYY4K5iAfE5lS_suDm_W8wbLn-XYQRWEKVNVsajW4P1gcSGGc6DkVSbltkjSd3eOy6R8Pfbgqtbam8L2-lL97ZZq8jIm0RY8nOlK8wPokMfv4Uu3l8fNc3f0ikHRcFcr1qP7R6rFo7L4efLsPVkl6WeGh3ZJNAJoZXSK_WqcZ27qwuRAYMnc2HWUiZOCCfp3s7dzU3KKaXgpUC81F__IMMJSKPGUsDO_WcXD7dc"];
+    document.body.classList.add("landing-page");
+    app.innerHTML = window.DINKSLOT_LANDING;
+    app.querySelectorAll('a[href="#clubs-section"]').forEach(function (link) {
+      link.onclick = function (event) { event.preventDefault(); $("#clubs-section").scrollIntoView({ behavior: "smooth" }); };
+    });
 
     var r = await sb.from("public_clubs").select("*").order("name");
+    if (!$("#ds-landing")) return;
     var clubs = r.data || [];
     var cr = (await sb.from("public_courts").select("club_slug,hourly_rate,is_indoor,surface")).data || [];
     var info = {};
@@ -571,6 +195,7 @@
       if (c.is_indoor) i.indoor++; else i.outdoor++;
       if (c.surface && i.surfaces.indexOf(c.surface) === -1) i.surfaces.push(c.surface);
     });
+    if (!$("#ds-landing")) return;
     var cities = Array.from(new Set(clubs.map(function (c) { return c.city; }).filter(Boolean))).sort();
     var cityEl = $("#city");
     if (cityEl) {
@@ -603,57 +228,18 @@
         var i = info[c.slug];
         var coverSrc = c.cover_path ? mediaUrl(c.cover_path) : fallbackImages[idx % fallbackImages.length];
         var courtLabel = i
-          ? i.n + (i.n === 1 ? " Court" : " Courts") + " (" + (i.indoor > 0 ? "Indoor" : "Outdoor") + (i.surfaces.length ? " • " + i.surfaces[0] : "") + ")"
+          ? i.n + (i.n === 1 ? " Court" : " Courts") + " (" + (i.indoor > 0 ? "Indoor" : "Outdoor") + (i.surfaces.length ? " â€¢ " + i.surfaces[0] : "") + ")"
           : "Court schedule open";
         var priceHtml = i && isFinite(i.min)
           ? '<span class="font-headline-sm text-on-surface">PHP ' + esc(i.min.toFixed(0)) + '</span><span class="font-label-sm text-outline">/hr</span>'
           : '<span class="font-label-sm text-outline">View rates</span>';
 
-        return '<article class="group bg-surface-container rounded-DEFAULT border border-outline-variant/30 hover:border-primary/60 transition-all duration-300 overflow-hidden flex flex-col justify-between shadow-lg">' +
-          '<div>' +
-            '<a href="#/c/' + esc(c.slug) + '" class="block relative h-48 overflow-hidden bg-surface-container-high">' +
-              '<img src="' + esc(coverSrc) + '" alt="' + esc(c.name) + '" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>' +
-              '<div class="absolute top-3 left-3 flex gap-1.5">' +
-                '<span class="px-2.5 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-primary font-label-sm border border-primary/30">DUPR VERIFIED</span>' +
-              '</div>' +
-              '<div class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-md flex items-center gap-1">' +
-                '<span class="material-symbols-outlined text-primary text-xs" style="font-variation-settings: \'FILL\' 1;">star</span>' +
-                '<span class="font-label-sm text-on-surface">4.9</span>' +
-              '</div>' +
-              '<div class="absolute bottom-3 left-3 px-2.5 py-1 rounded bg-primary-container text-on-primary font-label-sm font-bold">' +
-                (i ? i.n + (i.n === 1 ? " COURT OPEN" : " COURTS OPEN") : "OPEN TODAY") +
-              '</div>' +
-            '</a>' +
-            '<div class="p-5">' +
-              '<div class="flex items-start justify-between gap-2 mb-1">' +
-                '<h3 class="font-headline-sm text-on-surface group-hover:text-primary transition-colors">' +
-                  '<a href="#/c/' + esc(c.slug) + '" class="text-inherit no-underline">' + esc(c.name) + '</a>' +
-                '</h3>' +
-                '<div>' + priceHtml + '</div>' +
-              '</div>' +
-              '<p class="font-body-sm text-on-surface-variant flex items-center gap-1 mb-4">' +
-                '<span class="material-symbols-outlined text-sm text-outline">location_on</span>' +
-                '<span>' + esc(c.city || c.address || "Metro Manila") + ' • ' + esc(courtLabel) + '</span>' +
-              '</p>' +
-              '<div class="mb-4">' +
-                '<div class="font-label-sm text-outline uppercase mb-2">Available Today:</div>' +
-                '<div class="grid grid-cols-3 gap-1.5">' +
-                  '<a href="#/c/' + esc(c.slug) + '/book" class="py-1.5 px-2 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary text-on-surface font-label-sm transition-colors border border-outline-variant/40 text-center no-underline">5:00 PM</a>' +
-                  '<a href="#/c/' + esc(c.slug) + '/book" class="py-1.5 px-2 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary text-on-surface font-label-sm transition-colors border border-outline-variant/40 text-center no-underline">6:30 PM</a>' +
-                  '<a href="#/c/' + esc(c.slug) + '/book" class="py-1.5 px-2 rounded bg-primary/15 text-primary hover:bg-primary-container hover:text-on-primary font-label-sm transition-colors border border-primary/40 text-center no-underline">8:00 PM</a>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="px-5 pb-5 pt-3 border-t border-outline-variant/20 flex items-center justify-between">' +
-            '<span class="font-label-sm text-on-surface-variant">Instant QR Confirmation</span>' +
-            '<a href="#/c/' + esc(c.slug) + '" class="font-body-sm font-bold text-primary hover:underline flex items-center gap-1 no-underline">' +
-              '<span>Book Slot</span>' +
-              '<span class="material-symbols-outlined text-base">arrow_forward</span>' +
-            '</a>' +
-          '</div>' +
-        '</article>';
-      }).join("") : '<p class="text-on-surface-variant font-body-md col-span-full">No clubs match your search.</p>';
+        return '<article class="landing-club">' +
+          '<a href="#/c/' + esc(c.slug) + '" class="landing-club-cover"><img src="' + esc(coverSrc) + '" alt="' + esc(c.name) + '" loading="lazy"><span class="landing-court-count">' + esc(i ? i.n + (i.n === 1 ? " Court" : " Courts") : "Explore club") + '</span></a>' +
+          '<div class="landing-club-body"><p class="landing-club-location">' + esc(c.city || c.address || "View club location") + '</p><h3><a href="#/c/' + esc(c.slug) + '">' + esc(c.name) + '</a></h3>' +
+          '<p class="landing-club-detail">' + esc(i ? (i.indoor ? "Indoor courts" : "Outdoor courts") + (i.surfaces.length ? " / " + i.surfaces[0] : "") : "View court details and availability") + '</p>' +
+          '<div class="landing-club-action"><div>' + priceHtml + '</div><a class="landing-book" href="#/c/' + esc(c.slug) + '">View &amp; Book</a></div></div></article>';
+      }).join("") : '<p class="text-on-surface-variant font-body-md col-span-full">No clubs match your search. Try another city or check back as clubs join.</p>';
     }
 
     var qInput = $("#q");
@@ -682,7 +268,7 @@
     document.querySelectorAll(".club-tab").forEach(function (btn) {
       btn.onclick = function () {
         var tab = btn.getAttribute("data-tab") || "all";
-        surfaceFilter = (tab === "indoor") ? "indoor" : "all";
+        surfaceFilter = (tab === "indoor" || tab === "outdoor") ? tab : "all";
         document.querySelectorAll(".club-tab").forEach(function (b) {
           var active = (b === btn);
           b.className = active
@@ -692,6 +278,7 @@
         draw();
       };
     });
+    if (r.error) setMsg(app, "Club listings could not load. Please try again shortly.", "err");
     draw();
   }
 
@@ -867,7 +454,7 @@
         '</div>' +
         '<div>' +
         '<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">DINKSLOT</h2>' +
-        '<p class="font-label-sm text-label-sm text-primary tracking-wider uppercase font-semibold">Pro Match Engine • Club Sync</p>' +
+        '<p class="font-label-sm text-label-sm text-primary tracking-wider uppercase font-semibold">Pro Match Engine â€¢ Club Sync</p>' +
         '</div>' +
         '</div>' +
         '<div class="space-y-2 pt-2">' +
@@ -888,7 +475,7 @@
         '<span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>' +
         '<span class="font-label-md text-label-md text-on-surface font-semibold">Center Court #4</span>' +
         '</div>' +
-        '<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary font-bold">GAME POINT • 10-9</span>' +
+        '<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary font-bold">GAME POINT â€¢ 10-9</span>' +
         '</div>' +
         '</div>' +
         '</div>' +
@@ -919,7 +506,7 @@
         '</div>' +
         '<div class="relative flex items-center">' +
         '<span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px] pointer-events-none">lock</span>' +
-        '<input id="pw" type="password" autocomplete="current-password" minlength="6" placeholder="••••••••••••" required class="w-full pl-11 pr-12 py-3 rounded-full bg-surface-container text-on-surface font-body-md text-body-md placeholder-on-surface-variant/40 focus:outline-none focus:bg-surface-container-high transition-all" />' +
+        '<input id="pw" type="password" autocomplete="current-password" minlength="6" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required class="w-full pl-11 pr-12 py-3 rounded-full bg-surface-container text-on-surface font-body-md text-body-md placeholder-on-surface-variant/40 focus:outline-none focus:bg-surface-container-high transition-all" />' +
         '<button aria-label="Toggle password visibility" class="absolute right-3.5 text-on-surface-variant hover:text-primary transition-colors focus:outline-none p-1" id="toggle-password-btn" type="button">' +
         '<span class="material-symbols-outlined text-[20px]" id="eye-icon">visibility</span>' +
         '</button>' +
@@ -1063,7 +650,7 @@
         '<div class="flex flex-col items-center text-center gap-space-xs">' +
         '<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-container-high text-primary font-label-md text-label-md tracking-wider uppercase mb-space-xs shadow-sm">' +
         '<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>' +
-        'DS League Entry • Season 2025' +
+        'DS League Entry â€¢ Season 2025' +
         '</div>' +
         '<h1 id="auth-title" class="font-headline-lg text-headline-lg md:text-headline-display tracking-tight text-on-surface">' +
         defaultTitleUp +
@@ -1150,14 +737,14 @@
         '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="skill-selector">' +
         '<button class="skill-pill flex flex-col items-start p-space-sm rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high transition-all text-left group" data-skill="beginner" type="button">' +
         '<span class="font-label-md text-label-md text-on-surface font-semibold group-hover:text-primary transition-colors">Beginner</span>' +
-        '<span class="font-label-sm text-label-sm text-on-surface-variant">1.0 – 2.5 DUPR</span>' +
+        '<span class="font-label-sm text-label-sm text-on-surface-variant">1.0 â€“ 2.5 DUPR</span>' +
         '</button>' +
         '<button class="skill-pill active-skill flex flex-col items-start p-space-sm rounded-DEFAULT bg-primary-container text-on-primary-container transition-all text-left shadow-[0_0_16px_rgba(163,230,53,0.25)]" data-skill="intermediate" type="button">' +
         '<div class="flex items-center justify-between w-full">' +
         '<span class="font-label-md text-label-md font-bold">Intermediate</span>' +
         '<span class="material-symbols-outlined text-[16px] font-bold">check_circle</span>' +
         '</div>' +
-        '<span class="font-label-sm text-label-sm font-medium opacity-90">3.0 – 4.0 DUPR</span>' +
+        '<span class="font-label-sm text-label-sm font-medium opacity-90">3.0 â€“ 4.0 DUPR</span>' +
         '</button>' +
         '<button class="skill-pill flex flex-col items-start p-space-sm rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high transition-all text-left group" data-skill="advanced" type="button">' +
         '<span class="font-label-md text-label-md text-on-surface font-semibold group-hover:text-primary transition-colors">Advanced / Pro</span>' +
@@ -1170,7 +757,7 @@
         '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="pw">Password</label>' +
         '<div class="relative flex items-center">' +
         '<span class="material-symbols-outlined text-outline absolute left-3.5 pointer-events-none text-[20px]">lock</span>' +
-        '<input class="w-full bg-surface-container-low rounded-DEFAULT pl-11 pr-11 py-3 text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-high transition-colors" id="pw" autocomplete="new-password" minlength="6" placeholder="••••••••••••" required type="password" />' +
+        '<input class="w-full bg-surface-container-low rounded-DEFAULT pl-11 pr-11 py-3 text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-high transition-colors" id="pw" autocomplete="new-password" minlength="6" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required type="password" />' +
         '<button aria-label="Toggle password visibility" class="absolute right-3.5 text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center" id="toggle-password-btn" type="button">' +
         '<span class="material-symbols-outlined text-[20px]" id="eye-icon">visibility</span>' +
         '</button>' +
@@ -1184,7 +771,7 @@
         '</div>' +
         '<div class="flex justify-between items-center text-label-sm font-label-sm">' +
         '<span class="text-on-surface-variant">Strength rating:</span>' +
-        '<span class="text-primary font-semibold tracking-wide" id="strength-label">GOOD • MATCH READY</span>' +
+        '<span class="text-primary font-semibold tracking-wide" id="strength-label">GOOD â€¢ MATCH READY</span>' +
         '</div>' +
         '</div>' +
         '</div>' +
@@ -1272,19 +859,19 @@
             b1.className = "h-full rounded-full bg-error transition-all duration-300";
             b2.className = "h-full rounded-full bg-surface-container-highest transition-all duration-300";
             b3.className = "h-full rounded-full bg-surface-container-highest transition-all duration-300";
-            strengthLabel.textContent = "WEAK • NEEDS 6+ CHARS";
+            strengthLabel.textContent = "WEAK â€¢ NEEDS 6+ CHARS";
             strengthLabel.className = "text-error font-semibold tracking-wide";
           } else if (val.length < 10) {
             b1.className = "h-full rounded-full bg-primary-container transition-all duration-300";
             b2.className = "h-full rounded-full bg-primary-container transition-all duration-300";
             b3.className = "h-full rounded-full bg-surface-container-highest transition-all duration-300";
-            strengthLabel.textContent = "GOOD • MATCH READY";
+            strengthLabel.textContent = "GOOD â€¢ MATCH READY";
             strengthLabel.className = "text-primary font-semibold tracking-wide";
           } else {
             b1.className = "h-full rounded-full bg-primary-container transition-all duration-300";
             b2.className = "h-full rounded-full bg-primary-container transition-all duration-300";
             b3.className = "h-full rounded-full bg-primary-container transition-all duration-300 shadow-[0_0_8px_rgba(163,230,53,0.5)]";
-            strengthLabel.textContent = "EXCELLENT • PRO SECURED";
+            strengthLabel.textContent = "EXCELLENT â€¢ PRO SECURED";
             strengthLabel.className = "text-primary font-bold tracking-wide";
           }
         };
@@ -1597,7 +1184,7 @@
     window.scrollTo(0, 0);
     stopLive();
     cleanupAuthPattern();
-    document.body.classList.remove("auth-page");
+    document.body.classList.remove("auth-page", "landing-page");
     // Supabase Auth returns here with #error=... (expired/used link) or #access_token=... (signed in).
     // These are not page routes.
     if (/^(error|access_token|error_code|error_description)=/.test(raw)) {

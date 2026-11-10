@@ -1,6 +1,6 @@
-const CACHE = "dinkslot-shell-v21";
+const CACHE = "dinkslot-shell-v24";
 
-const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/config.js", "js/ui.js", "js/admin.js", "js/booking.js", "manifest.webmanifest", "favicon.ico", "assets/dinkslot-logo.png", "assets/icons/icon-192.png", "assets/icons/icon-512.png"];
+const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/landing.js", "js/config.js", "js/ui.js", "js/notify.js", "js/admin.js", "js/booking.js", "manifest.webmanifest", "favicon.ico", "assets/dinkslot-logo.png", "assets/landing-court.jpg", "assets/icons/icon-192.png", "assets/icons/icon-512.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", (e) => { e.waitUntil(caches.keys().then((k) => Promise.all(k.filter((x) => x !== CACHE).map((x) => caches.delete(x)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", (e) => {

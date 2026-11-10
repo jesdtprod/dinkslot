@@ -256,7 +256,16 @@ begin
       ('Expired slot can be booked again',        'p1', $q$select status from public.create_booking('{C1}','{D2}'::timestamptz+interval '12 hours','{D2}'::timestamptz+interval '13 hours','k-after-expiry')$q$, 'eq:pending'),
       ('Setup: booking starting in 2 hours',      'pg', $q$with i as (insert into public.bookings (tenant_id,court_id,player_id,starts_at,ends_at,amount,reference_code,status) select '{T2}','{C2}',cp.id,now()+interval '2 hours',now()+interval '3 hours',400,'SOON-1','approved' from public.club_players cp where cp.tenant_id='{T2}' and cp.user_id='{P2}' returning 1) select count(*) from i$q$, 'pos'),
       ('Player cannot cancel inside the cutoff',  'p2', $q$select * from public.cancel_booking((select id from public.bookings where reference_code='SOON-1'))$q$, 'deny'),
-      ('Club admin can cancel inside the cutoff', 'a2', $q$select status from public.cancel_booking((select id from public.bookings where reference_code='SOON-1'), 'Closed early')$q$, 'eq:cancelled')
+      ('Club admin can cancel inside the cutoff', 'a2', $q$select status from public.cancel_booking((select id from public.bookings where reference_code='SOON-1'), 'Closed early')$q$, 'eq:cancelled'),
+      -- Stage 7: notifications
+      ('Platform admin notified of new clubs',    'pa', $q$select count(*) from public.notifications where type='club_registered' and user_id=auth.uid()$q$, 'pos'),
+      ('Club admin A1 not told about club 2 registration', 'a1', $q$select count(*) from public.notifications where type='club_registered'$q$, 'zero'),
+      ('Club owner notified when club approved',  'a1', $q$select count(*) from public.notifications where type='club_approved' and user_id=auth.uid()$q$, 'pos'),
+      ('A1 admin gets booking_requested for own club only', 'a1', $q$select count(*) from public.notifications where type='booking_requested' and tenant_id='{T2}'$q$, 'zero'),
+      ('Player reads own notifications and marks read', 'p2', $q$with u as (update public.notifications set read_at=now() where user_id=auth.uid() and read_at is null returning 1) select count(*) from u$q$, 'pos'),
+      ('Player cannot mark another user notification read', 'p1', $q$with u as (update public.notifications set read_at=now() where user_id <> auth.uid() returning 1) select count(*) from u$q$, 'zero'),
+      ('Player cannot edit notification text',    'p2', $q$update public.notifications set message='hacked' where user_id=auth.uid()$q$, 'deny'),
+      ('Player cannot forge a notification',      'p2', $q$insert into public.notifications (user_id,type) values (auth.uid(),'booking_approved')$q$, 'deny')
     ) as x(name, who, sql, expect)
   loop
     sql := t.sql;
