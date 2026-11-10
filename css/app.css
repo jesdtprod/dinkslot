@@ -3085,3 +3085,24 @@ html:not(.boot-dashboard) .boot-subtitle { margin: 0 auto 36px; }
 article.group:has(> a.relative:first-child) { padding: 0 !important; }
 article.group > a.relative:first-child { display: block; width: 100%; height: 12rem; margin: 0 !important; padding: 0 !important; border-radius: 0 !important; overflow: hidden; }
 article.group > a.relative:first-child > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 0 !important; }
+
+/* Notification rows keep their own layout instead of action-button styling. */
+.bell .bellbtn { display:grid; place-items:center; box-sizing:border-box; width:36px; height:36px; padding:0; border:1px solid #ffffff14; border-radius:10px; background:#20282e; color:#bac7bf; }
+.bell .bellbtn .mi { font-size:20px; line-height:1; }
+.bell .bellbadge { top:-4px; right:-4px; display:grid; place-items:center; min-width:17px; height:17px; padding:0 4px; border:2px solid #10141a; color:#172900; font:700 9px/1 "Plus Jakarta Sans",sans-serif; box-sizing:content-box; }
+.bell .bellbadge[hidden],.bell .bellmenu[hidden] { display:none; }
+.bell .bellmenu { width:min(380px,calc(100vw - 24px)); border:1px solid #ffffff16; border-radius:12px; background:#171d23; box-shadow:0 16px 48px #0007; }
+.bell .bellhead { gap:12px; padding:14px 16px; border-bottom:1px solid #ffffff0c; }
+.bell .bellhead b { color:#dce4df; font-size:13px; }
+.bell .bellhead #markall { min-height:30px !important; padding:5px 8px !important; font-size:10px !important; }
+.bell .belllist { padding:6px; max-height:min(420px,65dvh); scrollbar-width:none; }
+.bell .belllist::-webkit-scrollbar { display:none; }
+.bell .nitem { position:relative; display:flex; align-items:flex-start; justify-content:flex-start; gap:10px; width:100%; margin:0; padding:12px 10px; border:0; border-radius:8px; background:transparent; color:#a8b6ae; text-align:left; font:400 12px/19px "Plus Jakarta Sans",sans-serif; box-shadow:none; transition:background .15s; }
+.bell .nitem + .nitem { margin-top:3px; }
+.bell .nitem.unread { background:#a3e63509; color:#dce4df; }
+.bell .nitem:hover { background:#ffffff07; }
+.bell .nitem:focus-visible { outline:2px solid #a3e635; outline-offset:-2px; }
+.bell .nitem > .mi { display:grid; place-items:center; flex-shrink:0; width:28px; height:28px; margin:0; border:1px solid #ffffff0c; border-radius:7px; background:#ffffff03; color:#a1bb91; font-size:16px; }
+.bell .nitem.unread::after { content:''; flex-shrink:0; width:5px; height:5px; margin:7px 0 0 2px; border-radius:50%; background:#a3e635; }
+.bell .ntext { min-width:0; overflow-wrap:anywhere; }
+.bell .ntext small { margin-top:4px; color:#7e9186; font-size:10px; line-height:15px; }
