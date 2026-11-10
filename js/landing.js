@@ -492,121 +492,20 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
 
 <!-- CALL TO ACTION BANNER (BOTTOM) -->
 <section class="w-full py-space-xl px-gutter md:px-margin-desktop bg-surface-container-lowest">
-  <div class="court-cta relative p-6 sm:p-10 lg:p-14 rounded-3xl md:rounded-[32px] bg-gradient-to-br from-surface-container-high/90 via-surface-container to-surface-container-low/90 border border-white/[0.08] shadow-[0_24px_60px_rgba(0,0,0,0.5)] overflow-hidden">
-    <!-- Top specular highlight line -->
-    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
-    <!-- Ambient glowing light cones -->
-    <div class="absolute -top-24 -right-24 w-80 h-80 bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
-    <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-      <!-- Left Column: Compelling Pitch & Conversions -->
-      <div class="lg:col-span-7 flex flex-col items-start text-left">
-        <!-- Eyebrow Pill -->
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-sm text-[11px] font-semibold tracking-wider uppercase mb-3">
-          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-          Your Next Match Starts Here
-        </div>
-
-        <!-- Heading -->
-        <h2 class="font-headline-lg text-3xl sm:text-4xl lg:text-5xl font-extrabold text-on-surface tracking-tight leading-[1.1]">
-          Ready to rule <br class="hidden sm:inline" />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-tertiary to-secondary-fixed">the court?</span>
-        </h2>
-
-        <!-- Subheading -->
-        <p class="font-body-md text-sm sm:text-base lg:text-lg text-on-surface-variant max-w-xl mt-3.5 leading-relaxed">
-          More play. Less planning. Find verified pickleball venues, reserve private slots in under a minute, and sync your official DUPR handicap with local ladders.
-        </p>
-
-        <!-- Feature Trust Chips -->
-        <div class="flex flex-wrap items-center gap-2.5 my-6">
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-highest/60 border border-white/[0.06] text-xs font-body-md text-on-surface">
-            <span class="material-symbols-outlined text-primary text-sm">bolt</span>
-            <span>Instant 3-Tap Booking</span>
-          </div>
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-highest/60 border border-white/[0.06] text-xs font-body-md text-on-surface">
-            <span class="material-symbols-outlined text-secondary text-sm">verified</span>
-            <span>Official DUPR Sync</span>
-          </div>
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-highest/60 border border-white/[0.06] text-xs font-body-md text-on-surface">
-            <span class="material-symbols-outlined text-primary-fixed-dim text-sm">key</span>
-            <span>Smart Gate Auto-Unlock</span>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full sm:w-auto">
-          <a href="#/auth?mode=up" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-primary hover:bg-[#c2f822] text-on-primary font-label-lg text-sm font-bold shadow-[0_0_24px_rgba(177,233,3,0.35)] hover:shadow-[0_0_32px_rgba(177,233,3,0.55)] hover:scale-[1.02] transition-all no-underline">
-            <span>Get Started for Free</span>
-            <span class="material-symbols-outlined text-base">arrow_forward</span>
-          </a>
-          <a href="#/auth" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-surface-container-highest hover:bg-surface-bright border border-white/[0.08] hover:border-white/[0.16] text-on-surface font-label-lg text-sm font-semibold transition-all no-underline">
-            <span>Player Sign In</span>
-            <span class="material-symbols-outlined text-base">login</span>
-          </a>
-        </div>
-
-        <!-- Footnote -->
-        <p class="font-body-sm text-xs text-outline flex items-center gap-1.5 mt-4">
-          <span class="material-symbols-outlined text-sm text-outline">info</span>
-          <span>No subscription required to explore. Rates and cancellation windows are set directly by each club.</span>
-        </p>
+  <div class="court-cta">
+    <div class="court-cta-copy">
+      <span class="court-cta-eyebrow"><span></span> YOUR NEXT MATCH STARTS HERE</span>
+      <h2>Ready to rule<br>the <em>court?</em></h2>
+      <p>More play. Less planning. Find your club, pick your time, and make the court yours.</p>
+      <div class="court-cta-actions">
+        <a href="#/auth?mode=up" class="court-cta-primary">Get Started for Free <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
+        <a href="#/auth" class="court-cta-secondary">Player Sign In <span class="material-symbols-outlined" aria-hidden="true">login</span></a>
       </div>
-
-      <!-- Right Column: Visual Showcase & 3-Step Journey -->
-      <div class="lg:col-span-5 flex flex-col gap-4">
-        <!-- Court Photo Card with Badges -->
-        <div class="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-white/[0.1] shadow-2xl group">
-          <img src="assets/pickleball-courts-hd.jpg" alt="Players enjoying outdoor pickleball courts, photographed from above" width="2560" height="1440" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-          <div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-surface-container-lowest/20 to-transparent pointer-events-none"></div>
-          <!-- Top floating badge -->
-          <div class="absolute top-3.5 left-3.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md border border-white/10 text-primary font-label-sm text-[11px] font-bold">
-            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-            Prime Slots Open
-          </div>
-          <!-- Bottom floating caption -->
-          <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center justify-between text-white text-xs">
-            <span class="inline-flex items-center gap-1.5 font-medium">
-              <span class="material-symbols-outlined text-base text-primary">sports_tennis</span>
-              120+ Verified Courts Nationwide
-            </span>
-            <span class="font-label-sm text-[11px] text-primary font-semibold">Live Availability</span>
-          </div>
-        </div>
-
-        <!-- 3-Step Flow Cards -->
-        <div class="grid grid-cols-3 gap-2 sm:gap-2.5">
-          <div class="p-3 rounded-xl bg-surface-container/70 border border-white/[0.06] flex flex-col items-center text-center">
-            <span class="text-[10px] font-label-sm text-primary font-bold uppercase tracking-wider">Step 01</span>
-            <span class="font-headline-sm text-xs font-semibold text-on-surface mt-0.5">Find Club</span>
-          </div>
-          <div class="p-3 rounded-xl bg-surface-container/70 border border-white/[0.06] flex flex-col items-center text-center">
-            <span class="text-[10px] font-label-sm text-primary font-bold uppercase tracking-wider">Step 02</span>
-            <span class="font-headline-sm text-xs font-semibold text-on-surface mt-0.5">Book Slot</span>
-          </div>
-          <div class="p-3 rounded-xl bg-surface-container/70 border border-white/[0.06] flex flex-col items-center text-center">
-            <span class="text-[10px] font-label-sm text-primary font-bold uppercase tracking-wider">Step 03</span>
-            <span class="font-headline-sm text-xs font-semibold text-on-surface mt-0.5">Hit Court</span>
-          </div>
-        </div>
-
-        <!-- Fast Lane: View My Bookings -->
-        <a href="#/me" class="p-3.5 sm:p-4 rounded-2xl bg-surface-container/80 hover:bg-surface-container border border-white/[0.08] hover:border-primary/40 transition-all flex items-center justify-between gap-3 group/booking no-underline shadow-sm">
-          <div class="flex items-center gap-3.5 min-w-0">
-            <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 group-hover/booking:bg-primary/20 transition-colors">
-              <span class="material-symbols-outlined text-xl">calendar_month</span>
-            </div>
-            <div class="min-w-0">
-              <span class="block text-[11px] font-label-sm text-on-surface-variant uppercase tracking-wider truncate">Already have a game lined up?</span>
-              <span class="block text-sm font-semibold text-on-surface group-hover/booking:text-primary transition-colors truncate">View your active reservations</span>
-            </div>
-          </div>
-          <div class="w-8 h-8 rounded-full bg-surface-container-high group-hover/booking:bg-primary group-hover/booking:text-on-primary transition-all flex items-center justify-center text-on-surface-variant shrink-0">
-            <span class="material-symbols-outlined text-base transition-transform group-hover/booking:translate-x-0.5 group-hover/booking:-translate-y-0.5">arrow_outward</span>
-          </div>
-        </a>
-      </div>
+      <p class="court-cta-note"><span class="material-symbols-outlined" aria-hidden="true">info</span> Rates and cancellation policies are set by each club.</p>
+    </div>
+    <div class="court-cta-visual">
+      <figure class="court-cta-photo"><img src="assets/pickleball-courts-hd.jpg" alt="Players on outdoor pickleball courts" width="2560" height="1440" loading="lazy" decoding="async"></figure>
+      <a class="court-cta-bookings" href="#/me"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span><span>Already have a game lined up?<strong>View my bookings</strong></span><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
     </div>
   </div>
 </section>

@@ -1787,12 +1787,6 @@ body .facility-menu-item .facility-item-title {
 .site-footer .footer-brand:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; border-radius: 8px; }
 
 
-/* Editorial court invitation: modern dark athletic banner */
-#ds-landing .court-cta {
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
 #ds-auth-screen.signup-screen .official-dupr-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
 #ds-auth-screen.signup-screen .official-dupr-options > button:first-child { grid-column: 1 / -1; }
 
@@ -1850,3 +1844,158 @@ body input[type="checkbox"]:disabled { opacity: .45; cursor: not-allowed; }
 .seg{display:inline-flex;background:var(--card);border:1px solid var(--line-strong);border-radius:999px;padding:3px;margin-bottom:.6rem}
 .segbtn{border:0;background:none;color:var(--muted);padding:.4rem 1rem;border-radius:999px;cursor:pointer;font:inherit;font-size:.85rem;font-weight:600}
 .segbtn.on{background:var(--lime);color:var(--ink-dark)}
+
+
+/* Clean, restrained court invitation banner */
+#ds-landing .court-cta {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: 40px;
+  padding: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  background: radial-gradient(ellipse at 95% 0%, rgba(177, 233, 3, 0.06), transparent 55%), #15191f;
+}
+.court-cta-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--lime);
+  font: 500 10px/16px "JetBrains Mono", monospace;
+  letter-spacing: .08em;
+}
+.court-cta-eyebrow > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lime);
+}
+#ds-landing .court-cta h2 {
+  margin: 16px 0 14px;
+  font: 600 clamp(32px, 3.8vw, 48px)/1.08 "Space Grotesk", sans-serif;
+  letter-spacing: -.035em;
+  color: var(--ink);
+}
+.court-cta h2 em {
+  color: var(--lime);
+  font-style: normal;
+}
+.court-cta-copy > p {
+  max-width: 440px;
+  color: #9da89f;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+}
+.court-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+#ds-landing .court-cta-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 9999px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+.court-cta-primary {
+  background: var(--lime);
+  color: #213600;
+  box-shadow: 0 0 18px rgba(177, 233, 3, 0.22);
+}
+.court-cta-primary:hover {
+  background: var(--lime-hover);
+}
+.court-cta-secondary {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--ink);
+}
+.court-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.court-cta-actions .material-symbols-outlined {
+  font-size: 18px;
+}
+.court-cta-copy > .court-cta-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 11px;
+  color: #818e85;
+}
+.court-cta-note .material-symbols-outlined {
+  font-size: 14px;
+  color: #818e85;
+}
+.court-cta-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.court-cta-photo {
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #10161b;
+}
+.court-cta-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 58%;
+}
+#ds-landing .court-cta-bookings {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  color: #8f9c93;
+  font-size: 11px;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+#ds-landing .court-cta-bookings:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.court-cta-bookings > span:nth-child(2) {
+  flex: 1;
+}
+.court-cta-bookings strong {
+  display: block;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.court-cta-bookings > .material-symbols-outlined {
+  color: var(--lime);
+  font-size: 20px;
+}
+@media (max-width: 767px) {
+  #ds-landing .court-cta {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 28px 20px;
+    gap: 28px;
+    border-radius: 22px;
+  }
+}
