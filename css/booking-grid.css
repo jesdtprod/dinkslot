@@ -362,3 +362,17 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 .membership-panel-map { margin-left:auto; }
 @media(max-width:1050px) { .membership-panel-header { flex-wrap:wrap; } .membership-panel-actions { margin-left:80px; } .membership-court-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .membership-panel { padding:16px; } .membership-panel-actions { margin-left:0; width:100%; } .membership-panel-actions a { flex:1; } .membership-panel-avatar { width:52px; height:52px; } .membership-panel-courts { padding:12px; } .membership-panel-title h2 { font-size:17px; } .membership-panel-map { margin-left:0; } }
+
+/* Compact membership search, real court-filter chips and sort in one toolbar. */
+.member-clubs-toolbar { gap:8px; padding:10px 12px; border-radius:10px; background:#10171d; }
+.member-clubs-search { min-width:220px; flex:1 1 260px; height:34px; background:#0d141a; }
+#ds-tenant-dashboard #sec .member-clubs-search input { height:32px; font-size:11px; }
+.member-clubs-chips { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.member-clubs-chips button { display:inline-flex; align-items:center; justify-content:center; min-height:30px; padding:5px 9px; border:1px solid #ffffff10; border-radius:6px; background:#1b242b; color:#9fb2a5; font:500 10px/18px "Plus Jakarta Sans",sans-serif; cursor:pointer; transition:background .15s,color .15s; }
+.member-clubs-chips button:hover { background:#26322e; color:#d2dfd3; }
+.member-clubs-chips button[aria-selected="true"] { border-color:#a3e63550; background:#a3e635; color:#1b2a08; font-weight:600; }
+.member-clubs-toolbar > label { padding-left:9px; border-left:1px solid #ffffff0d; gap:6px; white-space:nowrap; }
+#ds-tenant-dashboard #sec .member-clubs-toolbar select { height:32px; min-width:125px; font-size:10px; background:#121b21; }
+.member-clubs-toolbar #myclubs-result-count { display:none; }
+@media(max-width:1100px) { .member-clubs-search { flex-basis:100%; } .member-clubs-toolbar > label { margin-left:auto; } }
+@media(max-width:600px) { .member-clubs-toolbar > label { width:100%; padding:8px 0 0; margin:0; border-left:0; border-top:1px solid #ffffff0d; justify-content:space-between; } }

@@ -546,13 +546,25 @@
     if (result.error) throw result.error;
     var courtsBySlug = {};
     (result.data || []).forEach(function (court) { (courtsBySlug[court.club_slug] || (courtsBySlug[court.club_slug] = [])).push(court); });
+    var clubFilter = 'all';
     sec.innerHTML = '<div class="member-clubs-page"><section class="member-overview-header"><div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1>My Clubs</h1><p>Your joined clubs, court details, and booking access in one place.</p></div>' +
       '<div class="member-overview-stats"><div><span class="member-overview-stat-label">My Clubs</span><span class="member-overview-stat-value">' + mc.clubs.length + '</span><small>Joined memberships</small></div><div><span class="member-overview-stat-label">Active Courts</span><span class="member-overview-stat-value">' + (result.data || []).length + '</span><small>At your clubs</small></div></div></section>' +
-      '<section class="member-clubs-toolbar" aria-label="Filter your clubs"><div class="member-clubs-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input data-has-icon id="myclubs-filter-input" type="search" placeholder="Search your clubs by name or address" aria-label="Search your clubs"></div><label>Sort by<select id="myclubs-sort"><option value="name">Club Name</option><option value="courts">Most Courts</option></select></label><span id="myclubs-result-count" role="status"></span></section>' +
+      '<section class="member-clubs-toolbar" aria-label="Filter your clubs"><div class="member-clubs-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input data-has-icon id="myclubs-filter-input" type="search" placeholder="Search your clubs by name or address" aria-label="Search your clubs"></div><div class="member-clubs-chips" role="group" aria-label="Filter clubs"><button type="button" role="tab" data-club-filter="all" aria-selected="true">All Clubs (' + mc.clubs.length + ')</button><button type="button" role="tab" data-club-filter="indoor" aria-selected="false">Indoor Courts</button><button type="button" role="tab" data-club-filter="outdoor" aria-selected="false">Outdoor Courts</button><button type="button" role="tab" data-club-filter="open" aria-selected="false">Open Now</button></div><label>Sort by<select id="myclubs-sort"><option value="name">Club Name</option><option value="courts">Most Courts</option></select></label><span id="myclubs-result-count" role="status"></span></section>' +
       '<div id="my-joined-clubs-list" class="home-clubs-grid"></div></div>';
     function draw() {
       var term = q('#myclubs-filter-input',sec).value.trim().toLowerCase();
       var list = mc.clubs.filter(function (club) { return [club.name,club.street,club.address,club.barangay,club.city,club.province,club.zip_code].filter(Boolean).join(' ').toLowerCase().includes(term); });
+      list = list.filter(function (club) {
+        if (clubFilter === 'all') return true;
+        return (courtsBySlug[club.slug] || []).some(function (court) {
+          if (clubFilter === 'indoor') return court.is_indoor === true;
+          if (clubFilter === 'outdoor') return court.is_indoor === false;
+          if (!court.open_time || !court.close_time) return false;
+          var clock = new Intl.DateTimeFormat('en-GB', {timeZone:club.timezone || 'Asia/Manila',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date()).slice(0,5);
+          var open = court.open_time.slice(0,5), close = court.close_time.slice(0,5);
+          return open === close || (close <= open ? clock >= open || clock < close : clock >= open && clock < close);
+        });
+      });
       var sort = q('#myclubs-sort',sec).value;
       list.sort(function (a,b) { return (sort === 'courts' ? (courtsBySlug[b.slug] || []).length - (courtsBySlug[a.slug] || []).length : 0) || a.name.localeCompare(b.name); });
       q('#myclubs-result-count',sec).textContent = list.length + (list.length === 1 ? ' club' : ' clubs');
@@ -583,6 +595,13 @@
 
       }).join('') : D.ui.emptyState(mc.clubs.length ? 'No matching clubs' : 'No clubs joined', mc.clubs.length ? 'Try another club name or address.' : 'Find a club to start booking courts.', 'groups', {href:'#/me/find',label:'Find a Club'});
     }
+    sec.querySelectorAll('[data-club-filter]').forEach(function (button) {
+      button.onclick = function () {
+        clubFilter = button.getAttribute('data-club-filter');
+        sec.querySelectorAll('[data-club-filter]').forEach(function (chip) { chip.setAttribute('aria-selected', String(chip === button)); });
+        draw();
+      };
+    });
     q('#myclubs-filter-input',sec).oninput = draw;
     q('#myclubs-filter-input',sec).onkeydown = function (event) { if (event.key === 'Escape') { this.value = ''; draw(); } };
     q('#myclubs-sort',sec).onchange = draw;
