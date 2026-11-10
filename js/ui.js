@@ -13,6 +13,8 @@
   // Apply one action-button system to dynamically rendered screens and dialogs.
   function enhanceActions(root) {
     var rules = [
+      [/^(?:block time|block court|maintenance)/i, 'event_busy', 'primary'],
+      [/^(?:today|tomorrow|select date)/i, 'calendar_today', 'secondary'],
       [/^(?:quick book|new booking|book now|book a|reserve|confirm booking)/i, 'calendar_today', 'primary'],
       [/^(?:save|confirm|approve|accept|complete|submit)/i, 'check', 'primary'],
       [/^(?:add staff|add player|invite)/i, 'person_add', 'secondary'],
@@ -35,7 +37,10 @@
       var label = copy.textContent.trim().replace(/\s+/g, ' ');
       if (!label) return;
       var rule = rules.find(function (entry) { return entry[0].test(label); });
-      if (!rule) return;
+      if (!rule) {
+        var primary = button.matches('.bg-primary,.bg-primary-container,.bg-brand-lime,button[type="submit"],.btn:not(.ghost):not(.danger)');
+        rule = [null, primary ? 'check' : 'arrow_forward', primary ? 'primary' : 'secondary'];
+      }
       button.classList.add('ds-action');
       button.classList.remove('ds-action-primary', 'ds-action-secondary', 'ds-action-danger');
       button.classList.add('ds-action-' + rule[2]);
