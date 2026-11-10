@@ -1527,7 +1527,7 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard #sec :is(button,a).rounded-full { border-radius: 10px; box-shadow: none; }
 #ds-tenant-dashboard #sec :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) { border-radius: 12px; border-color: #ffffff14; background: #ffffff03; }
 #ds-tenant-dashboard #sec :is(input,select,textarea):focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
-#ds-tenant-dashboard #ds-side nav :is(a,button)[data-key] { border-radius: 12px; min-height: 44px; padding: 11px 14px; font-size: 14px; box-shadow: none; }
+#ds-tenant-dashboard #ds-side nav :is(a,button)[data-key] { border-radius: 10px; min-height: 36px; padding: 8px 12px; box-shadow: none; }
 #ds-tenant-dashboard #ds-side nav :is(a,button).bg-primary-container { background: #a3e63516; color: var(--lime-bright); box-shadow: inset 3px 0 0 var(--lime); }
 #ds-tenant-dashboard #side-status-box { border-radius: 12px; padding: 12px; }
 #ds-tenant-dashboard #sec .grid { padding-bottom: 0; grid-template-columns: minmax(0,1fr); }
@@ -1637,7 +1637,11 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard .dashboard-checklist { gap: 10px; }
 #ds-tenant-dashboard .dashboard-checklist > div { padding: 16px; gap: 16px; }
 #ds-tenant-dashboard .dashboard-checklist .font-semibold { font-weight: 600; }
-#ds-tenant-dashboard #ds-side nav :is(a,button)[data-key] { font-family: "Plus Jakarta Sans",sans-serif; font-size: 13px; font-weight: 500; }
+#ds-tenant-dashboard #ds-side { --action-font-size: 12px; --action-line-height: 18px; }
+#ds-tenant-dashboard #ds-side nav :is(a,button)[data-key] { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; font-weight: 500; }
+#ds-tenant-dashboard #ds-side nav [data-key] > .material-symbols-outlined { font-size: 18px; line-height: 20px; }
+#ds-tenant-dashboard #ds-side > div:last-child a { min-height: 36px; padding: 8px 12px; }
+#ds-tenant-dashboard #ds-side > div:last-child a > .material-symbols-outlined { font-size: 18px; line-height: 20px; }
 @media (max-width:640px) {
   #ds-tenant-dashboard #sec h1 { font-size: 28px; }
   #ds-tenant-dashboard .dashboard-checklist > div { flex-wrap: wrap; }
