@@ -281,3 +281,7 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 .club-directory-results > span { border:0; background:transparent; color:#84998c; }
 .club-directory-view { padding:3px; border-radius:7px; background:#11181e; }
 @media(max-width:600px) { #ds-tenant-dashboard #sec .club-directory-filters select { min-width:0; } .club-directory-results { flex:1; justify-content:flex-end; } }
+
+/* Club count is the sole result control. */
+.club-directory-results > span { display:inline-flex; align-items:center; gap:4px; padding:4px 9px; border:1px solid #8dbb7130; border-radius:6px; background:#8dbb710c; color:#a5bb97; font-size:10px; line-height:18px; }
+.club-directory-results strong { margin:0; color:#c0dbab; }

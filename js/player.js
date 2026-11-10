@@ -394,7 +394,7 @@
       '<label>Court Type<select id="club-filter-type"><option value="">All court types</option><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option></select></label>' +
       '<label>Surface<select id="club-filter-surface">' + filterOptions(allCourts.map(function (c) { return c.surface; }), 'All surfaces') + '</select></label>' +
       '<label class="club-directory-open"><input id="filter-open-now" type="checkbox"><span>Open Now</span></label>' +
-      '<div class="club-directory-results"><span><strong id="nearby-count-badge">' + all.length + '</strong> clubs found</span><div class="club-directory-view" role="group" aria-label="View format"><button id="btn-view-grid" type="button" aria-label="Grid view" aria-pressed="true"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span></button><button id="btn-view-list" type="button" aria-label="List view" aria-pressed="false"><span class="material-symbols-outlined" aria-hidden="true">view_list</span></button></div></div></div></section>';
+      '<div class="club-directory-results"><span><strong id="nearby-count-badge">' + all.length + '</strong> clubs found</span></div></div></section>';
 
     // Membership cards contain only saved venue and active-court records.
     var joinedSectionHtml = '<section data-purpose="joined-clubs-section"><header class="home-clubs-heading"><div><h2>My Clubs</h2><p>' + mc.clubs.length + (mc.clubs.length === 1 ? ' joined club' : ' joined clubs') + '</p></div></header><div class="home-clubs-grid find-membership-grid">' +
