@@ -789,7 +789,7 @@
         if (!window.L) return;
         var lat = val('#plat',sec), lng = val('#plng',sec), has = lat !== '' && lng !== '';
         if (!locationMap) {
-          locationMap = L.map(q('#club-location-map',sec), {scrollWheelZoom:true}).setView(has ? [Number(lat),Number(lng)] : [12.8797,121.774], has ? 17 : 6);
+          locationMap = L.map(q('#club-location-map',sec), {scrollWheelZoom:true, zoomControl:false}).setView(has ? [Number(lat),Number(lng)] : [12.8797,121.774], has ? 17 : 6);
           L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             maxZoom:19, attribution:'Source: <a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9" target="_blank" rel="noopener">Esri</a>, Vantor, Earthstar Geographics, and the GIS User Community'
           }).addTo(locationMap);
