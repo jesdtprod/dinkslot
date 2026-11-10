@@ -527,7 +527,7 @@
     Array.prototype.forEach.call(sec.querySelectorAll("[data-del]"), function (b) {
       b.onclick = async function () {
         var c = byId[b.getAttribute("data-del")];
-        if (!confirm('Delete court "' + c.name + '"? This cannot be undone.')) return;
+        if (!await D.ui.confirmAction('Delete court "' + c.name + '"? This cannot be undone.', { title: 'Delete court', confirmText: 'Delete court' })) return;
         var r = await sb.rpc("delete_court", { p_court_id: c.id });
         if (r.error) return setMsg(sec, r.error.message.indexOf("court_has_bookings") !== -1
           ? "This court has upcoming bookings. Cancel them first, or set it to maintenance." : friendly(r.error), "err");
@@ -537,6 +537,7 @@
     });
     Array.prototype.forEach.call(sec.querySelectorAll("[data-delb]"), function (b) {
       b.onclick = async function () {
+        if (!await D.ui.confirmAction("Remove this blocked window? Players will be able to book this time again.", { title: "Remove blocked window", confirmText: "Remove block" })) return;
         var r = await sb.rpc("delete_court_block", { p_block_id: b.getAttribute("data-delb") });
         if (r.error) return setMsg(q("#bmsg", sec).parentNode, friendly(r.error), "err");
         courtsView(sec);
@@ -803,7 +804,7 @@
         }).join("") + "</tbody></table></div>";
         Array.prototype.forEach.call(box.querySelectorAll("[data-rm]"), function (b) {
           b.onclick = async function () {
-            if (!confirm("Remove this staff member from your facility?")) return;
+            if (!await D.ui.confirmAction("Remove this staff member from your facility? They will lose staff access.", { title: "Remove staff member", confirmText: "Remove staff" })) return;
             var x = await sb.rpc("remove_staff", { p_member_id: b.getAttribute("data-rm") });
             if (x.error) return setMsg(sec, friendly(x.error), "err");
             loadStaff();
@@ -1006,7 +1007,7 @@
         };
 
         card.querySelector('[data-act="clear"]').onclick = async function () {
-          if (!confirm("Clear " + row.label + "? Its details and QR image are removed and the card goes back to inactive.")) return;
+          if (!await D.ui.confirmAction("Clear " + row.label + "? Its details and QR image will be removed and the card will become inactive.", { title: "Clear payment card", confirmText: "Clear card" })) return;
           var x = await sb.rpc("clear_payment_qr", { p_id: row.id });
           if (x.error) return say(card, friendly(x.error), "err");
           if (x.data) await removeQuiet("payment", x.data);

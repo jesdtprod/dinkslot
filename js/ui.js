@@ -31,7 +31,7 @@
       [/^(?:apply|search|find courts)/i, 'check', 'primary']
     ];
     root.querySelectorAll('button, a.btn, a.pill, a.transactions-button, a.setup-action, a[class*="bg-"], label.qrfile').forEach(function (button) {
-      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"]')) return;
+      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('.confirmation-modal,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"]')) return;
       var copy = button.cloneNode(true);
       copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });
       var label = copy.textContent.trim().replace(/\s+/g, ' ');
@@ -477,5 +477,27 @@
     while (stack.children.length > 3) stack.firstElementChild.remove();
   }
 
-  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers, toast: toast };
+  var confirmationId = 0;
+  function confirmAction(message, options) {
+    options = options || {};
+    return new Promise(function (resolve) {
+      var previous = document.activeElement, modal = document.createElement('dialog');
+      var id = 'ds-confirm-' + (++confirmationId), result = null;
+      modal.className = 'confirmation-modal'; modal.setAttribute('aria-labelledby', id); modal.setAttribute('aria-describedby', id + '-message');
+      modal.innerHTML = '<form><div class="confirmation-heading"><span class="material-symbols-outlined" aria-hidden="true">' + (options.danger === false ? 'help' : 'warning') + '</span><h2 id="' + id + '">' + esc(options.title || 'Confirm action') + '</h2></div><p id="' + id + '-message"></p>' +
+        (options.reason ? '<label class="confirmation-reason">Reason' + (options.requireReason ? ' (required)' : ' (optional)') + '<textarea rows="3" maxlength="500"' + (options.requireReason ? ' required' : '') + '></textarea><small>The recipient will see this reason.</small></label>' : '') +
+        '<div class="confirmation-actions"><button type="button" data-dismiss class="ds-action ds-action-secondary"><span class="material-symbols-outlined" aria-hidden="true">close</span>Go back</button><button type="submit" class="ds-action ' + (options.danger === false ? 'ds-action-primary' : 'ds-action-danger') + '"><span class="material-symbols-outlined" aria-hidden="true">' + (options.danger === false ? 'check' : 'warning') + '</span>' + esc(options.confirmText || 'Confirm') + '</button></div></form>';
+      modal.querySelector('p').textContent = message;
+      modal.querySelector('[data-dismiss]').onclick = function () { modal.close(); };
+      modal.querySelector('form').onsubmit = function (event) {
+        event.preventDefault(); var field = modal.querySelector('textarea'), reason = field ? field.value.trim() : '';
+        if (options.requireReason && !reason) { field.setCustomValidity('Enter a reason.'); field.reportValidity(); field.oninput = function () { field.setCustomValidity(''); }; return; }
+        result = { reason: reason || null }; modal.close();
+      };
+      modal.addEventListener('close', function () { modal.remove(); if (previous && previous.isConnected) previous.focus(); resolve(result); }, { once: true });
+      document.body.appendChild(modal); modal.showModal(); modal.querySelector('[data-dismiss]').focus();
+    });
+  }
+
+  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers, toast: toast, confirmAction: confirmAction };
 })();

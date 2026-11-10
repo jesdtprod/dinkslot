@@ -359,7 +359,7 @@
       });
       Array.prototype.forEach.call(box.querySelectorAll("[data-cancel]"), function (btn) {
         btn.onclick = async function () {
-          if (!confirm("Cancel this booking?")) return;
+          if (!await D.ui.confirmAction("Cancel this booking? Your reserved time will be released.", { title: "Cancel booking", confirmText: "Cancel booking" })) return;
           btn.disabled = true;
           var r = await sb.rpc("cancel_booking", { p_booking_id: btn.getAttribute("data-cancel"), p_reason: null, p_idempotency_key: uuid() });
           if (r.error) { btn.disabled = false; return msg(btn.closest(".bcard"), nice(r.error), "err"); }
@@ -433,19 +433,21 @@
         if (r.error) { el.disabled = false; msg(card(el), nice(r.error), "err"); if (/invalid_state/.test(r.error.message || "")) load(); return; }
         load();
       }
-      Array.prototype.forEach.call(box.querySelectorAll("[data-ok]"), function (b) { b.onclick = function () { decide(b, b.getAttribute("data-ok"), "approved", null); }; });
+      Array.prototype.forEach.call(box.querySelectorAll("[data-ok]"), function (b) { b.onclick = async function () { if (await D.ui.confirmAction("Approve this booking and confirm the reserved court time?", { title: "Approve booking", confirmText: "Approve booking", danger: false })) decide(b, b.getAttribute("data-ok"), "approved", null); }; });
       Array.prototype.forEach.call(box.querySelectorAll("[data-no]"), function (b) {
-        b.onclick = function () {
-          var why = prompt("Reason for rejecting (the player will see this):");
-          if (why == null) return;
+        b.onclick = async function () {
+          var confirmation = await D.ui.confirmAction("Reject this booking? The player will see your reason.", { title: "Reject booking", confirmText: "Reject booking", reason: true, requireReason: true });
+          if (!confirmation) return;
+          var why = confirmation.reason;
           if (!why.trim()) return msg(card(b), ERR.reason_required, "err");
           decide(b, b.getAttribute("data-no"), "rejected", why.trim());
         };
       });
       Array.prototype.forEach.call(box.querySelectorAll("[data-cx]"), function (b) {
         b.onclick = async function () {
-          var why = prompt("Reason for cancelling (the player will see this):");
-          if (why == null) return;
+          var confirmation = await D.ui.confirmAction("Cancel this booking? The player will see your reason.", { title: "Cancel booking", confirmText: "Cancel booking", reason: true, requireReason: true });
+          if (!confirmation) return;
+          var why = confirmation.reason;
           if (!why.trim()) return msg(card(b), ERR.reason_required, "err");
           b.disabled = true;
           var r = await sb.rpc("cancel_booking", { p_booking_id: b.getAttribute("data-cx"), p_reason: why.trim(), p_idempotency_key: uuid() });

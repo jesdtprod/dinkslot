@@ -2935,3 +2935,16 @@ dialog#booking-modal [data-purpose="booking-parameters"] > .grid { padding-top: 
 /* Match court configuration controls to booking form corners. */
 #ds-tenant-dashboard #sec .court-config-modal :is(input:not([type="radio"]):not([type="checkbox"]),select,.datetime-trigger),
 #ds-tenant-dashboard #sec .court-config-modal label:has(#ci) { border-radius: 8px !important; }
+.confirmation-modal { width: min(420px,calc(100vw - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 22px; overflow-y: auto; border: 1px solid #ffffff18; border-radius: 14px; background: #192127; color: #dce6de; box-shadow: 0 24px 80px #0009; color-scheme: dark; }
+.confirmation-modal::backdrop { background: #060b10b8; backdrop-filter: blur(5px); }
+.confirmation-modal[open] { animation: court-form-enter .16s ease-out; }
+.confirmation-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.confirmation-heading > .material-symbols-outlined { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #e6a18d25; border-radius: 9px; background: #e6a18d0c; color: #dcb29f; font-size: 19px; }
+.confirmation-heading h2 { margin: 0; font: 600 17px/24px "Plus Jakarta Sans",sans-serif; }
+.confirmation-modal p { margin: 0; color: #a6b7ab; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; }
+.confirmation-reason { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; color: #b8c8bc; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; }
+.confirmation-reason textarea { width: 100%; padding: 10px; border: 1px solid #ffffff15; border-radius: 8px; background: #20282e; color: #dce6de; resize: vertical; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; }
+.confirmation-reason small { color: #829588; font-size: 10px; }
+.confirmation-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #ffffff0b; }
+body:has(.confirmation-modal[open]) { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .confirmation-modal[open] { animation: none; } }

@@ -1711,7 +1711,9 @@
       Array.prototype.forEach.call(app.querySelectorAll("button[data-d]"), function (btn) {
         btn.onclick = async function () {
           var d = btn.getAttribute("data-d"), reason = null;
-          if (d !== "approved") { reason = prompt("Reason (optional):") || null; }
+          var confirmation = await window.DS.ui.confirmAction("Change this club?s status to " + d + "?", { title: "Update club status", confirmText: "Confirm change", danger: d !== "approved", reason: d !== "approved" });
+          if (!confirmation) return;
+          reason = confirmation.reason;
           btn.disabled = true;
           var x = await sb.rpc("decide_club", { p_tenant_id: btn.getAttribute("data-id"), p_decision: d, p_reason: reason });
           if (x.error) setMsg(app, friendly(x.error), "err"); else setMsg(app, "Club " + d + ".", "ok");
