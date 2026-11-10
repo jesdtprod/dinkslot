@@ -8,7 +8,7 @@ const mockClub = {
   id: 'club-pickle',
   slug: 'the-pickleshot',
   name: 'The Pickleshot',
-  city: 'Isulan', zip_code: '9800',
+  city: 'Isulan', zip_code: '9800', contact_email:'club@example.com',
   logo_path: null,
   cover_path: null
 };
@@ -106,6 +106,7 @@ function createMockSec() {
   assert.match(membership,/3 Courts/);
   assert.match(membership,/PHP 24.00/);
   assert.match(membership,/View on Google Maps/);
+  assert.match(membership,/mailto:club@example.com/);
   assert.doesNotMatch(membership,/128 reviews|1.2 miles|4:30 PM|16 slots|Full AC|Lobster/);
 
   assert.match(results.innerHTML,/The Pickleshot/);

@@ -199,7 +199,7 @@ body .club-directory-view button[aria-pressed="true"] { background:#a3e63513 !im
 @media(max-width:700px) { .club-directory-filters > label:not(.club-directory-open) { flex:1 1 140px; } #ds-tenant-dashboard #sec .club-directory-filters select { width:100%; min-width:0; max-width:none; } .club-directory-results { margin-left:auto; width:auto; } }
 
 /* Find a Club membership cards mirror Overview in a three-column grid. */
-#ds-tenant-dashboard #sec .member-find-page .find-membership-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+#ds-tenant-dashboard #sec .member-find-page .find-membership-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
 .find-membership-map { display:inline-flex; align-items:center; gap:6px; align-self:flex-start; margin:2px 0 12px; color:#97bbaa; font-size:11px; text-decoration:none; }
 .find-membership-map:hover { color:#c4dfa9; }
 .find-membership-map .material-symbols-outlined { font-size:15px; }
@@ -208,3 +208,6 @@ body .club-directory-view button[aria-pressed="true"] { background:#a3e63513 !im
 
 /* Reference toolbar surface; retain its existing compact control layout. */
 #ds-tenant-dashboard #sec .member-find-page .club-directory-tools { background:#101720; }
+
+.home-club-email { color:#a3c8d1; text-decoration:none; overflow-wrap:anywhere; }
+.home-club-email:hover { text-decoration:underline; }
