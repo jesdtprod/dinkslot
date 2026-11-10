@@ -119,6 +119,7 @@
       '</a>'
     : '') +
     '<div class="facility-menu-label">Network & Account</div>' +
+    (!h.slug ? '<a href="#/me" class="facility-menu-item"><div class="facility-item-main"><div class="facility-item-icon"><span class="material-symbols-outlined">dashboard</span></div><div class="facility-item-copy"><span class="facility-item-title">Dashboard</span><span class="facility-item-sub">Your bookings & clubs at a glance</span></div></div><span class="material-symbols-outlined facility-item-arrow">chevron_right</span></a>' : '') +
     '<a href="' + (h.slug ? '#/admin/' + esc(h.slug) + '/profile' : '#/me') + '" class="facility-menu-item">' +
       '<div class="facility-item-main">' +
         '<div class="facility-item-icon"><span class="material-symbols-outlined">person</span></div>' +
