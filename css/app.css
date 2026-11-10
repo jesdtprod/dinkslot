@@ -2915,3 +2915,6 @@ body #app label:has(> textarea),
 body #app label:has(> .datetime-control) { gap: 3px; }
 body #app label > :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea,.datetime-control) { margin-top: 0; }
 body #app label[for]:not(.sr-only):not(.media-drop):not(.court-qr-drop) { margin-bottom: 3px; }
+
+/* Match booking row spacing to the customer fields beside it. */
+dialog#booking-modal [data-purpose="booking-parameters"] > .grid { row-gap: 17px; }
