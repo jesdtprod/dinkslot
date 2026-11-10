@@ -43,3 +43,8 @@
 .club-profile-right > .club-map-settings { display:flex; flex-direction:column; flex:1; min-height:0; }
 .club-profile-right #club-location-map { flex:1; min-height:520px; height:auto; }
 @media(max-width:800px) { .club-profile-right #club-location-map { flex:none; height:380px; min-height:0; } }
+
+/* Compact location status badge. */
+#ds-tenant-dashboard #sec .map-location-footer #club-map-status { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border:1px solid #a3e63528; border-radius:6px; background:#a3e63509; color:#b6d59d; font:500 10px/16px "Plus Jakarta Sans",sans-serif; }
+.map-location-footer #club-map-status::before { content:''; width:5px; height:5px; flex-shrink:0; border-radius:50%; background:#a3e635; }
+.map-location-footer #club-map-status:empty { display:none; }
