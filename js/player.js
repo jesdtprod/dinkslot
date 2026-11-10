@@ -646,53 +646,9 @@
 
     var headerHtml = '<section class="member-overview-header"><div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1>My Bookings</h1><p>Manage your court reservations, payments, and booking passes.</p></div><div class="member-overview-stats"><div><span class="member-overview-stat-label">Confirmed Upcoming</span><span class="member-overview-stat-value">' + confirmedCount + '</span><small>Reservations</small></div><div><span class="member-overview-stat-label">Pending</span><span class="member-overview-stat-value">' + upcoming.filter(function (booking) { return booking.status === 'pending'; }).length + '</span><small>Awaiting approval</small></div><div><span class="member-overview-stat-label">Court Time</span><span class="member-overview-stat-value">' + (totalPlayedMinutes / 60).toFixed(1) + '</span><small>Past booked hours</small></div></div></section>';
 
-    var filterToolbarHtml =
-      '<section class="space-y-4" data-purpose="filtering-and-search-toolbar">' +
-        '<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-brand-border gap-4 pb-2">' +
-          '<div class="flex items-center space-x-2 overflow-x-auto pb-1 sm:pb-0" role="tablist">' +
-            '<button id="tab-upcoming" aria-selected="true" class="px-4 py-2 rounded-lg text-sm font-semibold bg-brand-card text-brand-neon border border-brand-neon/30 flex items-center space-x-2 cursor-pointer" role="tab" type="button">' +
-              '<span>Upcoming</span>' +
-              '<span class="w-5 h-5 rounded-full bg-brand-neon text-brand-obsidian text-xs font-mono font-bold flex items-center justify-center" id="tab-upcoming-count">' + upcoming.length + '</span>' +
-            '</button>' +
-            '<button id="tab-past" aria-selected="false" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-brand-card/50 transition-all flex items-center space-x-2 cursor-pointer" role="tab" type="button">' +
-              '<span>Past Bookings</span>' +
-              '<span class="w-5 h-5 rounded-full bg-brand-border text-slate-400 text-xs font-mono flex items-center justify-center" id="tab-past-count">' + past.length + '</span>' +
-            '</button>' +
-            '<button id="tab-cancelled" aria-selected="false" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-brand-card/50 transition-all flex items-center space-x-2 cursor-pointer" role="tab" type="button">' +
-              '<span>Cancelled / Refunded</span>' +
-              '<span class="w-5 h-5 rounded-full bg-brand-border text-slate-400 text-xs font-mono flex items-center justify-center" id="tab-cancelled-count">' + cancelled.length + '</span>' +
-            '</button>' +
-          '</div>' +
-          '<div class="text-xs text-slate-400 font-mono flex items-center space-x-1.5 self-end sm:self-center">' +
-            '<span>Sort by:</span>' +
-            '<button id="btn-sort-toggle" class="text-brand-neon font-semibold cursor-pointer bg-transparent border-0 p-0" type="button">Earliest Date ↓</button>' +
-          '</div>' +
-        '</div>' +
-        '<div class="grid grid-cols-1 md:grid-cols-12 gap-3">' +
-          '<div class="md:col-span-6 relative">' +
-            '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">' +
-              '<svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</div>' +
-            '<input id="booking-search-input" class="w-full pl-10 pr-4 py-2.5 bg-brand-card border border-brand-border rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon font-sans transition-all" placeholder="Search bookings by club, court, or confirmation code..." type="text"/>' +
-          '</div>' +
-          '<div class="md:col-span-3">' +
-            '<select id="booking-club-filter" class="w-full py-2.5 px-3 bg-brand-card border border-brand-border rounded-xl text-sm text-slate-200 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon font-sans cursor-pointer">' +
-              '<option value="">All Clubs</option>' +
-              clubOptions +
-            '</select>' +
-          '</div>' +
-          '<div class="md:col-span-3 flex space-x-2">' +
-            '<select id="booking-date-filter" class="w-full py-2.5 px-3 bg-brand-card border border-brand-border rounded-xl text-sm text-slate-200 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon font-sans cursor-pointer">' +
-              '<option value="all">All Dates</option>' +
-              '<option value="week">This Week</option>' +
-              '<option value="month">This Month</option>' +
-            '</select>' +
-            '<button id="booking-reset-filter" class="p-2.5 bg-brand-card hover:bg-brand-cardHover border border-brand-border rounded-xl text-slate-400 hover:text-white transition-colors cursor-pointer" title="Reset Filters" type="button">' +
-              '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</button>' +
-          '</div>' +
-        '</div>' +
-      '</section>';
+    var filterToolbarHtml = '<section class="club-directory-tools booking-search-tools" data-purpose="filtering-and-search-toolbar"><div class="club-directory-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input data-has-icon id="booking-search-input" type="search" aria-label="Search bookings" placeholder="Search bookings by club, court, or reference"></div><div class="booking-toolbar-bottom"><div class="booking-status-chips" role="tablist" aria-label="Booking status">' +
+      '<button id="tab-upcoming" role="tab" type="button" aria-selected="true">Upcoming <span id="tab-upcoming-count">' + upcoming.length + '</span></button><button id="tab-past" role="tab" type="button" aria-selected="false">Past Bookings <span id="tab-past-count">' + past.length + '</span></button><button id="tab-cancelled" role="tab" type="button" aria-selected="false">Cancelled <span id="tab-cancelled-count">' + cancelled.length + '</span></button></div>' +
+      '<div class="club-directory-filters"><label>Club<select id="booking-club-filter" aria-label="Filter by club"><option value="">All Clubs</option>' + clubOptions + '</select></label><label>Date<select id="booking-date-filter" aria-label="Filter by date"><option value="all">All Dates</option><option value="week">This Week</option><option value="month">This Month</option></select></label><button id="booking-reset-filter" type="button" aria-label="Reset filters" title="Reset filters"><span class="material-symbols-outlined" aria-hidden="true">restart_alt</span></button><button id="btn-sort-toggle" type="button">Earliest Date</button></div></div></section>';
 
     var reservationsSectionHtml =
       '<section class="space-y-4" data-purpose="upcoming-confirmed-reservation-view">' +

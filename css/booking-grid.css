@@ -485,3 +485,17 @@ body .myclubs-directory-tools #myclubs-clear[hidden] { display:none !important; 
 .booking-countdown strong { color:#bbd79c; font-weight:600; }
 .booking-countdown small { color:#7f9788; font-size:10px; overflow-wrap:anywhere; }
 @media(max-width:700px) { .booking-countdown { flex-wrap:wrap; padding:16px; } .booking-countdown > a { margin-left:54px; } }
+
+/* Bookings toolbar follows the shared search-first layout. */
+#ds-tenant-dashboard #sec .member-bookings-page .booking-search-tools { display:flex; flex-direction:column; gap:0; padding:16px; background:#171d23; }
+#ds-tenant-dashboard #sec .booking-search-tools #booking-search-input { flex:1; min-width:0; width:100%; height:42px; padding:8px 0; border:0; background:transparent; color:#d7e1d9; font-size:12px; outline:none; box-shadow:none; }
+.booking-toolbar-bottom { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:12px; padding-top:12px; border-top:1px solid #ffffff08; }
+.booking-status-chips { display:flex; flex-wrap:wrap; gap:5px; }
+.booking-status-chips button { display:inline-flex; align-items:center; gap:6px; min-height:32px; padding:5px 9px; border:1px solid #ffffff0e; background:#1c252b; color:#9db3a4; font:500 10px/18px "Plus Jakarta Sans",sans-serif; cursor:pointer; }
+.booking-status-chips button[aria-selected="true"] { border-color:#a3e63535; background:#a3e63510; color:#bdd89f; }
+.booking-status-chips button span { display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; padding:0 3px; background:#ffffff06; font-size:9px; }
+.booking-toolbar-bottom .club-directory-filters { gap:7px; }
+#ds-tenant-dashboard #sec .booking-toolbar-bottom select { min-width:125px; height:34px; }
+body .booking-toolbar-bottom #booking-reset-filter { width:34px; min-height:34px !important; padding:6px !important; }
+.booking-toolbar-bottom #booking-reset-filter .material-symbols-outlined { font-size:17px; }
+@media(max-width:700px) { .booking-toolbar-bottom { align-items:flex-start; flex-direction:column; } .booking-toolbar-bottom .club-directory-filters { width:100%; } }
