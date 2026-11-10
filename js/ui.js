@@ -201,7 +201,7 @@
             (o.hideStatus ? '' : '<div class="bg-surface-container-low p-space-sm dashboard-rounded flex items-center justify-between border border-outline-variant/20" id="side-status-box">' +
               '<div class="flex items-center gap-space-xs">' +
                 '<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>' +
-                '<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant" id="side-status-courts">Live Facility</span>' +
+                '<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant" id="side-status-courts">' + esc(o.statusLabel || "Live Facility") + '</span>' +
               '</div>' +
               '<span class="font-label-sm text-label-sm font-semibold text-primary" id="side-status-util">ACTIVE</span>' +
             '</div>') +

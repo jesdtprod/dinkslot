@@ -24,7 +24,7 @@
     var name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email || "Player").split("@")[0];
     var ui = D.ui.dash(root, {
       head: { title: name, sub: "Player", initial: name },
-      workspace: "Player Workspace", hideStatus: true, pill: "Player", chip: name,
+      workspace: "Player Workspace", statusLabel: "User Account", pill: "Player", chip: name,
       items: [
         { type: "label", label: "Play" },
         { key: "overview", label: "Overview", icon: "dashboard", href: "#/me" },
