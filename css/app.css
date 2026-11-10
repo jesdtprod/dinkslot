@@ -3124,3 +3124,22 @@ article.group > a.relative:first-child > img { position: absolute; inset: 0; wid
 
 /* The cover link must not draw its own gray frame inside public cards. */
 #ds-landing #grid > article > a.relative:first-child { border:0; box-shadow:none; }
+
+/* Payment QR preview and file picker. */
+.settings-payments .qrcard.off { opacity:1; }
+.settings-payments .qrcard .qrthumbbox { display:flex; justify-content:center; padding:14px; border:1px solid #ffffff0b; border-radius:10px; background:#11181e; }
+.settings-payments .qrcard .qrthumb.empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; width:100%; height:132px; border:0; background:transparent; color:#829b8b; }
+.settings-payments .qrthumb.empty > .material-symbols-outlined { display:grid; place-items:center; width:38px; height:38px; margin-bottom:3px; border:1px solid #a3e63518; border-radius:10px; background:#a3e63506; color:#a1bc8a; font-size:24px; }
+.settings-payments .qrthumb.empty strong { color:#b5c5ba; font-size:12px; font-weight:500; }
+.settings-payments .qrthumb.empty > span:last-child { font-size:10px; }
+.settings-payments .qrthumbbox > img { width:150px; height:150px; padding:6px; border:0; background:white; object-fit:contain; }
+.payment-qr-upload { margin-top:12px; }
+.payment-qr-upload-label { display:block; margin-bottom:5px; color:#99afa0; font-size:10px; line-height:16px; }
+.payment-qr-picker { position:relative; display:flex; align-items:center; gap:10px; padding:12px; border:1px dashed #ffffff20; border-radius:10px; background:#ffffff02; cursor:pointer; }
+.payment-qr-picker:hover,.payment-qr-picker:focus-within { border-color:#a3e63565; background:#a3e63504; }
+.payment-qr-picker input { position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; }
+.payment-qr-picker > .material-symbols-outlined { color:#93af81; font-size:22px; }
+.payment-qr-picker > span:nth-of-type(2) { flex:1; min-width:0; }
+.payment-qr-picker strong { display:block; color:#bdcdc1; font-size:11px; font-weight:500; }
+.payment-qr-picker small,.payment-qr-filename { display:block; margin-top:4px; color:#7f9687; font-size:9px; line-height:14px; overflow-wrap:anywhere; }
+.payment-qr-filename { color:#a3bd98; }

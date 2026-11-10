@@ -1005,13 +1005,13 @@
     function cardHtml(x, urls) {
       var kindName = KINDS.filter(function (k) { return k[0] === x.kind; })[0][1];
       return '<div class="qrcard' + (x.is_active ? "" : " off") + '" data-id="' + esc(x.id) + '">' +
-        '<div class="qrthumbbox">' + (x.qr_path && urls[x.qr_path] ? '<img class="qrthumb" src="' + esc(urls[x.qr_path]) + '" alt="QR for ' + esc(x.label) + '">' : '<div class="qrthumb empty"><span>No QR yet</span></div>') + "</div>" +
+        '<div class="qrthumbbox">' + (x.qr_path && urls[x.qr_path] ? '<img class="qrthumb" src="' + esc(urls[x.qr_path]) + '" alt="QR for ' + esc(x.label) + '">' : '<div class="qrthumb empty"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span><strong>No QR Image</strong><span>Add a clear payment QR code below.</span></div>') + "</div>" +
         '<div class="qrbody"><div class="qrtop"><b>' + esc(kindName) + " " + x.slot + '</b>' +
         '<label class="qrswitch" title="' + (x.qr_path ? "Show this card to players" : "Upload a QR image first") + '"><input type="checkbox" data-act="toggle"' + (x.is_active ? " checked" : "") + (x.qr_path ? "" : " disabled") + '><span>' + (x.is_active ? "Active" : "Inactive") + "</span></label></div>" +
         '<div class="grid2"><label class="' + lblCls + '">Label players see<input data-f="label" maxlength="40" value="' + esc(x.label) + '" class="' + fieldCls + '"></label>' +
-        '<label class="' + lblCls + '">Account name<input data-f="account_name" maxlength="80" value="' + esc(x.account_name || "") + '" class="' + fieldCls + '"></label>' +
-        '<label class="' + lblCls + ' ph-wide">' + (x.kind === "bank" ? "Bank and account number" : "Mobile number") + '<input data-f="account_number" maxlength="60" value="' + esc(x.account_number || "") + '" class="' + fieldCls + '"></label></div>' +
-        '<label class="' + lblCls + '">QR image' + (x.qr_path ? " (choose a file to replace it)" : "") + '<input type="file" data-act="file" accept="image/jpeg,image/png,image/webp" class="' + fieldCls + '"></label>' +
+        '<label class="' + lblCls + '">Account Name<input data-f="account_name" maxlength="80" value="' + esc(x.account_name || "") + '" class="' + fieldCls + '"></label>' +
+        '<label class="' + lblCls + ' ph-wide">' + (x.kind === "bank" ? "Bank and Account Number" : "Contact Number") + '<input data-f="account_number" maxlength="60" value="' + esc(x.account_number || "") + '" class="' + fieldCls + '"></label></div>' +
+        '<div class="payment-qr-upload"><span class="payment-qr-upload-label">QR Image</span><label class="payment-qr-picker"><input type="file" data-act="file" accept="image/jpeg,image/png,image/webp"><span class="material-symbols-outlined" aria-hidden="true">upload_file</span><span><strong>' + (x.qr_path ? 'Replace QR Image' : 'Choose QR Image') + '</strong><small>JPG, PNG or WebP &middot; Up to 5 MB</small><span class="payment-qr-filename">No image selected</span></span><span class="material-symbols-outlined" aria-hidden="true">add</span></label></div>' +
         '<div class="qract"><button type="button" class="btn sm" data-act="save">Save card</button>' +
         '<button type="button" class="btn sm danger" data-act="clear">Clear card</button></div><p class="msg" role="alert"></p></div></div>';
     }
@@ -1044,6 +1044,7 @@
         // check the image the moment it is chosen
         fileEl.onchange = async function () {
           scan = null; var file = this.files[0];
+          card.querySelector(".payment-qr-filename").textContent = file ? file.name : "No image selected";
           if (!file) return say(card, "", "");
           if (!TYPES[file.type]) { this.value = ""; return say(card, "Only JPG, PNG or WebP images are allowed.", "err"); }
           if (file.size > MAX_BYTES) { this.value = ""; return say(card, "The image must be 5 MB or smaller.", "err"); }
