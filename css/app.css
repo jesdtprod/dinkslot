@@ -2872,3 +2872,11 @@ body .ds-action > svg { flex-shrink: 0; width: 16px; height: 16px; }
 body .ds-action:focus-visible { outline: 2px solid #b1df74; outline-offset: 3px; }
 body .ds-action:disabled, body .ds-action[aria-disabled="true"] { opacity: .45 !important; cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) { body .ds-action { transition: none; } }
+
+/* Consistent label and field spacing within payment method cards. */
+.settings-payments .qrbody > .qrtop { margin-bottom: 14px; }
+.settings-payments .qrbody > .grid2 { row-gap: 14px; column-gap: 12px; }
+.settings-payments .qrbody label:not(.qrswitch) { display: flex; flex-direction: column; gap: 7px; margin: 0; }
+.settings-payments .qrbody > label:not(.qrswitch) { margin-top: 14px; }
+.settings-payments .qrbody label:not(.qrswitch) > input { margin-top: 0; }
+.settings-payments .qrbody .qract { margin-top: 14px; }
