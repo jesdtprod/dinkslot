@@ -17,3 +17,5 @@
 .booking-ticket-modal { outline: none; }
 .booking-ticket-modal button[data-close]:focus { outline: none; }
 .booking-ticket-modal button[data-close]:focus-visible { outline: 2px solid #a3e63560; outline-offset: 2px; }
+.booking-ticket-modal > div > div:first-child { display: none; }
+.booking-ticket-modal > div { border: 1px solid #ffffff !important; }
