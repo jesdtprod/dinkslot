@@ -137,6 +137,56 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 .text-brand-lime { color: #a3e635 !important; }
 .bg-brand-lime { background-color: #a3e635 !important; }
 
+/* My Clubs & Memberships athletic styling */
+.tactical-grid {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+.lime-glow {
+  box-shadow: 0 0 20px -3px rgba(163, 230, 53, 0.25) !important;
+}
+.lime-glow-sm {
+  box-shadow: 0 0 10px -2px rgba(163, 230, 53, 0.3) !important;
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.bg-obsidian-950 { background-color: #070a0e !important; }
+.bg-obsidian-900 { background-color: #0a0e14 !important; }
+.bg-obsidian-850 { background-color: #0f141c !important; }
+.bg-obsidian-800 { background-color: #141a24 !important; }
+.bg-obsidian-750 { background-color: #1a222f !important; }
+.border-obsidian-800 { border-color: #141a24 !important; }
+.border-obsidian-750 { border-color: #1a222f !important; }
+.border-obsidian-700 { border-color: #1e2634 !important; }
+.border-obsidian-600 { border-color: #2a3446 !important; }
+.text-lime-400 { color: #a3e635 !important; }
+.bg-lime-400 { background-color: #a3e635 !important; }
+.hover\:bg-lime-500:hover { background-color: #84cc16 !important; }
+
+/* My Bookings kinetic neon styling */
+.glow-dot {
+  box-shadow: 0 0 10px #a3e635 !important;
+}
+.shadow-neon-glow {
+  box-shadow: 0 0 20px -3px rgba(163, 230, 53, 0.35) !important;
+}
+.shadow-neon-glow-lg {
+  box-shadow: 0 0 35px -5px rgba(163, 230, 53, 0.45) !important;
+}
+.shadow-subtle-card {
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.6) !important;
+}
+.bg-brand-obsidian { background-color: #0a0e14 !important; }
+.bg-brand-surface { background-color: #10141a !important; }
+.bg-brand-card { background-color: #161b22 !important; }
+.hover\:bg-brand-cardHover:hover { background-color: #1c222c !important; }
+.border-brand-border { border-color: #232936 !important; }
+.border-brand-borderHighlight { border-color: #2e3748 !important; }
+.text-brand-neon { color: #a3e635 !important; }
+.bg-brand-neon { background-color: #a3e635 !important; }
+
 @media (min-width: 640px) {
   #ds-tenant-dashboard #sec .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

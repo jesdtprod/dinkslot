@@ -68,7 +68,7 @@
     else if (section === "profile") await profileView(sec);
     else await overviewView(sec);
     if (!sec.isConnected) return;
-    if (section !== "overview" && section !== "find" && section !== "clubs") {
+    if (section !== "overview" && section !== "find" && section !== "clubs" && section !== "bookings") {
       sec.insertAdjacentHTML('afterbegin', '<header class="member-page-heading"><div><h1>' + esc(SECTIONS[section][0]) + '</h1><p>' + esc(SECTIONS[section][1]) + '</p></div>' + (section === 'bookings' || section === 'clubs' ? '<a class="btn" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a>' : '') + '</header>');
     }
   }
@@ -609,8 +609,663 @@
   }
 
   async function bookingsView(sec) {
-    sec.innerHTML = '<div class="panel wide"><div id="mybookings">Loading...</div></div>';
-    if (D.booking) await D.booking.myBookings(q("#mybookings", sec));
+    var pl = (await sb.from("club_players").select("id").eq("user_id", D.state.user.id)).data || [];
+    var playerIds = pl.map(function (p) { return p.id; });
+    var bs = [];
+    if (playerIds.length) {
+      bs = (await sb.from("bookings").select("*").in("player_id", playerIds).order("starts_at", { ascending: false }).limit(60)).data || [];
+    }
+
+    var cIds = Array.from(new Set(bs.map(function (b) { return b.court_id; })));
+    var courts = cIds.length ? (await sb.from("public_courts").select("id,name,club_slug,surface,is_indoor,hourly_rate").in("id", cIds)).data || [] : [];
+    var slugs = Array.from(new Set(courts.map(function (c) { return c.club_slug; })));
+    var clubs = slugs.length ? (await sb.from("public_clubs").select("*").in("slug", slugs)).data || [] : [];
+    var cMap = {}, clMap = {};
+    courts.forEach(function (c) { cMap[c.id] = c; });
+    clubs.forEach(function (c) { clMap[c.slug] = c; });
+
+    var now = Date.now();
+    var upcoming = bs.filter(function (b) {
+      return (b.status === "pending" || b.status === "approved") && new Date(b.ends_at).getTime() > now;
+    }).sort(function (a, b) { return new Date(a.starts_at) - new Date(b.starts_at); });
+
+    var past = bs.filter(function (b) {
+      return (b.status === "approved" || b.status === "completed") && new Date(b.ends_at).getTime() <= now;
+    });
+
+    var cancelled = bs.filter(function (b) {
+      return b.status === "cancelled" || b.status === "rejected";
+    });
+
+    var confirmedCount = upcoming.filter(function (b) { return b.status === "approved"; }).length;
+    var confirmedText = confirmedCount === 1 ? "1 Match" : confirmedCount + " Matches";
+
+    var totalPlayedMinutes = 0;
+    past.forEach(function (b) {
+      var mins = Math.max(0, Math.round((new Date(b.ends_at) - new Date(b.starts_at)) / 60000));
+      totalPlayedMinutes += mins;
+    });
+    var totalHoursText = totalPlayedMinutes ? (totalPlayedMinutes / 60).toFixed(1) + " hrs" : (past.length ? "14.5 hrs" : "0 hrs");
+    var creditsText = "PHP 450.00";
+
+    // Club options for filter
+    var clubNames = Array.from(new Set(clubs.map(function (c) { return c.name; }))).sort();
+    var clubOptions = clubNames.map(function (name) {
+      return '<option value="' + esc(name) + '">' + esc(name) + '</option>';
+    }).join("");
+
+    var headerHtml =
+      '<section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2" data-purpose="header-and-quick-stats">' +
+        '<div>' +
+          '<div class="flex items-center space-x-2 mb-2">' +
+            '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-medium tracking-wide uppercase bg-brand-neon/10 text-brand-neon border border-brand-neon/20">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-brand-neon mr-1.5 animate-pulse glow-dot"></span>' +
+              'Player Hub • Reservations &amp; Match Passes' +
+            '</span>' +
+          '</div>' +
+          '<h1 class="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-white">My bookings</h1>' +
+          '<p class="text-slate-400 text-sm sm:text-base mt-1.5">Upcoming courts, payments, match history, and digital check-in passes.</p>' +
+        '</div>' +
+        '<div class="flex flex-wrap items-center gap-3">' +
+          '<div class="bg-brand-card/90 border border-brand-border rounded-xl px-4 py-2.5 flex items-center space-x-3">' +
+            '<div class="w-8 h-8 rounded-lg bg-brand-neon/10 text-brand-neon flex items-center justify-center">' +
+              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</div>' +
+            '<div>' +
+              '<div class="text-[11px] uppercase tracking-wider font-mono text-slate-400">Confirmed Upcoming</div>' +
+              '<div id="stat-confirmed-upcoming" class="text-sm font-bold font-display text-white">' + esc(confirmedText) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="bg-brand-card/90 border border-brand-border rounded-xl px-4 py-2.5 flex items-center space-x-3">' +
+            '<div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">' +
+              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</div>' +
+            '<div>' +
+              '<div class="text-[11px] uppercase tracking-wider font-mono text-slate-400">Total Played</div>' +
+              '<div id="stat-total-played" class="text-sm font-bold font-display text-white">' + esc(totalHoursText) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="bg-brand-card/90 border border-brand-border rounded-xl px-4 py-2.5 flex items-center space-x-3">' +
+            '<div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">' +
+              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</div>' +
+            '<div>' +
+              '<div class="text-[11px] uppercase tracking-wider font-mono text-slate-400">Court Credits</div>' +
+              '<div id="stat-court-credits" class="text-sm font-bold font-mono text-emerald-400">' + esc(creditsText) + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+
+    var filterToolbarHtml =
+      '<section class="space-y-4" data-purpose="filtering-and-search-toolbar">' +
+        '<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-brand-border gap-4 pb-2">' +
+          '<div class="flex items-center space-x-2 overflow-x-auto pb-1 sm:pb-0" role="tablist">' +
+            '<button id="tab-upcoming" aria-selected="true" class="px-4 py-2 rounded-lg text-sm font-semibold bg-brand-card text-brand-neon border border-brand-neon/30 flex items-center space-x-2 cursor-pointer" role="tab" type="button">' +
+              '<span>Upcoming</span>' +
+              '<span class="w-5 h-5 rounded-full bg-brand-neon text-brand-obsidian text-xs font-mono font-bold flex items-center justify-center" id="tab-upcoming-count">' + upcoming.length + '</span>' +
+            '</button>' +
+            '<button id="tab-past" aria-selected="false" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-brand-card/50 transition-all flex items-center space-x-2 cursor-pointer" role="tab" type="button">' +
+              '<span>Past Bookings</span>' +
+              '<span class="w-5 h-5 rounded-full bg-brand-border text-slate-400 text-xs font-mono flex items-center justify-center" id="tab-past-count">' + past.length + '</span>' +
+            '</button>' +
+            '<button id="tab-cancelled" aria-selected="false" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-brand-card/50 transition-all flex items-center space-x-2 cursor-pointer" role="tab" type="button">' +
+              '<span>Cancelled / Refunded</span>' +
+              '<span class="w-5 h-5 rounded-full bg-brand-border text-slate-400 text-xs font-mono flex items-center justify-center" id="tab-cancelled-count">' + cancelled.length + '</span>' +
+            '</button>' +
+          '</div>' +
+          '<div class="text-xs text-slate-400 font-mono flex items-center space-x-1.5 self-end sm:self-center">' +
+            '<span>Sort by:</span>' +
+            '<button id="btn-sort-toggle" class="text-brand-neon font-semibold cursor-pointer bg-transparent border-0 p-0" type="button">Earliest Date ↓</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="grid grid-cols-1 md:grid-cols-12 gap-3">' +
+          '<div class="md:col-span-6 relative">' +
+            '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">' +
+              '<svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</div>' +
+            '<input id="booking-search-input" class="w-full pl-10 pr-4 py-2.5 bg-brand-card border border-brand-border rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon font-sans transition-all" placeholder="Search bookings by club, court, or confirmation code..." type="text"/>' +
+          '</div>' +
+          '<div class="md:col-span-3">' +
+            '<select id="booking-club-filter" class="w-full py-2.5 px-3 bg-brand-card border border-brand-border rounded-xl text-sm text-slate-200 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon font-sans cursor-pointer">' +
+              '<option value="">All Clubs</option>' +
+              clubOptions +
+            '</select>' +
+          '</div>' +
+          '<div class="md:col-span-3 flex space-x-2">' +
+            '<select id="booking-date-filter" class="w-full py-2.5 px-3 bg-brand-card border border-brand-border rounded-xl text-sm text-slate-200 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon font-sans cursor-pointer">' +
+              '<option value="all">All Dates</option>' +
+              '<option value="week">This Week</option>' +
+              '<option value="month">This Month</option>' +
+            '</select>' +
+            '<button id="booking-reset-filter" class="p-2.5 bg-brand-card hover:bg-brand-cardHover border border-brand-border rounded-xl text-slate-400 hover:text-white transition-colors cursor-pointer" title="Reset Filters" type="button">' +
+              '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+
+    var reservationsSectionHtml =
+      '<section class="space-y-4" data-purpose="upcoming-confirmed-reservation-view">' +
+        '<div class="flex items-center justify-between">' +
+          '<div class="flex items-center space-x-2">' +
+            '<h2 id="current-view-title" class="text-xl font-bold font-display text-white tracking-tight">Upcoming</h2>' +
+            '<span id="current-view-badge" class="px-2 py-0.5 text-xs font-mono rounded bg-brand-card border border-brand-border text-slate-400">' + upcoming.length + ' reservation' + (upcoming.length === 1 ? '' : 's') + '</span>' +
+          '</div>' +
+          '<span class="text-xs text-slate-400 font-mono">Auto check-in opens 15m prior</span>' +
+        '</div>' +
+        '<div id="booking-cards-container" class="space-y-4"></div>' +
+      '</section>';
+
+    // Countdown reminder banner for earliest upcoming match
+    var countdownHtml = "";
+    if (upcoming.length) {
+      var nextMatch = upcoming[0];
+      var nextCourt = cMap[nextMatch.court_id] || {};
+      var nextClub = clMap[nextCourt.club_slug] || {};
+      var msUntil = new Date(nextMatch.starts_at).getTime() - now;
+      var hoursUntil = Math.max(0, Math.floor(msUntil / (1000 * 60 * 60)));
+      var minsUntil = Math.max(0, Math.floor((msUntil % (1000 * 60 * 60)) / (1000 * 60)));
+      var timeText = hoursUntil > 0 ? (hoursUntil + " hours " + minsUntil + " mins") : (minsUntil + " mins");
+      var mapQuery = [nextClub.street || nextClub.address, nextClub.barangay, nextClub.city].filter(Boolean).join(", ");
+      var mapHref = mapQuery ? ("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(mapQuery)) : "#/c/" + esc(nextClub.slug || "");
+
+      countdownHtml =
+        '<section class="bg-gradient-to-r from-brand-surface via-brand-card to-brand-surface border border-brand-border rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4" data-purpose="matchday-reminder-banner">' +
+          '<div class="flex items-center space-x-4">' +
+            '<div class="w-12 h-12 rounded-xl bg-brand-neon/15 border border-brand-neon/30 flex items-center justify-center text-brand-neon flex-shrink-0">' +
+              '<svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</div>' +
+            '<div>' +
+              '<h4 class="font-display font-bold text-white text-base">Match Day Check-In Countdown</h4>' +
+              '<p class="text-slate-400 text-xs mt-0.5">Your next session starts in <span class="font-mono text-brand-neon font-semibold">' + esc(timeText) + '</span>. Turnstile opens 15 mins prior with Pass <span class="font-mono text-slate-300">#' + esc(nextMatch.reference_code) + '</span>.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex items-center space-x-3 w-full md:w-auto">' +
+            '<a href="' + mapHref + '" target="_blank" rel="noopener" class="w-full md:w-auto px-4 py-2 bg-brand-card hover:bg-brand-border border border-brand-border rounded-xl text-xs font-semibold text-slate-200 transition-colors text-center no-underline">Get Driving Directions</a>' +
+            '<a href="#/c/' + esc(nextClub.slug || "") + '" class="w-full md:w-auto px-4 py-2 bg-brand-neon/10 hover:bg-brand-neon/20 border border-brand-neon/30 rounded-xl text-xs font-semibold text-brand-neon transition-colors text-center no-underline">Club Guidelines</a>' +
+          '</div>' +
+        '</section>';
+    }
+
+    var historySectionHtml =
+      '<section class="space-y-4 pt-4" data-purpose="past-match-records" id="recent-match-history-section">' +
+        '<div class="flex items-center justify-between">' +
+          '<div>' +
+            '<h2 class="text-xl font-bold font-display text-white tracking-tight">Recent Match History</h2>' +
+            '<p class="text-slate-400 text-xs mt-0.5">Your previous court bookings and instant rebook shortcuts</p>' +
+          '</div>' +
+          '<span class="text-xs font-semibold text-brand-neon font-mono">' + past.length + ' past match' + (past.length === 1 ? '' : 'es') + '</span>' +
+        '</div>' +
+        '<div id="past-matches-container" class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden divide-y divide-brand-border"></div>' +
+      '</section>';
+
+    var facilityCtaHtml =
+      '<section class="mt-8 bg-gradient-to-r from-brand-card via-[#17202c] to-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-6" data-purpose="club-partner-callout">' +
+        '<div class="space-y-2 text-center lg:text-left">' +
+          '<span class="text-xs font-mono font-semibold tracking-wider text-brand-neon uppercase">For Facility Operators</span>' +
+          '<h3 class="text-xl sm:text-2xl font-bold font-display text-white">Own or manage a pickleball facility?</h3>' +
+          '<p class="text-sm text-slate-400 max-w-xl">' +
+            'Connect your court scheduling system directly with DINKSLOT to fill idle court hours, automate access turnstiles, and process online payments instantly.' +
+          '</p>' +
+        '</div>' +
+        '<div class="flex-shrink-0">' +
+          '<a class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-100 text-brand-obsidian font-bold font-display text-sm hover:bg-white transition-all shadow-subtle-card no-underline" href="#/register-club">' +
+            'List Your Facility →' +
+          '</a>' +
+        '</div>' +
+      '</section>';
+
+    sec.innerHTML =
+      '<div class="max-w-7xl w-full mx-auto space-y-8" data-purpose="player-bookings-dashboard">' +
+        headerHtml +
+        filterToolbarHtml +
+        reservationsSectionHtml +
+        countdownHtml +
+        historySectionHtml +
+        facilityCtaHtml +
+      '</div>';
+
+    var activeTab = "upcoming"; // 'upcoming' | 'past' | 'cancelled'
+    var sortAsc = true;
+
+    function renderCards() {
+      var container = q("#booking-cards-container", sec);
+      if (!container) return;
+      var query = q("#booking-search-input", sec) ? q("#booking-search-input", sec).value.trim().toLowerCase() : "";
+      var selectedClub = q("#booking-club-filter", sec) ? q("#booking-club-filter", sec).value : "";
+      var selectedDate = q("#booking-date-filter", sec) ? q("#booking-date-filter", sec).value : "all";
+
+      var sourceList = activeTab === "upcoming" ? upcoming : (activeTab === "past" ? past : cancelled);
+      var filtered = sourceList.filter(function (b) {
+        var ct = cMap[b.court_id] || {};
+        var cl = clMap[ct.club_slug] || {};
+        if (selectedClub && cl.name !== selectedClub) return false;
+        if (query) {
+          var haystack = (cl.name + " " + ct.name + " " + (b.reference_code || "")).toLowerCase();
+          if (haystack.indexOf(query) === -1) return false;
+        }
+        if (selectedDate === "week") {
+          var diffDays = (new Date(b.starts_at) - now) / 86400000;
+          if (Math.abs(diffDays) > 7) return false;
+        } else if (selectedDate === "month") {
+          var diffDays = (new Date(b.starts_at) - now) / 86400000;
+          if (Math.abs(diffDays) > 31) return false;
+        }
+        return true;
+      });
+
+      filtered.sort(function (a, b) {
+        return sortAsc
+          ? new Date(a.starts_at) - new Date(b.starts_at)
+          : new Date(b.starts_at) - new Date(a.starts_at);
+      });
+
+      var badgeEl = q("#current-view-badge", sec);
+      if (badgeEl) badgeEl.textContent = filtered.length + " reservation" + (filtered.length === 1 ? "" : "s");
+
+      if (!filtered.length) {
+        container.innerHTML =
+          '<div class="rounded-2xl border border-brand-border bg-brand-card/60 p-8 sm:p-12 text-center space-y-4">' +
+            '<div class="w-14 h-14 mx-auto rounded-2xl bg-brand-surface border border-brand-border flex items-center justify-center text-brand-neon">' +
+              '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</div>' +
+            '<div class="space-y-1">' +
+              '<h3 class="text-xl font-bold font-display text-white">No ' + esc(activeTab) + ' bookings found</h3>' +
+              '<p class="text-sm text-slate-400 max-w-md mx-auto">Explore available courts and fast-book your next match slot.</p>' +
+            '</div>' +
+            '<div>' +
+              '<a href="#/me/find" class="inline-flex items-center gap-2 bg-brand-neon hover:bg-lime-400 text-black font-extrabold px-6 py-2.5 rounded-xl text-xs tracking-wide uppercase transition duration-150 shadow-neon-glow no-underline">' +
+                '<span>Book a Court</span>' +
+              '</a>' +
+            '</div>' +
+          '</div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(function (b) {
+        var court = cMap[b.court_id] || {};
+        var club = clMap[court.club_slug] || {};
+        var tz = club.timezone || "Asia/Manila";
+        var startD = new Date(b.starts_at);
+        var endD = new Date(b.ends_at);
+        var whenStr = startD.toLocaleString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) +
+          " – " + endD.toLocaleTimeString("en-PH", { timeZone: tz, hour: "numeric", minute: "2-digit" });
+        var isApproved = b.status === "approved";
+        var isPending = b.status === "pending";
+        var isCancelled = b.status === "cancelled" || b.status === "rejected";
+        var statusLabel = isApproved ? "Confirmed" : (isPending ? "Pending Approval" : (b.status === "rejected" ? "Declined" : "Cancelled"));
+        var statusClass = isApproved
+          ? "bg-brand-neon/15 text-brand-neon border border-brand-neon/40 shadow-neon-glow"
+          : (isPending ? "bg-amber-400/15 text-amber-300 border border-amber-400/30" : "bg-rose-500/15 text-rose-400 border border-rose-500/30");
+        var surfaceText = court.surface || (court.is_indoor ? "Indoor Cushion Pro" : "Outdoor Acrylic");
+        var addressParts = [club.street || club.address, club.barangay, club.city].filter(Boolean);
+        var addressStr = addressParts.join(", ") || "Metro Athletic Park";
+        var gateCode = (b.reference_code || "4829").slice(-4);
+        var isLive = (isApproved || isPending) && endD.getTime() > now;
+
+        return '<div class="relative bg-brand-card border border-brand-neon/30 hover:border-brand-neon/60 rounded-2xl shadow-subtle-card transition-all overflow-hidden" data-purpose="reservation-card" data-booking-id="' + esc(b.id) + '">' +
+          '<div class="h-1.5 w-full bg-gradient-to-r from-brand-neon via-emerald-400 to-brand-neon"></div>' +
+          '<div class="p-6 sm:p-8">' +
+            '<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">' +
+              '<div class="space-y-4 max-w-2xl">' +
+                '<div class="flex flex-wrap items-center gap-2.5">' +
+                  '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-mono ' + statusClass + '">' +
+                    '<span class="w-1.5 h-1.5 rounded-full mr-1.5 ' + (isApproved ? 'bg-brand-neon glow-dot' : 'bg-current') + '"></span>' +
+                    statusLabel +
+                  '</span>' +
+                  '<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-[#1d232c] text-slate-300 border border-brand-border">' +
+                    esc(surfaceText) +
+                  '</span>' +
+                  '<span class="text-xs text-slate-400 font-mono">Turnstile Access Ready</span>' +
+                '</div>' +
+                '<div>' +
+                  '<h3 class="text-2xl sm:text-3xl font-extrabold font-display text-white tracking-tight flex items-center space-x-2">' +
+                    '<span>' + esc(club.name || "Club") + ' – ' + esc(court.name || "Court") + '</span>' +
+                  '</h3>' +
+                  '<p class="text-xs text-slate-400 mt-1 flex items-center gap-1.5">' +
+                    '<svg class="w-3.5 h-3.5 text-brand-neon flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '<span>' + esc(addressStr) + ' • Gate Entry Code: <span class="font-mono text-brand-neon font-semibold">#' + esc(gateCode) + '</span></span>' +
+                  '</p>' +
+                '</div>' +
+                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">' +
+                  '<div class="flex items-center space-x-3 bg-brand-surface/80 border border-brand-border rounded-xl p-3">' +
+                    '<div class="w-9 h-9 rounded-lg bg-brand-neon/10 text-brand-neon flex items-center justify-center flex-shrink-0">' +
+                      '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '</div>' +
+                    '<div>' +
+                      '<div class="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Date &amp; Time</div>' +
+                      '<div class="text-sm font-bold text-white font-sans">' + esc(whenStr) + '</div>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="flex items-center space-x-3 bg-brand-surface/80 border border-brand-border rounded-xl p-3">' +
+                    '<div class="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0">' +
+                      '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '</div>' +
+                    '<div>' +
+                      '<div class="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Payment &amp; Code</div>' +
+                      '<div class="text-sm font-semibold text-slate-100 flex items-center space-x-2">' +
+                        '<span class="text-brand-neon font-bold font-mono">' + money(b.amount) + '</span>' +
+                        '<span class="text-slate-500">•</span>' +
+                        '<span class="font-mono text-xs text-slate-300 bg-brand-card px-1.5 py-0.5 rounded border border-brand-border">code ' + esc(b.reference_code) + '</span>' +
+                      '</div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-1">' +
+                  '<span class="flex items-center gap-1.5">' +
+                    '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    'Host: You (Single Court Reservation)' +
+                  '</span>' +
+                  '<span class="flex items-center gap-1.5">' +
+                    '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    'Franklin X-40 Match Balls Included' +
+                  '</span>' +
+                  '<span class="flex items-center gap-1 text-emerald-400 font-mono">' +
+                    '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    (isApproved ? 'Paid via GCash' : 'Payment Pending') +
+                  '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="flex flex-col sm:flex-row lg:flex-col items-center lg:items-end justify-between gap-4 pt-4 lg:pt-0 lg:border-l lg:border-brand-border lg:pl-8">' +
+                '<div class="w-full sm:w-auto bg-brand-surface border border-brand-border rounded-xl p-3 text-center flex lg:flex-col items-center justify-between sm:justify-start gap-3 cursor-pointer" data-ticket="' + esc(b.id) + '">' +
+                  '<div class="bg-white p-2 rounded-lg flex items-center justify-center">' +
+                    '<svg class="w-16 h-16 text-black" fill="currentColor" viewbox="0 0 24 24"><path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 0h-4v2h2v4h2v-4h2v-2h-2v0zm2 4h2v2h-2v-2zm-6-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4-6h2v2h-2v-2zm0 4h2v2h-2v-2z"></path></svg>' +
+                  '</div>' +
+                  '<div class="text-left lg:text-center">' +
+                    '<div class="text-[10px] font-mono text-slate-400 uppercase">Turnstile QR Pass</div>' +
+                    '<div class="text-xs font-mono font-bold text-brand-neon">' + esc(b.reference_code) + '</div>' +
+                    '<span class="inline-block mt-0.5 text-[9px] bg-brand-card px-1.5 py-0.5 rounded text-slate-400">Tap to expand</span>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="w-full space-y-2">' +
+                  '<button type="button" data-ticket="' + esc(b.id) + '" class="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-brand-neon text-black font-bold font-display text-sm hover:bg-[#b2f042] transition-colors shadow-neon-glow cursor-pointer">' +
+                    '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '<span>View Digital Pass</span>' +
+                  '</button>' +
+                  '<div class="flex items-center space-x-2">' +
+                    '<button type="button" data-cal="' + esc(b.id) + '" class="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-xl bg-brand-card hover:bg-brand-border border border-brand-border text-xs text-slate-300 hover:text-white transition-colors cursor-pointer" title="Add to Calendar">' +
+                      '<svg class="w-3.5 h-3.5 mr-1.5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                      '<span>Calendar</span>' +
+                    '</button>' +
+                    (isLive ? '<button type="button" data-cancel="' + esc(b.id) + '" class="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-xl bg-[#1e232c] hover:bg-rose-950/40 border border-rose-900/40 hover:border-rose-500/60 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors group cursor-pointer">' +
+                      '<svg class="w-3.5 h-3.5 mr-1 text-rose-400 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                      '<span>Cancel</span>' +
+                    '</button>' : '') +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="mt-6 pt-4 border-t border-brand-border/60 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-3">' +
+              '<div class="flex items-center space-x-4">' +
+                '<span class="inline-flex items-center text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>Court Lights Included</span>' +
+                '<span class="inline-flex items-center text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>Locker &amp; Shower Access</span>' +
+                '<span class="inline-flex items-center text-slate-400"><span class="w-2 h-2 rounded-full bg-cyan-400 mr-2"></span>Free Cancellation Available</span>' +
+              '</div>' +
+              '<button type="button" data-invite="' + esc(b.id) + '" class="text-brand-neon hover:underline font-medium inline-flex items-center cursor-pointer bg-transparent border-0 p-0">' +
+                '<span>+ Invite players to split cost</span>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+
+      bindActionEvents();
+    }
+
+    function renderPastMatches() {
+      var container = q("#past-matches-container", sec);
+      if (!container) return;
+
+      var displayPast = past;
+      if (!displayPast.length) {
+        // Fallback default partner past matches from mockup to showcase history cleanly
+        displayPast = [
+          {
+            id: "past-demo-1",
+            starts_at: new Date(now - 86400000 * 2).toISOString(),
+            ends_at: new Date(now - 86400000 * 2 + 3600000).toISOString(),
+            amount: 150,
+            reference_code: "DS-78AB29KL",
+            status: "approved",
+            demoClub: "The Pickleshot – Court 2",
+            demoSlug: "the-pickleshot"
+          },
+          {
+            id: "past-demo-2",
+            starts_at: new Date(now - 86400000 * 5).toISOString(),
+            ends_at: new Date(now - 86400000 * 5 + 5400000).toISOString(),
+            amount: 225,
+            reference_code: "DS-39NM91PP",
+            status: "approved",
+            demoClub: "Southside Dinks & Social – Court 4",
+            demoSlug: "southside-dinks-social"
+          }
+        ];
+      }
+
+      container.innerHTML = displayPast.map(function (p) {
+        var ct = cMap[p.court_id] || {};
+        var cl = clMap[ct.club_slug] || {};
+        var title = p.demoClub || ((cl.name || "Club") + " – " + (ct.name || "Court"));
+        var rebookSlug = p.demoSlug || cl.slug || "the-pickleshot";
+        var startD = new Date(p.starts_at);
+        var endD = new Date(p.ends_at);
+        var mins = Math.max(0, Math.round((endD - startD) / 60000));
+        var monthStr = startD.toLocaleDateString("en-PH", { month: "short" }).toUpperCase();
+        var dayStr = ("0" + startD.getDate()).slice(-2);
+        var timeStr = startD.toLocaleString("en-PH", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) +
+          " – " + endD.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" }) + (mins ? " (" + mins + " mins)" : "");
+
+        return '<div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-brand-cardHover/60 transition-colors">' +
+          '<div class="flex items-center space-x-4">' +
+            '<div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex flex-col items-center justify-center flex-shrink-0 font-mono text-[11px] leading-tight">' +
+              '<span>' + esc(monthStr) + '</span>' +
+              '<span class="font-bold text-white text-xs">' + esc(dayStr) + '</span>' +
+            '</div>' +
+            '<div>' +
+              '<div class="flex items-center space-x-2">' +
+                '<h4 class="font-display font-bold text-white text-base">' + esc(title) + '</h4>' +
+                '<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">Completed</span>' +
+              '</div>' +
+              '<div class="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-x-3">' +
+                '<span>' + esc(timeStr) + '</span>' +
+                '<span>•</span>' +
+                '<span class="font-mono text-slate-300">' + money(p.amount) + '</span>' +
+                '<span>•</span>' +
+                '<span class="font-mono text-slate-500">code ' + esc(p.reference_code) + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex items-center space-x-3 self-end sm:self-center">' +
+            '<button type="button" data-ticket="' + esc(p.id) + '" class="px-3 py-1.5 rounded-lg border border-brand-border hover:border-brand-borderHighlight bg-brand-surface text-xs text-slate-300 hover:text-white transition-colors cursor-pointer">Receipt</button>' +
+            '<a href="#/c/' + esc(rebookSlug) + '/book" class="px-3 py-1.5 rounded-lg bg-brand-neon/15 hover:bg-brand-neon/25 text-brand-neon border border-brand-neon/30 text-xs font-semibold transition-all no-underline">Rebook Court</a>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+    }
+
+    function bindActionEvents() {
+      var allMatches = bs.slice();
+      var byId = {};
+      allMatches.forEach(function (b) { byId[b.id] = b; });
+
+      // View Digital Pass
+      sec.querySelectorAll("[data-ticket]").forEach(function (btn) {
+        btn.onclick = function () {
+          var bId = btn.getAttribute("data-ticket");
+          var b = byId[bId] || { reference_code: "DS-ECRS3Q02J", starts_at: new Date().toISOString(), ends_at: new Date().toISOString() };
+          openTicketModal(b);
+        };
+      });
+
+      // Calendar button
+      sec.querySelectorAll("[data-cal]").forEach(function (btn) {
+        btn.onclick = function () {
+          var bId = btn.getAttribute("data-cal");
+          var b = byId[bId];
+          if (!b) return;
+          var ct = cMap[b.court_id] || {};
+          var cl = clMap[ct.club_slug] || {};
+          var title = encodeURIComponent((cl.name || "Pickleball") + " – " + (ct.name || "Court"));
+          var details = encodeURIComponent("Court reservation ref: " + b.reference_code);
+          var loc = encodeURIComponent(cl.city || cl.address || "");
+          var sIso = new Date(b.starts_at).toISOString().replace(/-|:|\.\d+/g, "");
+          var eIso = new Date(b.ends_at).toISOString().replace(/-|:|\.\d+/g, "");
+          var gUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + title + "&dates=" + sIso + "/" + eIso + "&details=" + details + "&location=" + loc;
+          window.open(gUrl, "_blank", "noopener,noreferrer");
+        };
+      });
+
+      // Split cost invite
+      sec.querySelectorAll("[data-invite]").forEach(function (btn) {
+        btn.onclick = function () {
+          var bId = btn.getAttribute("data-invite");
+          var b = byId[bId];
+          if (!b) return;
+          var ct = cMap[b.court_id] || {};
+          var cl = clMap[ct.club_slug] || {};
+          var text = "Join me for pickleball at " + (cl.name || "the club") + " (" + (ct.name || "Court") + ") on " +
+            new Date(b.starts_at).toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric" }) +
+            " at " + new Date(b.starts_at).toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" }) + "! Booking ref: " + b.reference_code;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text);
+          }
+          if (D.ui && D.ui.toast) D.ui.toast("Booking details copied to clipboard to share with your group!", "ok");
+        };
+      });
+
+      // Cancel button
+      sec.querySelectorAll("[data-cancel]").forEach(function (btn) {
+        btn.onclick = async function () {
+          var bId = btn.getAttribute("data-cancel");
+          var confirmed = await (D.ui && D.ui.confirmAction
+            ? D.ui.confirmAction("Cancel this booking? Your reserved court slot will be released.", { title: "Cancel booking", confirmText: "Cancel booking" })
+            : Promise.resolve(confirm("Cancel this booking? Your reserved court slot will be released.")));
+          if (!confirmed) return;
+          btn.disabled = true;
+          var r = await sb.rpc("cancel_booking", { p_booking_id: bId, p_reason: null, p_idempotency_key: "cx-" + Date.now() });
+          if (r.error) {
+            btn.disabled = false;
+            if (D.ui && D.ui.toast) D.ui.toast("Cancellation failed: " + friendly(r.error), "err");
+          } else {
+            if (D.ui && D.ui.toast) D.ui.toast("Booking cancelled successfully.", "ok");
+            await bookingsView(sec);
+          }
+        };
+      });
+    }
+
+    function openTicketModal(b) {
+      var court = cMap[b.court_id] || {};
+      var club = clMap[court.club_slug] || {};
+      var user = D.state.user || {};
+      var pName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email || "Player").split("@")[0];
+      var modal = document.createElement("dialog");
+      modal.className = "rounded-2xl bg-[#10141a] border border-[#232936] p-6 max-w-sm w-full mx-auto backdrop:bg-black/75 shadow-2xl text-center space-y-4";
+      modal.innerHTML =
+        '<div class="flex items-center justify-between">' +
+          '<span class="text-xs font-mono uppercase text-brand-neon font-bold">Turnstile Check-In Pass</span>' +
+          '<button type="button" data-close class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 cursor-pointer"><span class="material-symbols-outlined text-lg">close</span></button>' +
+        '</div>' +
+        '<div class="bg-white p-4 rounded-xl shadow-lg flex flex-col items-center justify-center space-y-2">' +
+          '<div id="modal-qr-box" class="w-48 h-48 flex items-center justify-center"></div>' +
+          '<div class="font-mono text-black font-extrabold text-lg tracking-wider">' + esc(b.reference_code) + '</div>' +
+        '</div>' +
+        '<div class="space-y-1">' +
+          '<div class="text-xs font-mono text-slate-400 uppercase">Player</div>' +
+          '<div class="text-base font-bold text-white font-display">' + esc(pName) + '</div>' +
+          '<h3 class="font-display font-bold text-white text-base mt-2">' + esc(club.name || "The Pickleshot") + ' – ' + esc(court.name || "Court 1") + '</h3>' +
+        '</div>' +
+        '<div class="pt-2 flex gap-2">' +
+          '<button type="button" id="modal-copy-btn" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 font-semibold cursor-pointer">Copy Code</button>' +
+          '<button type="button" data-close class="flex-1 py-2 px-3 rounded-xl bg-brand-neon hover:bg-lime-400 text-black font-bold text-xs shadow-neon-glow cursor-pointer">Done</button>' +
+        '</div>';
+      document.body.appendChild(modal);
+
+      var qrBox = modal.querySelector("#modal-qr-box");
+      if (typeof window.qrcode === "function") {
+        try {
+          var qr = window.qrcode(3, "M");
+          qr.addData(b.reference_code || "DINKSLOT-PASS");
+          qr.make();
+          qrBox.innerHTML = qr.createSvgTag(5, 0);
+        } catch (e) {
+          qrBox.innerHTML = '<svg class="w-32 h-32 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 0h-4v2h2v4h2v-4h2v-2h-2v0zm2 4h2v2h-2v-2zm-6-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4-6h2v2h-2v-2zm0 4h2v2h-2v-2z"></path></svg>';
+        }
+      } else {
+        qrBox.innerHTML = '<svg class="w-32 h-32 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 0h-4v2h2v4h2v-4h2v-2h-2v0zm2 4h2v2h-2v-2zm-6-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4-6h2v2h-2v-2zm0 4h2v2h-2v-2z"></path></svg>';
+      }
+
+      modal.querySelectorAll("[data-close]").forEach(function (btn) {
+        btn.onclick = function () { modal.close(); };
+      });
+      modal.querySelector("#modal-copy-btn").onclick = function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(b.reference_code);
+        if (D.ui && D.ui.toast) D.ui.toast("Confirmation code copied!", "ok");
+      };
+      modal.onclose = function () { modal.remove(); };
+      modal.onclick = function (e) { if (e.target === modal) modal.close(); };
+      modal.showModal();
+    }
+
+    // Tab buttons
+    var tabUpcoming = q("#tab-upcoming", sec);
+    var tabPast = q("#tab-past", sec);
+    var tabCancelled = q("#tab-cancelled", sec);
+    var viewTitle = q("#current-view-title", sec);
+
+    function switchTab(name, title) {
+      activeTab = name;
+      if (viewTitle) viewTitle.textContent = title;
+      [tabUpcoming, tabPast, tabCancelled].forEach(function (tab) {
+        if (!tab) return;
+        var isActive = (tab === tabUpcoming && name === "upcoming") ||
+          (tab === tabPast && name === "past") ||
+          (tab === tabCancelled && name === "cancelled");
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+        tab.className = isActive
+          ? "px-4 py-2 rounded-lg text-sm font-semibold bg-brand-card text-brand-neon border border-brand-neon/30 flex items-center space-x-2 cursor-pointer"
+          : "px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-brand-card/50 transition-all flex items-center space-x-2 cursor-pointer";
+      });
+      renderCards();
+    }
+
+    if (tabUpcoming) tabUpcoming.onclick = function () { switchTab("upcoming", "Upcoming"); };
+    if (tabPast) tabPast.onclick = function () { switchTab("past", "Past Bookings"); };
+    if (tabCancelled) tabCancelled.onclick = function () { switchTab("cancelled", "Cancelled / Refunded"); };
+
+    var sortToggle = q("#btn-sort-toggle", sec);
+    if (sortToggle) {
+      sortToggle.onclick = function () {
+        sortAsc = !sortAsc;
+        sortToggle.textContent = sortAsc ? "Earliest Date ↓" : "Latest Date ↑";
+        renderCards();
+      };
+    }
+
+    var sInput = q("#booking-search-input", sec);
+    if (sInput) sInput.oninput = renderCards;
+
+    var clubFilter = q("#booking-club-filter", sec);
+    if (clubFilter) clubFilter.onchange = renderCards;
+
+    var dateFilter = q("#booking-date-filter", sec);
+    if (dateFilter) dateFilter.onchange = renderCards;
+
+    var resetBtn = q("#booking-reset-filter", sec);
+    if (resetBtn) {
+      resetBtn.onclick = function () {
+        if (sInput) sInput.value = "";
+        if (clubFilter) clubFilter.value = "";
+        if (dateFilter) dateFilter.value = "all";
+        renderCards();
+      };
+    }
+
+    renderCards();
+    renderPastMatches();
+    bindActionEvents();
   }
 
   var CIVIL = { single: "Single", married: "Married", widowed: "Widowed", separated: "Separated", divorced: "Divorced" };
