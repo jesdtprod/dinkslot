@@ -1853,8 +1853,8 @@ body:has(.booking-modal[open]) { overflow: hidden; }
 #ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input:not([type="checkbox"])) { width: 100%; min-width: 0; height: 38px; padding: 8px 10px; border: 1px solid #ffffff12; border-radius: 8px; background-color: #20282e; color: #d9e3dc; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; transition: border-color .15s, background-color .15s, box-shadow .15s; }
 #ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input):hover { border-color: #ffffff25; background-color: #242d32; }
 #ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input):focus-visible { border-color: #a9d77b70; outline: none; box-shadow: 0 0 0 3px #a3e6350d; }
-:is(.court-matrix,.booking-new-card,.club-profile) select { cursor: pointer; }
-:is(.court-matrix,.booking-new-card,.club-profile) select option { background: #20282e; color: #d9e3dc; padding: 10px; }
+:is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select { cursor: pointer; }
+:is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select option { background: #20282e; color: #d9e3dc; padding: 10px; }
 :is(.court-matrix,.booking-new-card) input::-webkit-calendar-picker-indicator { opacity: .65; cursor: pointer; padding: 2px; }
 :is(.court-matrix,.booking-new-card) input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 .court-matrix #bform > label { min-width: 0; }
@@ -1862,16 +1862,16 @@ body:has(.booking-modal[open]) { overflow: hidden; }
 #ds-tenant-dashboard #sec .court-matrix #cf { border-radius: 12px; background: #192127; padding: 20px; box-shadow: none; animation: court-form-enter .18s ease-out; }
 @keyframes court-form-enter { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 @supports (appearance: base-select) {
-  :is(.court-matrix,.booking-new-card,.club-profile) select, :is(.court-matrix,.booking-new-card,.club-profile) select::picker(select) { appearance: base-select; }
-  :is(.court-matrix,.booking-new-card,.club-profile) select::picker(select) { max-height: min(300px, 50dvh); overflow-y: auto; scrollbar-width: none; margin-top: 6px; padding: 5px; border: 1px solid #ffffff18; border-radius: 10px; background: #20282e; color: #d9e3dc; box-shadow: 0 12px 30px #0006; opacity: 0; transform: translateY(-4px); transition: opacity .15s, transform .15s, display .15s allow-discrete, overlay .15s allow-discrete; }
-  :is(.court-matrix,.booking-new-card,.club-profile) select:open::picker(select) { opacity: 1; transform: translateY(0); }
-  @starting-style { :is(.court-matrix,.booking-new-card,.club-profile) select:open::picker(select) { opacity: 0; transform: translateY(-4px); } }
-  :is(.court-matrix,.booking-new-card,.club-profile) select option { border-radius: 6px; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; }
-  :is(.court-matrix,.booking-new-card,.club-profile) select option:hover, :is(.court-matrix,.booking-new-card,.club-profile) select option:checked { background: #a3e63512; color: #cfdfa9; }
+  :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select, :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select::picker(select) { appearance: base-select; }
+  :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select::picker(select) { max-height: min(300px, 50dvh); overflow-y: auto; scrollbar-width: none; margin-top: 6px; padding: 5px; border: 1px solid #ffffff18; border-radius: 10px; background: #20282e; color: #d9e3dc; box-shadow: 0 12px 30px #0006; opacity: 0; transform: translateY(-4px); transition: opacity .15s, transform .15s, display .15s allow-discrete, overlay .15s allow-discrete; }
+  :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select:open::picker(select) { opacity: 1; transform: translateY(0); }
+  @starting-style { :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select:open::picker(select) { opacity: 0; transform: translateY(-4px); } }
+  :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select option { border-radius: 6px; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; }
+  :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select option:hover, :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select option:checked { background: #a3e63512; color: #cfdfa9; }
 }
 @media (max-width:1200px) { .court-matrix #bform { grid-template-columns: repeat(2, minmax(0,1fr)); } .court-matrix #bform > button { justify-self: start; } }
 @media (max-width:640px) { .court-panel { padding: 16px; } .court-matrix #bform { grid-template-columns: minmax(0,1fr); } }
-@media (prefers-reduced-motion: reduce) { #ds-tenant-dashboard #sec .court-matrix #cf { animation: none; } #ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input), :is(.court-matrix,.booking-new-card,.club-profile) select::picker(select) { transition: none; } }
+@media (prefers-reduced-motion: reduce) { #ds-tenant-dashboard #sec .court-matrix #cf { animation: none; } #ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input), :is(.court-matrix,.booking-new-card,.club-profile,#booking-modal) select::picker(select) { transition: none; } }
 .transactions-card { border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); overflow: hidden; }
 .transactions-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; }
 #ds-tenant-dashboard #sec .transactions-header h3 { margin: 0 0 4px; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; color: #e0e8e2; }
