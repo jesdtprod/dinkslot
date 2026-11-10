@@ -1,0 +1,46 @@
+/* Member workspace shares the tenant dashboard shell and design tokens. */
+.member-page-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:10px; border-bottom:1px solid #ffffff10; }
+#ds-tenant-dashboard #sec .member-page-heading h1 { margin:0; font-size:28px; line-height:34px; }
+.member-page-heading p { margin:4px 0 0; color:#94a39a; font-size:12px; line-height:18px; }
+.member-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.member-dashboard #sec > .panel { width:100%; max-width:none; margin:0; padding:20px; border:1px solid #ffffff10; border-radius:12px; background:linear-gradient(135deg,#1b2228,#171d22); box-shadow:none; }
+#ds-tenant-dashboard.member-dashboard #sec .panel h2 { margin:0 0 14px; font:600 15px/22px "Plus Jakarta Sans",sans-serif; letter-spacing:0; }
+.member-dashboard .panel p { color:#9caf9f; font-size:12px; line-height:20px; }
+.member-dashboard .badge { text-transform:capitalize; padding:3px 8px; border-radius:6px; border:1px solid #ffffff10; font:500 10px/16px "Plus Jakarta Sans",sans-serif; }
+.member-dashboard .clubrow { display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid #ffffff09; }
+.member-dashboard .clubrow:last-child { border-bottom:0; }
+.member-dashboard .clubrow-text { flex:1; min-width:0; }
+.member-dashboard .clubrow-text b { color:#dce6df; font-size:13px; }
+.member-dashboard .clubrow-text p { margin:4px 0 0; }
+.member-dashboard .clubrow .avatar { display:grid; place-items:center; width:42px; height:42px; flex-shrink:0; border:1px solid #a3e63520; border-radius:10px; background:#a3e63509; color:#bfdba5; overflow:hidden; }
+.member-dashboard .clubrow .avatar img { width:100%; height:100%; object-fit:cover; }
+.member-dashboard .clubrow-actions { display:flex; gap:8px; }
+.member-dashboard .searchrow { display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid #ffffff12; border-radius:8px; background:#20282e; }
+.member-dashboard .searchrow .mi { color:#8fab82; }
+#ds-tenant-dashboard.member-dashboard #sec .searchrow input { flex:1; min-width:0; margin:0; padding:0; border:0; outline:0; background:transparent; color:#dce6df; font-size:13px; }
+.member-dashboard #myprofile { display:flex; flex-direction:column; gap:16px; }
+.member-dashboard #myprofile .grid2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.member-dashboard #myprofile label { display:flex; flex-direction:column; gap:3px; color:#a1b0a6; font:500 11px/16px "Plus Jakarta Sans",sans-serif; }
+#ds-tenant-dashboard.member-dashboard #sec #myprofile input { height:38px; margin:0; padding:8px 12px; border:1px solid #ffffff12; border-radius:8px; background:#20282e; color:#d9e3dc; font:400 13px/20px "Plus Jakarta Sans",sans-serif; }
+.member-dashboard #myprofile > button { align-self:flex-start; }
+.member-dashboard #mybookings { display:grid; gap:14px; }
+.member-dashboard #mybookings .bcard { margin:0; padding:16px; border:1px solid #ffffff0d; border-radius:12px; background:#12191f; }
+.member-dashboard .brow { display:flex; justify-content:space-between; gap:12px; font-size:13px; line-height:22px; color:#c5d3c9; }
+.member-dashboard .bact { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid #ffffff09; }
+.member-dashboard .payhere:not(:empty) { margin-top:16px; padding-top:16px; border-top:1px solid #ffffff0c; }
+.member-dashboard .pay { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:20px; }
+.member-dashboard .pay input,.member-dashboard .pay textarea { max-width:100%; border:1px solid #ffffff12; border-radius:8px; background:#20282e; color:#d9e3dc; padding:8px 10px; }
+.member-dashboard .pay label { display:flex; flex-direction:column; gap:3px; margin-bottom:12px; color:#a1b0a6; font-size:11px; }
+.member-skeleton { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.member-skeleton > div { height:150px; border-radius:12px; background:#ffffff06; }
+@media(max-width:760px) { .member-metrics { grid-template-columns:minmax(0,1fr); } .member-page-heading { align-items:flex-start; flex-wrap:wrap; } .member-dashboard .clubrow { flex-wrap:wrap; } .member-dashboard .clubrow-actions { width:100%; justify-content:flex-end; } .member-dashboard .pay { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:480px) { .member-dashboard #myprofile .grid2 { grid-template-columns:minmax(0,1fr); } .member-dashboard .brow { flex-direction:column; } }
+.member-profile-summary { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.member-profile-modal { width:min(620px,calc(100vw - 32px)); max-height:calc(100dvh - 40px); margin:auto; padding:20px; overflow-y:auto; border:1px solid #ffffff18; border-top:2px solid #a7d67c; border-radius:14px; background:#192127; color:#dce6de; }
+.member-profile-modal::backdrop { background:#060b10b8; backdrop-filter:blur(5px); }
+.member-profile-modal header { display:flex; align-items:center; justify-content:space-between; padding-bottom:16px; border-bottom:1px solid #ffffff0b; }
+.member-profile-modal header span { color:#9ab08c; font-size:10px; }
+.member-profile-modal header h2 { margin:4px 0 0; }
+.member-profile-close { display:grid; place-items:center; width:30px; height:30px; padding:0; border:1px solid #ffffff12; border-radius:8px; background:#ffffff04; color:#aebfb3; cursor:pointer; }
+.member-profile-modal footer { display:flex; justify-content:flex-end; gap:8px; padding-top:16px; border-top:1px solid #ffffff0b; }
+body:has(.member-profile-modal[open]) { overflow:hidden; }

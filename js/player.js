@@ -17,6 +17,7 @@
   function money(n) { return "PHP " + Number(n).toFixed(2); }
 
   async function render(section) {
+    document.body.classList.add("tenant-dashboard-mode");
     var root = D.root();
     if (!SECTIONS[section]) section = "overview";
     var user = D.state.user;
@@ -27,23 +28,25 @@
       items: [
         { type: "label", label: "Play" },
         { key: "overview", label: "Overview", icon: "dashboard", href: "#/me" },
-        { key: "find", label: "Find a club", icon: "search", href: "#/me/find" },
-        { key: "clubs", label: "My clubs", icon: "groups", href: "#/me/clubs" },
-        { key: "bookings", label: "My bookings", icon: "event_available", href: "#/me/bookings" },
+        { key: "find", label: "Find a Club", icon: "search", href: "#/me/find" },
+        { key: "clubs", label: "My Clubs", icon: "groups", href: "#/me/clubs" },
+        { key: "bookings", label: "My Bookings", icon: "event_available", href: "#/me/bookings" },
         { type: "label", label: "Account" },
-        { key: "profile", label: "My profile", icon: "person", href: "#/me/profile" }
+        { key: "profile", label: "My Profile", icon: "person", href: "#/me/profile" }
       ],
       foot: [{ label: "Browse all clubs", icon: "home", href: "#/" }],
       active: section
     });
-    ui.setTitle(SECTIONS[section][0], SECTIONS[section][1]);
+    root.querySelector('#ds-tenant-dashboard').classList.add('member-dashboard');
     var sec = ui.main;
-    sec.innerHTML = '<p class="muted">Loading...</p>';
-    if (section === "find") return findView(sec);
-    if (section === "clubs") return clubsView(sec);
-    if (section === "bookings") return bookingsView(sec);
-    if (section === "profile") return profileView(sec);
-    return overviewView(sec);
+    sec.innerHTML = '<div class="member-skeleton" aria-label="Loading page"><div class="ds-skeleton"></div><div class="ds-skeleton"></div><div class="ds-skeleton"></div></div>';
+    if (section === "find") await findView(sec);
+    else if (section === "clubs") await clubsView(sec);
+    else if (section === "bookings") await bookingsView(sec);
+    else if (section === "profile") await profileView(sec);
+    else await overviewView(sec);
+    if (!sec.isConnected) return;
+    sec.insertAdjacentHTML('afterbegin', '<header class="member-page-heading"><div><h1>' + esc(SECTIONS[section][0]) + '</h1><p>' + esc(SECTIONS[section][1]) + '</p></div>' + (section === 'overview' || section === 'bookings' || section === 'clubs' ? '<a class="btn" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a>' : '') + '</header>');
   }
 
   // clubs the player has joined, with club details (public view, approved clubs only)
@@ -57,7 +60,7 @@
   function clubRow(c, joined) {
     var logo = c.logo_path ? '<img src="' + esc(D.mediaUrl(c.logo_path)) + '" alt="">' : esc(c.name.charAt(0).toUpperCase());
     return '<div class="clubrow"><span class="avatar ph">' + logo + '</span><div class="clubrow-text"><b>' + esc(c.name) + "</b>" +
-      (joined ? ' <span class="badge approved">joined</span>' : "") + '<p class="muted small">' + esc(c.city || "") + "</p></div>" +
+      (joined ? ' <span class="badge approved">Joined</span>' : "") + '<p class="muted small">' + esc(c.city || "") + "</p></div>" +
       '<div class="clubrow-actions"><a class="btn sm ghost" href="#/c/' + esc(c.slug) + '">View</a> ' +
       '<a class="btn sm" href="#/c/' + esc(c.slug) + (joined ? "/book" : "/join") + '">' + (joined ? "Book a court" : "Join and book") + "</a></div></div>";
   }
@@ -81,10 +84,10 @@
       }
     }
     var tile = function (n, label, icon, href, tone) {
-      return '<a class="tile ' + (tone || "") + '" href="' + href + '"><span class="mi">' + icon + "</span><b>" + n + "</b><span>" + label + "</span></a>";
+      return '<a class="metric-card" href="' + href + '"><div class="metric-heading"><span class="metric-icon material-symbols-outlined" aria-hidden="true">' + icon + '</span><span class="metric-badge">Your account</span></div><h2 class="metric-label">' + esc(label) + '</h2><div class="metric-reading"><strong>' + n + '</strong></div><div class="metric-footer"><span>View details</span><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></div></a>';
     };
     var when = next ? new Date(next.starts_at).toLocaleString("en-PH", { timeZone: tz, weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
-    sec.innerHTML = '<div class="tiles">' + tile(up, "Confirmed upcoming", "event_available", "#/me/bookings") +
+    sec.innerHTML = '<div class="member-metrics">' + tile(up, "Confirmed upcoming", "event_available", "#/me/bookings") +
       tile(pending, "Waiting for payment or approval", "pending_actions", "#/me/bookings", pending ? "warn" : "") +
       tile(mc.clubs.length, "Clubs joined", "groups", "#/me/clubs") + "</div>" +
       '<div class="panel wide"><h2>Next booking</h2>' + (next
@@ -111,33 +114,39 @@
   async function clubsView(sec) {
     var mc = await myClubs();
     sec.innerHTML = '<div class="panel wide">' + (mc.clubs.length ? mc.clubs.map(function (c) { return clubRow(c, true); }).join("")
-      : '<p class="muted">You have not joined a club yet.</p><a class="btn sm" href="#/me/find">Find a club</a>') + "</div>";
+      : D.ui.emptyState('No clubs joined', 'Find a club to start booking courts.', 'groups', {href:'#/me/find', label:'Find a Club'})) + "</div>";
   }
 
-  function bookingsView(sec) {
+  async function bookingsView(sec) {
     sec.innerHTML = '<div class="panel wide"><div id="mybookings">Loading...</div></div>';
-    if (D.booking) D.booking.myBookings(q("#mybookings", sec));
+    if (D.booking) await D.booking.myBookings(q("#mybookings", sec));
   }
 
   async function profileView(sec) {
-    sec.innerHTML = '<div class="panel wide"><h2>My profile</h2><form id="myprofile"><div class="grid2">' +
-      '<label>Full name<input id="mp-name" maxlength="80" autocomplete="name"></label>' +
-      '<label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label></div>' +
-      '<p class="muted small">Email: ' + esc(D.state.user.email) + '</p><p class="msg" role="alert"></p>' +
-      '<button class="btn sm" type="submit">Save profile</button></form></div>';
+    sec.innerHTML = '<section class="panel wide member-profile-summary"><div><h2>Personal details</h2><p id="member-display-name"></p><p>' + esc(D.state.user.email) + '</p></div><button type="button" class="btn ghost" id="edit-member-profile">Edit Profile</button></section>' +
+      '<dialog class="member-profile-modal" aria-labelledby="member-profile-title"><form id="myprofile"><header><div><span>Account settings</span><h2 id="member-profile-title">Edit Profile</h2></div><button type="button" class="member-profile-close" aria-label="Close profile editor"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="grid2">' +
+      '<label>Full Name<input id="mp-name" maxlength="80" autocomplete="name"></label><label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label></div>' +
+      '<p class="msg" role="alert"></p><footer><button type="button" id="cancel-member-profile" class="btn ghost">Cancel</button><button class="btn" type="submit">Save Profile</button></footer></form></dialog>';
+    var modal = q('.member-profile-modal', sec), opener = q('#edit-member-profile', sec);
+    opener.onclick = function () { modal.showModal(); };
+    q('.member-profile-close', sec).onclick = function () { modal.close(); };
+    q('#cancel-member-profile', sec).onclick = function () { modal.close(); };
+    modal.addEventListener('close', function () { opener.focus(); });
     var r = await sb.from("profiles").select("full_name,phone").eq("auth_user_id", D.state.user.id).maybeSingle();
     if (q("#mp-name", sec)) {
       q("#mp-name", sec).value = (r.data && r.data.full_name) || "";
       q("#mp-phone", sec).value = (r.data && r.data.phone) || "";
+      q("#member-display-name", sec).textContent = (r.data && r.data.full_name) || "Your profile";
     }
     q("#myprofile", sec).onsubmit = async function (e) {
       e.preventDefault();
-      var f = this, btn = q("button", f);
+      var f = this, btn = q('button[type="submit"]', f);
       btn.disabled = true;
       var x = await sb.from("profiles").update({ full_name: q("#mp-name", f).value.trim() || null, phone: q("#mp-phone", f).value.trim() || null })
         .eq("auth_user_id", D.state.user.id);
       btn.disabled = false;
       setMsg(f, x.error ? friendly(x.error) : "Profile saved.", x.error ? "err" : "ok");
+      if (!x.error) { q("#member-display-name", sec).textContent = q("#mp-name", sec).value.trim() || "Your profile"; modal.close(); }
     };
   }
 
