@@ -16,6 +16,26 @@
   function q(sel, root) { return (root || D.root()).querySelector(sel); }
   function money(n) { return "PHP " + Number(n).toFixed(2); }
 
+  function reservationCard(b, court, club) {
+    court = court || {}; club = club || {};
+    var tz = club.timezone || 'Asia/Manila';
+    var when = new Date(b.starts_at).toLocaleString('en-PH', { timeZone: tz, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' &ndash; ' + new Date(b.ends_at).toLocaleTimeString('en-PH', { timeZone: tz, hour: 'numeric', minute: '2-digit' });
+    var minutes = Math.round((new Date(b.ends_at) - new Date(b.starts_at)) / 60000);
+    var parts = [club.street || club.address, club.barangay, club.city, club.province, club.zip_code].filter(Boolean);
+    var address = parts.filter(function (v, i) { return parts.indexOf(v) === i; }).join(', ');
+    var coordinates = club.latitude != null && club.longitude != null;
+    var location = coordinates ? club.latitude + ',' + club.longitude : address;
+    if (!address && coordinates) address = Number(club.latitude).toFixed(6) + ', ' + Number(club.longitude).toFixed(6);
+    var labels = { approved: 'Confirmed Booking', pending: 'Pending Approval', cancelled: 'Cancelled', rejected: 'Declined' };
+    return '<article class="member-reservation-card"><div class="member-reservation-main">' +
+      '<div class="member-reservation-top"><span class="badge ' + (b.status === 'approved' ? 'approved' : '') + '">' + esc(labels[b.status] || 'Booking') + '</span><span class="member-reservation-ref">Ref: ' + esc(b.reference_code || 'Not available') + '</span></div>' +
+      '<h3>' + esc(club.name || 'Club unavailable') + ' &middot; ' + esc(court.name || 'Court unavailable') + '</h3>' +
+      '<div class="member-reservation-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span><span>' + esc(address || 'Club location not provided') + '</span></div>' +
+      '<div class="member-reservation-meta"><span><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>' + when + '</span><span><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + minutes + ' minutes</span>' + (b.amount != null ? '<strong>' + money(b.amount) + '</strong>' : '') + '</div></div>' +
+      '<div class="member-reservation-actions"><a class="btn" href="#/me/bookings"><span class="material-symbols-outlined" aria-hidden="true">event_note</span>View Booking</a>' +
+      (location ? '<a class="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(location) + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">directions</span>View Location</a>' : '') + '</div></article>';
+  }
+
   async function render(section) {
     document.body.classList.add("tenant-dashboard-mode");
     var root = D.root();
@@ -75,7 +95,9 @@
     var up = 0, pending = 0, total = 0, next = null, courtName = "", clubName = "", clubSlug = "", tz = "Asia/Manila";
     var upcomingList = [], pendingList = [], recentList = [];
     if (pids.length) {
-      var allBs = (await sb.from("bookings").select("*").in("player_id", pids).order("starts_at", { ascending: false }).limit(20)).data || [];
+      var bookingsResult = await sb.from("bookings").select("*").in("player_id", pids).order("starts_at", { ascending: false });
+      if (bookingsResult.error) throw bookingsResult.error;
+      var allBs = bookingsResult.data || [];
       total = allBs.length;
       var nowIso = new Date().toISOString();
       upcomingList = allBs.filter(function (b) { return b.status === "approved" && b.ends_at >= nowIso; }).sort(function (a, b) { return a.starts_at.localeCompare(b.starts_at); });
@@ -83,7 +105,7 @@
       recentList = allBs.filter(function (b) { return b.ends_at < nowIso; });
       up = upcomingList.length;
       pending = pendingList.length;
-      next = upcomingList[0] || pendingList[0] || null;
+      next = upcomingList[0] || null;
       if (next) {
         var c = (await sb.from("public_courts").select("name,club_slug,surface,is_indoor").eq("id", next.court_id).maybeSingle()).data;
         courtName = c ? c.name : "Court 1";
@@ -119,15 +141,29 @@
     var courtCount = clubCourts.length || 6;
     var primarySurface = (clubCourts[0] && clubCourts[0].surface) || "Cushioned Acrylic";
 
-    var when = next
-      ? new Date(next.starts_at).toLocaleString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) +
-        " – " + new Date(next.ends_at).toLocaleTimeString("en-PH", { timeZone: tz, hour: "numeric", minute: "2-digit" })
-      : "Tomorrow • 7:00 PM – 8:00 PM";
-    var mins = next ? Math.max(30, Math.round((new Date(next.ends_at) - new Date(next.starts_at)) / 60000)) : 60;
-    var activeClubTitle = next ? (clubName || primaryClub.name) : primaryClub.name;
-    var activeCourtTitle = next ? courtName : ((clubCourts[0] && clubCourts[0].name) || "Court 1 (Indoor Cushion Pro)");
-    var activeRef = next ? next.reference_code : "DS-S54V8DJH1";
-    var activeCity = (primaryClub && primaryClub.city) || "Austin, TX • Main Arena";
+    var activeClubTitle = next ? (clubName || 'Club') : 'No upcoming bookings';
+    var activeCourtTitle = next ? (courtName || 'Court') : '';
+    var bookingCourts = {}, bookingClubs = {};
+    var records = upcomingList.concat(pendingList, recentList);
+    var courtIds = Array.from(new Set(records.map(function (b) { return b.court_id; }).filter(Boolean)));
+    var clubIds = Array.from(new Set(records.map(function (b) { return b.tenant_id; }).filter(Boolean)));
+    if (courtIds.length) {
+      var cr = await sb.from('public_courts').select('*').in('id', courtIds);
+      if (cr.error) throw cr.error;
+      (cr.data || []).forEach(function (c) { bookingCourts[c.id] = c; });
+    }
+    if (clubIds.length) {
+      var tr = await sb.from('public_clubs').select('*').in('id', clubIds);
+      if (tr.error) throw tr.error;
+      (tr.data || []).forEach(function (t) { bookingClubs[t.id] = t; });
+    }
+    function bookingResults(filter) {
+      var list = filter === 'recent' ? recentList : filter === 'pending' ? pendingList : upcomingList;
+      var titles = { upcoming: 'No upcoming bookings', recent: 'No past bookings', pending: 'No pending bookings' };
+      return list.length ? list.map(function (b) {
+        return reservationCard(b, bookingCourts[b.court_id], bookingClubs[b.tenant_id]);
+      }).join('') : D.ui.emptyState(titles[filter], 'Your reservations will appear here when available.', 'event_available');
+    }
 
     // 1. TOP DISCOVERY & ATHLETIC HERO CONSOLE
     var heroHtml =
@@ -290,7 +326,7 @@
             '</h2>' +
             '<div class="inline-flex items-center bg-[#131b26] p-1 rounded-xl border border-[#212f42]" role="tablist" aria-label="Booking filter">' +
               '<button class="px-3 py-1 text-xs font-bold rounded-lg bg-[#a3e635] text-black shadow-sm cursor-pointer transition-colors" type="button" data-bfilter="upcoming">Upcoming (' + up + ')</button>' +
-              '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="recent">Recent Matches</button>' +
+              '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="recent">Past Bookings (' + recentList.length + ')</button>' +
               '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="pending">Pending (' + pending + ')</button>' +
             '</div>' +
           '</div>' +
@@ -299,17 +335,7 @@
             '<span class="material-symbols-outlined text-sm" aria-hidden="true">calendar_month</span>' +
           '</a>' +
         '</div>' +
-        '<div id="next-booking-card-slot">' +
-          (next ? '<article class="member-reservation-card">' +
-            '<div class="member-reservation-main">' +
-              '<div class="member-reservation-top"><span class="badge approved">' + (next.status === 'approved' ? 'Confirmed Booking' : 'Pending Approval') + '</span><span class="member-reservation-ref">Ref: ' + esc(activeRef) + '</span></div>' +
-              '<h3>' + esc(activeClubTitle) + ' &middot; ' + esc(activeCourtTitle) + '</h3>' +
-              '<div class="member-reservation-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span><span>' + esc(activeCity) + '</span></div>' +
-              '<div class="member-reservation-meta"><span><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>' + esc(when) + '</span><span><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + mins + ' minutes</span><strong>' + money(next.amount) + '</strong></div>' +
-            '</div><div class="member-reservation-actions"><a class="btn" href="#/me/bookings"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>View Booking Pass</a>' +
-              (directionsHref ? '<a class="btn ghost" href="' + esc(directionsHref) + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">directions</span>View Location</a>' : '') +
-            '</div></article>' : D.ui.emptyState('No upcoming bookings', 'Your next court reservation will appear here.', 'event_available')) +
-        '</div>' +
+        '<div id="next-booking-card-slot" class="space-y-3" role="tabpanel" aria-label="Upcoming bookings">' + bookingResults('upcoming') + '</div>' +
       '</section>';
 
     // 4. MY JOINED CLUBS & DIRECT COURT SLOTS
@@ -591,11 +617,19 @@
       };
     }
     sec.querySelectorAll("[data-bfilter]").forEach(function (btn) {
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-controls', 'next-booking-card-slot');
+      btn.setAttribute('aria-selected', String(btn.getAttribute('data-bfilter') === 'upcoming'));
       btn.onclick = function () {
         sec.querySelectorAll("[data-bfilter]").forEach(function (b) {
           b.className = "px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer";
         });
         btn.className = "px-3 py-1 text-xs font-bold rounded-lg bg-[#a3e635] text-black shadow-sm cursor-pointer transition-colors";
+        var filter = btn.getAttribute('data-bfilter');
+        var slot = q('#next-booking-card-slot', sec);
+        slot.innerHTML = bookingResults(filter);
+        slot.setAttribute('aria-label', filter + ' bookings');
+        sec.querySelectorAll('[data-bfilter]').forEach(function (tab) { tab.setAttribute('aria-selected', String(tab === btn)); });
       };
     });
   }
