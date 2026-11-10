@@ -418,3 +418,6 @@ body .club-directory-search #btn-clear-search[hidden] { display:none !important;
 #ds-tenant-dashboard #sec .club-directory-results > span { box-sizing:border-box; height:34px; min-height:34px; border-radius:7px !important; }
 #ds-tenant-dashboard #sec .club-directory-results > span { display:inline-flex; align-items:center; padding:0 9px; }
 .club-directory-results { height:34px; }
+
+/* Search box corners match the requested 15px radius. */
+.club-directory-search { border-radius:15px; }
