@@ -2903,3 +2903,7 @@ body .ds-action:disabled, body .ds-action[aria-disabled="true"] { opacity: .45 !
 .court-config-modal .court-config-actions { flex-shrink: 0; margin: 0; padding: 14px 20px; border-top: 1px solid #ffffff12; background: #192127; }
 .court-config-modal .datetime-trigger { justify-content: space-between; }
 @media (max-width:540px) { #ds-tenant-dashboard #sec .court-config-modal .court-config-body > .grid { grid-template-columns: minmax(0,1fr); } .court-config-body { padding: 16px; } }
+
+/* Tighter label-to-control spacing in court forms. */
+#ds-tenant-dashboard #sec .court-matrix label { gap: 3px; }
+#ds-tenant-dashboard #sec .court-matrix label > :is(input,select,.datetime-control) { margin-top: 0; }
