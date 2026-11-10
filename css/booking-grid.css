@@ -133,3 +133,9 @@
 .member-overview-stats > div:first-child .member-overview-stat-label { color:#a1bc82; }
 .member-overview-stats > div:nth-child(2) .member-overview-stat-label { color:#a89abf; }
 .member-overview-stats > div:nth-child(3) .member-overview-stat-label { color:#88adba; }
+
+/* Colored badge treatment for overview statistic values. */
+.member-overview-stats .member-overview-stat-value { display:inline-flex; align-items:center; align-self:flex-start; min-height:30px; padding:4px 10px; border:1px solid #a3e63530; border-radius:7px; background:#a3e6350d; font-size:18px; line-height:24px; letter-spacing:0; }
+.member-overview-stats > div:nth-child(2) .member-overview-stat-value { border-color:#b191e038; background:#a27ad611; font-size:15px; }
+.member-overview-stats > div:nth-child(3) .member-overview-stat-value { border-color:#65bfda38; background:#42a8c811; }
+@media(max-width:540px) { .member-overview-stats .member-overview-stat-value { padding:3px 7px; font-size:16px; } .member-overview-stats > div:nth-child(2) .member-overview-stat-value { font-size:13px; } }
