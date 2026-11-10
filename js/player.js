@@ -137,8 +137,7 @@
     var p = r.data || {};
     var chosen = null, removeFlag = false; // new photo picked in the form (not saved until Save Profile)
 
-    sec.innerHTML = '<section class="panel wide member-profile-summary"><div class="member-id"><span class="member-avatar" id="member-avatar"></span><div class="member-facts"><h2>Personal details</h2><p id="member-display-name"></p><p>' + esc(D.state.user.email) + '</p><dl id="member-facts"></dl></div></div></section>' +
-      '<section class="panel wide member-profile-editor" aria-labelledby="member-profile-title"><form id="myprofile"><header><div><span>Account settings</span><h2 id="member-profile-title">Profile Details</h2></div></header>' +
+    sec.innerHTML = '<section class="panel wide member-profile-editor" aria-labelledby="member-profile-title"><form id="myprofile"><header><div><span>Account settings</span><h2 id="member-profile-title">Profile Details</h2></div></header>' +
       '<div class="member-photo"><span class="member-avatar big" id="mp-preview"></span><div class="member-photo-actions"><label class="btn ghost member-photo-btn" for="mp-photo">Add photo</label><input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden><button type="button" class="btn ghost" id="mp-remove-photo" hidden>Remove photo</button><small>JPG, PNG or WebP, up to 2 MB.</small></div></div>' +
       '<div class="grid2">' +
       '<label>Full Name<input id="mp-name" maxlength="80" autocomplete="name"></label><label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label>' +
@@ -151,14 +150,6 @@
 
     function initial() { return ((p.full_name || D.state.user.email || "?").charAt(0) || "?").toUpperCase(); }
     function paintAvatar(el, url) { el.innerHTML = url ? '<img src="' + esc(url) + '" alt="">' : esc(initial()); }
-    function paintSummary() {
-      q("#member-display-name", sec).textContent = p.full_name || "Your profile";
-      paintAvatar(q("#member-avatar", sec), avatarUrl(p.avatar_path));
-      var rows = [["Phone", p.phone], ["Birthdate", niceDate(p.birth_date)], ["Civil status", CIVIL[p.civil_status]],
-        ["Address", [p.street, p.barangay && "Brgy. " + p.barangay, p.city, p.province, p.zip_code].filter(Boolean).join(", ")]]
-        .filter(function (x) { return x[1]; });
-      q("#member-facts", sec).innerHTML = rows.map(function (x) { return "<div><dt>" + x[0] + "</dt><dd>" + esc(x[1]) + "</dd></div>"; }).join("");
-    }
     function fill() {
       q("#mp-name", sec).value = p.full_name || ""; q("#mp-phone", sec).value = p.phone || "";
       q("#mp-birth", sec).value = p.birth_date || ""; q("#mp-civil", sec).value = p.civil_status || "";
@@ -166,7 +157,7 @@
       paintAvatar(q("#mp-preview", sec), avatarUrl(p.avatar_path));
       q("#mp-remove-photo", sec).hidden = !p.avatar_path;
     }
-    paintSummary(); fill();
+    fill();
 
     q("#mp-photo", sec).onchange = function () {
       var file = this.files[0], form = q("#myprofile", sec); if (!file) return;
@@ -205,7 +196,7 @@
         if (x.error) { if (chosen) sb.storage.from("avatars").remove([avatar]).catch(function () {}); throw x.error; }
         if (oldAvatar && oldAvatar !== avatar) sb.storage.from("avatars").remove([oldAvatar]).catch(function () {});
         for (var k in row) p[k] = row[k];
-        paintSummary(); fill();
+        fill();
         setMsg(f, "Your profile has been updated successfully.", "ok");
       } catch (err) { setMsg(f, friendly(err), "err"); }
       btn.disabled = false;
