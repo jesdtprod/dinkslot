@@ -542,7 +542,7 @@
 
   async function clubsView(sec) {
     var mc = await myClubs(), all = mc.clubs;
-    var result = mc.clubs.length ? await sb.from('public_courts').select('id,club_slug,surface,is_indoor,hourly_rate').in('club_slug', mc.clubs.map(function (club) { return club.slug; })) : {data:[]};
+    var result = mc.clubs.length ? await sb.from('public_courts').select('id,name,club_slug,surface,is_indoor,hourly_rate,open_time,close_time').in('club_slug', mc.clubs.map(function (club) { return club.slug; })) : {data:[]};
     if (result.error) throw result.error;
     var courtsBySlug = {};
     (result.data || []).forEach(function (court) { (courtsBySlug[court.club_slug] || (courtsBySlug[court.club_slug] = [])).push(court); });
@@ -564,18 +564,22 @@
         var rates = courts.map(function (court) { return court.hourly_rate == null ? NaN : Number(court.hourly_rate); }).filter(Number.isFinite);
         var address = [club.street || club.address,club.barangay,club.city,club.province,club.zip_code].filter(Boolean).join(', ');
         var mapQuery = club.latitude != null && club.longitude != null ? club.latitude + ',' + club.longitude : address;
-        return '<article class="home-club-card" data-club-slug="' + esc(club.slug) + '"><a class="home-club-cover" href="#/c/' + esc(club.slug) + '" aria-label="View ' + esc(club.name) + '">' +
-          (club.cover_path ? '<img src="' + esc(D.mediaUrl(club.cover_path)) + '" alt="' + esc(club.name) + ' cover" loading="lazy">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</a>' +
-          '<div class="home-club-body"><div class="home-club-identity"><div class="home-club-avatar">' + (club.logo_path ? '<img src="' + esc(D.mediaUrl(club.logo_path)) + '" alt="Club logo" loading="lazy">' : esc((club.name || 'C').charAt(0))) + '</div></div>' +
-          '<h3>' + esc(club.name) + '</h3><p class="home-club-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span><span>' + esc(address || 'Location not provided') + '</span></p>' +
-          '<div class="home-club-details"><div class="home-club-facilities"><span class="home-club-fact"><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>' + courts.length + (courts.length === 1 ? ' Court' : ' Courts') + '</span>' +
-          (formats.length ? '<span class="home-club-format">' + esc(formats.join(' / ')) + '</span>' : '') + '<span class="home-club-joined"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Joined</span></div>' +
-          (surfaces.length ? '<div class="home-club-detail-row"><span class="material-symbols-outlined" aria-hidden="true">layers</span><span><small>Surface</small>' + esc(surfaces.join(', ')) + '</span></div>' : '') +
-          (rates.length ? '<div class="home-club-detail-row"><span class="material-symbols-outlined" aria-hidden="true">payments</span><span><small>From</small>' + money(Math.min.apply(null,rates)) + '/hr</span></div>' : '') +
-          (club.contact_phone ? '<div class="home-club-detail-row"><span class="material-symbols-outlined" aria-hidden="true">call</span><span><small>Contact</small>' + esc(club.contact_phone) + '</span></div>' : '') +
-          '<div class="home-club-detail-row"><span class="material-symbols-outlined" aria-hidden="true">mail</span><span><small>Email</small>' + (club.contact_email ? '<a class="home-club-email" href="mailto:' + esc(club.contact_email) + '">' + esc(club.contact_email) + '</a>' : 'Not provided') + '</span></div></div>' +
-          (mapQuery ? '<a class="find-membership-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(mapQuery) + '"><span class="material-symbols-outlined" aria-hidden="true">map</span>View on Google Maps</a>' : '') +
-          '<div class="home-club-actions"><a class="btn ghost" href="#/c/' + esc(club.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="#/c/' + esc(club.slug) + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></div></article>';
+        var base = '#/c/' + esc(club.slug);
+        return '<article class="membership-panel"><header class="membership-panel-header"><div class="membership-panel-avatar">' + (club.logo_path ? '<img src="' + esc(D.mediaUrl(club.logo_path)) + '" alt="Club logo">' : esc(club.name.charAt(0))) + '</div>' +
+          '<div class="membership-panel-info"><div class="membership-panel-title"><h2>' + esc(club.name) + '</h2><span class="home-club-joined"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Joined</span></div>' +
+          '<p><span class="material-symbols-outlined" aria-hidden="true">location_on</span>' + esc(address || 'Location not provided') + '</p><span class="membership-panel-summary">' + courts.length + (courts.length === 1 ? ' active court' : ' active courts') + (formats.length ? ' &middot; ' + esc(formats.join(' / ')) : '') + '</span></div>' +
+          '<div class="membership-panel-actions"><a class="btn ghost" href="' + base + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="' + base + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></header>' +
+          '<div class="membership-panel-features"><span><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>' + courts.length + (courts.length === 1 ? ' Court' : ' Courts') + '</span>' + surfaces.map(function (surface) { return '<span><span class="material-symbols-outlined" aria-hidden="true">check</span>' + esc(surface) + '</span>'; }).join('') +
+          (rates.length ? '<span><span class="material-symbols-outlined" aria-hidden="true">payments</span>From ' + money(Math.min.apply(null,rates)) + '/hr</span>' : '') + '</div>' +
+          '<section class="membership-panel-courts"><header><h3><span class="material-symbols-outlined" aria-hidden="true">bolt</span>Quick Book a Court</h3><a href="' + base + '/book">View All Courts <span aria-hidden="true">&rarr;</span></a></header><div class="membership-court-grid">' +
+          (courts.length ? courts.slice(0,4).map(function (court) {
+            var hours = court.open_time && court.close_time ? D.hoursText(court.open_time,court.close_time) : 'See booking schedule';
+            return '<a class="membership-court-tile" href="' + base + '/book"><span class="membership-court-type">' + (court.is_indoor ? 'Indoor' : 'Outdoor') + '</span><strong>' + esc(court.name || 'Court') + '</strong><span>' + esc(hours) + '</span>' + (court.hourly_rate != null ? '<b>' + money(court.hourly_rate) + '/hr</b>' : '') + '</a>';
+          }).join('') : '<p class="muted small">No active courts are currently listed.</p>') + '</div><p class="membership-court-note">Choose a date on the booking page to check live availability.</p></section>' +
+          '<footer class="membership-panel-footer"><span><span class="material-symbols-outlined" aria-hidden="true">verified_user</span>Joined Member</span>' +
+          (club.contact_phone ? '<span><span class="material-symbols-outlined" aria-hidden="true">call</span>' + esc(club.contact_phone) + '</span>' : '') +
+          (club.contact_email ? '<a href="mailto:' + esc(club.contact_email) + '"><span class="material-symbols-outlined" aria-hidden="true">mail</span>' + esc(club.contact_email) + '</a>' : '') +
+          (mapQuery ? '<a class="membership-panel-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(mapQuery) + '"><span class="material-symbols-outlined" aria-hidden="true">map</span>View on Google Maps</a>' : '') + '</footer></article>';
 
       }).join('') : D.ui.emptyState(mc.clubs.length ? 'No matching clubs' : 'No clubs joined', mc.clubs.length ? 'Try another club name or address.' : 'Find a club to start booking courts.', 'groups', {href:'#/me/find',label:'Find a Club'});
     }

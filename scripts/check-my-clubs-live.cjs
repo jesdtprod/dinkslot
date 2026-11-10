@@ -25,6 +25,7 @@ const D = {
   esc: escape,
   state: { user: { id: 'usr-42', email: 'player@example.com' } },
   mediaUrl: x => x || '',
+  hoursText: (open,close) => open + ' - ' + close,
   formatMoney: n => 'PHP ' + Number(n).toFixed(2),
   ui: {
     emptyState: (title, desc) => `<p>${title}: ${desc}</p>`,
@@ -104,6 +105,10 @@ function createMockSec() {
   assert.match(sec.innerHTML,/member-clubs-page/);
   const cards=elements['#my-joined-clubs-list'];
   assert.match(cards.innerHTML,/The Pickleshot/);
+  assert.match(cards.innerHTML,/membership-panel-header/);
+  assert.match(cards.innerHTML,/Quick Book a Court/);
+  assert.match(cards.innerHTML,/membership-court-grid/);
+  assert.match(cards.innerHTML,/membership-panel-footer/);
   assert.match(cards.innerHTML,/PHP 24.00/);
   assert.match(cards.innerHTML,/mailto:club@example.com/);
   assert.doesNotMatch(sec.innerHTML,/VIP|Auto-Renewing|Austin|Apex Pickleball/);
