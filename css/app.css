@@ -1756,6 +1756,23 @@ body.tenant-dashboard-mode #app {
 .booking-new-card .slot.sel, .booking-new-card .slot.in { border-color: #a3e63555; background: #a3e63514; color: #d0e7b5; }
 .booking-new-card .slot:disabled { opacity: .35; cursor: not-allowed; }
 .booking-new-card .summary:empty, .booking-new-card .msg:empty { display: none; }
+.booking-new-card .booking-section { display: flex; flex-direction: column; gap: 14px; min-width: 0; margin: 0; padding: 16px; border: 1px solid #ffffff0b; border-radius: 10px; background: #0c121622; }
+.booking-section legend { padding: 0 7px; color: #a8b9ac; font: 600 11px/16px "Plus Jakarta Sans",sans-serif; }
+.booking-new-card #whoGuest:not([hidden]), .booking-new-card .booking-details-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.booking-new-card .booking-details-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.booking-new-card .booking-slot-heading { display: flex; justify-content: space-between; gap: 12px; padding-top: 2px; color: #b2c2b6; font-size: 11px; }
+.booking-slot-legend { color: #7f9586; }
+.booking-new-card #nslots { grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); gap: 7px; }
+.booking-new-card #nslots .slot { min-height: 34px; padding: 6px; box-shadow: none; }
+.booking-new-card #nslots .slot:disabled { text-decoration: none; background: #0000000a; color: #6a7a70; opacity: .5; border-color: #ffffff05; }
+.booking-new-card #nslots .slot:not(:disabled):hover { border-color: #a3e63550; background: #a3e6350b; }
+.booking-new-card #nslots .slot.sel { background: #b1d984; border-color: #b1d984; color: #1b2d16; }
+.booking-confirm { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding-top: 14px; border-top: 1px solid #ffffff09; }
+.booking-new-card #nsum { flex: 1; margin: 0; padding: 0; border: 0; background: transparent; color: #a6b9ac; font-size: 12px; }
+.booking-new-card #nreserve { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: auto; min-height: 36px; margin-left: auto; padding: 8px 14px; background: #a3e63514; border: 1px solid #a3e63538; color: #c6e2a8; text-transform: none; box-shadow: none; }
+.booking-new-card #nreserve .material-symbols-outlined { font-size: 17px; }
+.booking-new-card #nreserve:disabled { background: #ffffff03; color: #7e8e82; border-color: #ffffff0b; opacity: .6; cursor: not-allowed; }
+@media (max-width:640px) { .booking-new-card .booking-details-grid, .booking-new-card #whoGuest:not([hidden]) { grid-template-columns: minmax(0,1fr); } .booking-new-card .booking-section { padding: 12px; } .booking-slot-legend { display: none; } }
 @media (max-width:640px) { .booking-new-card, .booking-queue { padding: 16px; } .booking-new-heading { flex-direction: column; align-items: flex-start; } }
 @media (prefers-reduced-motion: reduce) { .booking-new-card #nbform:not([hidden]) { animation: none; } }
 .datetime-control { display: block; width: 100%; min-width: 0; }

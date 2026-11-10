@@ -500,18 +500,18 @@
       };
       formBox.innerHTML =
         '<form id="nbf" class="subpanel" novalidate>' +
-        '<div class="seg"><button type="button" class="segbtn on" data-who="guest">Walk-in guest</button>' +
-        '<button type="button" class="segbtn" data-who="player">Registered player</button></div>' +
+        '<fieldset class="booking-section"><legend>Customer details</legend><div class="seg"><button type="button" class="segbtn on" data-who="guest" aria-pressed="true">Walk-in guest</button>' +
+        '<button type="button" class="segbtn" data-who="player" aria-pressed="false">Registered player</button></div>' +
         '<div id="whoGuest" class="grid2"><label>Guest name<input id="gname" maxlength="60" autocomplete="off"></label>' +
         '<label>Phone (optional)<input id="gphone" maxlength="30" autocomplete="off"></label></div>' +
         '<div id="whoPlayer" hidden><label>Player<select id="pplayer">' + playerOpts() + "</select></label>" +
         '<div class="inline"><label>Not listed? Add by email<input id="pemail" type="email" placeholder="player@email.com" autocomplete="off"></label>' +
         '<button class="btn sm ghost" id="padd" type="button">Add player</button></div></div>' +
-        '<div class="grid2"><label>Court<select id="ncourt">' + courts.map(function (c) {
+        '</fieldset><fieldset class="booking-section"><legend>Booking details</legend><div class="booking-details-grid"><label>Court<select id="ncourt">' + courts.map(function (c) {
           return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>"; }).join("") + "</select></label>" +
         '<label>Date<input id="ndate" type="date"></label><label>Length<select id="nlen"></select></label></div>' +
-        '<div id="nslots" class="slots"></div><div id="nsum" class="summary"></div><p class="msg" role="alert"></p>' +
-        '<button class="btn" id="nreserve" type="submit" disabled>Confirm booking</button></form>';
+        '<div class="booking-slot-heading"><span>Start time</span><span class="booking-slot-legend">Choose an available slot</span></div><div id="nslots" class="slots"></div></fieldset><p class="msg" role="alert"></p><div class="booking-confirm"><div id="nsum" class="summary" aria-live="polite"></div>' +
+        '<button class="btn" id="nreserve" type="submit" disabled><span class="material-symbols-outlined" aria-hidden="true">check</span>Confirm booking</button></div></form>';
 
       var f = q("#nbf", formBox);
       function lengths() {
@@ -563,7 +563,7 @@
       Array.prototype.forEach.call(f.querySelectorAll(".segbtn"), function (b) {
         b.onclick = function () {
           S.who = b.getAttribute("data-who");
-          Array.prototype.forEach.call(f.querySelectorAll(".segbtn"), function (x) { x.classList.toggle("on", x === b); });
+          Array.prototype.forEach.call(f.querySelectorAll(".segbtn"), function (x) { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", String(x === b)); });
           q("#whoGuest", f).hidden = S.who !== "guest"; q("#whoPlayer", f).hidden = S.who !== "player";
           msg(f, "", "");
         };
