@@ -719,10 +719,8 @@
           '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Cancel allowed until (hours before)<input id="scc" form="paycfg" type="number" min="0" required value="' + esc(st.cancel_cutoff_hours || 4) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
           '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Hold an unpaid booking (minutes)<input id="sph" form="paycfg" type="number" min="5" max="1440" required value="' + esc(st.pending_hold_minutes || 30) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
         '</div>' +
-      '</section>' +
-
       '<div class="pay-actions"><p class="msg" role="alert"></p><button form="paycfg" class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="submit">Save settings</button><span class="muted small">Saves the Checkout and Booking rules sections. QR cards save on their own.</span></div>' +
-      '</div>';
+      '</section></div>';
 
     PANELS.staff =
       '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">Staff &amp; Team Roster</h1><p class="font-body-md text-on-surface-variant">Authorize team members to approve bookings and manage court operations.</p></div>' +
