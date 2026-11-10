@@ -115,7 +115,9 @@ function createMockSec() {
   elements['#myclubs-filter-input'].value='9800';elements['#myclubs-filter-input'].oninput();assert.match(cards.innerHTML,/The Pickleshot/);
   elements['#myclubs-filter-input'].value='no matching club';elements['#myclubs-filter-input'].oninput();assert.match(cards.innerHTML,/No matching clubs/);
   elements['#myclubs-filter-input'].onkeydown({key:'Escape'});assert.match(cards.innerHTML,/The Pickleshot/);
-  elements['#myclubs-sort'].value='courts';elements['#myclubs-sort'].onchange();assert.match(cards.innerHTML,/The Pickleshot/);
+  elements['#myclubs-city'].value='Other';elements['#myclubs-city'].onchange();assert.match(cards.innerHTML,/No matching clubs/);
+  elements['#myclubs-city'].value='';elements['#myclubs-city'].onchange();assert.match(cards.innerHTML,/The Pickleshot/);
+  elements['#myclubs-filter-input'].value='missing';elements['#myclubs-filter-input'].oninput();elements['#myclubs-clear'].onclick();assert.match(cards.innerHTML,/The Pickleshot/);
   hasJoined=false;({sec,elements}=createMockSec());await D.player.clubs(sec);assert.match(elements['#my-joined-clubs-list'].innerHTML,/No clubs joined/);
   console.log('My Clubs shared styling hooks, live details, search, sorting and empty state passed.');
 })().catch(err=>{console.error(err);process.exitCode=1;});
