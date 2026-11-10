@@ -408,8 +408,8 @@
         '<rect x="' + (pt[0] + 2) + '" y="' + (pt[1] + 2) + '" width="3" height="3" rx="0.4"/>';
     });
     svg += "</g>";
-    // logo badge: white disc with a thin ring, the DINKSLOT logo inside
-    svg += '<circle cx="' + c + '" cy="' + c + '" r="' + (hole - 0.3) + '" fill="white" stroke="#d9dee3" stroke-width="0.12"/>';
+    // logo badge: plain white disc (no border), the DINKSLOT logo inside
+    svg += '<circle cx="' + c + '" cy="' + c + '" r="' + (hole - 0.3) + '" fill="white"/>';
     if (logo) {
       var half = 3.6;
       svg += '<image x="' + (c - half) + '" y="' + (c - half) + '" width="' + half * 2 + '" height="' + half * 2 + '" preserveAspectRatio="xMidYMid meet" href="' + logo + '" xlink:href="' + logo + '"/>';
