@@ -2777,3 +2777,10 @@ dialog#booking-modal #view-walkin { grid-template-columns: minmax(0,1fr); gap: 1
 #ds-tenant-dashboard #sec #booking-modal [data-purpose="booking-parameters"] > .grid > div { min-width: 0; width: 100%; grid-column: 1; }
 dialog#booking-modal label[for="ndate"], dialog#booking-modal label[for="nlen"] { display: flex; justify-content: space-between; gap: 10px; }
 dialog#booking-modal #rate-badge { white-space: nowrap; }
+
+/* Align the customer and booking cards on a shared field rhythm. */
+dialog#booking-modal [data-purpose="customer-selection-card"] > [role="tablist"] { position: relative; display: flex; width: 100%; min-height: 38px; margin-top: 22px; margin-bottom: 14px; padding: 3px; }
+dialog#booking-modal [data-purpose="customer-selection-card"] > [role="tablist"]::before { content: 'Customer type'; position: absolute; top: -22px; left: 0; color: #a1b0a6; font: 500 11px/16px "Plus Jakarta Sans",sans-serif; }
+dialog#booking-modal .customer-toggle-btn { flex: 1; min-height: 30px; padding: 5px 8px; white-space: nowrap; }
+#ds-tenant-dashboard #sec #booking-modal #view-walkin { gap: 14px; }
+dialog#booking-modal #view-walkin label, dialog#booking-modal [data-purpose="booking-parameters"] label { min-height: 16px; margin-bottom: 6px; }
