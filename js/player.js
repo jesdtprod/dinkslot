@@ -170,60 +170,12 @@
     }
 
     // 1. TOP DISCOVERY & ATHLETIC HERO CONSOLE
-    var heroHtml =
-      '<section class="relative overflow-hidden rounded-2xl bg-[#111722] border border-[#1f2b3b] p-6 sm:p-9 shadow-2xl">' +
-        '<div class="absolute -right-20 -top-24 w-96 h-96 bg-[#a3e635]/10 rounded-full blur-3xl pointer-events-none"></div>' +
-        '<div class="absolute left-1/3 -bottom-24 w-80 h-80 bg-[#a3e635]/5 rounded-full blur-3xl pointer-events-none"></div>' +
-        '<div class="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-[#223042]">' +
-          '<div class="space-y-2 max-w-2xl">' +
-            '<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#182230] border border-[#293a50] text-[#a3e635] text-xs font-mono uppercase tracking-widest">' +
-              '<span class="w-2 h-2 rounded-full bg-[#a3e635] animate-pulse"></span>' +
-              'PLAYER CONSOLE • 450+ VENUES NETWORK' +
-            '</div>' +
-            '<h1 class="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight">Overview</h1>' +
-            '<p class="text-gray-400 text-sm sm:text-base leading-relaxed">Your bookings, live schedules, and club network at a glance.</p>' +
-          '</div>' +
-          '<div class="flex items-center gap-4 sm:gap-6 self-start lg:self-auto bg-[#0d141e]/90 border border-[#212d3e] px-5 py-3 rounded-xl shadow-inner">' +
-            '<div>' +
-              '<span class="text-[11px] font-mono text-gray-400 uppercase tracking-wider block">Active Courts</span>' +
-              '<span class="font-display font-bold text-xl sm:text-2xl text-[#a3e635]">' + (activeCourtsCount == null ? 'Unavailable' : activeCourtsCount) + '</span>' +
-            '</div>' +
-            '<div class="w-px h-8 bg-[#223042]"></div>' +
-            '<div>' +
-              '<span class="text-[11px] font-mono text-gray-400 uppercase tracking-wider block">Skill Level</span>' +
-              '<span class="font-display font-bold text-xl sm:text-2xl text-white flex items-center gap-1.5">' +
-                esc(duprVal) +
-                ' <span class="text-[10px] font-sans font-semibold text-[#a3e635] bg-[#a3e635]/10 px-1.5 py-0.5 rounded border border-[#a3e635]/30">Self-reported</span>' +
-              '</span>' +
-            '</div>' +
-            '<div class="w-px h-8 bg-[#223042]"></div>' +
-            '<div>' +
-              '<span class="text-[11px] font-mono text-gray-400 uppercase tracking-wider block">Upcoming Bookings</span>' +
-              '<span class="font-display font-bold text-xl sm:text-2xl text-white">' + up + '</span>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="relative z-10 pt-6 flex flex-wrap items-center justify-between gap-4">' +
-          '<div class="flex flex-wrap items-center gap-3">' +
-            '<a href="' + bookHref + '" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#2b3a4e] bg-[#16202d] hover:bg-[#1d2a3c] text-white text-sm font-semibold transition-all shadow-sm no-underline">' +
-              '<span class="material-symbols-outlined text-primary text-base" aria-hidden="true">add_circle</span>' +
-              '<span>Quick Reserve</span>' +
-            '</a>' +
-            '<a href="#/me/find" class="inline-flex items-center gap-2 bg-[#a3e635] hover:bg-[#bef264] text-black font-bold text-sm px-5 py-2.5 rounded-xl transition-all shadow-[0_0_18px_rgba(163,230,53,0.3)] hover:shadow-[0_0_26px_rgba(163,230,53,0.45)] no-underline">' +
-              '<span class="material-symbols-outlined text-black text-base font-bold" aria-hidden="true">search</span>' +
-              '<span>Find a Club</span>' +
-            '</a>' +
-            '<button type="button" id="btn-sync-dupr" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#16202d] hover:bg-[#1d2a3c] border border-[#2b3a4e] text-xs font-mono text-gray-300 transition-colors cursor-pointer">' +
-              '<span class="material-symbols-outlined text-sm text-[#a3e635]" aria-hidden="true">sync</span>' +
-              '<span>Sync DUPR Ladder</span>' +
-            '</button>' +
-          '</div>' +
-          '<div class="flex items-center gap-2 text-xs text-gray-400 font-mono">' +
-            '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>' +
-            '<span>Court sensors online • Automatic lights active</span>' +
-          '</div>' +
-        '</div>' +
-      '</section>';
+    var heroHtml = '<section class="member-overview-header" aria-labelledby="member-overview-title">' +
+      '<div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1 id="member-overview-title">Overview</h1><p>Your bookings, court schedules, and clubs in one place.</p>' +
+      '<div class="member-overview-actions"><a class="btn" href="' + bookHref + '"><span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Quick Reserve</a><a class="btn ghost" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a></div></div>' +
+      '<div class="member-overview-stats" aria-label="Your account summary"><div><span class="member-overview-stat-label">Active Courts</span><span class="member-overview-stat-value">' + (activeCourtsCount == null ? 'Unavailable' : activeCourtsCount) + '</span><small>Across the network</small></div>' +
+      '<div><span class="member-overview-stat-label">Skill Level</span><span class="member-overview-stat-value member-overview-skill">' + esc(duprVal) + '</span><small>Self-reported</small></div>' +
+      '<div><span class="member-overview-stat-label">Upcoming Bookings</span><span class="member-overview-stat-value">' + up + '</span><small>Confirmed reservations</small></div></div></section>';
 
     // 2. ENHANCED STATS / METRIC CARDS GRID (4 CARDS)
     var metricsHtml =
@@ -375,12 +327,6 @@
     '</div>';
 
     // Wire interactive buttons in Overview
-    var syncBtn = q("#btn-sync-dupr", sec);
-    if (syncBtn) {
-      syncBtn.onclick = function () {
-        if (D.ui && D.ui.toast) D.ui.toast("DUPR rating (" + duprVal + ") synced with official ladder.", "ok");
-      };
-    }
     var inviteBtn = q("#btn-invite-partner", sec);
     if (inviteBtn) {
       inviteBtn.onclick = function () {
