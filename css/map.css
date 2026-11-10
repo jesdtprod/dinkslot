@@ -9,3 +9,7 @@
 #club-location-map .leaflet-control-zoom a:hover { background:#29352c; color:#b5e781; }
 #club-location-map .leaflet-control-zoom a:focus-visible { outline:2px solid #b1df74; outline-offset:-3px; }
 #club-location-map .leaflet-control-zoom a.leaflet-disabled { color:#66746a; cursor:not-allowed; }
+#club-location-map .club-location-label { padding:8px 12px; border:1px solid #ffffff20; border-radius:8px; background:#192127ed; color:#dce6de; box-shadow:0 4px 14px #0004; }
+.club-location-label strong { display:block; font:600 12px/18px "Plus Jakarta Sans",sans-serif; }
+.club-location-label span { display:block; color:#a8bba9; font:400 10px/16px "Plus Jakarta Sans",sans-serif; }
+#club-location-map .club-location-label::before { border-top-color:#192127ed; }

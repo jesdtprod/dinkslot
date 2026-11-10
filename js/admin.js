@@ -793,6 +793,7 @@
           L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             maxZoom:19, attribution:'Source: <a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9" target="_blank" rel="noopener">Esri</a>, Vantor, Earthstar Geographics, and the GIS User Community'
           }).addTo(locationMap);
+          L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {maxZoom:19, attribution:'Labels &copy; Esri', pane:'overlayPane'}).addTo(locationMap);
           locationMap.on('click', function(event) { chooseMapPoint(event.latlng); });
           requestAnimationFrame(function() { locationMap.invalidateSize(); });
         }
@@ -802,6 +803,11 @@
             locationPin.on('dragend',function(){ chooseMapPoint(locationPin.getLatLng()); });
           }
           locationPin.setLatLng([Number(lat),Number(lng)]);
+          var address = phc.get();
+          var label = '<strong>' + esc(val('#pn',sec) || t.name) + '</strong><span>' + esc([address.barangay || t.barangay,address.city || t.city].filter(Boolean).join(', ')) + '</span>';
+          if (locationPin.getTooltip()) locationPin.setTooltipContent(label);
+          else locationPin.bindTooltip(label,{permanent:true,direction:'top',offset:[0,-16],className:'club-location-label'});
+
         }
       }
       function centerLocation(lat,lng) { if(locationMap) locationMap.setView([lat,lng],17); }
@@ -821,6 +827,7 @@
           q('#plat', sec).value = position.coords.latitude.toFixed(6); q('#plng', sec).value = position.coords.longitude.toFixed(6); locationChanged(); centerLocation(position.coords.latitude,position.coords.longitude); button.disabled = false;
         }, function () { button.disabled = false; D.ui.toast('Unable to access your location. Enter your venue coordinates manually.', 'err'); }, { enableHighAccuracy: true, timeout: 12000 });
       };
+      q('#pf',sec).addEventListener('change',function(event){ if(event.target.id !== 'plat' && event.target.id !== 'plng') renderMap(); });
       updateMapLink();
       q("#pf", sec).onsubmit = async function (e) {
         e.preventDefault();
