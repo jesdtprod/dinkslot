@@ -599,70 +599,85 @@
         '</div>' +
       '</section>';
 
-    // 3. My Active Membership Section (High Impact Joined Card)
-    var joinedClub = mc.clubs[0] || null;
-    var joinedSectionHtml = "";
-    if (joinedClub) {
-      var jCourts = courtsBySlug[joinedClub.slug] || [];
-      var jCourtCount = jCourts.length || 6;
-      var jSurface = (jCourts[0] && jCourts[0].surface) || "Cushioned Acrylic";
-      var jLogo = joinedClub.logo_path
-        ? '<img src="' + esc(D.mediaUrl(joinedClub.logo_path)) + '" alt="" class="w-full h-full object-cover">'
-        : '<span>' + esc((joinedClub.name || "T").charAt(0).toUpperCase()) + '</span><span class="text-[9px] tracking-widest uppercase font-mono text-slate-400 font-normal -mt-1">CLUB</span>';
+    // 3. My Active Membership Section (High Impact Joined/Featured Card)
+    var isMemberJoined = mc.clubs.length > 0;
+    var showcaseClub = mc.clubs[0] || all[0] || { slug: "the-pickleshot", name: "The Pickleshot", city: "Austin, TX (S. Lamar Blvd)" };
+    var joinedClub = showcaseClub;
+    var jCourts = courtsBySlug[joinedClub.slug] || [];
+    var jCourtCount = jCourts.length || 6;
+    var jSurface = (jCourts[0] && jCourts[0].surface) || "Cushioned Acrylic";
+    var jLogo = joinedClub.logo_path
+      ? '<img src="' + esc(D.mediaUrl(joinedClub.logo_path)) + '" alt="" class="w-full h-full object-cover">'
+      : '<span>' + esc((joinedClub.name || "T").charAt(0).toUpperCase()) + '</span><span class="text-[9px] tracking-widest uppercase font-mono text-slate-400 font-normal -mt-1">CLUB</span>';
 
-      joinedSectionHtml =
-        '<section class="space-y-4" data-purpose="joined-clubs-section">' +
-          '<div class="flex items-center justify-between">' +
-            '<h2 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">' +
-              '<span>My Active Membership</span>' +
-              '<span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-brand-lime/10 text-brand-lime border border-brand-lime/30">' + mc.clubs.length + ' CLUB' + (mc.clubs.length > 1 ? 'S' : '') + '</span>' +
-            '</h2>' +
-            '<span class="text-xs text-slate-400">Direct booking priority enabled</span>' +
-          '</div>' +
-          '<article class="bg-gradient-to-br from-brand-cardDark via-brand-cardDark to-[#0f1824] border border-brand-lime/40 rounded-2xl p-6 sm:p-7 shadow-2xl relative overflow-hidden neon-border-glow transition-all">' +
-            '<div class="absolute -top-24 -right-24 w-60 h-60 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none"></div>' +
-            '<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">' +
-              '<div class="flex items-start gap-4 sm:gap-5">' +
-                '<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-brand-lime/50 flex flex-col items-center justify-center font-extrabold text-3xl sm:text-4xl text-brand-lime shadow-xl shrink-0 overflow-hidden">' +
-                  jLogo +
-                '</div>' +
-                '<div class="space-y-2">' +
-                  '<div class="flex flex-wrap items-center gap-2.5">' +
-                    '<h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">' + esc(joinedClub.name) + '</h3>' +
-                    '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-brand-lime/15 border border-brand-lime text-brand-lime shadow-[0_0_12px_rgba(163,230,53,0.3)]">' +
-                      '<svg class="w-3 h-3 fill-current" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
-                      'JOINED' +
-                    '</span>' +
-                    '<div class="flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">' +
-                      '<span>★</span><span>4.9</span><span class="text-slate-400 font-normal">(128 reviews)</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="flex flex-wrap items-center text-xs sm:text-sm text-slate-300 gap-y-1 gap-x-4">' +
-                    '<span class="flex items-center gap-1 text-slate-300 font-medium">' +
-                      '<svg class="w-4 h-4 text-brand-lime" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                      esc(joinedClub.city || "Austin, TX (S. Lamar Blvd)") + ' • 1.2 miles away' +
-                    '</span>' +
-                    '<span class="flex items-center gap-1 text-slate-400">' +
-                      '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                      'Open today: 6:00 AM – 11:00 PM' +
-                    '</span>' +
-                  '</div>' +
-                  '<div class="flex items-center gap-2 text-xs font-mono text-brand-lime bg-brand-lime/10 px-3 py-1 rounded-lg w-fit border border-brand-lime/20">' +
-                    '<span class="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>' +
-                    '<span>● ' + jCourtCount + ' courts available right now for booking</span>' +
+    var sectionHeading = isMemberJoined ? "My Active Membership" : "Featured Club";
+    var sectionCountBadge = isMemberJoined ? (mc.clubs.length + " CLUB" + (mc.clubs.length > 1 ? "S" : "")) : "FEATURED";
+    var sectionPriorityText = isMemberJoined ? "Direct booking priority enabled" : "Fast-book available courts & ladders";
+    var joinedBadgeHtml = isMemberJoined
+      ? '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-brand-lime/15 border border-brand-lime text-brand-lime shadow-[0_0_12px_rgba(163,230,53,0.3)]">' +
+          '<svg class="w-3 h-3 fill-current" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
+          'JOINED' +
+        '</span>'
+      : '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-brand-lime/15 border border-brand-lime text-brand-lime shadow-[0_0_12px_rgba(163,230,53,0.3)]">' +
+          'FEATURED' +
+        '</span>';
+
+    var joinedSectionHtml =
+      '<section class="space-y-4" data-purpose="joined-clubs-section">' +
+        '<div class="flex items-center justify-between">' +
+          '<h2 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">' +
+            '<span>' + esc(sectionHeading) + '</span>' +
+            '<span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-brand-lime/10 text-brand-lime border border-brand-lime/30">' + esc(sectionCountBadge) + '</span>' +
+          '</h2>' +
+          '<span class="text-xs text-slate-400">' + esc(sectionPriorityText) + '</span>' +
+        '</div>' +
+        '<article class="bg-gradient-to-br from-brand-cardDark via-brand-cardDark to-[#0f1824] border border-brand-lime/40 rounded-2xl p-6 sm:p-7 shadow-2xl relative overflow-hidden neon-border-glow transition-all">' +
+          '<div class="absolute -top-24 -right-24 w-60 h-60 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none"></div>' +
+          '<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">' +
+            '<div class="flex items-start gap-4 sm:gap-5">' +
+              '<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-brand-lime/50 flex flex-col items-center justify-center font-extrabold text-3xl sm:text-4xl text-brand-lime shadow-xl shrink-0 overflow-hidden">' +
+                jLogo +
+              '</div>' +
+              '<div class="space-y-2">' +
+                '<div class="flex flex-wrap items-center gap-2.5">' +
+                  '<h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">' + esc(joinedClub.name) + '</h3>' +
+                  joinedBadgeHtml +
+                  '<div class="flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">' +
+                    '<span>★</span><span>4.9</span><span class="text-slate-400 font-normal">(128 reviews)</span>' +
                   '</div>' +
                 '</div>' +
+                '<div class="flex flex-wrap items-center text-xs sm:text-sm text-slate-300 gap-y-1 gap-x-4">' +
+                  '<span class="flex items-center gap-1 text-slate-300 font-medium">' +
+                    '<svg class="w-4 h-4 text-brand-lime" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    esc(joinedClub.city || "Austin, TX (S. Lamar Blvd)") + ' • 1.2 miles away' +
+                  '</span>' +
+                  '<span class="flex items-center gap-1 text-slate-400">' +
+                    '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    'Open today: 6:00 AM – 11:00 PM' +
+                  '</span>' +
+                '</div>' +
+                '<div class="flex items-center gap-2 text-xs font-mono text-brand-lime bg-brand-lime/10 px-3 py-1 rounded-lg w-fit border border-brand-lime/20">' +
+                  '<span class="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>' +
+                  '<span>● ' + jCourtCount + ' courts available right now for booking</span>' +
+                '</div>' +
               '</div>' +
-              '<div class="flex flex-row sm:flex-row items-center gap-3 shrink-0 lg:self-start pt-2 lg:pt-0">' +
-                '<a href="#/c/' + esc(joinedClub.slug) + '" class="px-5 py-3 rounded-xl bg-brand-cardSubtle hover:bg-slate-800 text-white font-bold text-sm border border-slate-700 hover:border-slate-500 transition-all flex items-center gap-2 group no-underline">' +
-                  '<span>View Club Details</span>' +
-                  '<svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                '</a>' +
-                '<a href="#/c/' + esc(joinedClub.slug) + '/book" class="px-6 py-3 rounded-xl bg-brand-lime hover:bg-brand-limeGlow text-black font-extrabold text-sm shadow-[0_0_20px_rgba(163,230,53,0.4)] transition-all flex items-center gap-2 transform active:scale-95 no-underline">' +
-                  '<svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>' +
-                  '<span>Book a Court</span>' +
-                '</a>' +
-              '</div>' +
+            '</div>' +
+            '<div class="flex flex-row sm:flex-row items-center gap-3 shrink-0 lg:self-start pt-2 lg:pt-0">' +
+              '<a href="#/c/' + esc(joinedClub.slug) + '" class="px-5 py-3 rounded-xl bg-brand-cardSubtle hover:bg-slate-800 text-white font-bold text-sm border border-slate-700 hover:border-slate-500 transition-all flex items-center gap-2 group no-underline">' +
+                '<span>View Club Details</span>' +
+                '<svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+              '</a>' +
+              (isMemberJoined
+                ? '<a href="#/c/' + esc(joinedClub.slug) + '/book" class="px-6 py-3 rounded-xl bg-brand-lime hover:bg-brand-limeGlow text-black font-extrabold text-sm shadow-[0_0_20px_rgba(163,230,53,0.4)] transition-all flex items-center gap-2 transform active:scale-95 no-underline">' +
+                    '<svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>' +
+                    '<span>Book a Court</span>' +
+                  '</a>'
+                : '<a href="#/c/' + esc(joinedClub.slug) + '/join" class="px-6 py-3 rounded-xl bg-brand-lime hover:bg-brand-limeGlow text-black font-extrabold text-sm shadow-[0_0_20px_rgba(163,230,53,0.4)] transition-all flex items-center gap-2 transform active:scale-95 no-underline">' +
+                    '<svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>' +
+                    '<span>+ Join Club</span>' +
+                  '</a>'
+              ) +
+            '</div>' +
             '</div>' +
             '<div class="mt-6 pt-5 border-t border-slate-800/80 flex flex-wrap items-center gap-2 text-xs">' +
               '<span class="px-3 py-1 bg-slate-900 text-slate-300 rounded-lg border border-slate-800 font-medium">' + jCourtCount + ' Indoor Courts</span>' +
@@ -703,7 +718,6 @@
             '</div>' +
           '</article>' +
         '</section>';
-    }
 
     // 4. Discover More Clubs Section Shell
     var discoverSectionHtml =
