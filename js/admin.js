@@ -685,7 +685,7 @@
             '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase sm:col-span-2">Contact Email (Reply-To)<input id="pe" type="email" value="' + esc(t.contact_email || "") + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
           '</div>' +
           '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Description<textarea id="pd" rows="3" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(t.description || "") + '</textarea></label>' +
-          '<section class="club-map-settings"><header><span class="material-symbols-outlined" aria-hidden="true">location_on</span><div><h3>Google Maps Location</h3><p>Save your court?s exact location so players can find your club.</p></div></header><div class="club-map-fields">' +
+          '<section class="club-map-settings"><header><span class="material-symbols-outlined" aria-hidden="true">location_on</span><div><h3>Map Location</h3><p>Click the map or drag the pin. Location changes save automatically.</p></div></header><div id="club-location-map" aria-label="Choose club location on map"></div><div class="club-map-fields">' +
             '<label>Latitude<input id="plat" type="number" min="-90" max="90" step="any" placeholder="e.g. 14.5995" value="' + esc(t.latitude == null ? '' : t.latitude) + '"></label>' +
             '<label>Longitude<input id="plng" type="number" min="-180" max="180" step="any" placeholder="e.g. 120.9842" value="' + esc(t.longitude == null ? '' : t.longitude) + '"></label></div>' +
             '<p class="club-map-help">In Google Maps, right-click your venue and copy its coordinates. Paste the latitude and longitude below.</p><label>Paste coordinates<input id="pcoords" type="text" placeholder="14.5995, 120.9842" autocomplete="off"></label><div class="club-map-actions"><button id="use-club-location" type="button">Use Current Location</button><a id="open-club-map" class="btn ghost" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">View on Google Maps</a></div><p id="club-map-status"></p></section>' +
@@ -744,7 +744,7 @@
       var profileLayout = sec.querySelector('.club-profile'), mediaCard = sec.querySelector('.profile-media'), mapCard = sec.querySelector('.club-map-settings');
       var rightColumn = document.createElement('div'); rightColumn.className = 'club-profile-right';
       mapCard.querySelectorAll('input').forEach(function (input) { input.setAttribute('form', 'pf'); });
-      rightColumn.append(mediaCard, mapCard); profileLayout.appendChild(rightColumn);
+      rightColumn.append(mediaCard); profileLayout.append(rightColumn, mapCard);
     }
 
     if (part === "profile") {
@@ -756,13 +756,48 @@
         var lat = val('#plat', sec), lng = val('#plng', sec);
         var valid = lat !== '' && lng !== '' && Number.isFinite(Number(lat)) && Number.isFinite(Number(lng)) && Math.abs(Number(lat)) <= 90 && Math.abs(Number(lng)) <= 180;
         q('#open-club-map', sec).href = valid ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(lat + ',' + lng) : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([t.name,t.address,t.city,'Philippines'].filter(Boolean).join(', '));
-        q('#club-map-status', sec).textContent = valid ? 'Location selected. Save Profile to keep these coordinates.' : 'No exact location selected.';
+        q('#club-map-status', sec).textContent = valid ? 'Location selected.' : 'Click the map to select your club location.';
       }
-      q('#plat', sec).oninput = updateMapLink; q('#plng', sec).oninput = updateMapLink;
+      var locationMap, locationPin, saveTimer, saving = false, pendingLocation = null;
+      async function persistLocation() {
+        if (saving || !pendingLocation) return;
+        saving = true;
+        var target = pendingLocation; pendingLocation = null;
+        q('#club-map-status', sec).textContent = 'Saving location?';
+        try {
+          var saved = await sb.from('tenants').update(target).eq('id', t.id).select('id').single();
+          if (saved.error) throw saved.error;
+          t.latitude = target.latitude; t.longitude = target.longitude;
+          if (sec.isConnected) q('#club-map-status', sec).textContent = pendingLocation ? 'Saving latest location?' : 'Location saved automatically.';
+        } catch (error) {
+          if (sec.isConnected) q('#club-map-status', sec).textContent = 'Location could not be saved. Adjust the pin to retry.';
+          D.ui.toast('Unable to save the map location. Please try again.', 'err');
+        } finally { saving = false; if (pendingLocation) persistLocation(); }
+      }
+      function locationChanged() {
+        updateMapLink();
+        var lat = Number(val('#plat', sec)), lng = Number(val('#plng', sec));
+        if (val('#plat', sec) === '' || val('#plng', sec) === '' || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return;
+        if (locationMap) {
+          if (!locationPin) { locationPin = L.marker([lat,lng], {draggable:true, icon:L.divIcon({className:'club-map-pin',html:'<span></span>',iconSize:[26,26],iconAnchor:[13,13]})}).addTo(locationMap); locationPin.on('dragend', function () { choosePoint(locationPin.getLatLng()); }); }
+          locationPin.setLatLng([lat,lng]);
+        }
+        pendingLocation = {latitude:lat, longitude:lng}; clearTimeout(saveTimer); saveTimer = setTimeout(persistLocation, 400);
+      }
+      function choosePoint(point) { q('#plat', sec).value = point.lat.toFixed(6); q('#plng', sec).value = point.lng.toFixed(6); locationChanged(); }
+      q('#plat', sec).onchange = locationChanged; q('#plng', sec).onchange = locationChanged;
+      if (window.L) {
+        var hasLocation = t.latitude != null && t.longitude != null;
+        locationMap = L.map(q('#club-location-map',sec), {scrollWheelZoom:false}).setView(hasLocation ? [t.latitude,t.longitude] : [12.8797,121.774], hasLocation ? 16 : 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(locationMap);
+        locationMap.on('click', function (event) { choosePoint(event.latlng); });
+        if (hasLocation) { locationPin = L.marker([t.latitude,t.longitude], {draggable:true,icon:L.divIcon({className:'club-map-pin',html:'<span></span>',iconSize:[26,26],iconAnchor:[13,13]})}).addTo(locationMap); locationPin.on('dragend',function(){choosePoint(locationPin.getLatLng());}); }
+        requestAnimationFrame(function(){locationMap.invalidateSize();});
+      }
       q('#pcoords', sec).onchange = function () {
         var parts = this.value.trim().split(/\s*,\s*/);
         if (parts.length !== 2 || parts.some(function (part) { return !part || !Number.isFinite(Number(part)); }) || Math.abs(Number(parts[0])) > 90 || Math.abs(Number(parts[1])) > 180) return D.ui.toast('Enter valid latitude and longitude separated by a comma.', 'err');
-        q('#plat', sec).value = parts[0]; q('#plng', sec).value = parts[1]; updateMapLink();
+        q('#plat', sec).value = parts[0]; q('#plng', sec).value = parts[1]; locationChanged(); if(locationMap) locationMap.setView([Number(parts[0]),Number(parts[1])],16);
       };
       q('#use-club-location', sec).onclick = function () {
         var button = this;
@@ -770,7 +805,7 @@
         button.disabled = true;
         navigator.geolocation.getCurrentPosition(function (position) {
           if (!sec.isConnected) return;
-          q('#plat', sec).value = position.coords.latitude.toFixed(6); q('#plng', sec).value = position.coords.longitude.toFixed(6); updateMapLink(); button.disabled = false;
+          q('#plat', sec).value = position.coords.latitude.toFixed(6); q('#plng', sec).value = position.coords.longitude.toFixed(6); locationChanged(); if(locationMap) locationMap.setView([position.coords.latitude,position.coords.longitude],16); button.disabled = false;
         }, function () { button.disabled = false; D.ui.toast('Unable to access your location. Enter your venue coordinates manually.', 'err'); }, { enableHighAccuracy: true, timeout: 12000 });
       };
       updateMapLink();
