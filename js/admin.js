@@ -509,7 +509,7 @@
         (courts.length ? '<div class="overflow-x-auto"><table class="w-full text-left font-body-sm text-body-sm"><thead class="text-on-surface-variant font-label-sm uppercase tracking-wider bg-surface-container/60"><tr><th class="py-space-sm px-space-md rounded-l-DEFAULT">Court Details</th><th class="py-space-sm px-space-md">Hourly Rate</th><th class="py-space-sm px-space-md">Hours</th><th class="py-space-sm px-space-md">Slot Duration</th><th class="py-space-sm px-space-md">Status</th><th class="py-space-sm px-space-md rounded-r-DEFAULT text-right">Actions</th></tr></thead><tbody class="divide-y divide-surface-container-high">' +
           courts.map(function (c) {
             return '<tr class="hover:bg-surface-container transition-colors"><td class="py-space-sm px-space-md"><strong>' + esc(c.name) + '</strong><br><span class="font-label-sm text-on-surface-variant">' + esc(c.surface || "Acrylic Pro") + (c.is_indoor ? " • Indoor" : " • Outdoor") +
-              (c.qr_path ? " • Dedicated QR" : "") + "</span></td><td class=\"py-space-sm px-space-md font-label-md text-primary font-bold\">" + money(c.hourly_rate) + "/hr</td><td class=\"py-space-sm px-space-md font-label-md\">" + D.hoursText(c.open_time, c.close_time) +
+              "</span></td><td class=\"py-space-sm px-space-md font-label-md text-primary font-bold\">" + money(c.hourly_rate) + "/hr</td><td class=\"py-space-sm px-space-md font-label-md\">" + D.hoursText(c.open_time, c.close_time) +
               "</td><td class=\"py-space-sm px-space-md\">" + c.slot_minutes + ' min slots</td><td class=\"py-space-sm px-space-md\"><span class="px-space-xs py-0.5 rounded-full font-label-sm ' + (c.status === "active" ? "bg-primary/10 text-primary" : "bg-error/10 text-error") + '">' + esc(c.status.charAt(0).toUpperCase() + c.status.slice(1)) +
               '</span></td><td class="py-space-sm px-space-md text-right whitespace-nowrap"><button class="court-icon-action" data-edit="' + esc(c.id) + '" type="button" title="Edit court" aria-label="Edit ' + esc(c.name) + '"><span class="material-symbols-outlined" aria-hidden="true">edit</span></button> ' +
               '<button class="court-icon-action is-danger" data-del="' + esc(c.id) + '" type="button" title="Delete court" aria-label="Delete ' + esc(c.name) + '"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></td></tr>';
@@ -585,9 +585,6 @@
         (v.status === "maintenance" ? " selected" : "") + '>Maintenance (not bookable)</option></select></label>' +
         '<label class="flex items-center gap-2 pt-6 font-body-md text-on-surface cursor-pointer"><input id="ci" type="checkbox"' + (v.is_indoor ? " checked" : "") + ' class="w-4 h-4 accent-primary"> Indoor Cushioned Court</label>' +
       "</div></section>" +
-      '<div class="court-qr-upload"><div class="court-qr-heading"><strong>Court payment QR</strong><span>Optional</span></div><p>Use a separate QR for this court, or leave it empty to use the club QR.</p>' +
-        '<label class="court-qr-drop" for="cq"><input id="cq" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose court payment QR image"><span class="court-qr-preview"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span></span><span class="court-qr-copy"><span>Drop a QR image here, or <u>browse files</u></span><small>JPG, PNG or WebP - Up to 5 MB</small><span class="court-qr-filename" aria-live="polite">No image selected</span></span></label></div>' +
-      (c && c.qr_path ? '<label class="flex items-center gap-2 font-body-sm text-on-surface-variant"><input id="cqx" type="checkbox"> Remove this court\'s custom QR</label>' : "") +
       '<p class="msg" role="alert"></p>' +
       '</div><div class="court-config-actions"><button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="submit">Save Court</button> <button class="px-space-md py-2.5 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" id="cx" type="button">Cancel</button></div></form></dialog>';
 
@@ -603,27 +600,6 @@
     });
     modal.showModal();
     D.ui.timePickers(box);
-    var qrInput = q("#cq", box), qrDrop = q(".court-qr-drop", box);
-    qrInput.onchange = function () {
-      var file = qrInput.files[0], filename = q(".court-qr-filename", box);
-      if (!file) { filename.textContent = "No image selected"; return; }
-      try { checkImage(file); } catch (err) { qrInput.value = ""; filename.textContent = err.message; return; }
-      filename.textContent = file.name;
-      var reader = new FileReader();
-      reader.onload = function () {
-        if (qrInput.files[0] !== file) return;
-        var image = document.createElement("img"); image.src = reader.result; image.alt = "Selected court QR preview";
-        q(".court-qr-preview", box).replaceChildren(image);
-      };
-      reader.readAsDataURL(file);
-    };
-    ["dragenter", "dragover"].forEach(function (type) { qrDrop.addEventListener(type, function (event) { event.preventDefault(); qrDrop.classList.add("is-dragging"); }); });
-    qrDrop.addEventListener("dragleave", function (event) { if (!qrDrop.contains(event.relatedTarget)) qrDrop.classList.remove("is-dragging"); });
-    qrDrop.addEventListener("drop", function (event) {
-      event.preventDefault(); qrDrop.classList.remove("is-dragging");
-      if (!event.dataTransfer.files.length) return;
-      var transfer = new DataTransfer(); transfer.items.add(event.dataTransfer.files[0]); qrInput.files = transfer.files; qrInput.onchange();
-    });
     q("#cf", box).onsubmit = async function (e) {
       e.preventDefault();
       var f = q("#cf", box), btn = q("button[type=submit]", f);
@@ -632,13 +608,9 @@
       try {
         var payload = { name: val("#cn", f).trim(), surface: val("#cs", f).trim() || null, is_indoor: q("#ci", f).checked,
           hourly_rate: num("#cr", f), slot_minutes: num("#cm", f), open_time: val("#co", f), close_time: val("#cc", f), status: val("#cst", f) };
-        var file = q("#cq", f).files[0], oldQr = c && c.qr_path;
-        if (file) payload.qr_path = await upload("payment", ctx.t.id + "/qr/court-" + Date.now() + "." + TYPES[file.type], file);
-        else if (c && q("#cqx", f) && q("#cqx", f).checked) payload.qr_path = null;
         var r = c ? await sb.from("courts").update(payload).eq("id", c.id)
                   : await sb.from("courts").insert(Object.assign({ tenant_id: ctx.t.id }, payload));
         if (r.error) throw r.error;
-        if (c && ("qr_path" in payload) && oldQr) await removeQuiet("payment", oldQr);
         modal.close();
         courtsView(q("#sec"));
       } catch (err) { btn.disabled = false; setMsg(f, friendly(err), "err"); }
