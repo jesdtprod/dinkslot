@@ -526,7 +526,7 @@
       '<section class="clubbanner">' + (c.cover_path ? '<img src="' + esc(mediaUrl(c.cover_path)) + '" alt="">' : '<div class="ph"></div>') + "</section>" +
       '<section class="clubid"><div class="bigcircle">' + (c.logo_path ? '<img src="' + esc(mediaUrl(c.logo_path)) + '" alt="">' : "<span>" + esc(c.name.charAt(0).toUpperCase()) + "</span>") + "</div>" +
       '<div class="clubid-text"><h1>' + esc(c.name) + '</h1><div class="chips">' +
-      chip("location_on", [c.address, c.city].filter(Boolean).join(", ")) + chip("call", c.contact_phone) + chip("schedule", hrs) +
+      chip("location_on", [c.address, c.city, c.province].filter(Boolean).join(", ") + (c.zip_code ? " " + c.zip_code : "")) + chip("call", c.contact_phone) + chip("schedule", hrs) +
       chip("sports_tennis", courts.length + (courts.length === 1 ? " court" : " courts")) + "</div></div>" +
       '<div class="bookcta"><a class="btn" href="' + bookHref + '">' + (state.user ? "Book a court" : "Sign up to book") + "</a>" +
       (state.user ? "" : '<span class="muted small">Free account needed. Already registered? <a href="' + signInHref + '">Sign in</a></span>') + "</div></section>" +
@@ -1562,12 +1562,7 @@
       '<p class="text-xs font-mono text-brand-neon/80" id="slugprev"></p>' +
       '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="desc">Description</label>' +
       '<textarea class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="desc" rows="3" placeholder="Tell players about your facility, courts, and amenities..."></textarea></div>' +
-      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
-      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="addr">Street address</label>' +
-      '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="addr" placeholder="123 Pickleball Way"></div>' +
-      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="city">City</label>' +
-      '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="city" placeholder="e.g. Austin"></div>' +
-      '</div>' +
+      '<div id="phbox"></div>' +
       '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
       '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="cemail">Contact email</label>' +
       '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="cemail" type="email" placeholder="contact@yourclub.com"></div>' +
@@ -1581,6 +1576,9 @@
       '</button></div>' +
       '</form></div></div>';
 
+    var phc = window.DS.ph.mount($("#phbox"), { manager: true, required: true, cls: {
+      label: "font-mono text-xs uppercase font-medium text-slate-300 tracking-wider",
+      input: "w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" } });
     var cap = mountCaptcha($("#cap")), touched = !!pendingClub;
     function prev() { $("#slugprev").textContent = "Your page: #/c/" + ($("#slug").value || "..."); }
     if (pendingClub) {
@@ -1591,7 +1589,10 @@
     $("#slug").oninput = function () { touched = true; this.value = slugify(this.value); prev(); };
     $("#f").onsubmit = async function (e) {
       e.preventDefault();
+      var addrErr = phc.validate();
+      if (addrErr) return setMsg(app, addrErr, "err");
       if (!cap.token) return setMsg(app, MESSAGES.captcha_required, "err");
+      var ad = phc.get();
       $("#go").disabled = true; setMsg(app, "Submitting...", "");
       var v = await sb.functions.invoke("verify-turnstile", { body: { token: cap.token, purpose: "register_club" } });
       if (v.error || !v.data || !v.data.success) {
@@ -1606,11 +1607,14 @@
       }
       var r = await sb.rpc("register_club", {
         p_name: $("#name").value.trim(), p_slug: $("#slug").value, p_description: $("#desc").value.trim() || null,
-        p_address: $("#addr").value.trim() || null, p_city: $("#city").value.trim() || null,
+        p_address: ad.address, p_city: ad.city,
         p_contact_email: $("#cemail").value.trim() || null, p_contact_phone: $("#cphone").value.trim() || null
       });
       cap.reset(); $("#go").disabled = false;
       if (r.error) return setMsg(app, friendly(r.error), "err");
+      // the registration function takes the basic fields; the full Philippine address is saved on the new club right after
+      await sb.from("tenants").update({ manager_name: ad.manager_name, street: ad.street, barangay: ad.barangay, province: ad.province,
+        zip_code: ad.zip_code, psgc_province: ad.psgc_province, psgc_city: ad.psgc_city, psgc_barangay: ad.psgc_barangay }).eq("id", r.data.id);
       await refreshSession();
       app.innerHTML =
         '<div class="w-full flex-1 flex items-center justify-center px-4 py-8 lg:py-14 court-grid-pattern">' +
@@ -1676,7 +1680,7 @@
         rows.map(function (c) {
           var b = function (d, label, cls) { return '<button class="btn sm ' + (cls || "") + '" data-id="' + esc(c.id) + '" data-d="' + d + '">' + label + "</button> "; };
           return "<tr><td><strong>" + esc(c.name) + '</strong><br><span class="muted small">/c/' + esc(c.slug) + (c.city ? " - " + esc(c.city) : "") + "</span></td><td>" +
-            esc(c.owner_name || "") + (c.contact_email ? '<br><span class="muted small">' + esc(c.contact_email) + "</span>" : "") + '</td><td class="small">' +
+            esc(c.manager_name || c.owner_name || "") + (c.manager_name && c.owner_name && c.manager_name !== c.owner_name ? ' <span class="muted small">(account: ' + esc(c.owner_name) + ")</span>" : "") + (c.province ? '<br><span class="muted small">' + esc([c.city, c.province].filter(Boolean).join(", ")) + "</span>" : "") + (c.contact_email ? '<br><span class="muted small">' + esc(c.contact_email) + "</span>" : "") + '</td><td class="small">' +
             esc(new Date(c.created_at).toLocaleDateString()) + '</td><td><span class="badge ' + esc(c.status) + '">' + esc(c.status) + '</span></td><td class="nowrap">' +
             (c.status !== "approved" ? b("approved", "Approve") : "") + (c.status === "pending" ? b("rejected", "Reject", "danger") : "") +
             (c.status === "approved" ? b("suspended", "Suspend", "danger") : "") + "</td></tr>";

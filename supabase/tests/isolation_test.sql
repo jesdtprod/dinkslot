@@ -326,6 +326,17 @@ begin
       ('Club cannot add a club account as a player','a1', $q$select * from public.admin_add_player('{T1}','staff1@test.local')$q$, 'deny'),
       ('Unknown email cannot be added as a player',  'a1', $q$select * from public.admin_add_player('{T1}','nobody@nowhere.test')$q$, 'deny'),
       ('Club 2 admin cannot add players to club 1',  'a2', $q$select * from public.admin_add_player('{T1}','player3@test.local')$q$, 'deny'),
+      -- club address (Philippine)
+      ('Owner saves manager and PH address on own club', 'a1', $q$with u as (update public.tenants set manager_name='Juan Dela Cruz', street='12 Purok Uno', barangay='Poblacion', province='Cebu', city='City of Cebu', zip_code='6000', psgc_province='0702200000', psgc_city='0730600000', psgc_barangay='0730600001' where id='{T1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('ZIP must be 4 digits',                       'a1', $q$update public.tenants set zip_code='60A0' where id='{T1}'$q$, 'deny'),
+      ('ZIP of 5 digits is refused',                 'a1', $q$update public.tenants set zip_code='60000' where id='{T1}'$q$, 'deny'),
+      ('Bad PSGC code is refused',                   'a1', $q$update public.tenants set psgc_city='x; drop' where id='{T1}'$q$, 'deny'),
+      ('Club 2 owner cannot edit club 1 address',    'a2', $q$with u as (update public.tenants set street='hacked' where id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
+      ('Staff cannot edit the club address',         'sf', $q$with u as (update public.tenants set province='Hacked' where id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
+      ('Public view shows province and ZIP only when approved', 'anon', $q$select count(*) from public.public_clubs where slug='club-one' and province='Cebu' and zip_code='6000'$q$, 'eq:1'),
+      ('Manager name is not in the public view',     'anon', $q$select manager_name from public.public_clubs$q$, 'deny'),
+      ('Anonymous cannot read manager from tenants', 'anon', $q$select manager_name from public.tenants$q$, 'deny'),
+      ('Platform admin sees the manager name',       'pa', $q$select manager_name from public.platform_list_clubs() where slug='club-one'$q$, 'eq:Juan Dela Cruz'),
       ('Creating many clubs in a day is limited (6th is refused)', 'pg', $q$do $d$ declare i int; begin
           perform set_config('request.jwt.claims', json_build_object('sub','{P2}','role','authenticated')::text, true);
           for i in 1..11 loop
