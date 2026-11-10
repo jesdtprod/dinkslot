@@ -49,19 +49,19 @@
             '<div class="facility-brand-row">' +
               '<a href="#/" class="facility-brand" aria-label="DINKSLOT home">' +
                 '<img src="assets/dinkslot-logo.png" alt="" width="42" height="42" />' +
-                '<span class="facility-brand-copy"><strong>DINKSLOT</strong><span>Tenant Workspace</span></span>' +
+                '<span class="facility-brand-copy"><strong>DINKSLOT</strong><span>' + esc(o.workspace || "Tenant Workspace") + '</span></span>' +
               '</a>' +
             '</div>' +
             '<nav class="flex flex-col gap-space-xs px-space-sm" aria-label="Facility menu">' + items + '</nav>' +
           '</div>' +
           '<div class="px-space-md flex flex-col gap-space-sm pt-space-sm border-t border-outline-variant/20">' +
-            '<div class="bg-surface-container-low p-space-sm dashboard-rounded flex items-center justify-between border border-outline-variant/20" id="side-status-box">' +
+            (o.hideStatus ? '' : '<div class="bg-surface-container-low p-space-sm dashboard-rounded flex items-center justify-between border border-outline-variant/20" id="side-status-box">' +
               '<div class="flex items-center gap-space-xs">' +
                 '<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>' +
                 '<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant" id="side-status-courts">Live Facility</span>' +
               '</div>' +
               '<span class="font-label-sm text-label-sm font-semibold text-primary" id="side-status-util">ACTIVE</span>' +
-            '</div>' +
+            '</div>') +
             '<div class="flex flex-col gap-1">' + foot + '</div>' +
           '</div>' +
         '</aside>' +
@@ -79,13 +79,13 @@
               '</button>' +
               '<div class="flex items-center gap-space-xs bg-surface-container-high px-space-md py-space-xs rounded-full border border-outline-variant/30">' +
                 '<span class="material-symbols-outlined text-primary text-sm">location_on</span>' +
-                '<span class="font-label-md text-label-md text-on-surface font-semibold truncate">' + esc(h.title || "Facility") + (h.city ? ' - ' + esc(h.city) : '') + '</span>' +
+                '<span class="font-label-md text-label-md text-on-surface font-semibold truncate">' + esc(o.chip || ((h.title || "Facility") + (h.city ? ' - ' + h.city : ''))) + '</span>' +
               '</div>' +
             '</div>' +
             '<div class="flex items-center gap-space-md">' +
               '<div class="hidden lg:flex items-center gap-space-xs bg-primary/10 px-space-md py-space-xs rounded-full border border-primary/20">' +
                 '<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>' +
-                '<span class="font-label-md text-label-md text-primary font-semibold">' + (h.status === "approved" ? "Approved Partner" : esc(h.status || "Active Partner")) + '</span>' +
+                '<span class="font-label-md text-label-md text-primary font-semibold">' + (o.pill != null ? esc(o.pill) : (h.status === "approved" ? "Approved Partner" : esc(h.status || "Active Partner"))) + '</span>' +
               '</div>' +
               '<span id="dashboard-bellslot" class="dashboard-bellslot"></span>' +
               '<details class="facility-account"><summary aria-label="Account menu">' +

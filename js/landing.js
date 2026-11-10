@@ -492,22 +492,126 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
 
 <!-- CALL TO ACTION BANNER (BOTTOM) -->
 <section class="w-full py-space-xl px-gutter md:px-margin-desktop bg-surface-container-lowest">
-  <div class="court-cta">
-    <div class="court-cta-copy">
-      <span class="court-cta-eyebrow"><span></span> YOUR NEXT MATCH STARTS HERE</span>
-      <h2>Ready to rule<br>the <em>court?</em></h2>
-      <p>More play. Less planning. Find your club, pick your time, and make the court yours.</p>
-      <div class="court-cta-actions">
-        <a href="#/auth?mode=up" class="court-cta-primary">Get Started for Free <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
-        <a href="#/auth" class="court-cta-secondary">Player Sign In <span class="material-symbols-outlined" aria-hidden="true">login</span></a>
-      </div>
-      <p class="court-cta-note"><span class="material-symbols-outlined" aria-hidden="true">info</span> Rates and cancellation policies are set by each club.</p>
-    </div>
-    <div class="court-cta-visual">
-      <figure class="court-cta-photo"><img src="assets/pickleball-courts-hd.jpg" alt="Players on outdoor pickleball courts" width="2560" height="1440" loading="lazy" decoding="async"></figure>
-      <a class="court-cta-bookings" href="#/me"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span><span>Already have a game lined up?<strong>View my bookings</strong></span><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
-    </div>
-  </div>
+<div class="relative w-full max-w-7xl mx-auto rounded-[28px] md:rounded-[36px] bg-[#10141a]/95 border border-[#1e2735] shadow-card-depth overflow-hidden backdrop-blur-xl" data-purpose="hero-callout-banner" id="dinkslot-hero-banner">
+<!-- Ambient Kinetic Light Accent Behind Content -->
+<div aria-hidden="true" class="absolute -top-32 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div aria-hidden="true" class="absolute -bottom-24 -right-24 w-80 h-80 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Inner Border Highlight Line -->
+<div aria-hidden="true" class="absolute inset-0 rounded-[28px] md:rounded-[36px] border border-white/[0.04] pointer-events-none"></div>
+<div class="relative p-6 sm:p-10 md:p-12 lg:p-14">
+<!-- Top Brand Tag & Live Status Row -->
+<div class="flex items-center justify-between mb-8 pb-4 border-b border-white/[0.05]">
+<div class="flex items-center gap-2.5">
+<!-- Mini DS Logo Badge -->
+<img src="assets/dinkslot-logo.png" alt="DINKSLOT" width="32" height="32" class="callout-brand-logo" />
+<span class="text-xs font-semibold tracking-widest text-slate-400 uppercase">
+            Dinkslot <span class="text-slate-600">/</span> Pickleball Network
+          </span>
+</div>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+            DUPR READY
+          </span>
+</div>
+</div>
+<!-- Main Grid Split: Content Left & Visual Action Cards Right -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+<!-- Left Column: Copy & Actions -->
+<div class="lg:col-span-6 xl:col-span-7 flex flex-col justify-center">
+<!-- Eyebrow Sub-Badge -->
+<div class="inline-flex items-center gap-2 mb-4" data-purpose="eyebrow-badge">
+<span class="w-2.5 h-2.5 rounded-full bg-primary neon-pulse-dot inline-block"></span>
+<span class="text-xs md:text-sm font-headline-md font-bold tracking-widest text-primary uppercase">
+              Your Next Match Starts Here
+            </span>
+</div>
+<!-- Bold Kinetic Headline -->
+<h1 class="text-4xl sm:text-5xl md:text-6xl font-headline-md font-extrabold text-white tracking-tight leading-[1.08] mb-5">
+            Ready to rule <br class="hidden sm:inline"/>
+            the <span class="text-primary drop-shadow-[0_0_20px_rgba(163,230,53,0.35)]">court?</span>
+</h1>
+<!-- Descriptive Subtitle -->
+<p class="text-slate-300 text-base sm:text-lg md:text-xl font-normal leading-relaxed max-w-xl mb-8">
+            More play. Less planning. Find your club, pick your time, and make the court yours.
+          </p>
+<!-- Primary & Secondary CTA Buttons -->
+<div class="flex flex-wrap items-center gap-3.5 sm:gap-4 mb-8" data-purpose="cta-group">
+<!-- Primary Lime Pill CTA -->
+<a class="group relative inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full font-headline-md font-bold text-sm sm:text-base text-on-primary bg-primary hover:bg-[#bbf246] transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 shadow-neon-glow" href="#/auth?mode=up">
+<span>Get Started for Free</span>
+<svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+<!-- Secondary Player Sign In Button -->
+<a class="group inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl font-headline-md font-semibold text-sm sm:text-base text-slate-200 bg-[#161c24] hover:bg-[#1c2430] border border-white/10 hover:border-slate-500/50 transition-all duration-200" href="#/auth?mode=in">
+<span>Player Sign In</span>
+<svg class="callout-login-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-5M4 12h11m-4-4 4 4-4 4"/></svg>
+</a>
+</div>
+<!-- Policy & Disclaimer Footnote -->
+<div class="flex items-center gap-2 text-xs text-slate-400 font-medium" data-purpose="terms-footnote">
+<svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Rates and cancellation policies are set by each club.</span>
+</div>
+</div>
+<!-- Right Column: Media Preview & Bookings Quick-Action Card -->
+<div class="lg:col-span-6 xl:col-span-5 flex flex-col gap-4">
+<!-- Aerial Court Image Container -->
+<div class="relative group rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 bg-[#0e1218] shadow-2xl" data-purpose="court-preview-card">
+<!-- Court Drone Image -->
+<img alt="Premier outdoor pickleball courts active with players during a tournament" class="w-full h-56 sm:h-64 md:h-72 object-cover object-center transform group-hover:scale-105 transition-transform duration-500 ease-out" loading="lazy" src="assets/pickleball-courts-hd.jpg"/>
+<!-- Dark Overlay Vignette for Contrast -->
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none"></div>
+<!-- Top Left Floating Badge on Image -->
+<div class="absolute top-3 left-3 flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[11px] font-semibold text-white">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Explore Pickleball Courts</span>
+</div>
+<!-- Bottom Left Location Tag -->
+<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-slate-300">
+<span class="font-medium flex items-center gap-1.5 backdrop-blur-sm bg-black/40 px-2.5 py-1 rounded-md">
+<svg class="w-3.5 h-3.5 text-primary" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" fill-rule="evenodd"></path>
+</svg>
+                Find your next court
+              </span>
+<span class="text-[11px] text-slate-300 bg-white/10 backdrop-blur-sm px-2 py-1 rounded">
+                Outdoor Play
+              </span>
+</div>
+</div>
+<!-- Bottom Interactive Quick Card: "View My Bookings" -->
+<a class="group flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-[#141a23] hover:bg-[#1a222f] border border-white/10 hover:border-primary/40 transition-all duration-200" data-purpose="quick-bookings-link" href="#/me">
+<div class="flex items-center gap-3.5">
+<!-- Calendar / Event Icon with Lime Accent -->
+<div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 text-primary group-hover:scale-105 transition-transform duration-200">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<!-- Contextual Text -->
+<div class="flex flex-col">
+<span class="text-xs text-slate-300 font-medium">Already have a game lined up?</span>
+<span class="text-sm sm:text-base font-headline-md font-bold text-white group-hover:text-primary transition-colors duration-200">
+                  View my bookings
+                </span>
+</div>
+</div>
+<!-- Angled Action Arrow -->
+<div class="w-8 h-8 rounded-full bg-white/5 group-hover:bg-primary group-hover:text-on-primary flex items-center justify-center text-primary transition-all duration-200">
+<svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
 </section>
 </div>`;
 

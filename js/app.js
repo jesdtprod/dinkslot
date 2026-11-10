@@ -8,6 +8,11 @@
   });
   var app = document.getElementById("app");
   var nav = document.getElementById("nav");
+  document.addEventListener("pointerdown", function (event) {
+    document.querySelectorAll(".city-menu[open]").forEach(function (menu) {
+      if (!menu.contains(event.target)) menu.open = false;
+    });
+  });
   var state = { user: null, isPlatform: false, managedSlug: null, accountType: null };
   var liveChannel = null, livePoll = null;
   var cleanupAuthPattern = function () {};
@@ -219,7 +224,7 @@
       var initial = profileName.trim().charAt(0).toUpperCase() || "P";
       // Club owners and staff go straight to their dashboard; everyone else keeps My account.
       var acctHref = state.managedSlug ? "#/admin/" + esc(state.managedSlug) : state.accountType === "tenant" ? "#/register-club" : "#/me";
-      var acctLabel = state.managedSlug ? "Dashboard" : state.accountType === "tenant" ? "Set up my club" : "My account";
+      var acctLabel = state.managedSlug ? "Dashboard" : state.accountType === "tenant" ? "Set up my club" : "My dashboard";
       h += '<span id="bellslot" class="dashboard-bellslot"></span>' +
         '<details class="facility-account"><summary aria-label="Account menu"><span class="facility-avatar">' + esc(initial) + '</span>' +
         '<span class="facility-account-text"><strong>' + esc(profileName) + '</strong><small>' + acctLabel + '</small></span>' +
@@ -238,10 +243,13 @@
         var isSignup = authParams.get("mode") === "up";
         authParams.set("mode", isSignup ? "in" : "up");
         h += '<a class="auth-nav-switch" href="#/auth?' + esc(authParams.toString()) + '">' + authIcon(isSignup ? "login" : "person_add") + '<span>' + (isSignup ? "Sign in" : "Create account") + '</span></a>';
+      } else if (authPath === "/register-club") {
+        h += '<a class="auth-nav-switch" href="#/auth?mode=in&next=%2Fregister-club">' + authIcon("login") + '<span>Sign in</span></a>' +
+          '<a class="auth-nav-switch" href="#/auth?mode=up">' + authIcon("person_add") + '<span>Create account</span></a>';
       } else {
-        h += '<a class="auth-nav-switch" href="#/auth?mode=in">' + authIcon("login") + '<span>Sign in</span></a><a class="auth-nav-switch" href="#/auth?mode=up">' + authIcon("person_add") + '<span>Create account</span></a>';
+        h += '<a class="auth-nav-switch" href="#/auth?mode=in">' + authIcon("login") + '<span>Sign in</span></a>';
       }
-      h += '<a href="#/register-club" class="pill">Register your club</a>';
+      if (authPath !== "/register-club") h += '<a href="#/register-club" class="pill">Register your club</a>';
     }
     nav.innerHTML = h;
     var accountMenu = nav.querySelector(".facility-account");
@@ -255,6 +263,13 @@
     var so = document.getElementById("signout");
     if (so) so.onclick = async function () { await sb.auth.signOut(); await refreshSession(); go("/"); };
     if (window.DS && window.DS.notify) window.DS.notify.mount(); // bell (or clean up when signed out)
+  }
+  // Where a signed-in person belongs.
+  function homePath() {
+    if (state.isPlatform) return "/platform";
+    if (state.managedSlug) return "/admin/" + state.managedSlug;
+    if (state.accountType === "tenant") return "/register-club"; // club account that still has to add its club
+    return "/me";
   }
   function requireUser(next) {
     if (state.user) return true;
@@ -1056,9 +1071,9 @@
         '</button>' +
         '</form>' +
         '<!-- Bottom Card Switcher -->' +
-        '<div class="flex items-center justify-center gap-1.5 pt-2 font-body-sm text-body-sm text-on-surface-variant">' +
+        '<div class="account-signin-prompt flex items-center justify-center gap-1.5 pt-2 font-body-sm text-body-sm text-on-surface-variant">' +
         '<span>Already have an account?</span>' +
-        '<a id="switch-btn" class="font-label-md text-label-md text-primary font-semibold hover:underline" href="#">Sign In</a>' +
+        '<a id="switch-btn" class="auth-switch-link font-label-md text-label-md text-primary font-semibold" href="#"><span id="switch-btn-label">Sign in</span><span class="material-symbols-outlined auth-switch-icon" aria-hidden="true">arrow_forward</span></a>' +
         '</div>' +
         '</div>' +
         '<!-- Micro Highlights / Proof Stats -->' +
@@ -1174,6 +1189,16 @@
           setBtnIdle();
           return setMsg(app, friendly(res.error), "err");
         }
+        // Reset only after signup succeeds; keep saved values for confirmation/join.
+        var signupForm = $("#f");
+        if (signupForm) signupForm.reset();
+        selectedSkill = "unrated";
+        pills.forEach(function (pill) { pill.setAttribute("aria-pressed", String(pill.getAttribute("data-skill") === "unrated")); });
+        if (passInput) {
+          passInput.type = "password";
+          if (passInput.oninput) passInput.oninput({ target: passInput });
+        }
+        if (eyeIcon) eyeIcon.textContent = "visibility";
         if (!res.data.session) {
           btn.disabled = false;
           setBtnIdle();
@@ -1184,7 +1209,7 @@
         await refreshSession();
         if (state.isPlatform) return go("/platform");
         if (opts.join) {
-          var dn = ($("#dn") && $("#dn").value.trim()) || fullName || email.split("@")[0];
+          var dn = displayName || email.split("@")[0];
           takePending();
           var j = await sb.rpc("join_club", { p_slug: opts.join, p_display_name: dn });
           if (j.error) {
@@ -1234,10 +1259,10 @@
   // Step 1 for clubs, separate from player sign-up: create a CLUB account.
   function viewClubSignup() {
     app.innerHTML =
-      '<div class="w-full flex-1 flex items-center justify-center px-4 py-8 lg:py-14 court-grid-pattern">' +
-      '<div class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">' +
+      '<div id="club-signup-screen" class="w-full flex-1 flex items-center justify-center px-4 py-8 lg:py-14">' +
+      '<div class="club-signup-layout max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">' +
       '<!-- BEGIN: LeftFeatureHero (Value Proposition for Venues) -->' +
-      '<div class="lg:col-span-5 flex flex-col justify-between rounded-3xl glass-panel glow-border p-7 lg:p-9 relative overflow-hidden border border-brand-border">' +
+      '<div class="club-signup-story lg:col-span-5 flex flex-col justify-between rounded-3xl p-7 lg:p-9 relative overflow-hidden border border-brand-border">' +
       '<!-- Background Ambient Glow -->' +
       '<div class="absolute -top-24 -left-24 w-72 h-72 bg-brand-neon/10 rounded-full blur-3xl pointer-events-none"></div>' +
       '<div>' +
@@ -1259,7 +1284,7 @@
       '</p>' +
       '<!-- Core Feature Bullets -->' +
       '<div class="space-y-4">' +
-      '<div class="flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
+      '<div class="club-feature-card flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
       '<div class="w-8 h-8 rounded-lg bg-brand-neon/10 flex items-center justify-center text-brand-neon shrink-0 mt-0.5">' +
       '<i class="fa-solid fa-bolt text-xs"></i>' +
       '</div>' +
@@ -1268,7 +1293,7 @@
       '<p class="text-[11px] text-slate-400 mt-0.5">Automated keypad PINs and court light toggling tied directly to reservations.</p>' +
       '</div>' +
       '</div>' +
-      '<div class="flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
+      '<div class="club-feature-card flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
       '<div class="w-8 h-8 rounded-lg bg-brand-neon/10 flex items-center justify-center text-brand-neon shrink-0 mt-0.5">' +
       '<i class="fa-solid fa-ranking-star text-xs"></i>' +
       '</div>' +
@@ -1277,7 +1302,7 @@
       '<p class="text-[11px] text-slate-400 mt-0.5">Real-time dynamic rating sync, round-robin generators, and bracket automation.</p>' +
       '</div>' +
       '</div>' +
-      '<div class="flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
+      '<div class="club-feature-card flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
       '<div class="w-8 h-8 rounded-lg bg-brand-neon/10 flex items-center justify-center text-brand-neon shrink-0 mt-0.5">' +
       '<i class="fa-solid fa-hand-holding-dollar text-xs"></i>' +
       '</div>' +
@@ -1314,7 +1339,7 @@
       '</div>' +
       '<!-- END: LeftFeatureHero -->' +
       '<!-- BEGIN: RightRegisterForm -->' +
-      '<div class="lg:col-span-7 rounded-3xl glass-panel glow-border p-7 sm:p-10 border border-brand-border flex flex-col justify-center relative">' +
+      '<div class="club-signup-form lg:col-span-7 rounded-3xl p-7 sm:p-10 border border-brand-border flex flex-col justify-center relative">' +
       '<!-- Registration Stage Badge & Title -->' +
       '<div class="mb-6">' +
       '<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-neon/15 text-brand-neon text-[11px] font-mono font-semibold tracking-wider uppercase mb-3 border border-brand-neon/30">' +
@@ -1390,21 +1415,21 @@
       '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
       '<i class="fa-solid fa-key text-xs"></i>' +
       '</div>' +
-      '<input class="w-full pl-10 pr-10 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="opw" minlength="6" name="password" placeholder="••••••••••••" required type="password" autocomplete="new-password" />' +
+      '<input class="w-full pl-10 pr-10 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="opw" minlength="6" name="password" placeholder="Create a password" required type="password" autocomplete="new-password" />' +
       '<button id="pw-toggle" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 text-xs transition-colors" title="Toggle password view" type="button">' +
       '<i id="pw-toggle-icon" class="fa-regular fa-eye"></i>' +
       '</button>' +
       '</div>' +
       '</div>' +
       '<!-- Cloudflare Turnstile & Message Container -->' +
-      '<div class="pt-1">' +
+      '<div class="club-captcha-block">' +
       '<div id="cap" class="cap"></div>' +
       '<p class="msg" role="alert"></p>' +
       '</div>' +
       '<!-- Primary Submit Action CTA -->' +
-      '<div class="pt-2">' +
+      '<div class="club-submit-block">' +
       '<button id="go" class="w-full py-3.5 px-6 rounded-xl font-mono text-sm font-bold uppercase tracking-wider bg-brand-neon hover:bg-brand-neonHover text-brand-dark neon-glow-btn flex items-center justify-center gap-2 group transition-all" type="submit">' +
-      '<span>CREATE CLUB ACCOUNT</span>' +
+      '<span>Create club account</span>' +
       '<i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>' +
       '</button>' +
       '</div>' +
@@ -1424,14 +1449,14 @@
       '<path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15.2c0 2.8.7 5.5 1.9 7.8l3.7-2.9z" fill="#FBBC05"></path>' +
       '<path d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16.4C3.7 20.1 7.5 23.5 12 23.5z" fill="#34A853"></path>' +
       '</svg>' +
-      '<span>CONTINUE WITH GOOGLE</span>' +
+      '<span>Continue with Google</span>' +
       '</button>' +
       '</div>' +
       '<!-- Bottom Prompt: Sign In Switch -->' +
-      '<div class="pt-3 text-center text-xs text-slate-400">' +
+      '<div class="account-signin-prompt">' +
       '<span>Already have a club account?</span>' +
-      '<a class="font-mono text-brand-neon hover:text-brand-neonHover font-semibold underline ml-1.5 transition-colors" href="#/auth?mode=in&next=%2Fregister-club">' +
-      'Sign in' +
+      '<a class="club-signin-link text-primary transition-colors" href="#/auth?mode=in&next=%2Fregister-club">' +
+      '<span class="club-signin-label">Sign in</span><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>' +
       '</a>' +
       '</div>' +
       '</form>' +
@@ -1440,6 +1465,8 @@
       '</div>' +
       '</div>';
 
+    if (cleanupAuthPattern) cleanupAuthPattern();
+    cleanupAuthPattern = mountAuthPattern($("#club-signup-screen"));
     var cap = mountCaptcha($("#cap"));
     $("#ogoogle").onclick = googleForClub;
     var pwInput = $("#opw");
@@ -1472,6 +1499,10 @@
       });
       cap.reset(); btn.disabled = false;
       if (res.error) return setMsg(app, friendly(res.error), "err");
+      $("#f").reset();
+      if (pwInput) pwInput.type = "password";
+      var passwordIcon = $("#pw-toggle-icon");
+      if (passwordIcon) passwordIcon.className = "fa-regular fa-eye";
       if (!res.data.session) {
         setPending({ as: "tenant", join: null, next: "/register-club", dn: name, club_name: clubName });
         return setMsg(app, "Club account created. Check your email and click the confirmation link, then add your club details.", "ok");
@@ -1593,67 +1624,12 @@
     };
   }
 
-  async function viewMe() {
+  // /#/me is the PLAYER dashboard (js/player.js). Club accounts never land here.
+  async function viewMe(section) {
     if (!requireUser("/me")) return;
     if (state.managedSlug) return go("/admin/" + state.managedSlug); // owners and staff use the dashboard
     if (state.accountType === "tenant") return go("/register-club"); // club account: add the club first
-    var initial = (state.user.email || "?").charAt(0).toUpperCase();
-    app.innerHTML =
-      '<div class="pubwrap narrow"><div class="acchead"><span class="avatar big ph">' + esc(initial) + "</span>" +
-      '<div><h1>My account</h1><p class="muted">' + esc(state.user.email) + "</p></div></div>" +
-      '<p class="msg ok" role="status"></p>' +
-      '<section class="card2"><h2>My Profile</h2><form id="myprofile"><div class="grid2">' +
-      '<label>Full name<input id="mp-name" maxlength="80" autocomplete="name"></label>' +
-      '<label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label></div>' +
-      '<p class="muted small">Email: ' + esc(state.user.email) + '</p><p class="msg" role="alert"></p>' +
-      '<button class="btn sm" type="submit">Save profile</button></form></section>' +
-      '<section class="card2"><h2>Clubs you manage</h2><div id="mine"><div class="space-y-3"><div class="h-14 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-14 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div></div></section>' +
-      '<section class="card2"><h2>My bookings</h2><div id="mybookings"><div class="space-y-3"><div class="h-16 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-16 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div></div></section></div>';
-    var known = {};
-    async function loadMine(announce) {
-      var m = await sb.from("tenant_members").select("role, tenants(id, slug, name, status, logo_path)").eq("user_id", state.user.id);
-      if (!$("#mine")) return; // user navigated away
-      var rows = m.data || [];
-      rows.forEach(function (x) {
-        var t = x.tenants || {};
-        if (announce && known[t.id] && known[t.id] !== t.status) {
-          setMsg(app, t.name + " is now " + t.status + "!", t.status === "approved" ? "ok" : "err");
-        }
-        known[t.id] = t.status;
-      });
-      $("#mine").innerHTML = rows.length ? rows.map(function (x) {
-        var t = x.tenants || {};
-        return '<div class="clubrow"><span class="avatar ph">' + (t.logo_path ? '<img src="' + esc(mediaUrl(t.logo_path)) + '" alt="">' : esc((t.name || "?").charAt(0).toUpperCase())) + "</span>" +
-          '<div class="clubrow-text"><b>' + esc(t.name) + '</b> <span class="badge ' + esc(t.status) + '">' + esc(t.status) + "</span>" +
-          '<span class="muted small"> ' + esc(x.role) + "</span>" +
-          (t.status === "pending" ? '<p class="muted small">Waiting for approval. This page updates by itself.</p>' : "") + "</div>" +
-          '<div class="clubrow-actions"><a class="btn sm" href="#/admin/' + esc(t.slug) + '">Dashboard</a>' +
-          (t.status === "approved" ? ' <a class="btn sm ghost" href="#/c/' + esc(t.slug) + '">Public page</a>' : "") + "</div></div>";
-      }).join("") : '<p class="muted">You do not manage a club yet.</p><a class="btn sm" href="#/register-club">Register your club</a>';
-    }
-    // Personal profile (own row only; RLS and column grants allow full_name and phone).
-    sb.from("profiles").select("full_name,phone").eq("auth_user_id", state.user.id).maybeSingle().then(function (r) {
-      if (!$("#mp-name")) return;
-      $("#mp-name").value = (r.data && r.data.full_name) || "";
-      $("#mp-phone").value = (r.data && r.data.phone) || "";
-    });
-    $("#myprofile").onsubmit = async function (e) {
-      e.preventDefault();
-      var f = this, btn = f.querySelector("button");
-      btn.disabled = true;
-      var r = await sb.from("profiles").update({ full_name: $("#mp-name").value.trim() || null, phone: $("#mp-phone").value.trim() || null })
-        .eq("auth_user_id", state.user.id);
-      btn.disabled = false;
-      setMsg(f, r.error ? friendly(r.error) : "Profile saved.", r.error ? "err" : "ok");
-    };
-    await loadMine(false);
-    if (window.DS.booking) window.DS.booking.myBookings($("#mybookings"));
-    // Live update: when the super admin decides, the status changes here without a refresh.
-    // Realtime only delivers rows this user may read (RLS). Polling is a safety net.
-    liveChannel = sb.channel("my-clubs-" + state.user.id)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tenants" }, function () { loadMine(true); })
-      .subscribe();
-    livePoll = setInterval(function () { loadMine(true); }, 20000);
+    return window.DS.player.render(section || "overview");
   }
 
   async function viewPlatform() {
@@ -1745,6 +1721,7 @@
     stopLive();
     cleanupAuthPattern();
     document.body.classList.remove("auth-page", "landing-page", "tenant-dashboard-mode");
+    renderNav();
     // Supabase Auth returns here with #error=... (expired/used link) or #access_token=... (signed in).
     // These are not page routes.
     if (/^(error|access_token|error_code|error_description)=/.test(raw)) {
@@ -1762,7 +1739,13 @@
     }
     try {
       // Super admin never uses tenant/player screens.
-      if (state.isPlatform && (path === "/me" || path === "/register-club" || path === "/auth")) return go("/platform");
+      if (state.isPlatform && (path === "/me" || path.indexOf("/me/") === 0 || path === "/register-club" || path === "/auth")) return go("/platform");
+      // Signed-in people never see sign-in / sign-up / club sign-up again: send them to their own home.
+      if (state.user && path === "/auth") return go(homePath());
+      if (state.user && path === "/register-club" && (state.managedSlug || state.accountType === "player")) {
+        if (state.accountType === "player" && window.DS.ui) window.DS.ui.toast("Registering a club needs a separate club account. Sign out and use another email.", "err");
+        return go(homePath());
+      }
       if (path === "/") return await viewHome();
       if (path === "/auth") {
         var n = q.get("next"), mMode = q.get("mode"), jn = q.get("join");
@@ -1779,7 +1762,7 @@
         return viewAuth(ao);
       }
       if (path === "/register-club") return viewRegisterClub();
-      if (path === "/me") return await viewMe();
+      if ((m = path.match(/^\/me(?:\/(find|clubs|bookings|profile))?$/))) return await viewMe(m[1]);
       if (path === "/platform") return await viewPlatform();
       if ((m = path.match(/^\/c\/([a-z0-9-]+)$/))) return await viewClub(m[1]);
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/join$/))) return await viewJoin(m[1]);

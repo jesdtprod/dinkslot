@@ -658,13 +658,13 @@ body > .site-header {
 .site-header::after {
   content: "";
   position: absolute;
-  inset: 0 0 -28px;
+  inset: 0 0 -12px;
   z-index: -1;
   background: rgba(10,14,20,.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  mask-image: linear-gradient(to bottom, #000 0px, #000 56px, rgba(0,0,0,.9) 64px, rgba(0,0,0,.45) 76px, rgba(0,0,0,.1) 86px, transparent 92px);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0px, #000 56px, rgba(0,0,0,.9) 64px, rgba(0,0,0,.45) 76px, rgba(0,0,0,.1) 86px, transparent 92px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 12px), rgba(0,0,0,.45) calc(100% - 6px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 12px), rgba(0,0,0,.45) calc(100% - 6px), transparent 100%);
   pointer-events: none;
 }
 /* Match the space behind navigation to the landing hero, removing its color seam. */
@@ -2044,3 +2044,187 @@ body input[type="checkbox"]:disabled { opacity: .45; cursor: not-allowed; }
   z-index: -1;
   pointer-events: none;
 }
+
+
+/* Club registration follows the sign-in surface, spacing, and control styling. */
+#app > #club-signup-screen { width: 100%; max-width: none; padding: 28px 24px; }
+#club-signup-screen { font-family: "Plus Jakarta Sans",sans-serif; }
+#club-signup-screen .club-signup-layout { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr); max-width: 1000px; gap: 0; padding: 0; border: 1px solid #ffffff0d; border-radius: 24px; overflow: hidden; }
+#club-signup-screen :is(.club-signup-story,.club-signup-form) { grid-column: auto; min-width: 0; padding: 32px; border: 0; border-radius: 0; box-shadow: none; background-image: none; background-color: #181c22; }
+#club-signup-screen .club-signup-story { background-color: #1c2026; }
+#club-signup-screen .glass-panel { background-image: none; }
+#club-signup-screen .club-signup-story > .pointer-events-none { opacity: .15; }
+#club-signup-screen :is(h1,h2) { font-family: "Space Grotesk",sans-serif; font-weight: 600; font-size: 30px; line-height: 1.25; letter-spacing: -.035em; }
+#club-signup-screen p { font-size: 13px; line-height: 1.75; }
+#club-signup-screen #f { display: flex; flex-direction: column; gap: 18px; }
+#club-signup-screen #f > * { margin-top: 0; margin-bottom: 0; }
+#club-signup-screen #f > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 0; gap: 16px; }
+#club-signup-screen label { font: 600 12px/18px "JetBrains Mono",monospace; text-transform: none; letter-spacing: .01em; }
+#club-signup-screen input { width: 100%; height: 48px; border: 1px solid #ffffff14; border-radius: 12px; background: #ffffff03; padding: 10px 40px; color: var(--ink); font: 400 14px/22px "Plus Jakarta Sans",sans-serif; }
+#club-signup-screen input::placeholder { color: #747d86; }
+#club-signup-screen input:focus { outline: 2px solid var(--lime); outline-offset: 2px; box-shadow: none; }
+#club-signup-screen :is(#go,#ogoogle) { min-height: 46px; padding: 12px 18px; border-radius: 12px; text-transform: none; letter-spacing: normal; box-shadow: none; }
+#club-signup-screen #go { background: var(--lime); color: #213600; }
+#club-signup-screen #ogoogle { background: #262a31; border: 1px solid #ffffff0c; color: var(--ink); }
+#club-signup-screen #pw-toggle { background: transparent; border: 0; box-shadow: none; border-radius: 8px; }
+#club-signup-screen .club-signup-story .rounded-full:not(.h-2):not(.w-2) { border-radius: 12px; }
+#club-signup-screen .cap { margin: 4px 0; }
+@media(max-width:767px) {
+ #club-signup-screen .club-signup-layout { grid-template-columns: minmax(0,1fr); max-width: 520px; }
+ #club-signup-screen .club-signup-story { display: none; }
+ #club-signup-screen .club-signup-form { padding: 28px 24px; }
+ #club-signup-screen #f > .grid { grid-template-columns: minmax(0,1fr); }
+}
+
+
+/* Match player signup: opaque neutral panels over the shared animated mesh. */
+#club-signup-screen { position: relative; isolation: isolate; background: #10141a; background-image: none; }
+#club-signup-screen > .auth-pattern { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; mask-image: linear-gradient(to bottom,transparent,#000 32px); -webkit-mask-image: linear-gradient(to bottom,transparent,#000 32px); }
+#club-signup-screen .club-signup-layout { position: relative; z-index: 1; background: #181c22; }
+#club-signup-screen .club-signup-story { background: #1c2026; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#club-signup-screen .club-signup-form { background: #181c22; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#club-signup-screen :is(.club-signup-story,.club-signup-form)::before { content: none; }
+#club-signup-screen .club-signup-story > .pointer-events-none { display: none; }
+#club-signup-screen .club-signup-story .bg-brand-surfaceLow { background-color: #181c22; }
+#club-signup-screen :is(input,#ogoogle) { background-color: #1c2026; }
+
+
+/* Keep the animated backdrop full width; only the registration card is boxed. */
+#app > #club-signup-screen {
+  width: 100% !important; max-width: none !important;
+  margin-left: 0 !important; margin-right: 0 !important;
+  min-height: calc(100svh - 64px); padding: 28px 24px !important;
+  align-self: stretch;
+}
+#club-signup-screen .club-signup-layout { width: 100%; max-width: 1000px; border-radius: 24px; }
+#club-signup-screen .club-signup-story :is(.rounded-full,.rounded-3xl,.rounded-2xl) { border-radius: 12px; }
+#club-signup-screen .club-signup-story .w-8.h-8 { border-radius: 8px; }
+/* Header and authentication actions share a single corner radius. */
+#nav > a.pill, #nav > a.auth-nav-switch,
+#club-signup-screen :is(#go,#ogoogle),
+#ds-auth-screen :is(#go,#oauth-google-up,#oauth-google-in) { border-radius: 12px; }
+
+
+/* Shared button geometry across every screen and account role. */
+:root { --button-radius: 12px; }
+body button,
+body a:is(.btn,.pill,.linkbtn,[role="button"],.auth-nav-switch,.nav-register,
+  .landing-book,.court-cta-primary,.court-cta-secondary,.court-cta-bookings,
+  .facility-menu-item,.navitem),
+body a:is(.rounded-full,.rounded-xl,.rounded-2xl,.dashboard-rounded),
+body .facility-account > summary,
+body .footer-quick-links a {
+  border-radius: var(--button-radius) !important;
+}
+
+
+/* Fade both pattern edges and balance the bottom spacing of account screens. */
+#ds-auth-screen .auth-pattern,
+#club-signup-screen > .auth-pattern {
+  mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+}
+#ds-auth-screen .auth-stage { padding-top: 28px; padding-bottom: 28px; }
+body:has(#club-signup-screen) > .site-footer { margin-top: 0; }
+@media(max-width:767px) {
+  #ds-auth-screen .auth-stage { padding-top: 20px; padding-bottom: 20px; }
+  #app > #club-signup-screen { padding-top: 20px !important; padding-bottom: 20px !important; }
+}
+
+
+/* Align the filter container with the shared rounded button geometry. */
+#ds-landing .club-filters { padding: 4px; gap: 4px; border-radius: 16px; background: #181e24; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#ds-landing .club-filters .club-tab { height: 36px; min-height: 36px; padding: 7px 14px; border-radius: var(--button-radius); line-height: 20px; transition: background-color .15s ease,color .15s ease; }
+#ds-landing .club-filters .club-tab[aria-pressed="true"] { box-shadow: none !important; }
+@media(max-width:640px) { #ds-landing .club-filters .club-tab { padding: 7px 8px; gap: 5px; } }
+
+
+/* Restore the centered boxed invitation and compact photo. */
+#ds-landing .court-cta { width: 100%; max-width: 1280px; margin-left: auto; margin-right: auto; padding: 40px; }
+#ds-landing .court-cta-photo { height: 180px; aspect-ratio: auto; }
+@media(max-width:767px) { #ds-landing .court-cta { padding: 28px 24px; } #ds-landing .court-cta-photo { height: 160px; } }
+
+
+/* Shared opacity for every animated pattern; preserve mouse deformation. */
+:root { --pattern-opacity: .75; }
+.auth-pattern { opacity: var(--pattern-opacity) !important; }
+
+
+/* A shared 16px rhythm for authentication checks and action buttons. */
+#ds-auth-screen #f,
+#ds-auth-screen.signup-screen #f,
+#club-signup-screen #f { display: flex; flex-direction: column; gap: 16px; }
+#ds-auth-screen #f > *,
+#club-signup-screen #f > * { margin-top: 0; margin-bottom: 0; }
+#ds-auth-screen #f > .pt-2,
+#club-signup-screen #f > .pt-1,
+#club-signup-screen #f > .pt-2 { padding-top: 0; }
+#ds-auth-screen #cap.cap,
+#ds-auth-screen.signup-screen #cap.cap,
+#club-signup-screen #cap.cap { display: flex; align-items: center; justify-content: center; min-height: 65px; margin: 0; padding: 0; }
+#ds-auth-screen #go,
+#club-signup-screen #go,
+#club-signup-screen #ogoogle { min-height: 46px; margin-top: 0; margin-bottom: 0; padding-top: 12px; padding-bottom: 12px; }
+#club-signup-screen #f > .relative.py-2 { padding-top: 0; padding-bottom: 0; min-height: 18px; }
+#ds-auth-screen .auth-form-content > * + * { margin-top: 16px; }
+
+
+#club-signup-screen .club-signup-story .club-feature-card { border-radius: 12px !important; }
+
+
+/* Exact matching gaps above the human check and submit action. */
+#club-signup-screen #f { row-gap: 16px; }
+#club-signup-screen #f > :is(.club-captcha-block,.club-submit-block) { margin: 0; padding: 0; }
+#club-signup-screen .club-captcha-block #cap { min-height: 0; line-height: 0; align-items: flex-start; }
+#club-signup-screen .club-captcha-block #cap > div { display: flex; line-height: 0; }
+#club-signup-screen .club-captcha-block iframe { display: block; vertical-align: top; }
+#club-signup-screen .club-submit-block #go { margin: 0; }
+
+
+.account-signin-prompt { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; padding-top: 8px; color: var(--muted); font: 400 13px/20px "Plus Jakarta Sans",sans-serif; }
+.account-signin-prompt a { color: var(--lime); font: 600 12px/18px "JetBrains Mono",monospace; text-decoration: none; }
+.account-signin-prompt a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+
+/* Court callout adapted from the supplied banner design. */
+#ds-landing #dinkslot-hero-banner { width: 100%; max-width: 1280px; margin-inline: auto; border-radius: 28px; background: #10141af2; border: 1px solid #1e2735; box-shadow: 0 20px 40px -15px #0009; font-family: "Plus Jakarta Sans",sans-serif; }
+#dinkslot-hero-banner .callout-brand-logo { width: 32px; height: 32px; object-fit: contain; }
+#ds-landing #dinkslot-hero-banner .grid { display: grid; grid-template-columns: minmax(0,1fr); padding: 0; gap: 32px; }
+#dinkslot-hero-banner .font-headline-md { font-family: "Space Grotesk",sans-serif; }
+#ds-landing #dinkslot-hero-banner h1 { font: 700 clamp(34px,4vw,54px)/1.08 "Space Grotesk",sans-serif; letter-spacing: -.04em; }
+#dinkslot-hero-banner [data-purpose="court-preview-card"] img { width: 100%; height: 220px; object-fit: cover; }
+#dinkslot-hero-banner [data-purpose="cta-group"] a { min-height: 46px; font: 500 13px/20px "Plus Jakarta Sans",sans-serif; }
+#dinkslot-hero-banner [data-purpose="terms-footnote"] { font-size: 11px; line-height: 18px; }
+#dinkslot-hero-banner [data-purpose="quick-bookings-link"] { border-radius: 12px; }
+#dinkslot-hero-banner .neon-pulse-dot { animation: callout-pulse 2s ease-in-out infinite; }
+@keyframes callout-pulse { 50% { opacity: .6; } }
+@media(min-width:1024px) {
+  #ds-landing #dinkslot-hero-banner .grid { grid-template-columns: repeat(12,minmax(0,1fr)); gap: 40px; }
+}
+@media(min-width:1280px) {
+  #ds-landing #dinkslot-hero-banner .xl\:col-span-7 { grid-column: span 7 / span 7; }
+  #ds-landing #dinkslot-hero-banner .xl\:col-span-5 { grid-column: span 5 / span 5; }
+}
+@media(max-width:767px) {
+  #dinkslot-hero-banner [data-purpose="court-preview-card"] img { height: 180px; }
+  #dinkslot-hero-banner > .relative > div:first-child { flex-wrap: wrap; gap: 12px; }
+  #dinkslot-hero-banner [data-purpose="cta-group"] a { flex: 1; white-space: nowrap; }
+}
+@media(prefers-reduced-motion:reduce) { #dinkslot-hero-banner * { animation: none !important; transition: none !important; } }
+
+
+#ds-auth-screen .auth-switch-link { display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+
+
+#dinkslot-hero-banner .callout-login-icon { display: block; width: 18px; height: 18px; flex: none; color: var(--lime); }
+
+
+.account-signin-prompt .club-signin-link { display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+.account-signin-prompt .club-signin-link .material-symbols-outlined { font-size: 16px; line-height: 1; }
+.account-signin-prompt .club-signin-link:hover { text-decoration: none; }
+.account-signin-prompt .club-signin-link:hover .club-signin-label { text-decoration: underline; text-underline-offset: 3px; }
+
+
+/* Feature cards retain a solid surface above the decorative section pattern. */
+#ds-landing .landing-feature-grid > div { background-color: #1c2026; opacity: 1; }
+#ds-landing .landing-feature-grid > div:hover { background-color: #262a31; }

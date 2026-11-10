@@ -27,3 +27,15 @@ Visitors see **Sign up to book**; booking links send them to "Register to book a
 
 ## Verification
 Isolation and flow test: 217 checks, 0 failures, including: account type from sign-up data, player cannot register a club, club account cannot join or book, player cannot be staff, type cannot be switched or edited, guest and player bookings by the club (grid, hours, overlap, blocks, retry, other club's court refused, players and anonymous refused), guest bookings hidden from players, added player notified. Email rules: 11 offline tests.
+
+## Player dashboard
+Players have their own dashboard at `/#/me` (js/player.js), in the same sidebar layout as the club dashboard but labelled "Player Workspace":
+- **Overview**: confirmed upcoming bookings, bookings waiting for payment or approval, clubs joined, next booking.
+- **Find a club**: search all approved clubs; **Join and book** or **Book a court** (if already joined).
+- **My clubs**: the clubs the player joined, with Book buttons.
+- **My bookings**: pay and upload proof, cancel, history (live).
+- **My profile**: name and phone.
+There is no "Clubs you manage" or "Register your club" for players. Club registration is a separate club account.
+
+## Signed-in people skip the entry pages
+When signed in, `/auth` (sign in and sign up) always redirects to the person's own home: super admin `/platform`, club owner or staff their dashboard, a club account that has not added its club yet `/register-club`, a player `/me`. A player who opens `/register-club` is sent to their dashboard with a notice that a separate club account is needed; a club owner is sent to their dashboard. The top bar already hides Sign in, Sign up and Register your club once signed in.
