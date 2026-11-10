@@ -92,3 +92,16 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 #ds-tenant-dashboard #sec .profile-details-heading { margin-bottom:2px; }
 #ds-tenant-dashboard #sec .profile-details-heading h3 { margin:0; color:#e0e8e2; font:600 15px/22px "Plus Jakarta Sans",sans-serif; }
 #ds-tenant-dashboard #sec .profile-details-heading p { margin:4px 0 0; color:#94a39a; font:400 12px/18px "Plus Jakarta Sans",sans-serif; }
+
+/* Profile details left; media and location stacked right. */
+#ds-tenant-dashboard #sec .club-profile { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:20px; align-items:start; }
+.club-profile > div:first-child { grid-column:1 / -1; }
+.club-profile-right { display:flex; flex-direction:column; gap:20px; min-width:0; }
+.club-profile-right .club-map-settings { padding:20px; border:1px solid #ffffff10; border-radius:12px; background:linear-gradient(135deg,#1b2228,#171d22); }
+.club-profile-right .media-upload-grid { gap:12px; }
+.club-profile-right .media-drop { margin:0 10px; padding:14px 8px; }
+.club-profile-right .media-upload > footer { flex-wrap:wrap; }
+.club-profile-right .club-map-settings label { display:flex; flex-direction:column; gap:3px; }
+#ds-tenant-dashboard #sec .club-profile-right .club-map-settings input { width:100%; height:38px; padding:8px 10px; border:1px solid #ffffff12; border-radius:8px; background:#20282e; color:#d9e3dc; font:400 12px/20px "Plus Jakarta Sans",sans-serif; }
+@media(max-width:1100px) { .club-profile-right .media-upload-grid { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:800px) { #ds-tenant-dashboard #sec .club-profile { grid-template-columns:minmax(0,1fr); } }

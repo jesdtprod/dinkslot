@@ -740,6 +740,12 @@
       '</div>';
 
     sec.innerHTML = '<div class="settings-page ' + (part === "profile" ? "club-profile" : "settings-" + esc(part)) + '">' + PANELS[part] + '</div>';
+    if (part === "profile") {
+      var profileLayout = sec.querySelector('.club-profile'), mediaCard = sec.querySelector('.profile-media'), mapCard = sec.querySelector('.club-map-settings');
+      var rightColumn = document.createElement('div'); rightColumn.className = 'club-profile-right';
+      mapCard.querySelectorAll('input').forEach(function (input) { input.setAttribute('form', 'pf'); });
+      rightColumn.append(mediaCard, mapCard); profileLayout.appendChild(rightColumn);
+    }
 
     if (part === "profile") {
       // Philippine address from the PSGC API (js/ph-address.js): manager, street/purok/sitio, province, city, barangay, ZIP
@@ -770,7 +776,7 @@
       updateMapLink();
       q("#pf", sec).onsubmit = async function (e) {
         e.preventDefault();
-        if ((val("#plat", this) === "") !== (val("#plng", this) === "")) return D.ui.toast("Enter both latitude and longitude, or leave both fields empty.", "err");
+        if ((val("#plat", sec) === "") !== (val("#plng", sec) === "")) return D.ui.toast("Enter both latitude and longitude, or leave both fields empty.", "err");
         var f = this;
         var perr = phc.validate();
         if (perr) return setMsg(f, perr, "err");
@@ -778,7 +784,7 @@
         var r = await sb.from("tenants").update({ name: val("#pn", f).trim(), city: ad.city, address: ad.address,
           manager_name: ad.manager_name, street: ad.street, barangay: ad.barangay, province: ad.province, zip_code: ad.zip_code,
           psgc_province: ad.psgc_province, psgc_city: ad.psgc_city, psgc_barangay: ad.psgc_barangay,
-          latitude: val("#plat", f) === "" ? null : num("#plat", f), longitude: val("#plng", f) === "" ? null : num("#plng", f),
+          latitude: val("#plat", sec) === "" ? null : num("#plat", sec), longitude: val("#plng", sec) === "" ? null : num("#plng", sec),
           contact_phone: val("#pp", f).trim() || null, contact_email: val("#pe", f).trim() || null, description: val("#pd", f).trim() || null }).eq("id", t.id);
         if (r.error) return setMsg(f, friendly(r.error), "err");
         setMsg(f, "Profile saved.", "ok");
