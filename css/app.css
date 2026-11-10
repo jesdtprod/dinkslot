@@ -2809,3 +2809,21 @@ dialog#booking-modal #padd { flex-shrink: 0; min-height: 38px; }
 #ds-tenant-dashboard #sec .time-picker-fields select { width: 100%; height: 38px; display: flex; align-items: center; padding: 0 10px; }
 .time-picker-hint { margin: 10px 0 0; font-size: 10px; color: #819489; }
 .time-picker .datetime-actions { justify-content: space-between; }
+
+/* Court configuration uses the dashboard modal surface. */
+.court-config-modal { width: min(720px,calc(100vw - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 0; overflow-y: auto; border: 1px solid #ffffff18; border-radius: 14px; background: #192127; color: #dce6de; box-shadow: 0 24px 80px #0009; color-scheme: dark; }
+.court-config-modal::backdrop { background: #060b10b8; backdrop-filter: blur(5px); }
+body:has(.court-config-modal[open]) { overflow: hidden; }
+#ds-tenant-dashboard #sec .court-matrix .court-config-modal #cf { margin: 0; padding: 20px; border: 0; border-radius: 0; background: transparent; gap: 18px; }
+.court-config-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #ffffff0b; }
+.court-config-caption { display: block; margin-bottom: 4px; color: #8fa184; font-size: 10px; }
+#ds-tenant-dashboard #sec .court-config-heading h3 { margin: 0; font-size: 18px; line-height: 26px; }
+.court-config-close { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid #ffffff12; background: #ffffff04; color: #aebfb3; cursor: pointer; }
+.court-config-close .material-symbols-outlined { font-size: 18px; }
+#ds-tenant-dashboard #sec .court-config-modal #cf > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 16px; }
+.court-config-modal label:has(#ci) { padding-top: 20px; flex-direction: row; align-items: center; }
+.court-config-modal input[type="file"]::file-selector-button { margin-right: 10px; padding: 4px 8px; border: 1px solid #ffffff12; border-radius: 5px; background: #ffffff08; color: #b8cbb9; cursor: pointer; }
+.court-config-modal .msg:empty { display: none; }
+.court-config-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid #ffffff0b; }
+.court-config-close:focus-visible { outline: 2px solid #b1df74; outline-offset: 2px; }
+@media (max-width:540px) { #ds-tenant-dashboard #sec .court-config-modal #cf > .grid { grid-template-columns: minmax(0,1fr); } .court-config-modal label:has(#ci) { padding-top: 0; } }

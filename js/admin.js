@@ -556,9 +556,9 @@
   }
 
   function courtForm(c, byId) {
-    var box = q("#cform");
+    var box = q("#cform"), previousFocus = document.activeElement;
     var v = c || { name: "", surface: "", is_indoor: false, hourly_rate: "", slot_minutes: 60, open_time: "06:00", close_time: "22:00", status: "active" };
-    box.innerHTML = '<form id="cf" class="bg-surface-container-low p-space-lg dashboard-rounded border border-outline-variant/30 flex flex-col gap-space-md mb-space-lg shadow-lg"><h3 class="font-headline-sm text-on-surface">' + (c ? "Edit Court Configuration" : "New Court Configuration") + "</h3>" +
+    box.innerHTML = '<dialog class="court-config-modal" aria-labelledby="court-config-title"><form id="cf" class="bg-surface-container-low p-space-lg dashboard-rounded border border-outline-variant/30 flex flex-col gap-space-md mb-space-lg shadow-lg"><header class="court-config-heading"><div><span class="court-config-caption">Court settings</span><h3 id="court-config-title" class="font-headline-sm text-on-surface">' + (c ? "Edit Court Configuration" : "New Court Configuration") + '</h3></div><button class="court-config-close" type="button" aria-label="Close court configuration"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header>' +
       '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-md">' +
         '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Court Name<input id="cn" maxlength="60" required value="' + esc(v.name) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
         '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Surface<input id="cs" maxlength="40" placeholder="e.g. Acrylic Pro" value="' + esc(v.surface || "") + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
@@ -574,9 +574,19 @@
       '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Dedicated Payment QR for this court (optional, overrides club QR)<input id="cq" type="file" accept="image/jpeg,image/png,image/webp" class="bg-surface-container p-2 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
       (c && c.qr_path ? '<label class="flex items-center gap-2 font-body-sm text-on-surface-variant"><input id="cqx" type="checkbox"> Remove this court\'s custom QR</label>' : "") +
       '<p class="msg" role="alert"></p>' +
-      '<div class="flex items-center gap-2 pt-2"><button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="submit">Save Court</button> <button class="px-space-md py-2.5 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" id="cx" type="button">Cancel</button></div></form>';
+      '<div class="court-config-actions"><button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="submit">Save Court</button> <button class="px-space-md py-2.5 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" id="cx" type="button">Cancel</button></div></form></dialog>';
 
-    q("#cx", box).onclick = function () { box.innerHTML = ""; };
+    var modal = q("dialog", box);
+    function close() { modal.close(); }
+    q("#cx", box).onclick = close;
+    q(".court-config-close", box).onclick = close;
+    modal.addEventListener("close", function () { if (previousFocus && previousFocus.isConnected) previousFocus.focus(); });
+    modal.addEventListener("click", function (event) {
+      if (event.target !== modal) return;
+      var rect = modal.getBoundingClientRect();
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) close();
+    });
+    modal.showModal();
     D.ui.timePickers(box);
     q("#cf", box).onsubmit = async function (e) {
       e.preventDefault();
@@ -593,6 +603,7 @@
                   : await sb.from("courts").insert(Object.assign({ tenant_id: ctx.t.id }, payload));
         if (r.error) throw r.error;
         if (c && ("qr_path" in payload) && oldQr) await removeQuiet("payment", oldQr);
+        modal.close();
         courtsView(q("#sec"));
       } catch (err) { btn.disabled = false; setMsg(f, friendly(err), "err"); }
     };
