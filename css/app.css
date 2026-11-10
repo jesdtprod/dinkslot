@@ -1684,6 +1684,17 @@ body.tenant-dashboard-mode #app {
 @media (max-width:760px) { #ds-tenant-dashboard #sec .settings-payments #sf { grid-template-columns: minmax(0,1fr); } #ds-tenant-dashboard #sec .settings-payments #sf > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width:480px) { #ds-tenant-dashboard #sec .settings-page > div[class*="p-space-lg"] { padding: 16px; } #ds-tenant-dashboard #sec .settings-payments #sf > .grid { grid-template-columns: minmax(0,1fr); } }
 .club-profile { display: flex; flex-direction: column; gap: 20px; }
+#ds-tenant-dashboard #sec .club-profile #pf > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 16px; }
+.club-profile #pf #phbox, .club-profile #pf #phbox > .ph-grid { display: contents; }
+.club-profile #pf .ph-wide { grid-column: 1 / -1; }
+.club-profile #pf .ph-wide:has(#ph-manager) { grid-column: auto; }
+.club-profile #pf label:has(#pe) { grid-column: auto; }
+#ds-tenant-dashboard #sec .club-profile #pf label { font: 500 11px/16px "Plus Jakarta Sans",sans-serif; text-transform: none; letter-spacing: 0; gap: 6px; }
+.club-profile #pf .ph-status { grid-column: 1 / -1; }
+.club-profile #pf :is(.ph-note,.ph-status):empty { display: none; }
+#ds-tenant-dashboard #sec .club-profile #pf select { width: 100%; height: 40px; padding: 9px 12px; border: 1px solid #ffffff12; border-radius: 8px; background-color: #20282e; color: #d9e3dc; font: 400 13px/20px "Plus Jakarta Sans",sans-serif; }
+.club-profile #pf select:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width:640px) { #ds-tenant-dashboard #sec .club-profile #pf > .grid { grid-template-columns: minmax(0,1fr); } }
 #ds-tenant-dashboard #sec .club-profile > div[class*="p-space-lg"] { padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); box-shadow: none; }
 .club-profile #pf label { font: 500 11px/16px "Plus Jakarta Sans",sans-serif; text-transform: none; color: #a1b0a6; gap: 7px; }
 #ds-tenant-dashboard #sec .club-profile #pf :is(input,textarea) { border-radius: 8px; background: #20282e; padding: 9px 12px; font: 400 13px/20px "Plus Jakarta Sans",sans-serif; }
