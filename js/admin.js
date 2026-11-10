@@ -361,93 +361,116 @@
       '<!-- 4-Stat Metric Strip -->' +
       '<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">' +
         '<!-- Stat 1: Needs Approval -->' +
-        '<a class="relative bg-surface-container-low p-space-md dashboard-rounded flex flex-col justify-between overflow-hidden group hover:bg-surface-container transition-all shadow-sm no-underline border border-outline-variant/20" href="#/admin/' + esc(ctx.slug) + '/bookings">' +
+        '<a class="relative bg-surface-container-low/90 hover:bg-surface-container p-5 rounded-2xl flex flex-col justify-between overflow-hidden group transition-all duration-200 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/[0.08] hover:border-primary/40 no-underline before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent" href="#/admin/' + esc(ctx.slug) + '/bookings">' +
+          '<div class="absolute -right-6 -top-6 w-24 h-24 ' + (pending ? 'bg-error/10' : 'bg-primary/5 group-hover:bg-primary/10') + ' rounded-full blur-2xl transition-all duration-300 pointer-events-none"></div>' +
           '<div class="flex items-center justify-between">' +
-            '<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">' +
-              '<span class="material-symbols-outlined text-xl">inbox</span>' +
+            '<div class="w-11 h-11 rounded-xl ' + (pending ? 'bg-error/10 border border-error/25 text-error' : 'bg-white/[0.04] border border-white/[0.08] text-primary group-hover:bg-primary/10 group-hover:border-primary/25') + ' flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-inner">' +
+              '<span class="material-symbols-outlined text-[22px]">inbox</span>' +
             '</div>' +
-            '<span class="font-label-sm text-label-sm uppercase tracking-wider px-space-xs py-0.5 rounded-full ' + (pending ? 'bg-error/20 text-error font-bold' : 'bg-primary/10 text-primary font-semibold') + '">' +
-              (pending ? pending + ' Action Required' : 'Queue Zero') +
+            '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono tracking-wider font-semibold ' + (pending ? 'bg-error/15 text-error border border-error/30' : 'bg-primary/10 text-primary border border-primary/20') + '">' +
+              '<span class="w-1.5 h-1.5 rounded-full ' + (pending ? 'bg-error animate-pulse' : 'bg-primary') + '"></span>' +
+              (pending ? pending + ' ACTION REQUIRED' : 'QUEUE ZERO') +
             '</span>' +
           '</div>' +
-          '<div class="mt-space-md">' +
-            '<div class="flex items-baseline gap-space-xs">' +
-              '<span class="font-headline-display text-headline-display ' + (pending ? 'text-error' : 'text-on-surface') + ' leading-none font-bold">' + pending + '</span>' +
-              '<span class="font-label-md text-label-md text-on-surface-variant font-medium">pending</span>' +
-            '</div>' +
-            '<div class="flex items-center justify-between mt-space-sm pt-space-xs">' +
-              '<span class="font-label-md text-label-md text-on-surface-variant">Needs Approval</span>' +
-              '<span class="inline-flex items-center ' + (pending ? 'text-error' : 'text-primary') + ' font-label-sm text-label-sm gap-0.5">' +
-                '<span class="material-symbols-outlined text-xs">' + (pending ? 'warning' : 'check_circle') + '</span> ' + (pending ? 'Review slips' : 'Auto-cleared') +
-              '</span>' +
+          '<div class="my-4">' +
+            '<div class="text-[11px] font-mono font-medium uppercase tracking-wider text-slate-400 mb-1">Needs Approval</div>' +
+            '<div class="flex items-baseline gap-2">' +
+              '<span class="text-3xl lg:text-4xl font-mono font-bold tracking-tight ' + (pending ? 'text-error' : 'text-white group-hover:text-primary') + ' transition-colors leading-none">' + pending + '</span>' +
+              '<span class="text-xs font-mono font-medium text-slate-500">pending slips</span>' +
             '</div>' +
           '</div>' +
-          '<div class="absolute bottom-0 left-0 right-0 h-[2px] ' + (pending ? 'bg-error' : 'bg-primary/20') + '"></div>' +
+          '<div class="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs">' +
+            '<span class="inline-flex items-center gap-1.5 ' + (pending ? 'text-error' : 'text-primary') + ' font-medium">' +
+              '<span class="material-symbols-outlined text-[16px]">' + (pending ? 'warning' : 'check_circle') + '</span> ' +
+              (pending ? 'Review payment slips' : 'Queue auto-cleared') +
+            '</span>' +
+            '<span class="material-symbols-outlined text-sm text-slate-500 group-hover:text-primary group-hover:translate-x-0.5 transition-all">arrow_forward</span>' +
+          '</div>' +
         '</a>' +
 
         '<!-- Stat 2: Today\'s Bookings -->' +
-        '<a class="relative bg-surface-container-low p-space-md dashboard-rounded flex flex-col justify-between overflow-hidden group hover:bg-surface-container transition-all shadow-sm no-underline border border-outline-variant/20" href="#/admin/' + esc(ctx.slug) + '/bookings">' +
+        '<a class="relative bg-surface-container-low/90 hover:bg-surface-container p-5 rounded-2xl flex flex-col justify-between overflow-hidden group transition-all duration-200 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/[0.08] hover:border-primary/40 no-underline before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent" href="#/admin/' + esc(ctx.slug) + '/bookings">' +
+          '<div class="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-300 pointer-events-none"></div>' +
           '<div class="flex items-center justify-between">' +
-            '<div class="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-primary">' +
-              '<span class="material-symbols-outlined text-xl">today</span>' +
+            '<div class="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] text-primary group-hover:bg-primary/10 group-hover:border-primary/25 flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-inner">' +
+              '<span class="material-symbols-outlined text-[22px]">calendar_today</span>' +
             '</div>' +
-            '<span class="font-label-sm text-label-sm uppercase tracking-wider px-space-xs py-0.5 rounded-full bg-primary-container text-on-primary-container font-semibold">' + (todayN > 0 ? '+18% vs LW' : 'Active Today') + '</span>' +
+            '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono tracking-wider font-semibold bg-primary/10 text-primary border border-primary/20">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>' +
+              (todayN > 0 ? todayN + ' SLOTS TODAY' : 'ACTIVE TODAY') +
+            '</span>' +
           '</div>' +
-          '<div class="mt-space-md">' +
-            '<div class="flex items-baseline gap-space-xs">' +
-              '<span class="font-headline-display text-headline-display text-on-surface leading-none font-bold">' + todayN + '</span>' +
-              '<span class="font-label-md text-label-md text-primary font-medium">slots</span>' +
-            '</div>' +
-            '<div class="flex items-center justify-between mt-space-sm pt-space-xs">' +
-              '<span class="font-label-md text-label-md text-on-surface-variant">Today\'s Schedule</span>' +
-              '<span class="font-label-sm text-label-sm text-on-surface-variant">' + (todayN * 1.5).toFixed(1) + ' hrs active</span>' +
+          '<div class="my-4">' +
+            '<div class="text-[11px] font-mono font-medium uppercase tracking-wider text-slate-400 mb-1">Today\'s Schedule</div>' +
+            '<div class="flex items-baseline gap-2">' +
+              '<span class="text-3xl lg:text-4xl font-mono font-bold tracking-tight text-white group-hover:text-primary transition-colors leading-none">' + todayN + '</span>' +
+              '<span class="text-xs font-mono font-medium text-slate-500">active slots</span>' +
             '</div>' +
           '</div>' +
-          '<div class="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"></div>' +
+          '<div class="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs">' +
+            '<span class="inline-flex items-center gap-1.5 text-slate-400 font-medium">' +
+              '<span class="material-symbols-outlined text-[16px] text-primary">schedule</span> ' +
+              (todayN * 1.5).toFixed(1) + ' hrs court time' +
+            '</span>' +
+            '<span class="material-symbols-outlined text-sm text-slate-500 group-hover:text-primary group-hover:translate-x-0.5 transition-all">arrow_forward</span>' +
+          '</div>' +
         '</a>' +
 
         '<!-- Stat 3: Upcoming 72 Hours -->' +
-        '<a class="relative bg-surface-container-low p-space-md dashboard-rounded flex flex-col justify-between overflow-hidden group hover:bg-surface-container transition-all shadow-sm no-underline border border-outline-variant/20" href="#/admin/' + esc(ctx.slug) + '/bookings">' +
+        '<a class="relative bg-surface-container-low/90 hover:bg-surface-container p-5 rounded-2xl flex flex-col justify-between overflow-hidden group transition-all duration-200 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/[0.08] hover:border-primary/40 no-underline before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent" href="#/admin/' + esc(ctx.slug) + '/bookings">' +
+          '<div class="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-300 pointer-events-none"></div>' +
           '<div class="flex items-center justify-between">' +
-            '<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-tertiary">' +
-              '<span class="material-symbols-outlined text-xl">event_upcoming</span>' +
+            '<div class="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] text-primary group-hover:bg-primary/10 group-hover:border-primary/25 flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-inner">' +
+              '<span class="material-symbols-outlined text-[22px]">event_upcoming</span>' +
             '</div>' +
-            '<span class="font-label-sm text-label-sm uppercase tracking-wider px-space-xs py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-semibold">72h Window</span>' +
+            '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono tracking-wider font-semibold bg-white/[0.05] text-slate-300 border border-white/[0.1]">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>' +
+              '72H WINDOW' +
+            '</span>' +
           '</div>' +
-          '<div class="mt-space-md">' +
-            '<div class="flex items-baseline gap-space-xs">' +
-              '<span class="font-headline-display text-headline-display text-on-surface leading-none font-bold">' + upcoming + '</span>' +
-              '<span class="font-label-md text-label-md text-on-surface-variant font-medium">booked</span>' +
-            '</div>' +
-            '<div class="flex items-center justify-between mt-space-sm pt-space-xs">' +
-              '<span class="font-label-md text-label-md text-on-surface-variant">Upcoming Matches</span>' +
-              '<span class="font-label-sm text-label-sm text-primary font-semibold">' + (upcoming > 0 ? '82% Fill Rate' : 'Schedule Open') + '</span>' +
+          '<div class="my-4">' +
+            '<div class="text-[11px] font-mono font-medium uppercase tracking-wider text-slate-400 mb-1">Upcoming Matches</div>' +
+            '<div class="flex items-baseline gap-2">' +
+              '<span class="text-3xl lg:text-4xl font-mono font-bold tracking-tight text-white group-hover:text-primary transition-colors leading-none">' + upcoming + '</span>' +
+              '<span class="text-xs font-mono font-medium text-slate-500">reservations</span>' +
             '</div>' +
           '</div>' +
-          '<div class="absolute bottom-0 left-0 right-0 h-[2px] bg-tertiary-fixed/30"></div>' +
+          '<div class="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs">' +
+            '<span class="inline-flex items-center gap-1.5 text-primary font-medium">' +
+              '<span class="material-symbols-outlined text-[16px]">trending_up</span> ' +
+              (upcoming > 0 ? 'High occupancy' : 'Schedule open') +
+            '</span>' +
+            '<span class="material-symbols-outlined text-sm text-slate-500 group-hover:text-primary group-hover:translate-x-0.5 transition-all">arrow_forward</span>' +
+          '</div>' +
         '</a>' +
 
         '<!-- Stat 4: Courts Status -->' +
-        '<a class="relative bg-surface-container-low p-space-md dashboard-rounded flex flex-col justify-between overflow-hidden group hover:bg-surface-container transition-all shadow-sm no-underline border border-outline-variant/20" href="#/admin/' + esc(ctx.slug) + '/courts">' +
+        '<a class="relative bg-surface-container-low/90 hover:bg-surface-container p-5 rounded-2xl flex flex-col justify-between overflow-hidden group transition-all duration-200 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)] border border-white/[0.08] hover:border-primary/40 no-underline before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent" href="#/admin/' + esc(ctx.slug) + '/courts">' +
+          '<div class="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-300 pointer-events-none"></div>' +
           '<div class="flex items-center justify-between">' +
-            '<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">' +
-              '<span class="material-symbols-outlined text-xl">sports_tennis</span>' +
+            '<div class="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] text-primary group-hover:bg-primary/10 group-hover:border-primary/25 flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-inner">' +
+              '<span class="material-symbols-outlined text-[22px]">sports_tennis</span>' +
             '</div>' +
-            '<span class="font-label-sm text-label-sm uppercase tracking-wider px-space-xs py-0.5 rounded-full bg-primary/10 text-primary font-semibold">' + (courtsCount > 0 ? 'IoT Linked' : 'Setup Court') + '</span>' +
+            '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono tracking-wider font-semibold bg-primary/10 text-primary border border-primary/20">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>' +
+              (courtsCount > 0 ? 'IOT LINKED' : 'SETUP COURT') +
+            '</span>' +
           '</div>' +
-          '<div class="mt-space-md">' +
-            '<div class="flex items-baseline gap-space-xs">' +
-              '<span class="font-headline-display text-headline-display text-on-surface leading-none font-bold">' + courtsCount + '</span>' +
-              '<span class="font-label-md text-label-md text-on-surface-variant font-medium">' + (courtsCount === 1 ? 'court live' : 'courts live') + '</span>' +
-            '</div>' +
-            '<div class="flex items-center justify-between mt-space-sm pt-space-xs">' +
-              '<span class="font-label-md text-label-md text-on-surface-variant truncate max-w-[140px]">' + esc(firstCourt.name) + '</span>' +
-              '<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary">' +
-                '<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Lux Ready' +
-              '</span>' +
+          '<div class="my-4">' +
+            '<div class="text-[11px] font-mono font-medium uppercase tracking-wider text-slate-400 mb-1">Court Inventory</div>' +
+            '<div class="flex items-baseline gap-2">' +
+              '<span class="text-3xl lg:text-4xl font-mono font-bold tracking-tight text-white group-hover:text-primary transition-colors leading-none">' + courtsCount + '</span>' +
+              '<span class="text-xs font-mono font-medium text-slate-500">' + (courtsCount === 1 ? 'court live' : 'courts live') + '</span>' +
             '</div>' +
           '</div>' +
-          '<div class="absolute bottom-0 left-0 right-0 h-[2px] bg-primary/40"></div>' +
+          '<div class="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs">' +
+            '<span class="inline-flex items-center gap-1.5 text-slate-400 font-medium truncate max-w-[130px]" title="' + esc(firstCourt.name) + '">' +
+              '<span class="material-symbols-outlined text-[16px] text-primary">stadium</span> ' + esc(firstCourt.name) +
+            '</span>' +
+            '<span class="inline-flex items-center gap-1.5 text-[11px] font-mono text-primary font-medium">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>Lux Ready' +
+            '</span>' +
+          '</div>' +
         '</a>' +
       '</section>' +
 
