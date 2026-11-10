@@ -2802,3 +2802,10 @@ dialog#booking-modal label.booking-court-label { position: absolute; top: -22px;
 dialog#booking-modal #view-registered:not(.hidden) { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 dialog#booking-modal #view-registered > div:last-child { margin-top: auto; padding-top: 16px; align-items: center; }
 dialog#booking-modal #padd { flex-shrink: 0; min-height: 38px; }
+.time-picker-title { color: #dce6de; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.time-picker-fields { display: flex; align-items: flex-end; gap: 10px; }
+.time-picker-fields > label { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; color: #94a99a; font-size: 10px; }
+.time-picker-fields > span { padding-bottom: 9px; color: #819489; }
+#ds-tenant-dashboard #sec .time-picker-fields select { width: 100%; height: 38px; display: flex; align-items: center; padding: 0 10px; }
+.time-picker-hint { margin: 10px 0 0; font-size: 10px; color: #819489; }
+.time-picker .datetime-actions { justify-content: space-between; }

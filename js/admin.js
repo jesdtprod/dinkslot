@@ -577,6 +577,7 @@
       '<div class="flex items-center gap-2 pt-2"><button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="submit">Save Court</button> <button class="px-space-md py-2.5 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" id="cx" type="button">Cancel</button></div></form>';
 
     q("#cx", box).onclick = function () { box.innerHTML = ""; };
+    D.ui.timePickers(box);
     q("#cf", box).onsubmit = async function (e) {
       e.preventDefault();
       var f = q("#cf", box), btn = q("button[type=submit]", f);

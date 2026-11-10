@@ -366,5 +366,48 @@
     });
   }
 
-  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers };
+  function timePickers(root) {
+    if (typeof HTMLElement.prototype.showPopover !== 'function') return;
+    root.querySelectorAll('input[type="time"]').forEach(function (input) {
+      var pad = function (n) { return String(n).padStart(2, '0'); };
+      var host = document.createElement('span'); host.className = 'datetime-control';
+      var trigger = document.createElement('button'); trigger.type = 'button'; trigger.className = 'datetime-trigger';
+      var name = input.closest('label').firstChild.textContent.trim();
+      trigger.setAttribute('aria-label', name + ' time'); trigger.setAttribute('aria-haspopup', 'dialog'); trigger.setAttribute('aria-expanded', 'false');
+      var panel = document.createElement('div'); panel.className = 'datetime-picker time-picker'; panel.id = input.id + '-picker';
+      panel.setAttribute('popover', 'auto'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', name + ' time');
+      trigger.setAttribute('aria-controls', panel.id);
+      input.type = 'hidden'; input.required = false; input.after(host); host.append(trigger, panel);
+      function text() {
+        var parts = (input.value || '00:00').split(':'), hour = Number(parts[0]);
+        trigger.innerHTML = '<span>' + (hour % 12 || 12) + ':' + parts[1] + ' ' + (hour >= 12 ? 'PM' : 'AM') + '</span><span class="material-symbols-outlined" aria-hidden="true">schedule</span>';
+        trigger.classList.add('has-value');
+      }
+      trigger.onclick = function (event) {
+        event.preventDefault();
+        if (panel.matches(':popover-open')) { panel.hidePopover(); return; }
+        var parts = (input.value || '08:00').split(':');
+        function options(count, selected) {
+          var html = ''; for (var n = 0; n < count; n++) html += '<option value="' + pad(n) + '"' + (Number(selected) === n ? ' selected' : '') + '>' + pad(n) + '</option>'; return html;
+        }
+        panel.innerHTML = '<div class="time-picker-title">' + esc(name) + ' time</div><div class="time-picker-fields"><label>Hour<select aria-label="Hour">' + options(24, parts[0]) + '</select></label><span>:</span><label>Minute<select aria-label="Minute">' + options(60, parts[1]) + '</select></label></div><p class="time-picker-hint">24-hour time · 00:00 is midnight</p><div class="datetime-actions"><button type="button" data-cancel>Cancel</button><button type="button" data-apply>Apply</button></div>';
+        panel.showPopover();
+        var rect = trigger.getBoundingClientRect(), width = Math.min(250, innerWidth - 24);
+        panel.style.width = width + 'px'; panel.style.left = Math.max(12, Math.min(rect.left, innerWidth - width - 12)) + 'px';
+        panel.style.top = Math.max(12, Math.min(rect.bottom + 8, innerHeight - panel.offsetHeight - 12)) + 'px';
+        panel.querySelector('select').focus();
+      };
+      panel.addEventListener('click', function (event) {
+        var button = event.target.closest('button'); if (!button) return;
+        event.preventDefault();
+        if (button.hasAttribute('data-apply')) { var fields = panel.querySelectorAll('select'); input.value = fields[0].value + ':' + fields[1].value; input.dispatchEvent(new Event('change', { bubbles: true })); }
+        panel.hidePopover(); trigger.focus();
+      });
+      panel.addEventListener('keydown', function (event) { if (event.key === 'Escape') { event.preventDefault(); panel.hidePopover(); trigger.focus(); } });
+      panel.addEventListener('toggle', function (event) { trigger.setAttribute('aria-expanded', String(event.newState === 'open')); });
+      input.addEventListener('change', text); text();
+    });
+  }
+
+  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers };
 })();
