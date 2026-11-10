@@ -34,3 +34,27 @@
 #ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > a { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:auto; padding:12px 0 0; font-size:12px; line-height:20px; }
 @media(max-width:1100px) { #ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:540px) { #ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] { grid-template-columns:minmax(0,1fr); } }
+
+/* Home club: quiet surfaces, clear hierarchy and compact schedule tiles. */
+#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) { padding:22px; border:1px solid #ffffff12; border-radius:12px; background:#171d23; box-shadow:none; }
+#my-home-club > div:nth-child(2) > div:first-child { display:none; }
+#my-home-club > div:nth-child(2) > div:nth-child(2) { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:0; }
+#my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child { display:flex; align-items:center; gap:18px; min-width:0; }
+#my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child { width:64px; height:64px; flex-shrink:0; border-radius:12px; border-color:#ffffff16; background:#20282e; box-shadow:none; }
+#my-home-club h3 { font-size:18px; line-height:26px; letter-spacing:-.02em; }
+#my-home-club .space-y-2 > div:first-child { gap:10px; }
+#my-home-club .space-y-2 > div:first-child > span:first-of-type { padding:3px 9px; border:1px solid #a3e63530; border-radius:6px; background:#a3e63510; color:#b3d394; box-shadow:none; font:600 10px/16px "Plus Jakarta Sans",sans-serif; text-transform:none; letter-spacing:0; }
+#my-home-club .space-y-2 > div:nth-child(2) { margin-top:7px; gap:8px 16px; color:#93a59b; font-size:12px; line-height:20px; }
+#my-home-club .space-y-2 > div:nth-child(2) .material-symbols-outlined { font-size:15px; color:#9ab581; }
+#my-home-club .space-y-2 > div:last-child { display:flex; flex-wrap:wrap; gap:6px; padding-top:8px; }
+#my-home-club .space-y-2 > div:last-child > span { padding:3px 8px; border-radius:6px; border:1px solid #ffffff0c; background:#ffffff03; color:#a7b5ad; font-size:10px; line-height:16px; }
+#my-home-club > div:nth-child(2) > div:nth-child(2) > div:last-child { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; width:auto; flex-shrink:0; align-self:center; }
+#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin-top:20px; padding-top:16px; border-color:#ffffff0c; }
+#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child > a { display:flex !important; flex-direction:column; align-items:flex-start !important; justify-content:center !important; min-width:0; min-height:84px !important; gap:6px !important; padding:12px 14px !important; border:1px solid #ffffff0c !important; border-radius:8px !important; background:#ffffff02 !important; color:#cdd8d0 !important; text-align:left; box-shadow:none !important; }
+#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child > a:hover { border-color:#a3e63535 !important; background:#a3e63506 !important; }
+#my-home-club > div:nth-child(2) > div:last-child > a > span:first-child { color:#8fa497; font:400 10px/15px "Plus Jakarta Sans",sans-serif; }
+#my-home-club > div:nth-child(2) > div:last-child > a > span:nth-child(2) { font-size:14px; line-height:20px; font-weight:650; }
+#my-home-club > div:nth-child(2) > div:last-child > a > span:last-child { color:#a7b99b; }
+#my-home-club > div:nth-child(2) > div:last-child > a .material-symbols-outlined { font-size:17px; }
+@media(max-width:1100px) { #my-home-club > div:nth-child(2) > div:nth-child(2) { align-items:flex-start; flex-direction:column; gap:16px; } #my-home-club > div:nth-child(2) > div:nth-child(2) > div:last-child { align-self:flex-start; justify-content:flex-start; } #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:540px) { #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) { padding:16px; } #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { grid-template-columns:repeat(2,minmax(0,1fr)); } #my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child { align-items:flex-start; gap:12px; } }
