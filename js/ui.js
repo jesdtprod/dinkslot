@@ -10,6 +10,81 @@
 
   function icon(name) { return '<span class="material-symbols-outlined text-xl shrink-0" aria-hidden="true">' + esc(name) + "</span>"; }
 
+  // Shared account card for the public navigation and facility dashboard.
+  function accountMenu(h, signoutId) {
+    h = h || {};
+    var initial = esc((h.initial || h.title || "?").charAt(0).toUpperCase());
+    return '<div class="facility-menu-header">' +
+      '<div class="facility-menu-header-top">' +
+        '<div class="facility-menu-header-avatar">' + (h.img ? '<img src="' + esc(h.img) + '" alt="">' : initial) + '</div>' +
+        '<div class="facility-menu-header-info">' +
+          '<span class="facility-menu-header-name">' + esc(h.title || "Facility") + '</span>' +
+          '<span class="facility-menu-header-role">' + esc(h.sub || "Director") + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="facility-menu-header-email">' + esc((D.state.user && D.state.user.email) || "") + '</div>' +
+      '<div class="facility-menu-header-meta">' +
+        '<span class="facility-meta-status"><span class="facility-meta-status-dot"></span> Cloud Sync Active</span>' +
+        (h.city ? '<span class="facility-meta-city"><span class="material-symbols-outlined">location_on</span>' + esc(h.city) + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    (h.slug ?
+      '<div class="facility-menu-label">Facility Management</div>' +
+      '<a href="#/c/' + esc(h.slug) + '" target="_blank" rel="noopener" class="facility-menu-item">' +
+        '<div class="facility-item-main">' +
+          '<div class="facility-item-icon"><span class="material-symbols-outlined">storefront</span></div>' +
+          '<div class="facility-item-copy">' +
+            '<span class="facility-item-title">Public Club Page</span>' +
+            '<span class="facility-item-sub">View live member booking page</span>' +
+          '</div>' +
+        '</div>' +
+        '<span class="material-symbols-outlined facility-item-arrow">arrow_outward</span>' +
+      '</a>' +
+      '<a href="#/admin/' + esc(h.slug) + '/profile" class="facility-menu-item">' +
+        '<div class="facility-item-main">' +
+          '<div class="facility-item-icon"><span class="material-symbols-outlined">tune</span></div>' +
+          '<div class="facility-item-copy">' +
+            '<span class="facility-item-title">Club Configuration</span>' +
+            '<span class="facility-item-sub">Courts, payouts & rules</span>' +
+          '</div>' +
+        '</div>' +
+        '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
+      '</a>'
+    : '') +
+    '<div class="facility-menu-label">Network & Account</div>' +
+    '<a href="#/me" class="facility-menu-item">' +
+      '<div class="facility-item-main">' +
+        '<div class="facility-item-icon"><span class="material-symbols-outlined">person</span></div>' +
+        '<div class="facility-item-copy">' +
+          '<span class="facility-item-title">Personal Profile</span>' +
+          '<span class="facility-item-sub">Player stats & reservations</span>' +
+        '</div>' +
+      '</div>' +
+      '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
+    '</a>' +
+    '<a href="#/" class="facility-menu-item">' +
+      '<div class="facility-item-main">' +
+        '<div class="facility-item-icon"><span class="material-symbols-outlined">sports_tennis</span></div>' +
+        '<div class="facility-item-copy">' +
+          '<span class="facility-item-title">Browse Courts</span>' +
+          '<span class="facility-item-sub">Explore national venue network</span>' +
+        '</div>' +
+      '</div>' +
+      '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
+    '</a>' +
+    '<div class="facility-menu-divider"></div>' +
+    '<button type="button" id="' + esc(signoutId || "facility-signout") + '" class="facility-menu-item signout-item">' +
+      '<div class="facility-item-main">' +
+        '<div class="facility-item-icon"><span class="material-symbols-outlined">logout</span></div>' +
+        '<div class="facility-item-copy">' +
+          '<span class="facility-item-title">Sign out</span>' +
+          '<span class="facility-item-sub">End current active session</span>' +
+        '</div>' +
+      '</div>' +
+      '<kbd class="facility-shortcut">Esc</kbd>' +
+    '</button>';
+  }
+
   // o = { head:{title, sub, status, img, initial, city}, items:[{key,label,icon,href|(button),badge}|{type:'label',label}],
   //       foot:[{label,icon,href}], active, onSelect(key) }
   // returns { main, setTitle(title, sub, actionsHtml), setActive(key), setBadge(key, value), setStatusPill(courtsLive, util) }
@@ -99,75 +174,7 @@
                 '</span>' +
                 '<span class="material-symbols-outlined facility-chevron" aria-hidden="true">expand_more</span>' +
               '</summary><div class="facility-account-menu">' +
-                '<div class="facility-menu-header">' +
-                  '<div class="facility-menu-header-top">' +
-                    '<div class="facility-menu-header-avatar">' + (h.img ? '<img src="' + esc(h.img) + '" alt="">' : initial) + '</div>' +
-                    '<div class="facility-menu-header-info">' +
-                      '<span class="facility-menu-header-name">' + esc(h.title || "Facility") + '</span>' +
-                      '<span class="facility-menu-header-role">' + esc(h.sub || "Director") + '</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="facility-menu-header-email">' + esc((D.state.user && D.state.user.email) || "") + '</div>' +
-                  '<div class="facility-menu-header-meta">' +
-                    '<span class="facility-meta-status"><span class="facility-meta-status-dot"></span> Cloud Sync Active</span>' +
-                    (h.city ? '<span class="facility-meta-city"><span class="material-symbols-outlined">location_on</span>' + esc(h.city) + '</span>' : '') +
-                  '</div>' +
-                '</div>' +
-                (h.slug ?
-                  '<div class="facility-menu-label">Facility Management</div>' +
-                  '<a href="#/c/' + esc(h.slug) + '" target="_blank" rel="noopener" class="facility-menu-item">' +
-                    '<div class="facility-item-main">' +
-                      '<div class="facility-item-icon"><span class="material-symbols-outlined">storefront</span></div>' +
-                      '<div class="facility-item-copy">' +
-                        '<span class="facility-item-title">Public Club Page</span>' +
-                        '<span class="facility-item-sub">View live member booking page</span>' +
-                      '</div>' +
-                    '</div>' +
-                    '<span class="material-symbols-outlined facility-item-arrow">arrow_outward</span>' +
-                  '</a>' +
-                  '<a href="#/admin/' + esc(h.slug) + '/profile" class="facility-menu-item">' +
-                    '<div class="facility-item-main">' +
-                      '<div class="facility-item-icon"><span class="material-symbols-outlined">tune</span></div>' +
-                      '<div class="facility-item-copy">' +
-                        '<span class="facility-item-title">Club Configuration</span>' +
-                        '<span class="facility-item-sub">Courts, payouts & rules</span>' +
-                      '</div>' +
-                    '</div>' +
-                    '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
-                  '</a>'
-                : '') +
-                '<div class="facility-menu-label">Network & Account</div>' +
-                '<a href="#/me" class="facility-menu-item">' +
-                  '<div class="facility-item-main">' +
-                    '<div class="facility-item-icon"><span class="material-symbols-outlined">person</span></div>' +
-                    '<div class="facility-item-copy">' +
-                      '<span class="facility-item-title">Personal Profile</span>' +
-                      '<span class="facility-item-sub">Player stats & reservations</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
-                '</a>' +
-                '<a href="#/" class="facility-menu-item">' +
-                  '<div class="facility-item-main">' +
-                    '<div class="facility-item-icon"><span class="material-symbols-outlined">sports_tennis</span></div>' +
-                    '<div class="facility-item-copy">' +
-                      '<span class="facility-item-title">Browse Courts</span>' +
-                      '<span class="facility-item-sub">Explore national venue network</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
-                '</a>' +
-                '<div class="facility-menu-divider"></div>' +
-                '<button type="button" id="facility-signout" class="facility-menu-item signout-item">' +
-                  '<div class="facility-item-main">' +
-                    '<div class="facility-item-icon"><span class="material-symbols-outlined">logout</span></div>' +
-                    '<div class="facility-item-copy">' +
-                      '<span class="facility-item-title">Sign out</span>' +
-                      '<span class="facility-item-sub">End current active session</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<kbd class="facility-shortcut">Esc</kbd>' +
-                '</button>' +
+                accountMenu(h) +
               '</div></details>' +
             '</div>' +
           '</header>' +
@@ -265,5 +272,5 @@
     return api;
   }
 
-  D.ui = { dash: dash, icon: icon };
+  D.ui = { dash: dash, icon: icon, accountMenu: accountMenu };
 })();

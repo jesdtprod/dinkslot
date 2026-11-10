@@ -223,16 +223,16 @@
       var profileName = (state.user.user_metadata && state.user.user_metadata.full_name) || state.user.email || "Player";
       var initial = profileName.trim().charAt(0).toUpperCase() || "P";
       // Club owners and staff go straight to their dashboard; everyone else keeps My account.
-      var acctHref = state.managedSlug ? "#/admin/" + esc(state.managedSlug) : state.accountType === "tenant" ? "#/register-club" : "#/me";
       var acctLabel = state.managedSlug ? "Dashboard" : state.accountType === "tenant" ? "Set up my club" : "My dashboard";
       h += '<span id="bellslot" class="dashboard-bellslot"></span>' +
         '<details class="facility-account"><summary aria-label="Account menu"><span class="facility-avatar">' + esc(initial) + '</span>' +
         '<span class="facility-account-text"><strong>' + esc(profileName) + '</strong><small>' + acctLabel + '</small></span>' +
         '<span class="material-symbols-outlined facility-chevron" aria-hidden="true">expand_more</span></summary>' +
-        '<div class="facility-account-menu public-account-menu"><div class="public-account-heading"><span class="public-account-caption">Signed in as</span><strong>' + esc(profileName) + '</strong><span class="facility-account-email">' + esc(state.user.email || "") + '</span></div>' +
-        '<a href="' + acctHref + '"><span class="material-symbols-outlined" aria-hidden="true">dashboard</span><span>' + acctLabel + '</span></a>' +
-        '<a href="#/me"><span class="material-symbols-outlined" aria-hidden="true">account_circle</span><span>My Profile</span></a>' +
-        '<button id="signout" type="button"><span class="material-symbols-outlined" aria-hidden="true">logout</span><span>Sign out</span></button></div></details>' +
+        '<div class="facility-account-menu public-account-menu">' + window.DS.ui.accountMenu({
+          title: profileName,
+          sub: state.managedSlug ? "Facility Director" : state.accountType === "tenant" ? "Club Account" : "Player",
+          slug: state.managedSlug
+        }, "signout") + '</div></details>' +
         (state.managedSlug || state.accountType === "player" ? "" : '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>');
     } else {
       var authHash = (location.hash || "").slice(1);
