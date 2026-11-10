@@ -636,7 +636,7 @@
       totalPlayedMinutes += mins;
     });
     var totalHoursText = totalPlayedMinutes ? (totalPlayedMinutes / 60).toFixed(1) + " hrs" : (past.length ? "14.5 hrs" : "0 hrs");
-    var creditsText = "PHP 450.00";
+    var creditsText = "Not available";
 
     // Club options for filter
     var clubNames = Array.from(new Set(clubs.map(function (c) { return c.name; }))).sort();
@@ -644,48 +644,7 @@
       return '<option value="' + esc(name) + '">' + esc(name) + '</option>';
     }).join("");
 
-    var headerHtml =
-      '<section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2" data-purpose="header-and-quick-stats">' +
-        '<div>' +
-          '<div class="flex items-center space-x-2 mb-2">' +
-            '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-medium tracking-wide uppercase bg-brand-neon/10 text-brand-neon border border-brand-neon/20">' +
-              '<span class="w-1.5 h-1.5 rounded-full bg-brand-neon mr-1.5 animate-pulse glow-dot"></span>' +
-              'Player Hub • Reservations &amp; Match Passes' +
-            '</span>' +
-          '</div>' +
-          '<h1 class="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-white">My bookings</h1>' +
-          '<p class="text-slate-400 text-sm sm:text-base mt-1.5">Upcoming courts, payments, match history, and digital check-in passes.</p>' +
-        '</div>' +
-        '<div class="flex flex-wrap items-center gap-3">' +
-          '<div class="bg-brand-card/90 border border-brand-border rounded-xl px-4 py-2.5 flex items-center space-x-3">' +
-            '<div class="w-8 h-8 rounded-lg bg-brand-neon/10 text-brand-neon flex items-center justify-center">' +
-              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</div>' +
-            '<div>' +
-              '<div class="text-[11px] uppercase tracking-wider font-mono text-slate-400">Confirmed Upcoming</div>' +
-              '<div id="stat-confirmed-upcoming" class="text-sm font-bold font-display text-white">' + esc(confirmedText) + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="bg-brand-card/90 border border-brand-border rounded-xl px-4 py-2.5 flex items-center space-x-3">' +
-            '<div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">' +
-              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</div>' +
-            '<div>' +
-              '<div class="text-[11px] uppercase tracking-wider font-mono text-slate-400">Total Played</div>' +
-              '<div id="stat-total-played" class="text-sm font-bold font-display text-white">' + esc(totalHoursText) + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="bg-brand-card/90 border border-brand-border rounded-xl px-4 py-2.5 flex items-center space-x-3">' +
-            '<div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">' +
-              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</div>' +
-            '<div>' +
-              '<div class="text-[11px] uppercase tracking-wider font-mono text-slate-400">Court Credits</div>' +
-              '<div id="stat-court-credits" class="text-sm font-bold font-mono text-emerald-400">' + esc(creditsText) + '</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</section>';
+    var headerHtml = '<section class="member-overview-header"><div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1>My Bookings</h1><p>Manage your court reservations, payments, and booking passes.</p></div><div class="member-overview-stats"><div><span class="member-overview-stat-label">Confirmed Upcoming</span><span class="member-overview-stat-value">' + confirmedCount + '</span><small>Reservations</small></div><div><span class="member-overview-stat-label">Pending</span><span class="member-overview-stat-value">' + upcoming.filter(function (booking) { return booking.status === 'pending'; }).length + '</span><small>Awaiting approval</small></div><div><span class="member-overview-stat-label">Court Time</span><span class="member-overview-stat-value">' + (totalPlayedMinutes / 60).toFixed(1) + '</span><small>Past booked hours</small></div></div></section>';
 
     var filterToolbarHtml =
       '<section class="space-y-4" data-purpose="filtering-and-search-toolbar">' +
@@ -747,73 +706,21 @@
         '<div id="booking-cards-container" class="space-y-4"></div>' +
       '</section>';
 
-    // Countdown reminder banner for earliest upcoming match
-    var countdownHtml = "";
-    if (upcoming.length) {
-      var nextMatch = upcoming[0];
-      var nextCourt = cMap[nextMatch.court_id] || {};
-      var nextClub = clMap[nextCourt.club_slug] || {};
-      var msUntil = new Date(nextMatch.starts_at).getTime() - now;
-      var hoursUntil = Math.max(0, Math.floor(msUntil / (1000 * 60 * 60)));
-      var minsUntil = Math.max(0, Math.floor((msUntil % (1000 * 60 * 60)) / (1000 * 60)));
-      var timeText = hoursUntil > 0 ? (hoursUntil + " hours " + minsUntil + " mins") : (minsUntil + " mins");
-      var mapQuery = [nextClub.street || nextClub.address, nextClub.barangay, nextClub.city].filter(Boolean).join(", ");
-      var mapHref = mapQuery ? ("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(mapQuery)) : "#/c/" + esc(nextClub.slug || "");
-
-      countdownHtml =
-        '<section class="bg-gradient-to-r from-brand-surface via-brand-card to-brand-surface border border-brand-border rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4" data-purpose="matchday-reminder-banner">' +
-          '<div class="flex items-center space-x-4">' +
-            '<div class="w-12 h-12 rounded-xl bg-brand-neon/15 border border-brand-neon/30 flex items-center justify-center text-brand-neon flex-shrink-0">' +
-              '<svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</div>' +
-            '<div>' +
-              '<h4 class="font-display font-bold text-white text-base">Match Day Check-In Countdown</h4>' +
-              '<p class="text-slate-400 text-xs mt-0.5">Your next session starts in <span class="font-mono text-brand-neon font-semibold">' + esc(timeText) + '</span>. Turnstile opens 15 mins prior with Pass <span class="font-mono text-slate-300">#' + esc(nextMatch.reference_code) + '</span>.</p>' +
-            '</div>' +
-          '</div>' +
-          '<div class="flex items-center space-x-3 w-full md:w-auto">' +
-            '<a href="' + mapHref + '" target="_blank" rel="noopener" class="w-full md:w-auto px-4 py-2 bg-brand-card hover:bg-brand-border border border-brand-border rounded-xl text-xs font-semibold text-slate-200 transition-colors text-center no-underline">Get Driving Directions</a>' +
-            '<a href="#/c/' + esc(nextClub.slug || "") + '" class="w-full md:w-auto px-4 py-2 bg-brand-neon/10 hover:bg-brand-neon/20 border border-brand-neon/30 rounded-xl text-xs font-semibold text-brand-neon transition-colors text-center no-underline">Club Guidelines</a>' +
-          '</div>' +
-        '</section>';
+    var nextMatch = upcoming.find(function (booking) { return booking.status === 'approved'; });
+    var countdownHtml = '';
+    if (nextMatch) {
+      var nextCourt = cMap[nextMatch.court_id] || {}, nextClub = clMap[nextCourt.club_slug] || {};
+      var mapQuery = nextClub.latitude != null && nextClub.longitude != null ? nextClub.latitude + ',' + nextClub.longitude : [nextClub.street || nextClub.address,nextClub.barangay,nextClub.city,nextClub.province].filter(Boolean).join(', ');
+      countdownHtml = '<section class="booking-countdown" data-purpose="matchday-reminder-banner"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><div><h2>Match Day Countdown</h2><p><strong id="booking-live-countdown"></strong><span> &middot; ' + esc(nextClub.name || 'Club') + ' &middot; ' + esc(nextCourt.name || 'Court') + '</span></p><small>Ref: ' + esc(nextMatch.reference_code || 'Not available') + ' &middot; ' + esc(new Date(nextMatch.starts_at).toLocaleString('en-PH',{timeZone:nextClub.timezone || 'Asia/Manila',dateStyle:'medium',timeStyle:'short'})) + '</small></div>' +
+        (mapQuery ? '<a class="btn ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(mapQuery) + '"><span class="material-symbols-outlined" aria-hidden="true">directions</span>Get Directions</a>' : '') + '</section>';
     }
 
-    var historySectionHtml =
-      '<section class="space-y-4 pt-4" data-purpose="past-match-records" id="recent-match-history-section">' +
-        '<div class="flex items-center justify-between">' +
-          '<div>' +
-            '<h2 class="text-xl font-bold font-display text-white tracking-tight">Recent Match History</h2>' +
-            '<p class="text-slate-400 text-xs mt-0.5">Your previous court bookings and instant rebook shortcuts</p>' +
-          '</div>' +
-          '<span class="text-xs font-semibold text-brand-neon font-mono">' + past.length + ' past match' + (past.length === 1 ? '' : 'es') + '</span>' +
-        '</div>' +
-        '<div id="past-matches-container" class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden divide-y divide-brand-border"></div>' +
-      '</section>';
-
-    var facilityCtaHtml =
-      '<section class="mt-8 bg-gradient-to-r from-brand-card via-[#17202c] to-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-6" data-purpose="club-partner-callout">' +
-        '<div class="space-y-2 text-center lg:text-left">' +
-          '<span class="text-xs font-mono font-semibold tracking-wider text-brand-neon uppercase">For Facility Operators</span>' +
-          '<h3 class="text-xl sm:text-2xl font-bold font-display text-white">Own or manage a pickleball facility?</h3>' +
-          '<p class="text-sm text-slate-400 max-w-xl">' +
-            'Connect your court scheduling system directly with DINKSLOT to fill idle court hours, automate access turnstiles, and process online payments instantly.' +
-          '</p>' +
-        '</div>' +
-        '<div class="flex-shrink-0">' +
-          '<a class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-slate-100 text-brand-obsidian font-bold font-display text-sm hover:bg-white transition-all shadow-subtle-card no-underline" href="#/register-club">' +
-            'List Your Facility →' +
-          '</a>' +
-        '</div>' +
-      '</section>';
-
     sec.innerHTML =
-      '<div class="max-w-7xl w-full mx-auto space-y-8" data-purpose="player-bookings-dashboard">' +
+      '<div class="member-bookings-page" data-purpose="player-bookings-dashboard">' +
         headerHtml +
         filterToolbarHtml +
         reservationsSectionHtml +
         countdownHtml +
-        historySectionHtml +
-        facilityCtaHtml +
       '</div>';
 
     var activeTab = "upcoming"; // 'upcoming' | 'past' | 'cancelled'
@@ -1003,78 +910,6 @@
       bindActionEvents();
     }
 
-    function renderPastMatches() {
-      var container = q("#past-matches-container", sec);
-      if (!container) return;
-
-      var displayPast = past;
-      if (!displayPast.length) {
-        // Fallback default partner past matches from mockup to showcase history cleanly
-        displayPast = [
-          {
-            id: "past-demo-1",
-            starts_at: new Date(now - 86400000 * 2).toISOString(),
-            ends_at: new Date(now - 86400000 * 2 + 3600000).toISOString(),
-            amount: 150,
-            reference_code: "DS-78AB29KL",
-            status: "approved",
-            demoClub: "The Pickleshot – Court 2",
-            demoSlug: "the-pickleshot"
-          },
-          {
-            id: "past-demo-2",
-            starts_at: new Date(now - 86400000 * 5).toISOString(),
-            ends_at: new Date(now - 86400000 * 5 + 5400000).toISOString(),
-            amount: 225,
-            reference_code: "DS-39NM91PP",
-            status: "approved",
-            demoClub: "Southside Dinks & Social – Court 4",
-            demoSlug: "southside-dinks-social"
-          }
-        ];
-      }
-
-      container.innerHTML = displayPast.map(function (p) {
-        var ct = cMap[p.court_id] || {};
-        var cl = clMap[ct.club_slug] || {};
-        var title = p.demoClub || ((cl.name || "Club") + " – " + (ct.name || "Court"));
-        var rebookSlug = p.demoSlug || cl.slug || "the-pickleshot";
-        var startD = new Date(p.starts_at);
-        var endD = new Date(p.ends_at);
-        var mins = Math.max(0, Math.round((endD - startD) / 60000));
-        var monthStr = startD.toLocaleDateString("en-PH", { month: "short" }).toUpperCase();
-        var dayStr = ("0" + startD.getDate()).slice(-2);
-        var timeStr = startD.toLocaleString("en-PH", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) +
-          " – " + endD.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" }) + (mins ? " (" + mins + " mins)" : "");
-
-        return '<div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-brand-cardHover/60 transition-colors">' +
-          '<div class="flex items-center space-x-4">' +
-            '<div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex flex-col items-center justify-center flex-shrink-0 font-mono text-[11px] leading-tight">' +
-              '<span>' + esc(monthStr) + '</span>' +
-              '<span class="font-bold text-white text-xs">' + esc(dayStr) + '</span>' +
-            '</div>' +
-            '<div>' +
-              '<div class="flex items-center space-x-2">' +
-                '<h4 class="font-display font-bold text-white text-base">' + esc(title) + '</h4>' +
-                '<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">Completed</span>' +
-              '</div>' +
-              '<div class="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-x-3">' +
-                '<span>' + esc(timeStr) + '</span>' +
-                '<span>•</span>' +
-                '<span class="font-mono text-slate-300">' + money(p.amount) + '</span>' +
-                '<span>•</span>' +
-                '<span class="font-mono text-slate-500">code ' + esc(p.reference_code) + '</span>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="flex items-center space-x-3 self-end sm:self-center">' +
-            '<button type="button" data-ticket="' + esc(p.id) + '" class="px-3 py-1.5 rounded-lg border border-brand-border hover:border-brand-borderHighlight bg-brand-surface text-xs text-slate-300 hover:text-white transition-colors cursor-pointer">Receipt</button>' +
-            '<a href="#/c/' + esc(rebookSlug) + '/book" class="px-3 py-1.5 rounded-lg bg-brand-neon/15 hover:bg-brand-neon/25 text-brand-neon border border-brand-neon/30 text-xs font-semibold transition-all no-underline">Rebook Court</a>' +
-          '</div>' +
-        '</div>';
-      }).join("");
-    }
-
     function bindActionEvents() {
       var allMatches = bs.slice();
       var byId = {};
@@ -1254,7 +1089,20 @@
     }
 
     renderCards();
-    renderPastMatches();
+    if (nextMatch) {
+      function updateCountdown() {
+        var target = q('#booking-live-countdown',sec);
+        if (!target) return false;
+        var remaining = Math.max(0,new Date(nextMatch.starts_at).getTime() - Date.now());
+        var minutes = Math.ceil(remaining / 60000), days = Math.floor(minutes / 1440), hours = Math.floor(minutes % 1440 / 60), mins = minutes % 60;
+        target.textContent = remaining ? 'Starts in ' + (days ? days + 'd ' : '') + hours + 'h ' + mins + 'm' : Date.now() < new Date(nextMatch.ends_at).getTime() ? 'Session in progress' : 'Session ended';
+        return true;
+      }
+      updateCountdown();
+      if (typeof setInterval === 'function') {
+        var countdownTimer = setInterval(function () { if (!sec.isConnected || !updateCountdown()) clearInterval(countdownTimer); },1000);
+      }
+    }
     bindActionEvents();
   }
 
