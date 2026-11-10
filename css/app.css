@@ -2755,3 +2755,17 @@ dialog#booking-modal [data-purpose="bottom-bar"] { position: static; flex-shrink
 dialog#booking-modal [data-purpose="payment-mode-selector"] { flex-shrink: 0; flex-wrap: wrap; padding: 12px 0 0; border-top: 1px solid #ffffff09; }
 dialog#booking-modal [data-purpose="bottom-bar"] > div:last-child { width: auto; }
 @media (max-width:640px) { .booking-modal-body { padding: 14px; } dialog#booking-modal [data-purpose="bottom-bar"] { padding: 12px 14px; } }
+
+/* Customer and booking details share one row on wider screens. */
+dialog#booking-modal.booking-modal[open] { width: min(1040px,calc(100vw - 32px)); }
+dialog#booking-modal .booking-modal-body { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-content: start; align-items: stretch; }
+.booking-modal-body > * { grid-column: 1 / -1; min-width: 0; }
+dialog#booking-modal [data-purpose="customer-selection-card"] { grid-column: 1; }
+dialog#booking-modal [data-purpose="booking-parameters"] { grid-column: 2; }
+dialog#booking-modal [data-purpose="booking-parameters"] > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+dialog#booking-modal [data-purpose="booking-parameters"] > .grid > div:first-child { grid-column: 1 / -1; }
+dialog#booking-modal #view-walkin { grid-template-columns: minmax(0,1fr); gap: 10px; }
+@media (max-width:760px) {
+  dialog#booking-modal .booking-modal-body { grid-template-columns: minmax(0,1fr); }
+  dialog#booking-modal [data-purpose="customer-selection-card"], dialog#booking-modal [data-purpose="booking-parameters"] { grid-column: 1; }
+}
