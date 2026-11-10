@@ -773,8 +773,8 @@
       sec.querySelectorAll("[data-ticket]").forEach(function (btn) {
         btn.onclick = function () {
           var bId = btn.getAttribute("data-ticket");
-          var b = byId[bId] || { reference_code: "DS-ECRS3Q02J", starts_at: new Date().toISOString(), ends_at: new Date().toISOString() };
-          openTicketModal(b);
+          var b = byId[bId];
+          if (b) openTicketModal(b);
         };
       });
 
@@ -836,56 +836,10 @@
     }
 
     function openTicketModal(b) {
-      var court = cMap[b.court_id] || {};
-      var club = clMap[court.club_slug] || {};
-      var user = D.state.user || {};
-      var pName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email || "Player").split("@")[0];
-      var modal = document.createElement("dialog");
-      modal.className = "rounded-2xl bg-[#10141a] border border-[#232936] p-6 max-w-sm w-full mx-auto backdrop:bg-black/75 shadow-2xl text-center space-y-4";
-      modal.innerHTML =
-        '<div class="flex items-center justify-between">' +
-          '<span class="text-xs font-mono uppercase text-brand-neon font-bold">Turnstile Check-In Pass</span>' +
-          '<button type="button" data-close class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 cursor-pointer"><span class="material-symbols-outlined text-lg">close</span></button>' +
-        '</div>' +
-        '<div class="bg-white p-4 rounded-xl shadow-lg flex flex-col items-center justify-center space-y-2">' +
-          '<div id="modal-qr-box" class="w-48 h-48 flex items-center justify-center"></div>' +
-          '<div class="font-mono text-black font-extrabold text-lg tracking-wider">' + esc(b.reference_code) + '</div>' +
-        '</div>' +
-        '<div class="space-y-1">' +
-          '<div class="text-xs font-mono text-slate-400 uppercase">Player</div>' +
-          '<div class="text-base font-bold text-white font-display">' + esc(pName) + '</div>' +
-          '<h3 class="font-display font-bold text-white text-base mt-2">' + esc(club.name || "The Pickleshot") + ' – ' + esc(court.name || "Court 1") + '</h3>' +
-        '</div>' +
-        '<div class="pt-2 flex gap-2">' +
-          '<button type="button" id="modal-copy-btn" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-200 font-semibold cursor-pointer">Copy Code</button>' +
-          '<button type="button" data-close class="flex-1 py-2 px-3 rounded-xl bg-brand-neon hover:bg-lime-400 text-black font-bold text-xs shadow-neon-glow cursor-pointer">Done</button>' +
-        '</div>';
-      document.body.appendChild(modal);
-
-      var qrBox = modal.querySelector("#modal-qr-box");
-      if (typeof window.qrcode === "function") {
-        try {
-          var qr = window.qrcode(3, "M");
-          qr.addData(b.reference_code || "DINKSLOT-PASS");
-          qr.make();
-          qrBox.innerHTML = qr.createSvgTag(5, 0);
-        } catch (e) {
-          qrBox.innerHTML = '<svg class="w-32 h-32 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 0h-4v2h2v4h2v-4h2v-2h-2v0zm2 4h2v2h-2v-2zm-6-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4-6h2v2h-2v-2zm0 4h2v2h-2v-2z"></path></svg>';
-        }
-      } else {
-        qrBox.innerHTML = '<svg class="w-32 h-32 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 0h-4v2h2v4h2v-4h2v-2h-2v0zm2 4h2v2h-2v-2zm-6-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4-6h2v2h-2v-2zm0 4h2v2h-2v-2z"></path></svg>';
-      }
-
-      modal.querySelectorAll("[data-close]").forEach(function (btn) {
-        btn.onclick = function () { modal.close(); };
-      });
-      modal.querySelector("#modal-copy-btn").onclick = function () {
-        if (navigator.clipboard) navigator.clipboard.writeText(b.reference_code);
-        if (D.ui && D.ui.toast) D.ui.toast("Confirmation code copied!", "ok");
-      };
-      modal.onclose = function () { modal.remove(); };
-      modal.onclick = function (e) { if (e.target === modal) modal.close(); };
-      modal.showModal();
+      var court = cMap[b.court_id] || {}, club = clMap[court.club_slug] || {};
+      var user = D.state.user || {}, metadata = user.user_metadata || {};
+      var name = metadata.display_name || metadata.full_name || metadata.name || (user.email || 'Player').split('@')[0];
+      return D.booking.openPass(b, court, club, {display_name:name}, document.activeElement);
     }
 
     // Tab buttons

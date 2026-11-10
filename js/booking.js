@@ -422,111 +422,12 @@
   window.__dsQr = { svg: bookingQrSvg, logo: loadQrLogo }; // used by the scan test
 
   // ==================================================== club approval queue
-  async function queue(box, t) {
-    var tz = t.timezone || "Asia/Manila", chan = null, poll = null;
-    function stop() { if (chan) { sb.removeChannel(chan); chan = null; } if (poll) { clearInterval(poll); poll = null; } }
-    function modal(html) {
-      var m = document.createElement("div"); m.className = "fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4";
-      m.innerHTML = '<div class="bg-surface-container-low border border-outline-variant/40 rounded-DEFAULT p-space-lg max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col gap-3 text-on-surface">' + html + '<div class="pt-2"><button class="px-4 py-2 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" type="button">Close</button></div></div>';
-      m.onclick = function (e) { if (e.target === m || e.target.tagName === "BUTTON") m.remove(); };
-      document.body.appendChild(m);
-    }
-    async function load() {
-      if (!alive(box)) { stop(); return; }
-      if (!box.querySelector(".bcard")) {
-        box.innerHTML = '<div class="space-y-4">' +
-          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-        '</div>';
-      }
-      var bs = (await sb.from("bookings").select("*").eq("tenant_id", t.id).in("status", ["pending", "approved"])
-        .gte("ends_at", new Date().toISOString()).order("starts_at")).data || [];
-      var players = (await sb.from("club_players").select("id,display_name,phone").eq("tenant_id", t.id)).data || [];
-      var courts = (await sb.from("courts").select("id,name,is_indoor").eq("tenant_id", t.id)).data || [];
-      var pays = bs.length ? (await sb.from("booking_payments").select("*").eq("tenant_id", t.id).in("booking_id", bs.map(function (b) { return b.id; }))).data || [] : [];
-      var pm = {}, cm = {}, pay = {};
-      players.forEach(function (p) { pm[p.id] = p; }); courts.forEach(function (c) { cm[c.id] = c; }); pays.forEach(function (p) { pay[p.booking_id] = p; });
-      var today = dayStr(tz);
-      var pending = bs.filter(function (b) { return b.status === "pending"; });
-      var approved = bs.filter(function (b) { return b.status === "approved"; });
-      var todayList = approved.filter(function (b) { return new Date(b.starts_at).toLocaleDateString("en-CA", { timeZone: tz }) === today; });
-      var later = approved.filter(function (b) { return todayList.indexOf(b) === -1; });
-      function row(b, withDecide) {
-        var p = pm[b.player_id] || {}, c = cm[b.court_id] || {}, py = pay[b.id];
-        p = { display_name: p.display_name || b.guest_name, phone: p.phone || b.guest_phone };
-        var displayName = p.display_name || "Guest";
-        var initials = displayName.split(" ").filter(Boolean).map(function (w) { return w[0]; }).slice(0, 2).join("").toUpperCase() || "BK";
-
-        var statusBadge = !withDecide
-          ? srcBadge(b)
-          : (py
-              ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Proof uploaded</span>'
-              : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>No proof</span>');
-
-        return '<div class="bcard relative bg-[#121822] hover:bg-[#151c27] border border-white/10 hover:border-brand-lime/30 rounded-2xl p-4 sm:p-5 mb-3 transition-all duration-200 shadow-md hover:shadow-xl group" data-b="' + esc(b.id) + '">' +
-          '<div class="flex items-start justify-between gap-3">' +
-            '<div class="flex items-center gap-3 min-w-0">' +
-              '<div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-brand-lime/20 via-emerald-400/10 to-transparent border border-brand-lime/30 flex items-center justify-center font-display font-bold text-brand-lime text-sm sm:text-base tracking-wider shrink-0 shadow-sm">' + esc(initials) + '</div>' +
-              '<div class="min-w-0">' +
-                '<h4 class="text-base sm:text-lg font-display font-bold text-white group-hover:text-brand-lime transition-colors leading-tight truncate">' + esc(displayName) + '</h4>' +
-                (p.phone ? '<div class="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 mt-0.5"><svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>' + esc(p.phone) + '</div>' : '') +
-              '</div>' +
-            '</div>' +
-            '<div class="shrink-0">' + statusBadge + '</div>' +
-          '</div>' +
-
-          '<div class="mt-3.5 flex flex-wrap items-center gap-2">' +
-            '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-slate-200">' +
-              '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime"></span>' + esc(c.name || "Court") +
-            '</div>' +
-            '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">' +
-              '<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' +
-              esc(range(b.starts_at, b.ends_at, tz)) +
-            '</div>' +
-            '<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-lime/10 border border-brand-lime/25 text-xs font-mono font-bold text-brand-lime">' +
-              money(b.amount) +
-            '</div>' +
-            '<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-white/10 text-xs font-mono text-slate-400 tracking-wider">' +
-              'Ref #' + esc(b.reference_code) +
-            '</div>' +
-          '</div>' +
-
-          (py ? '<div class="mt-2.5 flex items-center justify-between text-xs font-mono bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-slate-300"><span>Payer ref: <strong class="text-white">' + esc(py.payer_reference) + '</strong>' + (py.method ? ' via ' + esc(py.method) : '') + '</span><button class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-100 text-xs font-sans font-semibold border border-white/10 cursor-pointer transition-colors" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
-              : (b.expires_at ? '<div class="mt-2.5 flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-3 py-2 rounded-xl font-mono"><span>Hold ends in <b class="timer text-amber-200" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : "")) +
-
-          '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
-            '<div>' +
-              '<button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-brand-lime/15 text-slate-300 hover:text-brand-lime border border-white/10 hover:border-brand-lime/30 text-xs font-display font-semibold transition-all cursor-pointer" data-ticket="' + esc(b.id) + '">' +
-                '<svg class="w-4 h-4 text-brand-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm-5 0h3v3h-3v-3zm2 2h2v4h-2v-4zm3 3h3v3h-3v-3zm-5 2h3v1h-3v-1z"/></svg>' +
-                'QR Pass' +
-              '</button>' +
-            '</div>' +
-            '<div class="flex items-center gap-2">' +
-              (withDecide
-                ? '<button class="px-3.5 py-1.5 rounded-xl bg-brand-lime hover:bg-brand-limeHover text-slate-950 font-display font-bold text-xs shadow-sm hover:shadow-neon-lime transition-all cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button>' +
-                  '<button class="px-3.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 font-display font-semibold text-xs transition-all cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
-                : '<button class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 border border-white/10 hover:border-rose-500/30 text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-1.5" data-cx="' + esc(b.id) + '" type="button"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>Cancel booking</button>') +
-            '</div>' +
-          '</div>' +
-          '<p class="msg" role="alert"></p>' +
-        '</div>';
-      }
-      box.innerHTML = '<div class="booking-queues">' + [
-        { title: 'Needs approval', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
-        { title: "Today's confirmed bookings", icon: 'today', items: todayList, empty: 'No confirmed bookings today.' },
-        { title: 'Upcoming confirmed bookings', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
-      ].map(function (group) {
-        return '<section class="booking-queue"><header class="booking-queue-heading"><span class="material-symbols-outlined" aria-hidden="true">' + group.icon + '</span><h3>' + group.title + '</h3><span class="booking-count' + (group.decide && group.items.length ? ' needs-attention' : '') + '">' + group.items.length + '</span></header>' +
-          (group.items.length ? '<div class="booking-record-grid">' + group.items.map(function (b) { return row(b, !!group.decide); }).join('') + '</div>' : D.ui.emptyState(group.decide ? 'No pending approvals' : 'No bookings scheduled', group.empty, group.icon)) + '</section>';
-      }).join('') + '</div>';
-      startTicker();
-      var byId = {}; bs.forEach(function (b) { byId[b.id] = b; });
-      box.querySelectorAll('[data-ticket]').forEach(function (button) {
-        button.onclick = async function () {
+  async function openPass(booking, court, t, player, button) {
+    if (!booking || !booking.reference_code) return D.ui.toast('The booking reference is unavailable.', 'err');
+    button = button || document.activeElement;
           var logo = await loadQrLogo();
-          var booking = byId[button.getAttribute('data-ticket')],
-              player = pm[booking.player_id] || {},
-              court = cm[booking.court_id] || {};
+          player = player || {}; court = court || {}; t = t || {};
+          var tz = t.timezone || 'Asia/Manila';
           var playerName = player.display_name || booking.guest_name || 'Guest';
           var courtName = court.name || 'Court';
           var courtSurface = court.is_indoor === true ? 'Indoor' : court.is_indoor === false ? 'Outdoor' : 'Court type unavailable';
@@ -742,6 +643,110 @@
 
           ticket.addEventListener('close', function () { ticket.remove(); if (button.isConnected) button.focus(); }, { once: true });
           document.body.appendChild(ticket); ticket.showModal();
+  }
+
+  async function queue(box, t) {
+    var tz = t.timezone || "Asia/Manila", chan = null, poll = null;
+    function stop() { if (chan) { sb.removeChannel(chan); chan = null; } if (poll) { clearInterval(poll); poll = null; } }
+    function modal(html) {
+      var m = document.createElement("div"); m.className = "fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4";
+      m.innerHTML = '<div class="bg-surface-container-low border border-outline-variant/40 rounded-DEFAULT p-space-lg max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col gap-3 text-on-surface">' + html + '<div class="pt-2"><button class="px-4 py-2 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" type="button">Close</button></div></div>';
+      m.onclick = function (e) { if (e.target === m || e.target.tagName === "BUTTON") m.remove(); };
+      document.body.appendChild(m);
+    }
+    async function load() {
+      if (!alive(box)) { stop(); return; }
+      if (!box.querySelector(".bcard")) {
+        box.innerHTML = '<div class="space-y-4">' +
+          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
+          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
+        '</div>';
+      }
+      var bs = (await sb.from("bookings").select("*").eq("tenant_id", t.id).in("status", ["pending", "approved"])
+        .gte("ends_at", new Date().toISOString()).order("starts_at")).data || [];
+      var players = (await sb.from("club_players").select("id,display_name,phone").eq("tenant_id", t.id)).data || [];
+      var courts = (await sb.from("courts").select("id,name,is_indoor").eq("tenant_id", t.id)).data || [];
+      var pays = bs.length ? (await sb.from("booking_payments").select("*").eq("tenant_id", t.id).in("booking_id", bs.map(function (b) { return b.id; }))).data || [] : [];
+      var pm = {}, cm = {}, pay = {};
+      players.forEach(function (p) { pm[p.id] = p; }); courts.forEach(function (c) { cm[c.id] = c; }); pays.forEach(function (p) { pay[p.booking_id] = p; });
+      var today = dayStr(tz);
+      var pending = bs.filter(function (b) { return b.status === "pending"; });
+      var approved = bs.filter(function (b) { return b.status === "approved"; });
+      var todayList = approved.filter(function (b) { return new Date(b.starts_at).toLocaleDateString("en-CA", { timeZone: tz }) === today; });
+      var later = approved.filter(function (b) { return todayList.indexOf(b) === -1; });
+      function row(b, withDecide) {
+        var p = pm[b.player_id] || {}, c = cm[b.court_id] || {}, py = pay[b.id];
+        p = { display_name: p.display_name || b.guest_name, phone: p.phone || b.guest_phone };
+        var displayName = p.display_name || "Guest";
+        var initials = displayName.split(" ").filter(Boolean).map(function (w) { return w[0]; }).slice(0, 2).join("").toUpperCase() || "BK";
+
+        var statusBadge = !withDecide
+          ? srcBadge(b)
+          : (py
+              ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Proof uploaded</span>'
+              : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>No proof</span>');
+
+        return '<div class="bcard relative bg-[#121822] hover:bg-[#151c27] border border-white/10 hover:border-brand-lime/30 rounded-2xl p-4 sm:p-5 mb-3 transition-all duration-200 shadow-md hover:shadow-xl group" data-b="' + esc(b.id) + '">' +
+          '<div class="flex items-start justify-between gap-3">' +
+            '<div class="flex items-center gap-3 min-w-0">' +
+              '<div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-brand-lime/20 via-emerald-400/10 to-transparent border border-brand-lime/30 flex items-center justify-center font-display font-bold text-brand-lime text-sm sm:text-base tracking-wider shrink-0 shadow-sm">' + esc(initials) + '</div>' +
+              '<div class="min-w-0">' +
+                '<h4 class="text-base sm:text-lg font-display font-bold text-white group-hover:text-brand-lime transition-colors leading-tight truncate">' + esc(displayName) + '</h4>' +
+                (p.phone ? '<div class="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 mt-0.5"><svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>' + esc(p.phone) + '</div>' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="shrink-0">' + statusBadge + '</div>' +
+          '</div>' +
+
+          '<div class="mt-3.5 flex flex-wrap items-center gap-2">' +
+            '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-slate-200">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime"></span>' + esc(c.name || "Court") +
+            '</div>' +
+            '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">' +
+              '<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' +
+              esc(range(b.starts_at, b.ends_at, tz)) +
+            '</div>' +
+            '<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-lime/10 border border-brand-lime/25 text-xs font-mono font-bold text-brand-lime">' +
+              money(b.amount) +
+            '</div>' +
+            '<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-white/10 text-xs font-mono text-slate-400 tracking-wider">' +
+              'Ref #' + esc(b.reference_code) +
+            '</div>' +
+          '</div>' +
+
+          (py ? '<div class="mt-2.5 flex items-center justify-between text-xs font-mono bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-slate-300"><span>Payer ref: <strong class="text-white">' + esc(py.payer_reference) + '</strong>' + (py.method ? ' via ' + esc(py.method) : '') + '</span><button class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-100 text-xs font-sans font-semibold border border-white/10 cursor-pointer transition-colors" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
+              : (b.expires_at ? '<div class="mt-2.5 flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-3 py-2 rounded-xl font-mono"><span>Hold ends in <b class="timer text-amber-200" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : "")) +
+
+          '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
+            '<div>' +
+              '<button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-brand-lime/15 text-slate-300 hover:text-brand-lime border border-white/10 hover:border-brand-lime/30 text-xs font-display font-semibold transition-all cursor-pointer" data-ticket="' + esc(b.id) + '">' +
+                '<svg class="w-4 h-4 text-brand-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm-5 0h3v3h-3v-3zm2 2h2v4h-2v-4zm3 3h3v3h-3v-3zm-5 2h3v1h-3v-1z"/></svg>' +
+                'QR Pass' +
+              '</button>' +
+            '</div>' +
+            '<div class="flex items-center gap-2">' +
+              (withDecide
+                ? '<button class="px-3.5 py-1.5 rounded-xl bg-brand-lime hover:bg-brand-limeHover text-slate-950 font-display font-bold text-xs shadow-sm hover:shadow-neon-lime transition-all cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button>' +
+                  '<button class="px-3.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 font-display font-semibold text-xs transition-all cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
+                : '<button class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 border border-white/10 hover:border-rose-500/30 text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-1.5" data-cx="' + esc(b.id) + '" type="button"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>Cancel booking</button>') +
+            '</div>' +
+          '</div>' +
+          '<p class="msg" role="alert"></p>' +
+        '</div>';
+      }
+      box.innerHTML = '<div class="booking-queues">' + [
+        { title: 'Needs approval', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
+        { title: "Today's confirmed bookings", icon: 'today', items: todayList, empty: 'No confirmed bookings today.' },
+        { title: 'Upcoming confirmed bookings', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
+      ].map(function (group) {
+        return '<section class="booking-queue"><header class="booking-queue-heading"><span class="material-symbols-outlined" aria-hidden="true">' + group.icon + '</span><h3>' + group.title + '</h3><span class="booking-count' + (group.decide && group.items.length ? ' needs-attention' : '') + '">' + group.items.length + '</span></header>' +
+          (group.items.length ? '<div class="booking-record-grid">' + group.items.map(function (b) { return row(b, !!group.decide); }).join('') + '</div>' : D.ui.emptyState(group.decide ? 'No pending approvals' : 'No bookings scheduled', group.empty, group.icon)) + '</section>';
+      }).join('') + '</div>';
+      startTicker();
+      var byId = {}; bs.forEach(function (b) { byId[b.id] = b; });
+      box.querySelectorAll('[data-ticket]').forEach(function (button) {
+        button.onclick = async function () {
+          await openPass(byId[button.getAttribute('data-ticket')], cm[byId[button.getAttribute('data-ticket')].court_id], t, pm[byId[button.getAttribute('data-ticket')].player_id], button);
         };
       });
       function card(el) { return el.closest(".bcard"); }
@@ -1312,5 +1317,5 @@
     }
   }
 
-    D.booking = { renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew };
+    D.booking = { openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew };
 })();
