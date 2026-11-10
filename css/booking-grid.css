@@ -421,3 +421,8 @@ body .club-directory-search #btn-clear-search[hidden] { display:none !important;
 
 /* Search box corners match the requested 15px radius. */
 .club-directory-search { border-radius:15px; }
+
+/* Directory filters and count badge use 15px corners. */
+#ds-tenant-dashboard #sec .club-directory-filters select,
+#ds-tenant-dashboard #sec .club-directory-filters .club-directory-open,
+#ds-tenant-dashboard #sec .club-directory-results > span { border-radius:15px !important; }
