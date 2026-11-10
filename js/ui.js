@@ -75,7 +75,7 @@
       link: '<path d="m10 13 4-4M8 16l-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M16 8l2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0"/>'
     };
     root.querySelectorAll('input, textarea, select').forEach(function (field) {
-      if (field.classList.contains('ds-input-icon') || field.matches('[type="hidden"],[type="checkbox"],[type="radio"],[type="range"],[type="color"],[type="file"],[type="submit"],[type="button"],[type="reset"]')) return;
+      if (field.hasAttribute('data-has-icon') || field.classList.contains('ds-input-icon') || field.matches('[type="hidden"],[type="checkbox"],[type="radio"],[type="range"],[type="color"],[type="file"],[type="submit"],[type="button"],[type="reset"]')) return;
       // Custom date/time controls and search boxes already provide their own icons.
       if (field.closest('.datetime-picker,.leaflet-control') || Array.from(field.parentElement.children).some(function (sibling) { return sibling !== field && sibling.matches('svg,.material-symbols-outlined,.fa-search,.fa-magnifying-glass'); })) return;
       var label = field.labels && field.labels[0];

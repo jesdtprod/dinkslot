@@ -28,7 +28,7 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
           <span class="material-symbols-outlined text-primary text-headline-sm">search</span>
           <div class="flex flex-col flex-1 min-w-0">
             <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Search Venue</span>
-            <input id="q" aria-label="Search clubs" class="bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none w-full truncate border-0 p-0" placeholder="Club name, venue, or zip..." type="text"/>
+            <input id="q" data-has-icon aria-label="Search clubs" class="bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none w-full truncate border-0 p-0" placeholder="Club name, venue, or zip..." type="text"/>
           </div>
         </div>
         <!-- City / Region Dropdown -->
