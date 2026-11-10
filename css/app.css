@@ -2951,3 +2951,11 @@ body:has(.confirmation-modal[open]) { overflow: hidden; }
 
 /* Standard corners for maintenance date/time controls. */
 #ds-tenant-dashboard #sec .court-matrix .datetime-trigger { border-radius: 8px !important; }
+
+/* Booking page title follows the Court Matrix header. */
+#ds-tenant-dashboard #sec .booking-launch { padding: 0 0 8px; border: 0; border-bottom: 1px solid #ffffff10; border-radius: 0; background: transparent; box-shadow: none; }
+.booking-launch .booking-launch-icon, .booking-launch .booking-launch-badge { display: none; }
+.booking-launch .booking-launch-copy { gap: 0; }
+#ds-tenant-dashboard #sec .booking-launch h2 { font-family: "Space Grotesk",sans-serif; font-size: 28px; line-height: 34px; font-weight: 600; letter-spacing: -.035em; }
+.booking-launch .booking-launch-copy p { margin: 4px 0 0; font-size: 12px; line-height: 18px; }
+@media (max-width:640px) { .booking-launch .booking-launch-action { margin-left: 0; } }
