@@ -35,6 +35,8 @@
     not_authenticated: "Please sign in first.",
     club_not_found: "That club was not found.",
     player_blocked: "You are blocked from this club.",
+    already_has_club: "Your account already manages a club. One account can manage one club.",
+    user_in_other_club: "That person already manages another club. One account can manage one club only.",
     forbidden: "You do not have permission to do that."
   };
   function friendly(err) {
@@ -173,7 +175,7 @@
       var acctLabel = state.managedSlug ? "Dashboard" : "My account";
       h += '<span id="bellslot"></span>' +
         '<a href="' + acctHref + '" class="nav-account" aria-label="' + acctLabel + '"><span class="nav-avatar" aria-hidden="true">' + esc(initial) + '</span><span class="nav-account-label">' + acctLabel + '</span><span class="material-symbols-outlined nav-account-arrow" aria-hidden="true">chevron_right</span></a>' +
-        '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>' +
+        (state.managedSlug ? "" : '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>') +
         '<span class="nav-divider" aria-hidden="true"></span><button id="signout" type="button" class="linkbtn nav-signout" aria-label="Sign out" title="Sign out"><span class="material-symbols-outlined" aria-hidden="true">logout</span></button>';
     } else {
       h += '<a href="#/auth">Sign in</a><a href="#/register-club" class="pill">Register your club</a>';
@@ -1010,6 +1012,12 @@
 
   function viewRegisterClub() {
     if (!requireUser("/register-club")) return;
+    if (state.managedSlug) {
+      app.innerHTML = '<section class="panel"><h1>You already have a club</h1>' +
+        '<p>One account can manage one club. Open your dashboard to manage it.</p>' +
+        '<p><a class="btn" href="#/admin/' + esc(state.managedSlug) + '">Open my dashboard</a></p></section>';
+      return;
+    }
     app.innerHTML =
       '<section class="panel"><h1>Register your club</h1><p>Your club appears publicly after the platform admin approves it.</p>' +
       '<form id="f" novalidate><label>Club name<input id="name" maxlength="80" required></label>' +

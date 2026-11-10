@@ -34,3 +34,6 @@ Secrets live in Supabase only: Edge secrets (`WEBHOOK_SECRET`, `GMAIL_*`, option
 
 ## Account page removed for club owners and staff
 Anyone who manages a club is sent straight to their dashboard: `/#/me` redirects to `/#/admin/<slug>`, the top bar says **Dashboard**, and the new-club confirmation links to the dashboard. The personal profile (name, phone) and the user's own player bookings live in the dashboard sidebar under **My profile** (`/#/admin/<slug>/account`). Players who manage no club still use `/#/me`. A club owner waiting for approval sees the status update on the dashboard by itself (Realtime on the club row).
+
+## One account, one club
+A user can manage only one club, as owner or as staff. Enforced in Postgres (migration `...0014`): a unique index allows one active `tenant_members` row per user; `register_club` refuses with `already_has_club` (before using up the CAPTCHA pass) and `add_staff` refuses with `user_in_other_club`. The browser hides the "Register club" button for managers and shows "You already have a club" on the registration page, but the database is what enforces it. Being a player at many clubs is unaffected. Isolation test: 175 checks, 0 failures.

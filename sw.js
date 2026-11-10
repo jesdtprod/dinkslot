@@ -1,4 +1,4 @@
-const CACHE = "dinkslot-shell-v26";
+const CACHE = "dinkslot-shell-v27";
 
 const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/landing.js", "js/config.js", "js/ui.js", "js/notify.js", "js/admin.js", "js/booking.js", "manifest.webmanifest", "favicon.ico", "assets/dinkslot-logo.png", "assets/landing-court.jpg", "assets/icons/icon-192.png", "assets/icons/icon-512.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL))); self.skipWaiting(); });

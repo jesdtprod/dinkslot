@@ -101,7 +101,7 @@
 }
 
 /* Non-Auth & Non-Landing Views Layout Wrapper */
-#app > :not(#ds-auth-screen):not(#ds-home-screen) {
+#app > :not(#ds-auth-screen):not(#ds-home-screen):not(#ds-landing) {
   width: 100%;
   max-width: 960px;
   margin-left: auto;
@@ -824,9 +824,10 @@ a.tile:hover{border-color:var(--lime)}
 
 
 /* Supplied landing-page layout, scoped away from dashboard and auth styles. */
-#app > #ds-landing { width: 100%; max-width: none; padding: 0; margin: 0; }
-#ds-landing { overflow: hidden; }
-#ds-landing section { scroll-margin-top: 96px; }
+.landing-page #app { width: 100%; max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+#app > #ds-landing { width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
+#ds-landing { overflow-x: hidden; width: 100% !important; max-width: none !important; }
+#ds-landing section { scroll-margin-top: 96px; width: 100%; }
 #ds-landing .grid { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-bottom: 0; }
 #ds-landing .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 #ds-landing input, #ds-landing select { padding: 0; border: 0; border-radius: 0; background: transparent; min-width: 0; font-size: 14px; }

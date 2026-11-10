@@ -8,7 +8,7 @@ do $test$
 declare
   a1 uuid := gen_random_uuid(); a2 uuid := gen_random_uuid();
   p1 uuid := gen_random_uuid(); p2 uuid := gen_random_uuid();
-  pa uuid := gen_random_uuid();
+  pa uuid := gen_random_uuid(); a3 uuid := gen_random_uuid();
   t1 text; t2 text; t3 text;
   c1 text; c1m text; c2 text; c3 text;
   b1 text; b1p2 text; b2 text;
@@ -22,22 +22,27 @@ begin
     (a2,'authenticated','authenticated','admin2@test.local',now(),'{"full_name":"Admin Two"}'),
     (p1,'authenticated','authenticated','player1@test.local',now(),'{"full_name":"Player One"}'),
     (p2,'authenticated','authenticated','player2@test.local',now(),'{"full_name":"Player Two"}'),
-    (pa,'authenticated','authenticated','platform@test.local',now(),'{"full_name":"Platform"}');
+    (pa,'authenticated','authenticated','platform@test.local',now(),'{"full_name":"Platform"}'),
+    (a3,'authenticated','authenticated','admin3@test.local',now(),'{"full_name":"Admin Three"}');
   update public.profiles set is_platform_admin = true where auth_user_id = pa;
 
   -- CAPTCHA passes (normally written by the verify-turnstile Edge Function)
   insert into public.captcha_passes (user_id, purpose) values
-    (a1, 'register_club'), (a1, 'register_club'), (a2, 'register_club');
+    (a1, 'register_club'), (a1, 'register_club'), (a2, 'register_club'), (a3, 'register_club');
 
   perform set_config('request.jwt.claims', json_build_object('sub', a1, 'role', 'authenticated')::text, true);
   set local role authenticated;
   select id into t1 from public.register_club('Club One', 'club-one', 'First club', 'Addr 1', 'Manila', 'one@test.local');
-  select id into t3 from public.register_club('Club Three', 'club-three');   -- stays pending
   insert into public.courts (tenant_id, name, hourly_rate) values (t1, 'Court 1', 300) returning id into c1;
   insert into public.courts (tenant_id, name, hourly_rate, status) values (t1, 'Court Maint', 300, 'maintenance') returning id into c1m;
-  insert into public.courts (tenant_id, name, hourly_rate) values (t3, 'Court Pending Club', 300) returning id into c3;
   insert into public.court_blocks (tenant_id, court_id, starts_at, ends_at, reason)
     values (t1, c1, d2 + interval '3 days 10 hours', d2 + interval '3 days 12 hours', 'maintenance');
+  reset role;
+
+  perform set_config('request.jwt.claims', json_build_object('sub', a3, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  select id into t3 from public.register_club('Club Three', 'club-three');   -- stays pending
+  insert into public.courts (tenant_id, name, hourly_rate) values (t3, 'Court Pending Club', 300) returning id into c3;
   reset role;
 
   perform set_config('request.jwt.claims', json_build_object('sub', a2, 'role', 'authenticated')::text, true);
@@ -265,7 +270,16 @@ begin
       ('Player reads own notifications and marks read', 'p2', $q$with u as (update public.notifications set read_at=now() where user_id=auth.uid() and read_at is null returning 1) select count(*) from u$q$, 'pos'),
       ('Player cannot mark another user notification read', 'p1', $q$with u as (update public.notifications set read_at=now() where user_id <> auth.uid() returning 1) select count(*) from u$q$, 'zero'),
       ('Player cannot edit notification text',    'p2', $q$update public.notifications set message='hacked' where user_id=auth.uid()$q$, 'deny'),
-      ('Player cannot forge a notification',      'p2', $q$insert into public.notifications (user_id,type) values (auth.uid(),'booking_approved')$q$, 'deny')
+      ('Player cannot forge a notification',      'p2', $q$insert into public.notifications (user_id,type) values (auth.uid(),'booking_approved')$q$, 'deny'),
+      -- one account, one club
+      ('Owner cannot register a second club',     'a1', $q$select * from public.register_club('Second Club','second-club')$q$, 'deny'),
+      ('Second club attempt does not use up the CAPTCHA pass', 'pg', $q$select count(*) from public.captcha_passes where user_id='{A1}' and used_at is null$q$, 'pos'),
+      ('Owner of club 2 cannot add a club 1 owner as staff', 'a2', $q$select * from public.add_staff('{T2}','admin1@test.local')$q$, 'deny'),
+      ('Duplicate membership row blocked by the database', 'pg', $q$insert into public.tenant_members (tenant_id,user_id,role) values ('{T2}','{A1}','staff')$q$, 'deny'),
+      ('Setup: give P1 a CAPTCHA pass',           'pg', $q$with i as (insert into public.captcha_passes (user_id,purpose) values ('{P1}','register_club') returning 1) select count(*) from i$q$, 'pos'),
+      ('A1 re-adds P1 as staff',                  'a1', $q$select role from public.add_staff('{T1}','player1@test.local')$q$, 'eq:staff'),
+      ('Staff P1 cannot register a club even with a pass', 'p1', $q$select * from public.register_club('Staff Club','staff-club')$q$, 'deny'),
+      ('Club three owner cannot see club one data', 'a3', $q$select count(*) from public.bookings where tenant_id='{T1}'$q$, 'zero')
     ) as x(name, who, sql, expect)
   loop
     sql := t.sql;
@@ -275,7 +289,7 @@ begin
     sql := replace(sql, '{A1}', a1::text); sql := replace(sql, '{P1}', p1::text); sql := replace(sql, '{P2}', p2::text);
     sql := replace(sql, '{D2}', d2::text);
 
-    who := case t.who when 'a1' then a1 when 'a2' then a2 when 'p1' then p1 when 'p2' then p2 when 'pa' then pa else null end;
+    who := case t.who when 'a1' then a1 when 'a2' then a2 when 'p1' then p1 when 'p2' then p2 when 'pa' then pa when 'a3' then a3 else null end;
     v := null; st := null; detail := null;
     begin
       if t.who = 'anon' then
