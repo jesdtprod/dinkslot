@@ -393,7 +393,6 @@
       '<div class="club-directory-filters"><label>City / Municipality<select id="club-filter-city">' + filterOptions(all.map(function (c) { return c.city; }), 'All locations') + '</select></label>' +
       '<label>Court Type<select id="club-filter-type"><option value="">All court types</option><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option></select></label>' +
       '<label>Surface<select id="club-filter-surface">' + filterOptions(allCourts.map(function (c) { return c.surface; }), 'All surfaces') + '</select></label>' +
-      '<label class="club-directory-open"><input id="filter-open-now" type="checkbox"><span>Open Now</span></label>' +
       '<div class="club-directory-results"><span><strong id="nearby-count-badge">' + all.length + '</strong> clubs found</span></div></div></section>';
 
     // Membership cards contain only saved venue and active-court records.
