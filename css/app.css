@@ -3118,3 +3118,6 @@ article.group > a.relative:first-child > img { position: absolute; inset: 0; wid
 .pubwrap .clubid .clubid-text { padding-top:56px; }
 .pubwrap .clubid .bookcta { align-self:flex-end; }
 @media(max-width:640px) { .pubwrap .clubid { margin:-36px 14px 18px; gap:12px; } .pubwrap .clubid .bigcircle { width:80px; height:80px; } .pubwrap .clubid .clubid-text { flex-basis:100%; min-width:0; padding-top:0; } .pubwrap .clubid .bookcta { width:100%; } }
+
+/* Public club cards have no gray perimeter border. */
+#ds-landing #grid > article { border:0; }
