@@ -239,7 +239,12 @@
       $("#go").disabled = true; setMsg(app, "Please wait...", "");
       var res;
       if (mode === "up") {
-        res = await sb.auth.signUp({ email: email, password: pw, options: { captchaToken: cap.token, data: { full_name: $("#name").value.trim() } } });
+        res = await sb.auth.signUp({ email: email, password: pw, options: {
+          captchaToken: cap.token,
+          // The confirmation link returns to the site the person signed up from (localhost in dev, Pages in prod).
+          // The URL must be in the Auth redirect allow list (localhost:8080 and the Pages URL are).
+          emailRedirectTo: location.origin + location.pathname,
+          data: { full_name: $("#name").value.trim() } } });
       } else {
         res = await sb.auth.signInWithPassword({ email: email, password: pw, options: { captchaToken: cap.token } });
       }
