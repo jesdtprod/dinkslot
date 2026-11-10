@@ -518,6 +518,7 @@
           }).join("") + "</tbody></table></div>" : '<p class="text-on-surface-variant font-body-md">No upcoming blocked windows.</p>') +
       '</div></div>';
 
+    D.ui.dateTimePickers(sec, t.timezone);
     q("#addc", sec).onclick = function () { courtForm(null, byId); };
     Array.prototype.forEach.call(sec.querySelectorAll("[data-edit]"), function (b) {
       b.onclick = function () { courtForm(byId[b.getAttribute("data-edit")], byId); };

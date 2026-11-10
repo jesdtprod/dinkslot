@@ -1708,6 +1708,35 @@ body.tenant-dashboard-mode #app {
 .booking-new-card .summary:empty, .booking-new-card .msg:empty { display: none; }
 @media (max-width:640px) { .booking-new-card, .booking-queue { padding: 16px; } .booking-new-heading { flex-direction: column; align-items: flex-start; } }
 @media (prefers-reduced-motion: reduce) { .booking-new-card #nbform:not([hidden]) { animation: none; } }
+.datetime-control { display: block; width: 100%; min-width: 0; }
+.datetime-trigger { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid #ffffff12; border-radius: 8px; background: #20282e; color: #8e9e93; cursor: pointer; text-align: left; }
+.datetime-trigger.has-value { color: #d9e3dc; }
+.datetime-trigger > .material-symbols-outlined { font-size: 17px; color: #8a9f8e; }
+.datetime-trigger:hover, .datetime-trigger[aria-expanded="true"] { border-color: #a3d97355; }
+.datetime-trigger:focus-visible { outline: 2px solid #b1df74; outline-offset: 2px; }
+.datetime-picker { position: fixed; inset: auto; margin: 0; max-height: calc(100dvh - 24px); overflow-y: auto; padding: 16px; border: 1px solid #ffffff1a; border-radius: 14px; background: #1b242a; color: #dce6de; box-shadow: 0 20px 60px #0009, inset 0 1px 0 #ffffff04; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; text-transform: none; letter-spacing: 0; opacity: 0; transform: translateY(-5px); transition: opacity .16s, transform .16s, display .16s allow-discrete, overlay .16s allow-discrete; }
+.datetime-picker:popover-open { opacity: 1; transform: translateY(0); }
+@starting-style { .datetime-picker:popover-open { opacity: 0; transform: translateY(-5px); } }
+.datetime-month { display: flex; align-items: center; gap: 5px; margin-bottom: 14px; }
+.datetime-month strong { margin-right: auto; font-size: 13px; font-weight: 600; }
+.datetime-picker button { border: 1px solid transparent; background: transparent; color: #b8c8bc; cursor: pointer; }
+.datetime-month button { width: 28px; height: 28px; font-size: 20px !important; }
+.datetime-week, .datetime-days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 3px; text-align: center; }
+.datetime-week { margin-bottom: 6px; color: #798f80; font-size: 10px; }
+.datetime-days button { height: 30px; padding: 0; font-variant-numeric: tabular-nums; }
+.datetime-picker button:hover { background: #ffffff08; }
+.datetime-days button[aria-current="date"] { border-color: #a3e63536; }
+.datetime-days button[aria-pressed="true"] { background: #b0d97c; color: #1d2c18; }
+.datetime-picker button:focus-visible { outline: 2px solid #b1df74; outline-offset: 1px; }
+.datetime-time { display: flex; align-items: center; gap: 7px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #ffffff0c; }
+.datetime-time > span:first-child { flex: 1; color: #b0c0b4; }
+.datetime-time small { display: block; color: #7e9384; font-size: 9px; }
+#ds-tenant-dashboard #sec .datetime-time select { width: 58px; height: 34px; padding: 5px 8px; border-radius: 7px; }
+.datetime-actions { display: flex; gap: 5px; margin-top: 14px; }
+.datetime-actions button { padding: 6px 10px; font-size: 11px !important; }
+.datetime-actions button[data-today] { margin-left: auto; }
+.datetime-actions button[data-apply] { background: #a3e63514; border-color: #a3e6352b; color: #c6e2a8; }
+@media (prefers-reduced-motion: reduce) { .datetime-picker { transition: none; } }
 .court-matrix { display: flex; flex-direction: column; gap: 20px; color-scheme: dark; }
 .court-matrix .msg:empty, .court-matrix #cform:empty { display: none; }
 .court-panel { display: flex; flex-direction: column; gap: 16px; padding: 18px 20px; border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); }
