@@ -1,3 +1,11 @@
 /* Larger satellite preview for precise venue identification. */
 #club-location-map { height: 520px; }
 @media (max-width: 640px) { #club-location-map { height: 380px; } }
+
+/* Dashboard-styled zoom controls. */
+#club-location-map .leaflet-control-zoom { border:1px solid #ffffff20; border-radius:9px; overflow:hidden; box-shadow:0 4px 14px #0005; }
+#club-location-map .leaflet-control-zoom a { display:flex; align-items:center; justify-content:center; width:34px; height:34px; padding:0; border-radius:0; background:#192127; color:#d3e3cd; font:400 22px/1 Arial,sans-serif; text-decoration:none; }
+#club-location-map .leaflet-control-zoom a:first-child { border-bottom:1px solid #ffffff12; }
+#club-location-map .leaflet-control-zoom a:hover { background:#29352c; color:#b5e781; }
+#club-location-map .leaflet-control-zoom a:focus-visible { outline:2px solid #b1df74; outline-offset:-3px; }
+#club-location-map .leaflet-control-zoom a.leaflet-disabled { color:#66746a; cursor:not-allowed; }
