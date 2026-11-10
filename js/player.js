@@ -473,6 +473,8 @@
     function renderDiscoverCards() {
       var searchInput = q("#club-search-input", sec);
       var term = searchInput ? searchInput.value.trim().toLowerCase() : "";
+      var clearSearch = q('#btn-clear-search', sec);
+      if (clearSearch) clearSearch.disabled = !searchInput || !searchInput.value;
 
       var list = combinedNearby.filter(function (c) {
         var haystack = [c.name,c.slug,c.address,c.street,c.barangay,c.city,c.province,c.zip_code].filter(Boolean).join(' ').toLowerCase();
