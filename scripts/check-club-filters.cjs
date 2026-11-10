@@ -101,6 +101,13 @@ function createMockSec() {
   const {sec,elements} = createMockSec();
   await D.player.find(sec);
   const results = elements['#discover-clubs-list'];
+  const membership = sec.innerHTML.split('data-purpose="joined-clubs-section"')[1].split('data-purpose="nearby-clubs-grid"')[0];
+  assert.match(membership,/find-membership-grid/);
+  assert.match(membership,/3 Courts/);
+  assert.match(membership,/PHP 24.00/);
+  assert.match(membership,/View on Google Maps/);
+  assert.doesNotMatch(membership,/128 reviews|1.2 miles|4:30 PM|16 slots|Full AC|Lobster/);
+
   assert.match(results.innerHTML,/The Pickleshot/);
   assert.doesNotMatch(results.innerHTML,/Apex|Southside|Metro Paddle|4.8|12 mi/);
   const tools = sec.innerHTML.split('data-purpose="search-and-filter-bar"')[1].split('data-purpose="joined-clubs-section"')[0];

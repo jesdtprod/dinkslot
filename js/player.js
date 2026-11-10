@@ -396,125 +396,28 @@
       '<label class="club-directory-open"><input id="filter-open-now" type="checkbox"><span>Open Now</span></label>' +
       '<div class="club-directory-results"><span><strong id="nearby-count-badge">' + all.length + '</strong> clubs found</span><div class="club-directory-view" role="group" aria-label="View format"><button id="btn-view-grid" type="button" aria-label="Grid view" aria-pressed="true"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span></button><button id="btn-view-list" type="button" aria-label="List view" aria-pressed="false"><span class="material-symbols-outlined" aria-hidden="true">view_list</span></button></div></div></div></section>';
 
-    // 3. My Active Membership Section (High Impact Joined/Featured Card)
-    var isMemberJoined = mc.clubs.length > 0;
-    var showcaseClub = mc.clubs[0] || all[0] || { slug: "the-pickleshot", name: "The Pickleshot", city: "Austin, TX (S. Lamar Blvd)" };
-    var joinedClub = showcaseClub;
-    var jCourts = courtsBySlug[joinedClub.slug] || [];
-    var jCourtCount = jCourts.length || 6;
-    var jSurface = (jCourts[0] && jCourts[0].surface) || "Cushioned Acrylic";
-    var jLogo = joinedClub.logo_path
-      ? '<img src="' + esc(D.mediaUrl(joinedClub.logo_path)) + '" alt="" class="w-full h-full object-cover">'
-      : '<span>' + esc((joinedClub.name || "T").charAt(0).toUpperCase()) + '</span><span class="text-[9px] tracking-widest uppercase font-mono text-slate-400 font-normal -mt-1">CLUB</span>';
-
-    var sectionHeading = isMemberJoined ? "My Active Membership" : "Featured Club";
-    var sectionCountBadge = isMemberJoined ? (mc.clubs.length + " CLUB" + (mc.clubs.length > 1 ? "S" : "")) : "FEATURED";
-    var sectionPriorityText = isMemberJoined ? "Direct booking priority enabled" : "Fast-book available courts & ladders";
-    var joinedBadgeHtml = isMemberJoined
-      ? '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-brand-lime/15 border border-brand-lime text-brand-lime shadow-[0_0_12px_rgba(163,230,53,0.3)]">' +
-          '<svg class="w-3 h-3 fill-current" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
-          'JOINED' +
-        '</span>'
-      : '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-brand-lime/15 border border-brand-lime text-brand-lime shadow-[0_0_12px_rgba(163,230,53,0.3)]">' +
-          'FEATURED' +
-        '</span>';
-
-    var joinedSectionHtml =
-      '<section class="space-y-4" data-purpose="joined-clubs-section">' +
-        '<div class="flex items-center justify-between">' +
-          '<h2 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">' +
-            '<span>' + esc(sectionHeading) + '</span>' +
-            '<span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-brand-lime/10 text-brand-lime border border-brand-lime/30">' + esc(sectionCountBadge) + '</span>' +
-          '</h2>' +
-          '<span class="text-xs text-slate-400">' + esc(sectionPriorityText) + '</span>' +
-        '</div>' +
-        '<article class="bg-gradient-to-br from-brand-cardDark via-brand-cardDark to-[#0f1824] border border-brand-lime/40 rounded-2xl p-6 sm:p-7 shadow-2xl relative overflow-hidden neon-border-glow transition-all">' +
-          '<div class="absolute -top-24 -right-24 w-60 h-60 bg-brand-lime/10 rounded-full blur-3xl pointer-events-none"></div>' +
-          '<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">' +
-            '<div class="flex items-start gap-4 sm:gap-5">' +
-              '<div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-brand-lime/50 flex flex-col items-center justify-center font-extrabold text-3xl sm:text-4xl text-brand-lime shadow-xl shrink-0 overflow-hidden">' +
-                jLogo +
-              '</div>' +
-              '<div class="space-y-2">' +
-                '<div class="flex flex-wrap items-center gap-2.5">' +
-                  '<h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">' + esc(joinedClub.name) + '</h3>' +
-                  joinedBadgeHtml +
-                  '<div class="flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">' +
-                    '<span>★</span><span>4.9</span><span class="text-slate-400 font-normal">(128 reviews)</span>' +
-                  '</div>' +
-                '</div>' +
-                '<div class="flex flex-wrap items-center text-xs sm:text-sm text-slate-300 gap-y-1 gap-x-4">' +
-                  '<span class="flex items-center gap-1 text-slate-300 font-medium">' +
-                    '<svg class="w-4 h-4 text-brand-lime" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    esc(joinedClub.city || "Austin, TX (S. Lamar Blvd)") + ' • 1.2 miles away' +
-                  '</span>' +
-                  '<span class="flex items-center gap-1 text-slate-400">' +
-                    '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    'Open today: 6:00 AM – 11:00 PM' +
-                  '</span>' +
-                '</div>' +
-                '<div class="flex items-center gap-2 text-xs font-mono text-brand-lime bg-brand-lime/10 px-3 py-1 rounded-lg w-fit border border-brand-lime/20">' +
-                  '<span class="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>' +
-                  '<span>● ' + jCourtCount + ' courts available right now for booking</span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-            '<div class="flex flex-row sm:flex-row items-center gap-3 shrink-0 lg:self-start pt-2 lg:pt-0">' +
-              '<a href="#/c/' + esc(joinedClub.slug) + '" class="px-5 py-3 rounded-xl bg-brand-cardSubtle hover:bg-slate-800 text-white font-bold text-sm border border-slate-700 hover:border-slate-500 transition-all flex items-center gap-2 group no-underline">' +
-                '<span>View Club Details</span>' +
-                '<svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-              '</a>' +
-              (isMemberJoined
-                ? '<a href="#/c/' + esc(joinedClub.slug) + '/book" class="px-6 py-3 rounded-xl bg-brand-lime hover:bg-brand-limeGlow text-black font-extrabold text-sm shadow-[0_0_20px_rgba(163,230,53,0.4)] transition-all flex items-center gap-2 transform active:scale-95 no-underline">' +
-                    '<svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>' +
-                    '<span>Book a Court</span>' +
-                  '</a>'
-                : '<a href="#/c/' + esc(joinedClub.slug) + '/join" class="px-6 py-3 rounded-xl bg-brand-lime hover:bg-brand-limeGlow text-black font-extrabold text-sm shadow-[0_0_20px_rgba(163,230,53,0.4)] transition-all flex items-center gap-2 transform active:scale-95 no-underline">' +
-                    '<svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>' +
-                    '<span>+ Join Club</span>' +
-                  '</a>'
-              ) +
-            '</div>' +
-            '</div>' +
-            '<div class="mt-6 pt-5 border-t border-slate-800/80 flex flex-wrap items-center gap-2 text-xs">' +
-              '<span class="px-3 py-1 bg-slate-900 text-slate-300 rounded-lg border border-slate-800 font-medium">' + jCourtCount + ' Indoor Courts</span>' +
-              '<span class="px-3 py-1 bg-slate-900 text-slate-300 rounded-lg border border-slate-800 font-medium">' + esc(jSurface) + ' Surface</span>' +
-              '<span class="px-3 py-1 bg-slate-900 text-slate-300 rounded-lg border border-slate-800 font-medium">DUPR Rated Ladder Leagues</span>' +
-              '<span class="px-3 py-1 bg-slate-900 text-slate-300 rounded-lg border border-slate-800 font-medium">Full Pro Shop &amp; Lobster Ball Machines</span>' +
-              '<span class="px-3 py-1 bg-slate-900 text-brand-lime rounded-lg border border-brand-lime/20 font-medium">Climate Controlled AC</span>' +
-            '</div>' +
-            '<div class="mt-5 p-4 rounded-xl bg-brand-darkBg/80 border border-slate-800 space-y-3" data-purpose="quick-slot-picker">' +
-              '<div class="flex items-center justify-between text-xs">' +
-                '<span class="font-mono uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">' +
-                  '<span class="w-2 h-2 rounded-full bg-brand-lime"></span>Fast-Book Next Available Slots (Today &amp; Tomorrow)' +
-                '</span>' +
-                '<a class="text-brand-lime hover:underline font-bold no-underline" href="#/c/' + esc(joinedClub.slug) + '/book">View all 16 slots →</a>' +
-              '</div>' +
-              '<div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">' +
-                '<a href="#/c/' + esc(joinedClub.slug) + '/book" class="court-pill-active p-2.5 rounded-lg bg-slate-800/60 hover:bg-brand-lime hover:text-black border border-slate-700 text-left transition-all group no-underline block">' +
-                  '<div class="text-[11px] font-mono text-slate-400 group-hover:text-black/80">Today • 4:30 PM</div>' +
-                  '<div class="text-xs font-bold text-white group-hover:text-black">Court 2 (Indoor AC)</div>' +
-                  '<div class="text-[10px] text-brand-lime group-hover:text-black font-semibold mt-0.5">$32 / hr</div>' +
-                '</a>' +
-                '<a href="#/c/' + esc(joinedClub.slug) + '/book" class="court-pill-active p-2.5 rounded-lg bg-slate-800/60 hover:bg-brand-lime hover:text-black border border-slate-700 text-left transition-all group no-underline block">' +
-                  '<div class="text-[11px] font-mono text-slate-400 group-hover:text-black/80">Today • 5:00 PM</div>' +
-                  '<div class="text-xs font-bold text-white group-hover:text-black">Court 4 (Indoor AC)</div>' +
-                  '<div class="text-[10px] text-brand-lime group-hover:text-black font-semibold mt-0.5">$32 / hr</div>' +
-                '</a>' +
-                '<a href="#/c/' + esc(joinedClub.slug) + '/book" class="court-pill-active p-2.5 rounded-lg bg-slate-800/60 hover:bg-brand-lime hover:text-black border border-slate-700 text-left transition-all group no-underline block">' +
-                  '<div class="text-[11px] font-mono text-slate-400 group-hover:text-black/80">Today • 6:30 PM</div>' +
-                  '<div class="text-xs font-bold text-white group-hover:text-black">Court 1 (Championship)</div>' +
-                  '<div class="text-[10px] text-brand-lime group-hover:text-black font-semibold mt-0.5">$38 / hr</div>' +
-                '</a>' +
-                '<a href="#/c/' + esc(joinedClub.slug) + '/book" class="court-pill-active p-2.5 rounded-lg bg-slate-800/60 hover:bg-brand-lime hover:text-black border border-slate-700 text-left transition-all group no-underline block">' +
-                  '<div class="text-[11px] font-mono text-slate-400 group-hover:text-black/80">Tomorrow • 7:00 AM</div>' +
-                  '<div class="text-xs font-bold text-white group-hover:text-black">Court 3 (Early Bird)</div>' +
-                  '<div class="text-[10px] text-brand-lime group-hover:text-black font-semibold mt-0.5">$24 / hr</div>' +
-                '</a>' +
-              '</div>' +
-            '</div>' +
-          '</article>' +
-        '</section>';
+    // Membership cards contain only saved venue and active-court records.
+    var joinedSectionHtml = '<section data-purpose="joined-clubs-section"><header class="home-clubs-heading"><div><h2>My Clubs</h2><p>' + mc.clubs.length + (mc.clubs.length === 1 ? ' joined club' : ' joined clubs') + '</p></div></header><div class="home-clubs-grid find-membership-grid">' +
+      (mc.clubs.length ? mc.clubs.map(function (membership) {
+        var club = all.find(function (row) { return row.id === membership.id; }) || membership;
+        var courts = courtsBySlug[club.slug] || [];
+        var surfaces = Array.from(new Set(courts.map(function (court) { return court.surface; }).filter(Boolean)));
+        var formats = Array.from(new Set(courts.map(function (court) { return court.is_indoor ? 'Indoor' : 'Outdoor'; })));
+        var rates = courts.map(function (court) { return court.hourly_rate == null ? NaN : Number(court.hourly_rate); }).filter(Number.isFinite);
+        var address = [club.street || club.address,club.barangay,club.city,club.province,club.zip_code].filter(Boolean).join(', ');
+        var mapQuery = club.latitude != null && club.longitude != null ? club.latitude + ',' + club.longitude : address;
+        return '<article class="home-club-card"><a class="home-club-cover" href="#/c/' + esc(club.slug) + '" aria-label="View ' + esc(club.name) + '">' +
+          (club.cover_path ? '<img src="' + esc(D.mediaUrl(club.cover_path)) + '" alt="' + esc(club.name) + ' cover" loading="lazy">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</a>' +
+          '<div class="home-club-body"><div class="home-club-identity"><div class="home-club-avatar">' + (club.logo_path ? '<img src="' + esc(D.mediaUrl(club.logo_path)) + '" alt="Club logo" loading="lazy">' : esc((club.name || 'C').charAt(0))) + '</div></div>' +
+          '<h3>' + esc(club.name) + '</h3><p class="home-club-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span><span>' + esc(address || 'Location not provided') + '</span></p>' +
+          '<div class="home-club-details"><div class="home-club-facilities"><span class="home-club-fact"><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>' + courts.length + (courts.length === 1 ? ' Court' : ' Courts') + '</span>' +
+          (formats.length ? '<span class="home-club-format">' + esc(formats.join(' / ')) + '</span>' : '') + '<span class="home-club-joined"><span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Joined</span></div>' +
+          (surfaces.length ? '<div class="home-club-detail-row"><span class="material-symbols-outlined" aria-hidden="true">layers</span><span><small>Surface</small>' + esc(surfaces.join(', ')) + '</span></div>' : '') +
+          (rates.length ? '<div class="home-club-detail-row"><span class="material-symbols-outlined" aria-hidden="true">payments</span><span><small>From</small>' + money(Math.min.apply(null,rates)) + '/hr</span></div>' : '') +
+          (club.contact_phone ? '<div class="home-club-detail-row"><span class="material-symbols-outlined" aria-hidden="true">call</span><span><small>Contact</small>' + esc(club.contact_phone) + '</span></div>' : '') + '</div>' +
+          (mapQuery ? '<a class="find-membership-map" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(mapQuery) + '"><span class="material-symbols-outlined" aria-hidden="true">map</span>View on Google Maps</a>' : '') +
+          '<div class="home-club-actions"><a class="btn ghost" href="#/c/' + esc(club.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="#/c/' + esc(club.slug) + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></div></article>';
+      }).join('') : D.ui.emptyState('No clubs joined', 'Explore the clubs below to find your next court.', 'groups')) + '</div></section>';
 
     // 4. Discover More Clubs Section Shell
     var discoverSectionHtml =
