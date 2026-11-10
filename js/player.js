@@ -15,6 +15,7 @@
 
   function q(sel, root) { return (root || D.root()).querySelector(sel); }
   function money(n) { return "PHP " + Number(n).toFixed(2); }
+  function lowRate(c) { return c.rate_min != null ? Number(c.rate_min) : (c.hourly_rate == null ? NaN : Number(c.hourly_rate)); } // cheapest rate across time bands
 
   function reservationCard(b, court, club) {
     court = court || {}; club = club || {};
@@ -360,7 +361,7 @@
     mc.clubs.forEach(function (c) { joined[c.id] = true; joinedSlug[c.slug] = true; });
     var directoryResults = await Promise.all([
       sb.from("public_clubs").select("*").order("name"),
-      sb.from("public_courts").select("id,name,club_slug,hourly_rate,is_indoor,surface,open_time,close_time")
+      sb.from("public_courts").select("id,name,club_slug,hourly_rate,rate_min,rate_max,is_indoor,surface,open_time,close_time")
     ]);
     if (directoryResults[0].error) throw directoryResults[0].error;
     if (directoryResults[1].error) throw directoryResults[1].error;
@@ -402,7 +403,7 @@
         var courts = courtsBySlug[club.slug] || [];
         var surfaces = Array.from(new Set(courts.map(function (court) { return court.surface; }).filter(Boolean)));
         var formats = Array.from(new Set(courts.map(function (court) { return court.is_indoor ? 'Indoor' : 'Outdoor'; })));
-        var rates = courts.map(function (court) { return court.hourly_rate == null ? NaN : Number(court.hourly_rate); }).filter(Number.isFinite);
+        var rates = courts.map(function (court) { return lowRate(court); }).filter(Number.isFinite);
         var address = [club.street || club.address,club.barangay,club.city,club.province,club.zip_code].filter(Boolean).join(', ');
         var mapQuery = club.latitude != null && club.longitude != null ? club.latitude + ',' + club.longitude : address;
         return '<article class="home-club-card" data-club-slug="' + esc(club.slug) + '"><a class="home-club-cover" href="#/c/' + esc(club.slug) + '" aria-label="View ' + esc(club.name) + '">' +
@@ -541,7 +542,7 @@
 
   async function clubsView(sec) {
     var mc = await myClubs(), all = mc.clubs;
-    var result = mc.clubs.length ? await sb.from('public_courts').select('id,name,club_slug,surface,is_indoor,hourly_rate,open_time,close_time').in('club_slug', mc.clubs.map(function (club) { return club.slug; })) : {data:[]};
+    var result = mc.clubs.length ? await sb.from('public_courts').select('id,name,club_slug,surface,is_indoor,hourly_rate,rate_min,rate_max,open_time,close_time').in('club_slug', mc.clubs.map(function (club) { return club.slug; })) : {data:[]};
     if (result.error) throw result.error;
     var courtsBySlug = {};
     (result.data || []).forEach(function (court) { (courtsBySlug[court.club_slug] || (courtsBySlug[court.club_slug] = [])).push(court); });
@@ -569,7 +570,7 @@
         var courts = courtsBySlug[club.slug] || [];
         var surfaces = Array.from(new Set(courts.map(function (court) { return court.surface; }).filter(Boolean)));
         var formats = Array.from(new Set(courts.map(function (court) { return court.is_indoor ? 'Indoor' : 'Outdoor'; })));
-        var rates = courts.map(function (court) { return court.hourly_rate == null ? NaN : Number(court.hourly_rate); }).filter(Number.isFinite);
+        var rates = courts.map(function (court) { return lowRate(court); }).filter(Number.isFinite);
         var address = [club.street || club.address,club.barangay,club.city,club.province,club.zip_code].filter(Boolean).join(', ');
         var mapQuery = club.latitude != null && club.longitude != null ? club.latitude + ',' + club.longitude : address;
         var base = '#/c/' + esc(club.slug);
@@ -582,7 +583,7 @@
           '<section class="membership-panel-courts"><header><h3><span class="material-symbols-outlined" aria-hidden="true">bolt</span>Quick Book a Court</h3><a href="' + base + '/book">View All Courts <span aria-hidden="true">&rarr;</span></a></header><div class="membership-court-grid">' +
           (courts.length ? courts.slice(0,4).map(function (court) {
             var hours = court.open_time && court.close_time ? D.hoursText(court.open_time,court.close_time) : 'See booking schedule';
-            return '<a class="membership-court-tile" href="' + base + '/book"><div class="membership-court-top"><span class="membership-court-icon material-symbols-outlined" aria-hidden="true">sports_tennis</span><span class="membership-court-type">' + (court.is_indoor ? 'Indoor' : 'Outdoor') + '</span></div><strong>' + esc(court.name || 'Court') + '</strong><span class="membership-court-hours"><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + esc(hours) + '</span><div class="membership-court-bottom">' + (court.hourly_rate != null ? '<b>' + money(court.hourly_rate) + '<small>/hr</small></b>' : '<span>View rates</span>') + '<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></div></a>';
+            return '<a class="membership-court-tile" href="' + base + '/book"><div class="membership-court-top"><span class="membership-court-icon material-symbols-outlined" aria-hidden="true">sports_tennis</span><span class="membership-court-type">' + (court.is_indoor ? 'Indoor' : 'Outdoor') + '</span></div><strong>' + esc(court.name || 'Court') + '</strong><span class="membership-court-hours"><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + esc(hours) + '</span><div class="membership-court-bottom">' + (court.hourly_rate != null ? '<b>' + (court.rate_max != null && Number(court.rate_max) !== Number(court.rate_min) ? 'PHP ' + Number(court.rate_min).toFixed(0) + ' - ' + Number(court.rate_max).toFixed(0) : money(court.rate_min != null ? court.rate_min : court.hourly_rate)) + '<small>/hr</small></b>' : '<span>View rates</span>') + '<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></div></a>';
           }).join('') : '<p class="muted small">No active courts are currently listed.</p>') + '</div><p class="membership-court-note">Choose a date on the booking page to check live availability.</p></section>' +
           '<footer class="membership-panel-footer"><span><span class="material-symbols-outlined" aria-hidden="true">verified_user</span>Joined Member</span>' +
           (club.contact_phone ? '<span><span class="material-symbols-outlined" aria-hidden="true">call</span>' + esc(club.contact_phone) + '</span>' : '') +
@@ -648,7 +649,7 @@
 
     var filterToolbarHtml = '<section class="club-directory-tools booking-search-tools" data-purpose="filtering-and-search-toolbar"><div class="club-directory-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input data-has-icon id="booking-search-input" type="search" aria-label="Search bookings" placeholder="Search bookings by club, court, or reference"></div><div class="booking-toolbar-bottom"><div class="booking-status-chips" role="tablist" aria-label="Booking status">' +
       '<button id="tab-upcoming" role="tab" type="button" aria-selected="true">Upcoming <span id="tab-upcoming-count">' + upcoming.length + '</span></button><button id="tab-past" role="tab" type="button" aria-selected="false">Past Bookings <span id="tab-past-count">' + past.length + '</span></button><button id="tab-cancelled" role="tab" type="button" aria-selected="false">Cancelled <span id="tab-cancelled-count">' + cancelled.length + '</span></button></div>' +
-      '<div class="club-directory-filters"><label>Club<select id="booking-club-filter" aria-label="Filter by club"><option value="">All Clubs</option>' + clubOptions + '</select></label><label>Date<select id="booking-date-filter" aria-label="Filter by date"><option value="all">All Dates</option><option value="week">This Week</option><option value="month">This Month</option></select></label><button id="booking-reset-filter" type="button" aria-label="Reset filters" title="Reset filters"><span class="material-symbols-outlined" aria-hidden="true">restart_alt</span></button><button id="btn-sort-toggle" type="button">Earliest Date</button></div></div></section>';
+      '<div class="club-directory-filters"><label>Club<select id="booking-club-filter" aria-label="Filter by club"><option value="">All Clubs</option>' + clubOptions + '</select></label><label>Date<select id="booking-date-filter" aria-label="Filter by date"><option value="all">All Dates</option><option value="week">This Week</option><option value="month">This Month</option></select></label><button id="booking-reset-filter" type="button" aria-label="Reset filters" title="Reset filters"><span class="material-symbols-outlined" aria-hidden="true">restart_alt</span></button></div></div></section>';
 
     var reservationsSectionHtml =
       '<section class="space-y-4" data-purpose="upcoming-confirmed-reservation-view">' +
@@ -680,7 +681,6 @@
       '</div>';
 
     var activeTab = "upcoming"; // 'upcoming' | 'past' | 'cancelled'
-    var sortAsc = true;
 
     function renderCards() {
       var container = q("#booking-cards-container", sec);
@@ -709,9 +709,7 @@
       });
 
       filtered.sort(function (a, b) {
-        return sortAsc
-          ? new Date(a.starts_at) - new Date(b.starts_at)
-          : new Date(b.starts_at) - new Date(a.starts_at);
+        return new Date(b.starts_at) - new Date(a.starts_at);
       });
 
       var badgeEl = q("#current-view-badge", sec);
@@ -1015,15 +1013,6 @@
     if (tabUpcoming) tabUpcoming.onclick = function () { switchTab("upcoming", "Upcoming"); };
     if (tabPast) tabPast.onclick = function () { switchTab("past", "Past Bookings"); };
     if (tabCancelled) tabCancelled.onclick = function () { switchTab("cancelled", "Cancelled / Refunded"); };
-
-    var sortToggle = q("#btn-sort-toggle", sec);
-    if (sortToggle) {
-      sortToggle.onclick = function () {
-        sortAsc = !sortAsc;
-        sortToggle.textContent = sortAsc ? "Earliest Date ↓" : "Latest Date ↑";
-        renderCards();
-      };
-    }
 
     var sInput = q("#booking-search-input", sec);
     if (sInput) sInput.oninput = renderCards;
