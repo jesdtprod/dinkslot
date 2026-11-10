@@ -373,6 +373,53 @@
     poll = setInterval(load, 20000);
   }
 
+  // ============================================ booking ticket QR (round dots, logo in the centre)
+  // Error correction level H lets about 30% of the code be damaged, so a logo covering ~6% of the area is safe.
+  // The modules under the logo are left out (never half hidden) and the code is checked with a real scanner (docs/ticket-qr.md).
+  var qrLogoData = null;
+  async function loadQrLogo() {
+    if (qrLogoData !== null) return qrLogoData;
+    try {
+      var r = await fetch("assets/icons/qr-logo.png");
+      if (!r.ok) throw new Error("logo");
+      var blob = await r.blob();
+      qrLogoData = await new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(String(fr.result)); }; fr.onerror = function () { res(""); }; fr.readAsDataURL(blob); });
+    } catch (e) { qrLogoData = ""; } // no logo: a plain dot is drawn instead, the code still works
+    return qrLogoData;
+  }
+  function bookingQrSvg(text, logo) {
+    var code = window.qrcode(3, "H"); code.addData(text); code.make();
+    var count = code.getModuleCount(), quiet = 4, size = count + quiet * 2, c = size / 2, hole = 4.9;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + size + " " + size +
+      '" role="img" aria-label="Booking QR code"><rect width="100%" height="100%" fill="white"/><g fill="black">';
+    for (var row = 0; row < count; row++) {
+      for (var col = 0; col < count; col++) {
+        if (!code.isDark(row, col)) continue;
+        if ((row < 7 && col < 7) || (row < 7 && col >= count - 7) || (row >= count - 7 && col < 7)) continue; // drawn below as rounded squares
+        var x = col + quiet + 0.5, y = row + quiet + 0.5;
+        if (Math.sqrt((x - c) * (x - c) + (y - c) * (y - c)) < hole) continue; // room for the logo
+        // soft rounded squares: nearly dots, but large enough that scanners read them (small round dots do not scan)
+        svg += '<rect x="' + (x - 0.47) + '" y="' + (y - 0.47) + '" width="0.94" height="0.94" rx="0.3"/>';
+      }
+    }
+    [[quiet, quiet], [quiet + count - 7, quiet], [quiet, quiet + count - 7]].forEach(function (pt) {
+      svg += '<rect x="' + pt[0] + '" y="' + pt[1] + '" width="7" height="7" rx="1.2"/>' +
+        '<rect x="' + (pt[0] + 1) + '" y="' + (pt[1] + 1) + '" width="5" height="5" rx="0.6" fill="white"/>' +
+        '<rect x="' + (pt[0] + 2) + '" y="' + (pt[1] + 2) + '" width="3" height="3" rx="0.4"/>';
+    });
+    svg += "</g>";
+    // logo badge: white disc with a thin ring, the DINKSLOT logo inside
+    svg += '<circle cx="' + c + '" cy="' + c + '" r="' + (hole - 0.3) + '" fill="white" stroke="#d9dee3" stroke-width="0.12"/>';
+    if (logo) {
+      var half = 3.6;
+      svg += '<image x="' + (c - half) + '" y="' + (c - half) + '" width="' + half * 2 + '" height="' + half * 2 + '" preserveAspectRatio="xMidYMid meet" href="' + logo + '" xlink:href="' + logo + '"/>';
+    } else {
+      svg += '<circle cx="' + c + '" cy="' + c + '" r="2.4" fill="black"/>';
+    }
+    return svg + "</svg>";
+  }
+  window.__dsQr = { svg: bookingQrSvg, logo: loadQrLogo }; // used by the scan test
+
   // ==================================================== club approval queue
   async function queue(box, t) {
     var tz = t.timezone || "Asia/Manila", chan = null, poll = null;
@@ -427,7 +474,8 @@
       startTicker();
       var byId = {}; bs.forEach(function (b) { byId[b.id] = b; });
       box.querySelectorAll('[data-ticket]').forEach(function (button) {
-        button.onclick = function () {
+        button.onclick = async function () {
+          var logo = await loadQrLogo();
           var booking = byId[button.getAttribute('data-ticket')], player = pm[booking.player_id] || {}, court = cm[booking.court_id] || {};
           var ticket = document.createElement('dialog'); ticket.className = 'booking-ticket-modal';
           ticket.setAttribute('aria-label', 'Booking QR ticket');
@@ -436,25 +484,7 @@
           ticket.querySelector('header p').textContent = court.name || 'Court';
           ticket.querySelector('.ticket-reference').textContent = booking.reference_code;
           ticket.querySelector('.ticket-schedule').textContent = range(booking.starts_at, booking.ends_at, tz);
-          var code = window.qrcode(3, 'H'); code.addData(booking.reference_code); code.make();
-          var count = code.getModuleCount(), size = count + 8;
-          var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '"><rect width="100%" height="100%" fill="white"/><g fill="black">';
-          for (var row = 0; row < count; row++) {
-            for (var col = 0; col < count; col++) {
-              if (!code.isDark(row, col)) continue;
-              var finder = (row < 7 && col < 7) || (row < 7 && col >= count - 7) || (row >= count - 7 && col < 7);
-              if (finder) continue;
-              var x = col + 4.5, y = row + 4.5;
-              svg += '<circle cx="' + x + '" cy="' + y + '" r="0.42"/>';
-
-            }
-          }
-          [[4,4],[count - 3,4],[4,count - 3]].forEach(function (point) {
-            svg += '<rect x="' + point[0] + '" y="' + point[1] + '" width="7" height="7" rx="1.7"/><rect x="' + (point[0]+1) + '" y="' + (point[1]+1) + '" width="5" height="5" rx="0.9" fill="white"/><rect x="' + (point[0]+2) + '" y="' + (point[1]+2) + '" width="3" height="3" rx="1.5"/>';
-          });
-          var center = size / 2;
-          svg += '<circle cx="' + center + '" cy="' + center + '" r="3.3" fill="white"/><circle cx="' + center + '" cy="' + center + '" r="2.6"/><path d="M' + (center-0.9) + ' ' + (center-1.5) + 'v3h0.8c2 0 2-3 0-3z" fill="none" stroke="white" stroke-width="0.42" stroke-linejoin="round"/>';
-          svg += '</g></svg>';
+          var svg = bookingQrSvg(booking.reference_code, logo);
           ticket.querySelector('.ticket-qr').innerHTML = svg;
           ticket.querySelector('[data-close]').onclick = function () { ticket.close(); };
           ticket.querySelector('[data-download]').onclick = function () {
