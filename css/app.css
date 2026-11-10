@@ -1666,15 +1666,12 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard #sec .settings-payments #sf { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 18px; align-items: start; }
 .settings-payments #sf > label:has(input[type="checkbox"]), .settings-payments #sf > .grid, .settings-payments #sf > .msg { grid-column: 1 / -1; }
 #ds-tenant-dashboard #sec .settings-payments #sf > .grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; padding-top: 4px; }
-.settings-payments #sf > label:has(textarea) { height: 100%; }
-#ds-tenant-dashboard #sec .settings-payments textarea { flex: 1; min-height: 140px; resize: vertical; }
+.settings-payments #sf > label:has(textarea) { align-self: start; }
+#ds-tenant-dashboard #sec .settings-payments textarea { flex: none; min-height: 140px; height: 160px; resize: vertical; }
 .settings-payments #sf > label:has(input[type="checkbox"]) { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 12px 14px; border: 1px solid #ffffff0c; border-radius: 9px; background: #ffffff02; color: #c3d0c6; font-size: 12px; }
-.settings-payments input[type="checkbox"] { appearance: none; flex-shrink: 0; width: 32px; height: 18px; margin: 0; border: 1px solid #ffffff20; border-radius: 12px; background: #ffffff0b; cursor: pointer; }
-.settings-payments input[type="checkbox"]::before { content: ''; display: block; width: 12px; height: 12px; margin: 2px; border-radius: 50%; background: #9aa99e; transition: transform .15s; }
-.settings-payments input[type="checkbox"]:checked { background: #a3e63525; border-color: #a3e63550; }
-.settings-payments input[type="checkbox"]:checked::before { transform: translateX(14px); background: #b3dd83; }
 .settings-payments #sf > button { justify-self: start; }
-.payment-qr-card .media-preview { width: 100px; height: 100px; border-radius: 8px; background: #ffffff; }
+.payment-qr-card .media-preview { width: 72px; height: 72px; border-radius: 8px; background: #ffffff04; }
+.payment-qr-card .media-preview:has(img) { background: #ffffff; }
 .payment-qr-card .media-preview > img { object-fit: contain; }
 .payment-qr-card .media-drop { padding: 14px; }
 .settings-staff #stf { padding: 14px; margin: 0; border: 1px solid #ffffff0c; border-radius: 10px; background: #0c12162b; gap: 12px; }
@@ -1686,7 +1683,6 @@ body.tenant-dashboard-mode #app {
 .settings-account #mybookings > p { padding: 12px 14px; border: 1px solid #ffffff09; border-radius: 8px; background: #ffffff02; }
 @media (max-width:760px) { #ds-tenant-dashboard #sec .settings-payments #sf { grid-template-columns: minmax(0,1fr); } #ds-tenant-dashboard #sec .settings-payments #sf > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width:480px) { #ds-tenant-dashboard #sec .settings-page > div[class*="p-space-lg"] { padding: 16px; } #ds-tenant-dashboard #sec .settings-payments #sf > .grid { grid-template-columns: minmax(0,1fr); } }
-@media (prefers-reduced-motion: reduce) { .settings-payments input[type="checkbox"]::before { transition: none; } }
 .club-profile { display: flex; flex-direction: column; gap: 20px; }
 #ds-tenant-dashboard #sec .club-profile > div[class*="p-space-lg"] { padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); box-shadow: none; }
 .club-profile #pf label { font: 500 11px/16px "Plus Jakarta Sans",sans-serif; text-transform: none; color: #a1b0a6; gap: 7px; }
