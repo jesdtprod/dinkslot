@@ -285,3 +285,7 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 /* Club count is the sole result control. */
 .club-directory-results > span { display:inline-flex; align-items:center; gap:4px; padding:4px 9px; border:1px solid #8dbb7130; border-radius:6px; background:#8dbb710c; color:#a5bb97; font-size:10px; line-height:18px; }
 .club-directory-results strong { margin:0; color:#c0dbab; }
+
+/* Give club cover photos more vertical space on both member pages. */
+.home-clubs-grid .home-club-cover { height:250px; }
+@media(max-width:600px) { .home-clubs-grid .home-club-cover { height:220px; } }
