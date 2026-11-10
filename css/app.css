@@ -3103,3 +3103,15 @@ html:not(.boot-dashboard) .boot-subtitle { margin: 0 auto 36px; }
 .booking-record-grid .booking-record > div:not(.booking-record-heading):not(.booking-record-details):not(.booking-card-actions) { margin: 0 16px 12px; }
 @media (min-width:1700px) { .booking-record-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
 @media (max-width:1000px) { .booking-record-grid { grid-template-columns: minmax(0,1fr); } }
+
+/* Four balanced reservation cards per desktop row. */
+.booking-record-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; align-items: stretch; }
+.booking-record-grid > .bcard { display: flex; flex-direction: column; min-width: 0; margin: 0; padding: 14px; border: 1px solid #ffffff0e; border-radius: 12px; background: linear-gradient(135deg,#20292e,#1a2227); box-shadow: none; }
+.booking-record-grid > .bcard > div:first-child { flex-wrap: wrap; padding: 0; gap: 10px; }
+.booking-record-grid > .bcard h4 { margin: 0; color: #dce6df; font: 600 13px/20px "Plus Jakarta Sans",sans-serif; }
+.booking-record-grid > .bcard > div:nth-child(2) { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; margin-top: 14px; }
+.booking-record-grid > .bcard > div:nth-child(2) > div { max-width: 100%; overflow-wrap: anywhere; font-size: 11px; }
+.booking-record-grid > .bcard > div:last-of-type { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 14px; }
+.booking-record-grid > .bcard .ds-action { padding: 7px 9px !important; font-size: 11px !important; }
+@media (max-width:1250px) { .booking-record-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width:650px) { .booking-record-grid { grid-template-columns: minmax(0,1fr); } }
