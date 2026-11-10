@@ -187,3 +187,36 @@ body .club-directory-view button[aria-pressed="true"] { background:#a3e63513 !im
 .directory-club-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
 .directory-club-info .badge { font-size:9px; vertical-align:middle; }
 @media(max-width:600px) { .club-directory-results { width:100%; justify-content:space-between; margin:0; } }
+
+/* Balanced directory filter columns and compact search reset. */
+#ds-tenant-dashboard #sec .club-directory-tools { padding:16px; }
+.club-directory-search { padding:0 6px 0 12px; gap:9px; }
+body .club-directory-search #btn-clear-search { min-height:28px !important; padding:4px 8px !important; border-radius:6px !important; border:1px solid #ffffff10 !important; background:#ffffff04 !important; color:#afc0b4 !important; font-size:10px !important; }
+body .club-directory-search #btn-clear-search:disabled { opacity:.4; cursor:default; }
+.club-directory-search #btn-clear-search .material-symbols-outlined { font-size:14px; }
+.club-directory-search input::-webkit-search-cancel-button { display:none; }
+.club-directory-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) auto auto; align-items:end; gap:12px; }
+.club-directory-filters > label:not(.club-directory-open) { min-width:0; gap:5px; }
+.club-directory-filters > label:nth-child(1) { color:#95bfcd; }
+.club-directory-filters > label:nth-child(2) { color:#b3a1cd; }
+.club-directory-filters > label:nth-child(3) { color:#c8b186; }
+#ds-tenant-dashboard #sec .club-directory-filters select { color-scheme:dark; transition:border-color .15s,background-color .15s; }
+#ds-tenant-dashboard #sec .club-directory-filters > label:nth-child(1) select { border-color:#6daecb30; background-color:#17303b33; }
+#ds-tenant-dashboard #sec .club-directory-filters > label:nth-child(2) select { border-color:#aa84d330; background-color:#30213f33; }
+#ds-tenant-dashboard #sec .club-directory-filters > label:nth-child(3) select { border-color:#c9a25e30; background-color:#392e1d33; }
+.club-directory-filters select option { background:#20282e; color:#cddad0; }
+@supports(appearance:base-select) {
+  .club-directory-filters select,.club-directory-filters select::picker(select) { appearance:base-select; }
+  #ds-tenant-dashboard #sec .club-directory-filters select { display:flex; align-items:center; gap:8px; }
+  .club-directory-filters select::picker-icon { color:#9caf9e; font-size:11px; transition:rotate .15s; }
+  .club-directory-filters select:open::picker-icon { rotate:180deg; }
+  .club-directory-filters select::picker(select) { max-height:min(280px,45dvh); margin-top:6px; padding:5px; overflow:auto; border:1px solid #ffffff16; border-radius:9px; background:#1c252b; color:#cddad0; box-shadow:0 12px 30px #0006; opacity:0; transform:translateY(-4px); transition:opacity .15s,transform .15s,display .15s allow-discrete,overlay .15s allow-discrete; }
+  .club-directory-filters select:open::picker(select) { opacity:1; transform:translateY(0); }
+  @starting-style { .club-directory-filters select:open::picker(select) { opacity:0; transform:translateY(-4px); } }
+  .club-directory-filters select option { display:flex; align-items:center; gap:8px; min-height:32px; padding:7px 10px; border-radius:5px; background:transparent; font:400 11px/18px "Plus Jakarta Sans",sans-serif; }
+  .club-directory-filters select option:hover,.club-directory-filters select option:checked { background:#a3e63510; color:#c5dfad; }
+  .club-directory-filters select option::checkmark { color:#a3e635; }
+}
+@media(max-width:1000px) { .club-directory-filters { grid-template-columns:repeat(3,minmax(0,1fr)); } .club-directory-results { grid-column:2/-1; justify-self:end; width:auto; } }
+@media(max-width:600px) { .club-directory-filters { grid-template-columns:minmax(0,1fr); } .club-directory-results { grid-column:auto; justify-self:stretch; width:100%; } }
+@media(prefers-reduced-motion:reduce) { .club-directory-filters select::picker(select),.club-directory-filters select::picker-icon { transition:none; } }
