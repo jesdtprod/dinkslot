@@ -309,3 +309,20 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 .member-clubs-page .find-membership-map { margin-bottom:12px; }
 @media(max-width:1000px) { #ds-tenant-dashboard #sec .member-clubs-page .home-clubs-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { #ds-tenant-dashboard #sec .member-clubs-page .home-clubs-grid { grid-template-columns:minmax(0,1fr); } .member-clubs-search { flex-basis:100%; min-width:0; } }
+
+/* My Clubs sort menu uses the same smooth dark picker as directory filters. */
+.member-clubs-toolbar select { color-scheme:dark; }
+.member-clubs-toolbar select option { background:#1c252b; color:#cbd8cf; }
+@supports(appearance:base-select) {
+  .member-clubs-toolbar select,.member-clubs-toolbar select::picker(select) { appearance:base-select; }
+  #ds-tenant-dashboard #sec .member-clubs-toolbar select { display:flex; align-items:center; gap:8px; min-width:140px; }
+  .member-clubs-toolbar select::picker-icon { color:#91a89a; font-size:10px; transition:rotate .15s; }
+  .member-clubs-toolbar select:open::picker-icon { rotate:180deg; }
+  .member-clubs-toolbar select::picker(select) { margin-top:6px; padding:5px; border:1px solid #ffffff15; border-radius:9px; background:#1c252b; color:#cbd8cf; box-shadow:0 12px 28px #0006; opacity:0; transform:translateY(-4px); transition:opacity .15s,transform .15s,display .15s allow-discrete,overlay .15s allow-discrete; }
+  .member-clubs-toolbar select:open::picker(select) { opacity:1; transform:translateY(0); }
+  @starting-style { .member-clubs-toolbar select:open::picker(select) { opacity:0; transform:translateY(-4px); } }
+  .member-clubs-toolbar select option { display:flex; align-items:center; gap:8px; min-height:32px; padding:7px 10px; border-radius:5px; background:transparent; font:400 11px/18px "Plus Jakarta Sans",sans-serif; }
+  .member-clubs-toolbar select option:hover,.member-clubs-toolbar select option:checked { background:#a3e63510; color:#c5dfac; }
+  .member-clubs-toolbar select option::checkmark { color:#a3e635; }
+}
+@media(prefers-reduced-motion:reduce) { .member-clubs-toolbar select::picker(select),.member-clubs-toolbar select::picker-icon { transition:none; } }
