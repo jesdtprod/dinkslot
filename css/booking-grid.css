@@ -411,3 +411,10 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 /* Search reset is an icon only and appears only for non-empty searches. */
 body .club-directory-search #btn-clear-search { width:28px; min-width:28px; padding:4px !important; border:0 !important; background:transparent !important; }
 body .club-directory-search #btn-clear-search[hidden] { display:none !important; }
+
+/* Uniform directory filter and count control dimensions. */
+#ds-tenant-dashboard #sec .club-directory-filters select,
+#ds-tenant-dashboard #sec .club-directory-filters .club-directory-open,
+#ds-tenant-dashboard #sec .club-directory-results > span { box-sizing:border-box; height:34px; min-height:34px; border-radius:7px !important; }
+#ds-tenant-dashboard #sec .club-directory-results > span { display:inline-flex; align-items:center; padding:0 9px; }
+.club-directory-results { height:34px; }
