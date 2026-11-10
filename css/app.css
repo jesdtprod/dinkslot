@@ -1818,7 +1818,7 @@ body.tenant-dashboard-mode #app {
 @keyframes court-form-enter { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 @supports (appearance: base-select) {
   :is(.court-matrix,.booking-new-card,.club-profile) select, :is(.court-matrix,.booking-new-card,.club-profile) select::picker(select) { appearance: base-select; }
-  :is(.court-matrix,.booking-new-card,.club-profile) select::picker(select) { max-height: min(300px, 50dvh); overflow-y: auto; scrollbar-width: thin; scrollbar-color: #52634f transparent; margin-top: 6px; padding: 5px; border: 1px solid #ffffff18; border-radius: 10px; background: #20282e; color: #d9e3dc; box-shadow: 0 12px 30px #0006; opacity: 0; transform: translateY(-4px); transition: opacity .15s, transform .15s, display .15s allow-discrete, overlay .15s allow-discrete; }
+  :is(.court-matrix,.booking-new-card,.club-profile) select::picker(select) { max-height: min(300px, 50dvh); overflow-y: auto; scrollbar-width: none; margin-top: 6px; padding: 5px; border: 1px solid #ffffff18; border-radius: 10px; background: #20282e; color: #d9e3dc; box-shadow: 0 12px 30px #0006; opacity: 0; transform: translateY(-4px); transition: opacity .15s, transform .15s, display .15s allow-discrete, overlay .15s allow-discrete; }
   :is(.court-matrix,.booking-new-card,.club-profile) select:open::picker(select) { opacity: 1; transform: translateY(0); }
   @starting-style { :is(.court-matrix,.booking-new-card,.club-profile) select:open::picker(select) { opacity: 0; transform: translateY(-4px); } }
   :is(.court-matrix,.booking-new-card,.club-profile) select option { border-radius: 6px; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; }
@@ -2494,3 +2494,9 @@ body:has(#club-signup-screen) > .site-footer { margin-top: 0; }
 .ph-input[readonly]{opacity:.75;cursor:not-allowed}
 .ph-note{display:block;margin-top:.25rem;font-size:.75rem;text-transform:none;letter-spacing:0;color:var(--muted)}
 @media (max-width:640px){.ph-grid{grid-template-columns:1fr}}
+
+/* Hide dropdown scrollbar chrome while preserving scrolling. */
+select::picker(select) { scrollbar-width: none; }
+select::picker(select)::-webkit-scrollbar { display: none; width: 0; height: 0; }
+:is(.city-options,.facility-account-menu,.datetime-picker,[role="listbox"],[role="menu"]) { scrollbar-width: none; }
+:is(.city-options,.facility-account-menu,.datetime-picker,[role="listbox"],[role="menu"])::-webkit-scrollbar { display: none; width: 0; height: 0; }
