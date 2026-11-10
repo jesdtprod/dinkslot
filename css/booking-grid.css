@@ -93,3 +93,9 @@
 .home-club-details .home-club-facilities { grid-column:1/-1; }
 .home-club-facilities .home-club-joined { margin:0 0 0 auto; }
 .home-club-detail-row { min-width:0; }
+
+/* Align both detail columns to the same label and value baselines. */
+.home-club-details .home-club-detail-row { display:grid; grid-template-columns:26px minmax(0,1fr); align-items:start !important; column-gap:8px !important; }
+.home-club-details .home-club-detail-row > .material-symbols-outlined { align-self:start; margin-top:2px; }
+.home-club-details .home-club-detail-row > span:last-child { display:block; line-height:17px; }
+.home-club-details .home-club-detail-row small { margin:0 0 2px; line-height:13px; }
