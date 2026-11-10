@@ -25,6 +25,10 @@ begin
     (pa,'authenticated','authenticated','platform@test.local','{"full_name":"Platform"}');
   update public.profiles set is_platform_admin = true where auth_user_id = pa;
 
+  -- CAPTCHA passes (normally written by the verify-turnstile Edge Function)
+  insert into public.captcha_passes (user_id, purpose) values
+    (a1, 'register_club'), (a1, 'register_club'), (a2, 'register_club');
+
   perform set_config('request.jwt.claims', json_build_object('sub', a1, 'role', 'authenticated')::text, true);
   set local role authenticated;
   select id into t1 from public.register_club('Club One', 'club-one', 'First club', 'Addr 1', 'Manila', 'one@test.local');
@@ -193,6 +197,14 @@ begin
       ('ANON decide_booking',                     'anon', $q$select * from public.decide_booking('{B1}','approved')$q$, 'deny'),
       ('ANON register_club',                      'anon', $q$select * from public.register_club('Evil','evil-club')$q$, 'deny'),
       ('ANON read proofs via storage',            'anon', $q$select count(*) from storage.objects where bucket_id='payment'$q$, 'zero'),
+      -- CAPTCHA gate and platform console
+      ('A1 register_club without CAPTCHA pass',   'a1', $q$select * from public.register_club('No Captcha','no-captcha')$q$, 'deny'),
+      ('P1 read captcha_passes',                  'p1', $q$select count(*) from public.captcha_passes$q$, 'zero'),
+      ('P1 forge a CAPTCHA pass',                 'p1', $q$insert into public.captcha_passes (user_id,purpose) values ('{P1}','register_club')$q$, 'deny'),
+      ('A1 platform_list_clubs (not admin)',      'a1', $q$select count(*) from public.platform_list_clubs()$q$, 'deny'),
+      ('ANON platform_list_clubs',                'anon', $q$select count(*) from public.platform_list_clubs()$q$, 'deny'),
+      ('Platform admin lists all 3 clubs',        'pa', $q$select count(*) from public.platform_list_clubs()$q$, 'eq:3'),
+      ('Platform admin only: pending filter',     'pa', $q$select count(*) from public.platform_list_clubs('pending')$q$, 'eq:1'),
       -- happy path last (mutates state)
       ('A1 approves own booking with proof',      'a1', $q$select status from public.decide_booking('{B1}','approved',null,'dk-1')$q$, 'eq:approved'),
       ('A1 retried decision returns same result', 'a1', $q$select status from public.decide_booking('{B1}','approved',null,'dk-1')$q$, 'eq:approved'),
@@ -208,7 +220,7 @@ begin
     sql := replace(sql, '{A1}', a1::text); sql := replace(sql, '{P1}', p1::text); sql := replace(sql, '{P2}', p2::text);
     sql := replace(sql, '{D2}', d2::text);
 
-    who := case t.who when 'a1' then a1 when 'a2' then a2 when 'p1' then p1 when 'p2' then p2 else null end;
+    who := case t.who when 'a1' then a1 when 'a2' then a2 when 'p1' then p1 when 'p2' then p2 when 'pa' then pa else null end;
     v := null; st := null; detail := null;
     begin
       if t.who = 'anon' then

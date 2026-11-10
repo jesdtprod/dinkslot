@@ -1,14 +1,45 @@
-﻿:root{--ink:#34393c;--lime:#aeea00;--bg:#fafafa;--muted:#6b7378}
+﻿:root{--ink:#34393c;--lime:#aeea00;--bg:#fafafa;--card:#fff;--muted:#6b7378;--line:#e3e6e8;--err:#b3261e;--ok:#2e7d32}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
-.top{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;background:var(--ink);color:#fff}
+a{color:inherit}
+.top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;padding:.6rem 1rem;background:var(--ink);color:#fff}
 .top a{color:#fff;text-decoration:none}
 .brand{display:flex;align-items:center;gap:.6rem;font-weight:800;letter-spacing:.08em}
 .brand img{border-radius:8px}
-nav a{background:var(--lime);color:var(--ink);padding:.45rem .8rem;border-radius:999px;font-weight:700;font-size:.9rem}
-main{flex:1;max-width:960px;width:100%;margin:0 auto;padding:1.5rem 1rem}
-.hero{text-align:center;padding:2rem 0}
-.hero img{width:160px;height:auto}
-.hero h1{margin:.5rem 0 0}
-.hero p{color:var(--muted)}
+nav{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;font-size:.9rem}
+nav a.pill{background:var(--lime);color:var(--ink);padding:.4rem .8rem;border-radius:999px;font-weight:700}
+.linkbtn{background:none;border:0;color:#fff;cursor:pointer;font:inherit;text-decoration:underline;padding:0}
+main{flex:1;max-width:960px;width:100%;margin:0 auto;padding:1.25rem 1rem}
+.hero{text-align:center;padding:1rem 0}
+.hero img{width:140px;height:auto}
+.hero h1{margin:.4rem 0 0}
+.muted{color:var(--muted)} .small{font-size:.85rem}
 .foot{text-align:center;padding:1rem;color:var(--muted);font-size:.85rem}
+.filters{display:flex;gap:.5rem;margin:1rem 0;flex-wrap:wrap}
+.filters input{flex:1;min-width:180px}
+input,select,textarea{width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+.filters select{width:auto}
+label{display:block;margin:.7rem 0;font-weight:600;font-size:.9rem}
+label input,label textarea{margin-top:.25rem;font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;text-decoration:none;display:block}
+.card:hover{border-color:var(--ink)}
+.cover{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.ph{background:linear-gradient(135deg,var(--ink),#555d61)}
+.cbody{padding:.7rem .9rem}.cbody h3{margin:0 0 .2rem}
+.clubcover{width:100%;aspect-ratio:3/1;object-fit:cover;border-radius:12px;display:block}
+.clubhead{display:flex;align-items:center;gap:1rem;margin:.8rem 0}.clubhead h1{margin:0}
+.logo{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--lime)}
+.panel{max-width:440px;margin:1rem auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.25rem}
+.tabs{display:flex;gap:.4rem;margin:.6rem 0}
+.tab{flex:1;padding:.5rem;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font:inherit}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn{display:inline-block;background:var(--lime);color:var(--ink);border:0;border-radius:999px;padding:.65rem 1.2rem;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.btn:disabled{opacity:.6;cursor:wait}.btn.sm{padding:.3rem .7rem;font-size:.85rem}
+.cap{margin:.8rem 0;min-height:65px}
+.msg{min-height:1.2em;margin:.4rem 0;font-size:.9rem}.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
+.list{padding-left:1.1rem}.list li{margin:.4rem 0}
+.tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.tbl th,.tbl td{padding:.6rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.badge{font-size:.75rem;padding:.1rem .5rem;border-radius:999px;background:var(--line);text-transform:uppercase;letter-spacing:.03em}
+.badge.approved{background:#d7f5b1}.badge.pending{background:#fff1b8}.badge.rejected,.badge.suspended{background:#f6c9c6}
