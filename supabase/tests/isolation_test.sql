@@ -240,7 +240,23 @@ begin
       ('A1 cannot remove the owner',              'a1', $q$select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='owner' and deleted_at is null))$q$, 'deny'),
       ('A2 cannot remove club 1 staff',           'a2', $q$select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='staff' and deleted_at is null))$q$, 'deny'),
       ('A1 removes staff',                        'a1', $q$select 'ok' from (select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='staff' and deleted_at is null))) s$q$, 'eq:ok'),
-      ('Removed staff P1 loses access',           'p1', $q$select count(*) from public.courts where tenant_id='{T1}'$q$, 'zero')
+      ('Removed staff P1 loses access',           'p1', $q$select count(*) from public.courts where tenant_id='{T1}'$q$, 'zero'),
+      -- Stage 6: cancel, expire, cutoff
+      ('Player cancels own approved booking',     'p1', $q$select status from public.cancel_booking('{B1}')$q$, 'eq:cancelled'),
+      ('Cancel retried returns same result',      'p1', $q$select status from public.cancel_booking('{B1}')$q$, 'eq:cancelled'),
+      ('Cancelled slot can be rebooked',          'p2', $q$select status from public.create_booking('{C1}','{D2}'::timestamptz+interval '10 hours','{D2}'::timestamptz+interval '11 hours','k-rebook')$q$, 'eq:pending'),
+      ('Admin cancel needs a reason',             'a1', $q$select * from public.cancel_booking((select id from public.bookings where idempotency_key='k-rebook'), '')$q$, 'deny'),
+      ('Admin cancels with a reason',             'a1', $q$select status from public.cancel_booking((select id from public.bookings where idempotency_key='k-rebook'), 'Court flooded')$q$, 'eq:cancelled'),
+      ('Player sees admin cancel reason',         'p2', $q$select cancel_reason from public.bookings where idempotency_key='k-rebook'$q$, 'eq:Court flooded'),
+      ('Setup: unpaid hold is past due',          'pg', $q$with u as (update public.bookings set expires_at = now() - interval '1 minute' where idempotency_key='k-p2-again' and status='pending' returning 1) select count(*) from u$q$, 'pos'),
+      ('Client cannot run expire_pending_bookings','p2', $q$select public.expire_pending_bookings()$q$, 'deny'),
+      ('expire_pending_bookings expires it',      'pg', $q$select public.expire_pending_bookings()::text$q$, 'pos'),
+      ('Booking is now expired',                  'p2', $q$select status from public.bookings where idempotency_key='k-p2-again'$q$, 'eq:expired'),
+      ('Player was notified of expiry',           'p2', $q$select count(*) from public.notifications where type='booking_expired' and user_id=auth.uid()$q$, 'pos'),
+      ('Expired slot can be booked again',        'p1', $q$select status from public.create_booking('{C1}','{D2}'::timestamptz+interval '12 hours','{D2}'::timestamptz+interval '13 hours','k-after-expiry')$q$, 'eq:pending'),
+      ('Setup: booking starting in 2 hours',      'pg', $q$with i as (insert into public.bookings (tenant_id,court_id,player_id,starts_at,ends_at,amount,reference_code,status) select '{T2}','{C2}',cp.id,now()+interval '2 hours',now()+interval '3 hours',400,'SOON-1','approved' from public.club_players cp where cp.tenant_id='{T2}' and cp.user_id='{P2}' returning 1) select count(*) from i$q$, 'pos'),
+      ('Player cannot cancel inside the cutoff',  'p2', $q$select * from public.cancel_booking((select id from public.bookings where reference_code='SOON-1'))$q$, 'deny'),
+      ('Club admin can cancel inside the cutoff', 'a2', $q$select status from public.cancel_booking((select id from public.bookings where reference_code='SOON-1'), 'Closed early')$q$, 'eq:cancelled')
     ) as x(name, who, sql, expect)
   loop
     sql := t.sql;

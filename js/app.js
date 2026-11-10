@@ -178,7 +178,7 @@
         return "<li><strong>" + esc(k.name) + "</strong> " + (k.is_indoor ? "(indoor)" : "(outdoor)") +
           " - PHP " + esc(Number(k.hourly_rate).toFixed(2)) + "/hr, " + esc(String(k.open_time).slice(0, 5)) + "-" + esc(String(k.close_time).slice(0, 5)) + "</li>";
       }).join("") + "</ul>" : '<p class="muted">No courts listed yet.</p>') +
-      '<p><a class="btn" href="#/c/' + esc(slug) + '/join">Join and book</a></p>';
+      '<p><a class="btn" href="#/c/' + esc(slug) + '/book">Book a court</a></p>';
   }
 
   // Sign in / sign up. After success: optional join_club for /c/<slug>/join.
@@ -338,6 +338,38 @@
       '</div>';
 
     document.body.classList.add("auth-page");
+    var stage = $(".auth-stage"), card = $(".auth-card");
+    var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var mouseQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    var motionFrame = 0, mouseX = 0, mouseY = 0;
+    function resetSurface() {
+      cancelAnimationFrame(motionFrame);
+      motionFrame = 0;
+      card.style.removeProperty("--tilt-x");
+      card.style.removeProperty("--tilt-y");
+      card.style.removeProperty("--light-x");
+      card.style.removeProperty("--light-y");
+    }
+    stage.addEventListener("pointermove", function (event) {
+      if (motionQuery.matches || !mouseQuery.matches || event.pointerType !== "mouse") return;
+      mouseX = event.clientX; mouseY = event.clientY;
+      if (motionFrame) return;
+      motionFrame = requestAnimationFrame(function () {
+        motionFrame = 0;
+        if (!card.isConnected || motionQuery.matches || !mouseQuery.matches) return resetSurface();
+        var bounds = stage.getBoundingClientRect();
+        var x = Math.max(0, Math.min(1, (mouseX - bounds.left) / bounds.width));
+        var y = Math.max(0, Math.min(1, (mouseY - bounds.top) / bounds.height));
+        card.style.setProperty("--tilt-x", ((0.5 - y) * 4).toFixed(2) + "deg");
+        card.style.setProperty("--tilt-y", ((x - 0.5) * 5).toFixed(2) + "deg");
+        card.style.setProperty("--light-x", (x * 100).toFixed(1) + "%");
+        card.style.setProperty("--light-y", (y * 100).toFixed(1) + "%");
+      });
+    });
+    stage.addEventListener("pointerleave", resetSurface);
+    stage.addEventListener("pointercancel", resetSurface);
+    // Keep keyboard interaction on a steady surface.
+    stage.addEventListener("focusin", resetSurface);
     var mode = "in", cap = mountCaptcha($("#cap"));
     function setBtnIdle() {
       var label = mode === "up" ? "Create Player Account" : "Sign In to Court";
@@ -444,11 +476,11 @@
         e.preventDefault();
         var j = await sb.rpc("join_club", { p_slug: slug, p_display_name: $("#dn").value.trim() });
         if (j.error) return setMsg(app, friendly(j.error), "err");
-        go("/c/" + slug);
+        go("/c/" + slug + "/book");
       };
       return;
     }
-    viewAuth({ title: "Join " + esc(c.name), intro: "Sign in or create an account to join this club.", join: slug, next: "/c/" + slug });
+    viewAuth({ title: "Join " + esc(c.name), intro: "Sign in or create an account to join this club.", join: slug, next: "/c/" + slug + "/book" });
   }
 
   function viewRegisterClub() {
@@ -495,7 +527,7 @@
 
   async function viewMe() {
     if (!requireUser("/me")) return;
-    app.innerHTML = '<h1>My account</h1><p class="muted">' + esc(state.user.email) + '</p><p class="msg ok" role="status"></p><div id="mine">Loading...</div>';
+    app.innerHTML = '<h1>My account</h1><p class="muted">' + esc(state.user.email) + '</p><p class="msg ok" role="status"></p><div id="mine">Loading...</div><h2>My bookings</h2><div id="mybookings">Loading...</div>';
     var known = {};
     async function loadMine(announce) {
       var m = await sb.from("tenant_members").select("role, tenants(id, slug, name, status)").eq("user_id", state.user.id);
@@ -514,10 +546,10 @@
           (t.status === "pending" ? ' <span class="muted small">- waiting for approval</span>' : "") +
           (t.status === "approved" ? ' - <a href="#/c/' + esc(t.slug) + '">public page</a>' : "") +
           ' - <a href="#/admin/' + esc(t.slug) + '">dashboard</a></li>';
-      }).join("") + "</ul>" : '<p class="muted">None yet. <a href="#/register-club">Register your club</a>.</p>') +
-        "<h2>My bookings</h2><p class=\"muted\">Booking comes in a later stage.</p>";
+      }).join("") + "</ul>" : '<p class="muted">None yet. <a href="#/register-club">Register your club</a>.</p>');
     }
     await loadMine(false);
+    if (window.DS.booking) window.DS.booking.myBookings($("#mybookings"));
     // Live update: when the super admin decides, the status changes here without a refresh.
     // Realtime only delivers rows this user may read (RLS). Polling is a safety net.
     liveChannel = sb.channel("my-clubs-" + state.user.id)
@@ -620,6 +652,7 @@
       if (path === "/platform") return await viewPlatform();
       if ((m = path.match(/^\/c\/([a-z0-9-]+)$/))) return await viewClub(m[1]);
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/join$/))) return await viewJoin(m[1]);
+      if ((m = path.match(/^\/c\/([a-z0-9-]+)\/book$/))) return await window.DS.booking.renderBook(m[1]);
       if ((m = path.match(/^\/admin\/([a-z0-9-]+)(?:\/(courts|settings))?$/))) {
         if (!requireUser(path)) return;
         return await window.DS.admin.render(m[1], m[2] || "dashboard");

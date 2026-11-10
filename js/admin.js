@@ -108,7 +108,9 @@
         return "<li class=\"" + (i[0] ? "ok" : "todo") + '">' + (i[0] ? "Done: " : "To do: ") + esc(i[1]) +
           (!i[0] && (i[2] === "courts" || ctx.role === "owner") ? ' - <a href="#/admin/' + esc(ctx.slug) + "/" + i[2] + '">fix</a>' : "") + "</li>";
       }).join("") + "</ul></div>" +
-      '<div class="panel wide"><h2>Booking approvals</h2><p class="muted">The approval queue with payment proofs and today\'s bookings appears here once the booking flow is built (next stage).</p></div>';
+      '<div id="queue"></div>';
+    // Approval queue, today's and upcoming bookings (js/booking.js); live via Realtime.
+    if (D.booking) D.booking.queue(q("#queue", sec), t);
   }
 
   // ---------------------------------------------------------------- courts
