@@ -162,3 +162,28 @@
 .member-find-page [data-purpose="quick-slot-picker"] { border-color:#ffffff0c; border-radius:8px; background:#11171d; }
 .member-find-page :is(.neon-border-glow,.neon-glow-lime):hover { box-shadow:none !important; }
 @media(max-width:600px) { #ds-tenant-dashboard #sec .member-find-page :is([data-purpose="search-and-filter-bar"],[data-purpose="club-onboarding-cta"],[data-purpose="joined-clubs-section"] > article) { padding:16px; } }
+
+/* Directory tools use real location and court filters. */
+.club-directory-search { display:flex; align-items:center; gap:10px; padding:0 10px; border:1px solid #ffffff12; border-radius:8px; background:#20282e; }
+.club-directory-search > .material-symbols-outlined { flex-shrink:0; color:#93ac87; font-size:19px; }
+#ds-tenant-dashboard #sec .member-find-page input#club-search-input { flex:1; min-width:0; width:100%; height:42px; padding:8px 0; border:0; background:transparent; box-shadow:none; outline-offset:2px; }
+.club-directory-search #btn-clear-search { flex-shrink:0; }
+.club-directory-filters { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; }
+.club-directory-filters > label:not(.club-directory-open) { display:flex; flex-direction:column; flex:1; min-width:150px; gap:4px; color:#8fa497; font-size:10px; line-height:16px; }
+#ds-tenant-dashboard #sec .club-directory-filters select { width:100%; height:36px; padding:7px 10px; border:1px solid #ffffff12; border-radius:8px; background:#20282e; color:#c4d0c8; font-size:11px; }
+.club-directory-open { display:flex; align-items:center; gap:7px; height:36px; padding:0 10px; border:1px solid #ffffff10; border-radius:8px; color:#a9bbb0; font-size:11px; }
+.club-directory-open input { accent-color:#a3e635; width:14px; height:14px; }
+.club-directory-results { display:flex; align-items:center; gap:12px; margin-left:auto; height:36px; color:#819a8b; font-size:10px; white-space:nowrap; }
+.club-directory-results strong { color:#bdcfc1; font-weight:600; }
+.club-directory-view { display:flex; gap:3px; padding:3px; border:1px solid #ffffff10; border-radius:8px; background:#11171d; }
+body .club-directory-view button { display:grid !important; place-items:center; min-height:28px !important; width:28px; padding:4px !important; border:0 !important; border-radius:5px !important; background:transparent !important; color:#869c8d !important; }
+body .club-directory-view button[aria-pressed="true"] { background:#a3e63513 !important; color:#b5d792 !important; }
+.club-directory-view .material-symbols-outlined { font-size:17px; }
+.directory-club-logo { display:grid; place-items:center; width:44px; height:44px; overflow:hidden; border:1px solid #ffffff10; border-radius:50%; background:#202c25; color:#a8cc8c; }
+.directory-club-logo img { width:100%; height:100%; object-fit:cover; }
+.directory-club-info h3 { margin:12px 0 6px; font-size:16px; }
+.directory-club-info p { margin:0 0 8px; color:#8fa699; font-size:11px; line-height:18px; }
+.directory-club-info > span { color:#a5b99f; font-size:11px; }
+.directory-club-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.directory-club-info .badge { font-size:9px; vertical-align:middle; }
+@media(max-width:600px) { .club-directory-results { width:100%; justify-content:space-between; margin:0; } }

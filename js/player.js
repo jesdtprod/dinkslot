@@ -358,8 +358,13 @@
     var mc = await myClubs(), joined = {}, joinedSlug = {};
     mc.players.forEach(function (p) { joined[p.tenant_id] = true; });
     mc.clubs.forEach(function (c) { joined[c.id] = true; joinedSlug[c.slug] = true; });
-    var all = (await sb.from("public_clubs").select("id,slug,name,city,logo_path,cover_path").order("name")).data || [];
-    var allCourts = (await sb.from("public_courts").select("id,name,club_slug,hourly_rate,is_indoor,surface")).data || [];
+    var directoryResults = await Promise.all([
+      sb.from("public_clubs").select("*").order("name"),
+      sb.from("public_courts").select("id,name,club_slug,hourly_rate,is_indoor,surface,open_time,close_time")
+    ]);
+    if (directoryResults[0].error) throw directoryResults[0].error;
+    if (directoryResults[1].error) throw directoryResults[1].error;
+    var all = directoryResults[0].data || [], allCourts = directoryResults[1].data || [];
 
     var courtsBySlug = {};
     allCourts.forEach(function (ct) {
@@ -367,82 +372,29 @@
       courtsBySlug[ct.club_slug].push(ct);
     });
 
-    // Default partner clubs to enrich directory matching mockup
-    var defaultPartners = [
-      { id: "partner-apex", slug: "apex-pickleball-center", name: "Apex Pickleball Center", city: "Round Rock / North Austin", initial: "A", rating: "4.8", dist: "18.4 miles away", courts: 8, isIndoor: true, surface: "Championship Courts", tags: ["8 Championship Courts • Full AC", "Pro Shop & Stringing Center", "Weekly DUPR 3.5 - 5.0 Ladders"] },
-      { id: "partner-southside", slug: "southside-dinks-social", name: "Southside Dinks & Social", city: "South Congress, Austin", initial: "S", rating: "4.9", dist: "3.4 miles away", courts: 4, isIndoor: true, surface: "Covered Courts", tags: ["4 Covered Courts • Night Lighting", "Craft Beer Garden & Player Lounge", "Open Social Play (Drop-in Daily)"] },
-      { id: "partner-metro", slug: "metro-paddle-pickle-arena", name: "Metro Paddle & Pickle Arena", city: "East Austin Athletic Hub", initial: "M", rating: "4.7", dist: "14.1 miles away", courts: 12, isIndoor: true, surface: "PPA Standard", tags: ["12 Dedicated Courts (PPA Standard)", "Live Stream Net-Cams & Instant Replay", "Certified PPR Coaching Staff"] }
-    ];
-
     var combinedNearby = all.slice();
-    defaultPartners.forEach(function (dp) {
-      if (!combinedNearby.some(function (c) { return c.slug === dp.slug || c.name.toLowerCase() === dp.name.toLowerCase(); })) {
-        combinedNearby.push(dp);
-      }
-    });
-
-    var viewMode = "grid"; // 'grid' | 'list'
-    var filterIndoor = false;
-    var filterCushioned = false;
-    var filterOpenNow = true;
-    var sortBy = "distance";
-
+    var viewMode = 'grid', filterCity = '', filterType = '', filterSurface = '', filterOpenNow = false, sortBy = 'name';
+    function filterOptions(values, placeholder) {
+      return '<option value="">' + placeholder + '</option>' + Array.from(new Set(values.filter(Boolean))).sort().map(function (value) { return '<option value="' + esc(value) + '">' + esc(value) + '</option>'; }).join('');
+    }
+    function courtOpen(court, timezone) {
+      if (!court.open_time || !court.close_time) return false;
+      var clock = new Intl.DateTimeFormat('en-GB', {timeZone:timezone || 'Asia/Manila',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+      var now = clock.slice(0,5), opens = court.open_time.slice(0,5), closes = court.close_time.slice(0,5);
+      if (opens === closes) return true;
+      return closes <= opens ? now >= opens || now < closes : now >= opens && now < closes;
+    }
     // Use the same compact header and account summary as Member Overview.
     var heroHtml = '<section class="member-overview-header" data-purpose="page-hero-banner"><div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1>Find a Club</h1><p>Explore clubs, compare courts, and find your next place to play.</p></div>' +
       '<div class="member-overview-stats"><div><span class="member-overview-stat-label">Clubs</span><span class="member-overview-stat-value">' + all.length + '</span><small>Available to explore</small></div><div><span class="member-overview-stat-label">Active Courts</span><span class="member-overview-stat-value">' + allCourts.length + '</span><small>Across the network</small></div><div><span class="member-overview-stat-label">My Clubs</span><span class="member-overview-stat-value">' + mc.clubs.length + '</span><small>Joined memberships</small></div></div></section>';
 
-    // 2. Advanced Search & Filter Bar
-    var filterBarHtml =
-      '<section class="bg-brand-cardDark border border-brand-borderDark rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4" data-purpose="search-and-filter-bar">' +
-        '<div class="relative flex items-center">' +
-          '<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">' +
-            '<svg class="w-5 h-5 text-brand-lime" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>' +
-          '</div>' +
-          '<input class="w-full pl-12 pr-28 py-3.5 bg-brand-darkBg/90 border border-brand-borderDark focus:border-brand-lime focus:ring-1 focus:ring-brand-lime rounded-xl text-white placeholder-slate-500 font-medium text-sm transition-all shadow-inner" id="club-search-input" placeholder="Search by club name, city, zip code, or venue code..." type="text" autocomplete="off"/>' +
-          '<div class="absolute inset-y-0 right-0 pr-3 flex items-center gap-1.5">' +
-            '<button id="btn-clear-search" class="text-xs text-slate-400 hover:text-white px-2 py-1 bg-slate-800/80 rounded-md border border-slate-700 cursor-pointer" type="button">Clear</button>' +
-            '<span class="hidden sm:inline-block text-[11px] font-mono text-slate-400 bg-slate-900 border border-slate-700 px-2 py-1 rounded">ESC</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-brand-borderDark/60">' +
-          '<div class="flex flex-wrap items-center gap-2">' +
-            '<button id="btn-filter-loc" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-cardSubtle border border-brand-borderDark text-slate-200 hover:border-brand-lime/50 transition-colors cursor-pointer" type="button">' +
-              '<svg class="w-3.5 h-3.5 text-brand-lime" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-              '<span id="loc-filter-text">Austin, TX (15 mi)</span>' +
-              '<svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</button>' +
-            '<button id="btn-filter-amenities" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-cardSubtle border border-brand-borderDark text-slate-200 hover:border-brand-lime/50 transition-colors cursor-pointer" type="button">' +
-              '<span class="w-2 h-2 rounded-full bg-brand-lime"></span>' +
-              '<span>Indoor AC &amp; DUPR</span>' +
-              '<svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</button>' +
-            '<button id="btn-filter-surface" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-cardSubtle border border-brand-borderDark text-slate-200 hover:border-brand-lime/50 transition-colors cursor-pointer" type="button">' +
-              '<span>Cushioned Acrylic</span>' +
-              '<svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '</button>' +
-            '<label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-lime/10 border border-brand-lime/30 text-brand-lime cursor-pointer">' +
-              '<input id="filter-open-now" checked class="rounded border-slate-700 bg-black text-brand-lime focus:ring-0 focus:ring-offset-0 w-3.5 h-3.5 cursor-pointer" type="checkbox"/>' +
-              '<span>Courts Open Now</span>' +
-            '</label>' +
-          '</div>' +
-          '<div class="flex items-center gap-3">' +
-            '<span class="text-xs font-mono text-slate-400">' +
-              '<strong id="joined-count-badge" class="text-brand-lime font-bold">' + mc.clubs.length + '</strong> club joined • <strong id="nearby-count-badge" class="text-white">' + combinedNearby.length + '</strong> nearby' +
-            '</span>' +
-            '<div class="inline-flex p-1 bg-brand-darkBg rounded-lg border border-brand-borderDark" role="group" aria-label="View format">' +
-              '<button id="btn-view-list" class="p-1.5 rounded-md text-slate-400 hover:text-white transition-colors cursor-pointer" title="List view" type="button">' +
-                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-              '</button>' +
-              '<button id="btn-view-map" class="p-1.5 rounded-md text-slate-400 hover:text-white transition-colors cursor-pointer" title="Map view" type="button">' +
-                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-              '</button>' +
-              '<button id="btn-view-grid" class="p-1.5 rounded-md bg-brand-cardSubtle text-brand-lime shadow-sm cursor-pointer" title="Grid view" type="button">' +
-                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-              '</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</section>';
+    var filterBarHtml = '<section class="club-directory-tools" data-purpose="search-and-filter-bar">' +
+      '<div class="club-directory-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input id="club-search-input" type="search" aria-label="Search clubs" placeholder="Search clubs, addresses, or ZIP codes" autocomplete="off"><button id="btn-clear-search" type="button"><span class="material-symbols-outlined" aria-hidden="true">close</span>Clear</button></div>' +
+      '<div class="club-directory-filters"><label>City / Municipality<select id="club-filter-city">' + filterOptions(all.map(function (c) { return c.city; }), 'All locations') + '</select></label>' +
+      '<label>Court Type<select id="club-filter-type"><option value="">All court types</option><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option></select></label>' +
+      '<label>Surface<select id="club-filter-surface">' + filterOptions(allCourts.map(function (c) { return c.surface; }), 'All surfaces') + '</select></label>' +
+      '<label class="club-directory-open"><input id="filter-open-now" type="checkbox"><span>Open Now</span></label>' +
+      '<div class="club-directory-results"><span><strong id="nearby-count-badge">' + all.length + '</strong> clubs found</span><div class="club-directory-view" role="group" aria-label="View format"><button id="btn-view-grid" type="button" aria-label="Grid view" aria-pressed="true"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span></button><button id="btn-view-list" type="button" aria-label="List view" aria-pressed="false"><span class="material-symbols-outlined" aria-hidden="true">view_list</span></button></div></div></div></section>';
 
     // 3. My Active Membership Section (High Impact Joined/Featured Card)
     var isMemberJoined = mc.clubs.length > 0;
@@ -575,9 +527,8 @@
           '<div class="flex items-center gap-2">' +
             '<label for="sort-clubs-select" class="text-xs text-slate-400 font-medium">Sort by:</label>' +
             '<select id="sort-clubs-select" class="bg-brand-cardDark border border-brand-borderDark text-xs text-white rounded-lg px-3 py-1.5 focus:border-brand-lime focus:ring-0 cursor-pointer">' +
-              '<option value="distance">Closest Distance (mi)</option>' +
-              '<option value="rating">Highest Rated (DUPR)</option>' +
-              '<option value="courts">Most Available Courts</option>' +
+              '<option value="name">Club Name</option>' +
+              '<option value="courts">Most Courts</option>' +
             '</select>' +
           '</div>' +
         '</div>' +
@@ -620,30 +571,17 @@
       var term = searchInput ? searchInput.value.trim().toLowerCase() : "";
 
       var list = combinedNearby.filter(function (c) {
-        var isJoined = !!joined[c.id] || !!joinedSlug[c.slug];
-        // If searching, search name and city
-        if (term) {
-          var match = (c.name + " " + (c.city || "")).toLowerCase().indexOf(term) !== -1;
-          if (!match) return false;
-        }
-        if (filterIndoor && c.isIndoor === false) return false;
-        if (filterCushioned && c.surface && c.surface.toLowerCase().indexOf("acrylic") === -1 && c.surface.toLowerCase().indexOf("cushion") === -1) return false;
-        return true;
+        var haystack = [c.name,c.slug,c.address,c.street,c.barangay,c.city,c.province,c.zip_code].filter(Boolean).join(' ').toLowerCase();
+        if (term && haystack.indexOf(term) === -1) return false;
+        if (filterCity && c.city !== filterCity) return false;
+        var matchingCourts = (courtsBySlug[c.slug] || []).filter(function (court) {
+          return (!filterType || (filterType === 'indoor' ? court.is_indoor === true : court.is_indoor === false)) &&
+            (!filterSurface || court.surface === filterSurface) && (!filterOpenNow || courtOpen(court,c.timezone));
+        });
+        return !(filterType || filterSurface || filterOpenNow) || matchingCourts.length > 0;
       });
-
-      // Sort list
-      list.sort(function (a, b) {
-        if (sortBy === "rating") {
-          return parseFloat(b.rating || "4.5") - parseFloat(a.rating || "4.5");
-        } else if (sortBy === "courts") {
-          var ca = (courtsBySlug[a.slug] || []).length || a.courts || 6;
-          var cb = (courtsBySlug[b.slug] || []).length || b.courts || 6;
-          return cb - ca;
-        } else {
-          var da = parseFloat(a.dist || "10");
-          var db = parseFloat(b.dist || "10");
-          return da - db;
-        }
+      list.sort(function (a,b) {
+        return sortBy === 'courts' ? (courtsBySlug[b.slug] || []).length - (courtsBySlug[a.slug] || []).length || a.name.localeCompare(b.name) : a.name.localeCompare(b.name);
       });
 
       var badge = q("#nearby-count-badge", sec);
@@ -658,84 +596,10 @@
       }
 
       var cardsHtml = list.map(function (c) {
-        var isJoined = !!joined[c.id] || !!joinedSlug[c.slug];
-        var courts = courtsBySlug[c.slug] || [];
-        var count = courts.length || c.courts || 6;
-        var surface = (courts[0] && courts[0].surface) || c.surface || "Championship Courts";
-        var rating = c.rating || "4.8";
-        var dist = c.dist || (c.city ? c.city + " • 12 mi" : "12.4 miles away");
-        var initial = c.initial || esc((c.name || "C").charAt(0).toUpperCase());
-        var tags = c.tags || [
-          count + " Championship Courts • Full AC",
-          "Pro Shop & Ball Machines",
-          "Weekly DUPR 3.5 - 5.0 Ladders"
-        ];
-
-        var detailsHref = c.demo ? "#/c/the-pickleshot" : "#/c/" + esc(c.slug);
-        var actionHref = isJoined
-          ? (c.demo ? "#/c/the-pickleshot/book" : "#/c/" + esc(c.slug) + "/book")
-          : (c.demo ? "#/c/the-pickleshot/join" : "#/c/" + esc(c.slug) + "/join");
-        var actionText = isJoined ? "Book Court" : "+ Join Club";
-
-        var logoBox = c.logo_path
-          ? '<img src="' + esc(D.mediaUrl(c.logo_path)) + '" alt="" class="w-full h-full object-cover">'
-          : initial;
-
-        if (viewMode === "list") {
-          return '<article class="col-span-full bg-brand-cardDark border border-brand-borderDark hover:border-slate-600 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-5 transition-all hover:-translate-y-0.5">' +
-            '<div class="flex items-center gap-4 min-w-0 flex-1">' +
-              '<div class="w-14 h-14 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-2xl text-brand-lime shrink-0 overflow-hidden">' +
-                logoBox +
-              '</div>' +
-              '<div class="min-w-0 flex-1">' +
-                '<div class="flex items-center gap-2 flex-wrap">' +
-                  '<h3 class="text-lg font-bold text-white hover:text-brand-lime transition-colors truncate">' + esc(c.name) + '</h3>' +
-                  (isJoined ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-lime/15 text-brand-lime border border-brand-lime/30">JOINED</span>' : '') +
-                  '<span class="inline-flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">★ ' + rating + '</span>' +
-                '</div>' +
-                '<p class="text-xs text-slate-400 mt-0.5 truncate">' + esc(c.city || "Austin, TX") + ' • ' + esc(dist) + '</p>' +
-              '</div>' +
-            '</div>' +
-            '<div class="flex items-center gap-2 shrink-0">' +
-              '<a href="' + detailsHref + '" class="py-2.5 px-4 rounded-xl bg-brand-cardSubtle hover:bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700 transition-colors no-underline">Explore Details</a>' +
-              '<a href="' + actionHref + '" class="py-2.5 px-4 rounded-xl ' + (isJoined ? 'bg-brand-lime text-black font-extrabold' : 'bg-brand-lime/10 hover:bg-brand-lime hover:text-black text-brand-lime font-extrabold border border-brand-lime/30') + ' text-xs transition-all no-underline">' + actionText + '</a>' +
-            '</div>' +
-          '</article>';
-        }
-
-        return '<article class="bg-brand-cardDark border border-brand-borderDark hover:border-slate-600 rounded-2xl p-5 flex flex-col justify-between transition-all hover:-translate-y-1 shadow-lg">' +
-          '<div class="space-y-4">' +
-            '<div class="flex items-start justify-between">' +
-              '<div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xl text-brand-lime overflow-hidden shrink-0">' +
-                logoBox +
-              '</div>' +
-              '<div class="text-right">' +
-                '<span class="inline-flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">★ ' + rating + '</span>' +
-                '<span class="block text-[11px] text-slate-400 mt-1 font-mono">' + esc(dist) + '</span>' +
-              '</div>' +
-            '</div>' +
-            '<div>' +
-              '<div class="flex items-center gap-2">' +
-                '<h3 class="text-lg font-bold text-white hover:text-brand-lime transition-colors">' + esc(c.name) + '</h3>' +
-                (isJoined ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-lime/15 text-brand-lime border border-brand-lime/30">JOINED</span>' : '') +
-              '</div>' +
-              '<p class="text-xs text-slate-400 mt-0.5">' + esc(c.city || "Austin Athletic Zone") + '</p>' +
-            '</div>' +
-            '<div class="space-y-1.5 text-xs text-slate-300">' +
-              tags.map(function (tg) {
-                return '<div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-lime shrink-0"></span><span class="truncate">' + esc(tg) + '</span></div>';
-              }).join("") +
-            '</div>' +
-          '</div>' +
-          '<div class="pt-5 mt-4 border-t border-slate-800 flex items-center gap-2">' +
-            '<a href="' + detailsHref + '" class="flex-1 py-2 rounded-xl bg-brand-cardSubtle hover:bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700 transition-colors text-center no-underline">Explore Details</a>' +
-            '<a href="' + actionHref + '" class="py-2 px-3 rounded-xl ' + (isJoined ? 'bg-brand-lime text-black font-extrabold' : 'bg-brand-lime/10 hover:bg-brand-lime hover:text-black text-brand-lime font-extrabold border border-brand-lime/30') + ' text-xs transition-all flex items-center gap-1 no-underline shrink-0">' +
-              '<span>' + actionText + '</span>' +
-            '</a>' +
-          '</div>' +
-        '</article>';
-      }).join("");
-
+        var isJoined = !!joined[c.id] || !!joinedSlug[c.slug], courts = courtsBySlug[c.slug] || [];
+        var address = [c.street || c.address,c.barangay,c.city,c.province,c.zip_code].filter(Boolean).join(', ');
+        return '<article class="directory-club-card"><div class="directory-club-logo">' + (c.logo_path ? '<img src="' + esc(D.mediaUrl(c.logo_path)) + '" alt="">' : esc(c.name.charAt(0))) + '</div><div class="directory-club-info"><h3>' + esc(c.name) + (isJoined ? ' <span class="badge approved">Joined</span>' : '') + '</h3><p>' + esc(address || 'Location not provided') + '</p><span>' + courts.length + (courts.length === 1 ? ' active court' : ' active courts') + '</span></div><div class="directory-club-actions"><a class="btn ghost" href="#/c/' + esc(c.slug) + '">View Club</a><a class="btn" href="#/c/' + esc(c.slug) + (isJoined ? '/book' : '/join') + '">' + (isJoined ? 'Book a Court' : 'Join Club') + '</a></div></article>';
+      }).join('');
       container.innerHTML = cardsHtml;
     }
 
@@ -761,34 +625,12 @@
       };
     }
 
-    // Filter toggles
-    var btnAmenities = q("#btn-filter-amenities", sec);
-    if (btnAmenities) {
-      btnAmenities.onclick = function () {
-        filterIndoor = !filterIndoor;
-        btnAmenities.classList.toggle("border-brand-lime", filterIndoor);
-        btnAmenities.classList.toggle("bg-brand-lime/10", filterIndoor);
-        renderDiscoverCards();
-      };
-    }
-
-    var btnSurface = q("#btn-filter-surface", sec);
-    if (btnSurface) {
-      btnSurface.onclick = function () {
-        filterCushioned = !filterCushioned;
-        btnSurface.classList.toggle("border-brand-lime", filterCushioned);
-        btnSurface.classList.toggle("bg-brand-lime/10", filterCushioned);
-        renderDiscoverCards();
-      };
-    }
-
-    var chkOpenNow = q("#filter-open-now", sec);
-    if (chkOpenNow) {
-      chkOpenNow.onchange = function () {
-        filterOpenNow = chkOpenNow.checked;
-        renderDiscoverCards();
-      };
-    }
+    [['#club-filter-city', function (value) { filterCity = value; }], ['#club-filter-type', function (value) { filterType = value; }], ['#club-filter-surface', function (value) { filterSurface = value; }]].forEach(function (entry) {
+      var field = q(entry[0], sec);
+      if (field) field.onchange = function () { entry[1](field.value); renderDiscoverCards(); };
+    });
+    var chkOpenNow = q('#filter-open-now', sec);
+    if (chkOpenNow) chkOpenNow.onchange = function () { filterOpenNow = chkOpenNow.checked; renderDiscoverCards(); };
 
     var sortSelect = q("#sort-clubs-select", sec);
     if (sortSelect) {
@@ -815,16 +657,13 @@
           container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
         }
       }
+      if (btnGrid) btnGrid.setAttribute('aria-pressed', String(mode === 'grid'));
+      if (btnList) btnList.setAttribute('aria-pressed', String(mode === 'list'));
       renderDiscoverCards();
     }
 
     if (btnGrid) btnGrid.onclick = function () { setView("grid"); };
     if (btnList) btnList.onclick = function () { setView("list"); };
-    if (btnMap) {
-      btnMap.onclick = function () {
-        if (D.ui && D.ui.toast) D.ui.toast("Showing all 450+ network clubs on regional map view.", "ok");
-      };
-    }
 
     renderDiscoverCards();
   }
