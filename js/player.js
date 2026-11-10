@@ -137,17 +137,16 @@
     var p = r.data || {};
     var chosen = null, removeFlag = false; // new photo picked in the form (not saved until Save Profile)
 
-    sec.innerHTML = '<section class="panel wide member-profile-summary"><div class="member-id"><span class="member-avatar" id="member-avatar"></span><div class="member-facts"><h2>Personal details</h2><p id="member-display-name"></p><p>' + esc(D.state.user.email) + '</p><dl id="member-facts"></dl></div></div><button type="button" class="btn ghost" id="edit-member-profile">Edit Profile</button></section>' +
-      '<dialog class="member-profile-modal" aria-labelledby="member-profile-title"><form id="myprofile"><header><div><span>Account settings</span><h2 id="member-profile-title">Edit Profile</h2></div><button type="button" class="member-profile-close" aria-label="Close profile editor"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header>' +
+    sec.innerHTML = '<section class="panel wide member-profile-summary"><div class="member-id"><span class="member-avatar" id="member-avatar"></span><div class="member-facts"><h2>Personal details</h2><p id="member-display-name"></p><p>' + esc(D.state.user.email) + '</p><dl id="member-facts"></dl></div></div></section>' +
+      '<section class="panel wide member-profile-editor" aria-labelledby="member-profile-title"><form id="myprofile"><header><div><span>Account settings</span><h2 id="member-profile-title">Profile Details</h2></div></header>' +
       '<div class="member-photo"><span class="member-avatar big" id="mp-preview"></span><div class="member-photo-actions"><label class="btn ghost member-photo-btn" for="mp-photo">Add photo</label><input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden><button type="button" class="btn ghost" id="mp-remove-photo" hidden>Remove photo</button><small>JPG, PNG or WebP, up to 2 MB.</small></div></div>' +
       '<div class="grid2">' +
       '<label>Full Name<input id="mp-name" maxlength="80" autocomplete="name"></label><label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label>' +
       '<label>Birthdate<input id="mp-birth" type="date" min="1900-01-01" autocomplete="bday"></label>' +
       '<label>Civil status<select id="mp-civil"><option value="">Select</option>' + Object.keys(CIVIL).map(function (k) { return '<option value="' + k + '">' + CIVIL[k] + '</option>'; }).join("") + '</select></label></div>' +
       '<div id="mp-address" class="member-address"></div>' +
-      '<p class="msg" role="alert"></p><footer><button type="button" id="cancel-member-profile" class="btn ghost">Cancel</button><button class="btn" type="submit">Save Profile</button></footer></form></dialog>';
+      '<p class="msg" role="alert"></p><footer><button class="btn" type="submit">Save Profile</button></footer></form></section>';
 
-    var modal = q('.member-profile-modal', sec), opener = q('#edit-member-profile', sec);
     var ph = D.ph.mount(q("#mp-address", sec), { values: p, manager: false, required: false });
 
     function initial() { return ((p.full_name || D.state.user.email || "?").charAt(0) || "?").toUpperCase(); }
@@ -168,11 +167,6 @@
       q("#mp-remove-photo", sec).hidden = !p.avatar_path;
     }
     paintSummary(); fill();
-
-    opener.onclick = function () { fill(); setMsg(q("#myprofile", sec), "", ""); modal.showModal(); };
-    q('.member-profile-close', sec).onclick = function () { modal.close(); };
-    q('#cancel-member-profile', sec).onclick = function () { modal.close(); };
-    modal.addEventListener('close', function () { opener.focus(); });
 
     q("#mp-photo", sec).onchange = function () {
       var file = this.files[0], form = q("#myprofile", sec); if (!file) return;
@@ -211,7 +205,8 @@
         if (x.error) { if (chosen) sb.storage.from("avatars").remove([avatar]).catch(function () {}); throw x.error; }
         if (oldAvatar && oldAvatar !== avatar) sb.storage.from("avatars").remove([oldAvatar]).catch(function () {});
         for (var k in row) p[k] = row[k];
-        paintSummary(); modal.close();
+        paintSummary(); fill();
+        setMsg(f, "Your profile has been updated successfully.", "ok");
       } catch (err) { setMsg(f, friendly(err), "err"); }
       btn.disabled = false;
     };

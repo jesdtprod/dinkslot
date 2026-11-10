@@ -69,3 +69,12 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 .club-discovery-grid > .app-empty-state { grid-column:1 / -1; }
 @media(max-width:1200px) { .club-discovery-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:640px) { .club-discovery-grid { grid-template-columns:minmax(0,1fr); } .club-discovery-toolbar { align-items:stretch; flex-direction:column; gap:10px; } }
+
+/* Profile fields are immediately available on the page. */
+.member-profile-editor #myprofile > header { padding-bottom:14px; border-bottom:1px solid #ffffff0b; }
+.member-profile-editor #myprofile > header span { color:#92a886; font-size:10px; }
+.member-profile-editor #myprofile > header h2 { margin:4px 0 0; }
+.member-profile-editor #myprofile footer { display:flex; justify-content:flex-end; padding-top:16px; border-top:1px solid #ffffff0b; }
+.member-profile-editor .member-photo { display:flex; align-items:center; gap:16px; }
+.member-profile-editor .member-photo-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.member-profile-editor .member-photo-actions small { width:100%; color:#8fa395; font-size:11px; }
