@@ -57,14 +57,46 @@
       }
     });
   }
+  // Decorate controls without wrappers so form grids, labels and handlers stay intact.
+  function enhanceInputs(root) {
+    var paths = {
+      text: '<path d="M4 6h16M4 12h16M4 18h10"/>',
+      date: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>',
+      time: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      person: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+      mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/>',
+      phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 2.8a2 2 0 0 1-.6 2.1L7.7 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.6l2.8.5a2 2 0 0 1 2.1 2.4Z"/>',
+      location: '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+      lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/>',
+      search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+      club: '<path d="M3 21h18M5 21V5l7-3 7 3v16M9 7h1m4 0h1M9 11h1m4 0h1M9 15h1m4 0h1M10 21v-3h4v3"/>',
+      number: '<path d="M4 9h16M3 15h16M10 3 8 21M17 3l-2 18"/>',
+      money: '<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/>',
+      link: '<path d="m10 13 4-4M8 16l-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M16 8l2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0"/>'
+    };
+    root.querySelectorAll('input, textarea, select').forEach(function (field) {
+      if (field.classList.contains('ds-input-icon') || field.matches('[type="hidden"],[type="checkbox"],[type="radio"],[type="range"],[type="color"],[type="file"],[type="submit"],[type="button"],[type="reset"]')) return;
+      // Custom date/time controls and search boxes already provide their own icons.
+      if (field.closest('.datetime-picker,.leaflet-control') || Array.from(field.parentElement.children).some(function (sibling) { return sibling !== field && sibling.matches('svg,.material-symbols-outlined,.fa-search,.fa-magnifying-glass'); })) return;
+      var label = field.labels && field.labels[0];
+      var hint = [field.type, field.name, field.id, field.placeholder, field.getAttribute('aria-label'), label && label.textContent].join(' ').toLowerCase();
+      var kind = /password/.test(hint) ? 'lock' : /email|e-mail/.test(hint) ? 'mail' : /phone|mobile|tel/.test(hint) ? 'phone' : /search/.test(hint) ? 'search' : /latitude|longitude|coordinate|address|street|province|city|barangay|zip|location/.test(hint) ? 'location' : /rate|amount|price|fee/.test(hint) ? 'money' : /guest|manager|full.?name|player|account.?name|first.?name|last.?name/.test(hint) ? 'person' : /club|court|venue|surface/.test(hint) ? 'club' : /url|website/.test(hint) ? 'link' : field.type === 'number' ? 'number' : 'text';
+      if (/^(date|datetime-local|month|week)$/.test(field.type)) kind = 'date';
+      if (field.type === 'time') kind = 'time';
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#91a99b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths[kind] + '</svg>';
+      field.style.setProperty('--ds-field-icon', 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
+      field.classList.add('ds-input-icon');
+    });
+  }
   if (typeof MutationObserver !== 'undefined') {
     var queued = false;
     new MutationObserver(function () {
       if (queued) return;
       queued = true;
-      requestAnimationFrame(function () { queued = false; enhanceActions(document); });
+      requestAnimationFrame(function () { queued = false; enhanceActions(document); enhanceInputs(document); });
     }).observe(document.body, { childList: true, subtree: true });
     enhanceActions(document);
+    enhanceInputs(document);
   }
 
   // Shared account card for the public navigation and facility dashboard.

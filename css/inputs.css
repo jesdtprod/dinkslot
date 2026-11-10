@@ -1,0 +1,10 @@
+/* Shared field icons preserve native controls and existing form layouts. */
+html body .ds-input-icon {
+  background-image: var(--ds-field-icon) !important;
+  background-repeat: no-repeat !important;
+  background-position: 12px center !important;
+  background-size: 16px 16px !important;
+  padding-left: 38px !important;
+}
+html body textarea.ds-input-icon { background-position: 12px 12px !important; }
+html body .ds-input-icon:disabled { opacity: .55; }
