@@ -10,7 +10,7 @@ let bookings = [
   {tenant_id:'club',court_id:'court',status:'pending',reference_code:'PENDING-456',starts_at:future,ends_at:end,amount:300},
   {tenant_id:'club',court_id:'court',status:'approved',reference_code:'PAST-789',starts_at:past,ends_at:past,amount:150}
 ];
-const club = {id:'club',slug:'venue',name:'Real Club',street:'12 Real Street',barangay:'Poblacion',city:'Isulan',latitude:6.6,longitude:124.6};
+const club = {id:'club',slug:'venue',name:'Real Club',cover_path:'club-cover.jpg',logo_path:'club-logo.jpg',street:'12 Real Street',barangay:'Poblacion',city:'Isulan',latitude:6.6,longitude:124.6};
 const court = {id:'court',name:'Real Court',club_slug:'venue'};
 const D = {esc:escape,state:{user:{id:'user',email:'a@example.com'}},mediaUrl:x=>x,ui:{emptyState:(title,desc)=>`<p>${title}: ${desc}</p>`},sb:{from(table){
   const rows = table==='club_players' ? [{id:'player',tenant_id:'club'}] : table==='bookings' ? bookings : table==='public_courts' ? [court] : [club];
@@ -39,6 +39,12 @@ function section(){
   assert.match(sec.innerHTML,/PHP 225.00/);
   assert.match(sec.innerHTML,/Upcoming \(1\)/);
   assert.doesNotMatch(sec.innerHTML,/Main Arena|DS-S54V8DJH1|Gate PIN:/);
+  const home = sec.innerHTML.split('id="my-home-club"')[1];
+  assert.match(home,/home-clubs-grid/);
+  assert.match(home,/club-cover.jpg/);
+  assert.match(home,/club-logo.jpg/);
+  assert.match(home,/12 Real Street, Poblacion, Isulan/);
+  assert.doesNotMatch(home,/All 16 Slots|4:30 PM|128 reviews/);
   sec.tabs[2].onclick(); assert.match(sec.slot.innerHTML,/PENDING-456/); assert.doesNotMatch(sec.slot.innerHTML,/REAL-123/);
   sec.tabs[1].onclick(); assert.match(sec.slot.innerHTML,/PAST-789/);
   bookings=[]; sec=section(); await D.player.overview(sec);

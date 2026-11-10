@@ -35,41 +35,25 @@
 @media(max-width:1100px) { #ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:540px) { #ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] { grid-template-columns:minmax(0,1fr); } }
 
-/* Home club: quiet surfaces, clear hierarchy and compact schedule tiles. */
-#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) { padding:22px; border:1px solid #ffffff12; border-radius:12px; background:#171d23; box-shadow:none; }
-#my-home-club > div:nth-child(2) > div:first-child { display:none; }
-#my-home-club > div:nth-child(2) > div:nth-child(2) { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:0; }
-#my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child { display:flex; align-items:center; gap:18px; min-width:0; }
-#my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child { width:64px; height:64px; flex-shrink:0; border-radius:12px; border-color:#ffffff16; background:#20282e; box-shadow:none; }
-#my-home-club h3 { font-size:18px; line-height:26px; letter-spacing:-.02em; }
-#my-home-club .space-y-2 > div:first-child { gap:10px; }
-#my-home-club .space-y-2 > div:first-child > span:first-of-type { padding:3px 9px; border:1px solid #a3e63530; border-radius:6px; background:#a3e63510; color:#b3d394; box-shadow:none; font:600 10px/16px "Plus Jakarta Sans",sans-serif; text-transform:none; letter-spacing:0; }
-#my-home-club .space-y-2 > div:nth-child(2) { margin-top:7px; gap:8px 16px; color:#93a59b; font-size:12px; line-height:20px; }
-#my-home-club .space-y-2 > div:nth-child(2) .material-symbols-outlined { font-size:15px; color:#9ab581; }
-#my-home-club .space-y-2 > div:last-child { display:flex; flex-wrap:wrap; gap:6px; padding-top:8px; }
-#my-home-club .space-y-2 > div:last-child > span { padding:3px 8px; border-radius:6px; border:1px solid #ffffff0c; background:#ffffff03; color:#a7b5ad; font-size:10px; line-height:16px; }
-#my-home-club > div:nth-child(2) > div:nth-child(2) > div:last-child { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; width:auto; flex-shrink:0; align-self:center; }
-#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin-top:20px; padding-top:16px; border-color:#ffffff0c; }
-#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child > a { display:flex !important; flex-direction:column; align-items:flex-start !important; justify-content:center !important; min-width:0; min-height:84px !important; gap:6px !important; padding:12px 14px !important; border:1px solid #ffffff0c !important; border-radius:8px !important; background:#ffffff02 !important; color:#cdd8d0 !important; text-align:left; box-shadow:none !important; }
-#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child > a:hover { border-color:#a3e63535 !important; background:#a3e63506 !important; }
-#my-home-club > div:nth-child(2) > div:last-child > a > span:first-child { color:#8fa497; font:400 10px/15px "Plus Jakarta Sans",sans-serif; }
-#my-home-club > div:nth-child(2) > div:last-child > a > span:nth-child(2) { font-size:14px; line-height:20px; font-weight:650; }
-#my-home-club > div:nth-child(2) > div:last-child > a > span:last-child { color:#a7b99b; }
-#my-home-club > div:nth-child(2) > div:last-child > a .material-symbols-outlined { font-size:17px; }
-@media(max-width:1100px) { #my-home-club > div:nth-child(2) > div:nth-child(2) { align-items:flex-start; flex-direction:column; gap:16px; } #my-home-club > div:nth-child(2) > div:nth-child(2) > div:last-child { align-self:flex-start; justify-content:flex-start; } #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-@media(max-width:540px) { #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) { padding:16px; } #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { grid-template-columns:repeat(2,minmax(0,1fr)); } #my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child { align-items:flex-start; gap:12px; } }
-
-/* Compact home-club spacing; preserve the icon font inside schedule actions. */
-#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) { padding:16px 18px; }
-#my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child { gap:14px; }
-#my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child { width:52px; height:52px; border-radius:10px; }
-#my-home-club h3 { font-size:16px; line-height:22px; }
-#my-home-club .space-y-2 > div:nth-child(2) { margin-top:4px; font-size:11px; line-height:18px; }
-#my-home-club .space-y-2 > div:last-child { padding-top:4px; }
-#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { gap:8px; margin-top:14px; padding-top:12px; }
-#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child > a { display:grid !important; grid-template-columns:18px minmax(0,1fr); align-content:center; column-gap:8px !important; row-gap:3px !important; min-height:70px !important; padding:10px 12px !important; }
-#my-home-club > div:nth-child(2) > div:last-child > a > span { grid-column:2; margin:0; }
-#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child > a > .material-symbols-outlined { grid-column:1; grid-row:1 / span 3; align-self:center; font-family:"Material Symbols Outlined" !important; font-size:18px !important; font-weight:400; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; word-wrap:normal; direction:ltr; font-feature-settings:"liga"; -webkit-font-feature-settings:"liga"; -webkit-font-smoothing:antialiased; }
-#my-home-club > div:nth-child(2) > div:last-child > a > span:not(.material-symbols-outlined) { font-family:"Plus Jakarta Sans",sans-serif; }
-#my-home-club > div:nth-child(2) > div:last-child > a > span:nth-child(3) { font-size:13px; line-height:18px; }
-#my-home-club > div:nth-child(2) > div:last-child > a > span:last-child { font-size:10px; line-height:14px; }
+/* Joined club cards: three columns with saved cover and profile media. */
+.home-clubs-heading { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+.home-clubs-heading h2 { margin:0; color:#e0e7e2; font-size:20px; font-weight:650; }
+.home-clubs-heading p { margin:5px 0 0; color:#8fa297; font-size:12px; }
+#ds-tenant-dashboard #sec .home-clubs-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+#ds-tenant-dashboard #sec .home-club-card { display:flex; flex-direction:column; min-width:0; overflow:hidden; padding:0; border:1px solid #ffffff12; border-radius:12px; background:#171d23; }
+.home-club-cover { display:flex; align-items:center; justify-content:center; height:150px; overflow:hidden; background:linear-gradient(135deg,#23312b,#182029); text-decoration:none; }
+.home-club-cover img { display:block; width:100%; height:100%; object-fit:cover; }
+.home-club-cover > .material-symbols-outlined { color:#7c9876; font-size:40px; }
+.home-club-body { display:flex; flex:1; flex-direction:column; padding:0 16px 16px; }
+.home-club-identity { display:flex; justify-content:space-between; align-items:flex-end; margin-top:-24px; position:relative; }
+.home-club-avatar { display:grid; place-items:center; width:56px; height:56px; flex-shrink:0; overflow:hidden; border:3px solid #171d23; border-radius:12px; background:#26332b; color:#b2d28e; font-size:22px; font-weight:650; }
+.home-club-avatar img { width:100%; height:100%; object-fit:cover; }
+.home-club-identity .badge { margin-bottom:5px; padding:3px 8px; font-size:10px; }
+.home-club-body h3 { margin:12px 0 6px; color:#e0e7e2; font-size:16px; line-height:23px; font-weight:650; }
+.home-club-address { display:flex; align-items:flex-start; gap:6px; min-height:38px; margin:0 0 16px; color:#96aa9d; font-size:11px; line-height:18px; }
+.home-club-address .material-symbols-outlined { flex-shrink:0; font-size:16px; margin-top:1px; }
+.home-club-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; padding-top:12px; border-top:1px solid #ffffff0a; }
+.home-club-actions a { flex:1; justify-content:center; }
+.home-clubs-grid > .app-empty-state { grid-column:1/-1; }
+@media(max-width:1050px) { #ds-tenant-dashboard #sec .home-clubs-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { #ds-tenant-dashboard #sec .home-clubs-grid { grid-template-columns:minmax(0,1fr); } }
