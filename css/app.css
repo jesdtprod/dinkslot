@@ -2769,3 +2769,11 @@ dialog#booking-modal #view-walkin { grid-template-columns: minmax(0,1fr); gap: 1
   dialog#booking-modal .booking-modal-body { grid-template-columns: minmax(0,1fr); }
   dialog#booking-modal [data-purpose="customer-selection-card"], dialog#booking-modal [data-purpose="booking-parameters"] { grid-column: 1; }
 }
+
+/* Full-width fields within each booking detail card. */
+#ds-tenant-dashboard #sec #booking-modal #view-walkin,
+#ds-tenant-dashboard #sec #booking-modal [data-purpose="booking-parameters"] > .grid { grid-template-columns: minmax(0,1fr); }
+#ds-tenant-dashboard #sec #booking-modal #view-walkin > div,
+#ds-tenant-dashboard #sec #booking-modal [data-purpose="booking-parameters"] > .grid > div { min-width: 0; width: 100%; grid-column: 1; }
+dialog#booking-modal label[for="ndate"], dialog#booking-modal label[for="nlen"] { display: flex; justify-content: space-between; gap: 10px; }
+dialog#booking-modal #rate-badge { white-space: nowrap; }
