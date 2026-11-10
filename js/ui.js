@@ -550,5 +550,8 @@
     });
   }
 
-  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers, toast: toast, confirmAction: confirmAction };
+  function emptyState(title, description, symbol, action) {
+    return '<div class="app-empty-state"><span class="material-symbols-outlined" aria-hidden="true">' + esc(symbol || 'inbox') + '</span><div><strong>' + esc(title) + '</strong><p>' + esc(description) + '</p>' + (action ? '<a href="' + esc(action.href) + '">' + esc(action.label) + '</a>' : '') + '</div></div>';
+  }
+  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers, toast: toast, confirmAction: confirmAction, emptyState: emptyState };
 })();

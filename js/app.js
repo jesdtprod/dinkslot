@@ -1653,7 +1653,7 @@
             esc(new Date(c.created_at).toLocaleDateString()) + '</td><td><span class="badge ' + esc(c.status) + '">' + esc(c.status) + '</span></td><td class="nowrap">' +
             (c.status !== "approved" ? b("approved", "Approve") : "") + (c.status === "pending" ? b("rejected", "Reject", "danger") : "") +
             (c.status === "approved" ? b("suspended", "Suspend", "danger") : "") + "</td></tr>";
-        }).join("") + "</tbody></table></div>" : '<p class="muted">No clubs here.</p>';
+        }).join("") + "</tbody></table></div>" : window.DS.ui.emptyState('No clubs to display', 'Clubs will appear here when they are available.', 'storefront');
       bind();
     }
     $("#sq").oninput = draw;

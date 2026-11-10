@@ -3012,3 +3012,12 @@ body .msg { display: none !important; }
 .ds-toast > .material-symbols-outlined { margin-top: 1px; }
 .ds-toast .ds-toast-action { width: auto; height: auto; padding: 3px 8px; border: 1px solid #ffffff18; border-radius: 6px; background: #ffffff08; color: #c4dfa8; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; white-space: nowrap; }
 .ds-toast button:focus-visible { outline: 2px solid #b1df74; outline-offset: 2px; }
+
+/* Shared empty state for lists, tables and dashboard sections. */
+.app-empty-state { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 22px 16px; border: 1px dashed #ffffff10; border-radius: 10px; background: #ffffff02; text-align: left; }
+.app-empty-state > .material-symbols-outlined { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border: 1px solid #ffffff0b; border-radius: 9px; background: #ffffff03; color: #8fab82; font-size: 20px; }
+.app-empty-state strong { color: #c1cfc4; font: 500 12px/20px "Plus Jakarta Sans",sans-serif; }
+body #app .app-empty-state p, .app-empty-state p { margin: 2px 0 0; color: #82968a; font: 400 11px/18px "Plus Jakarta Sans",sans-serif; }
+.app-empty-state a { display: inline-block; margin-top: 6px; color: #badb9c; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; text-underline-offset: 3px; }
+.transactions-empty > div { padding: 16px; border: 1px dashed #ffffff10; border-radius: 10px; background: #ffffff02; }
+.booking-queue > .app-empty-state { margin-top: 12px; }

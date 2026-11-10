@@ -313,9 +313,9 @@
         '</div>';
       }
       var pl = (await sb.from("club_players").select("id").eq("user_id", D.state.user.id)).data || [];
-      if (!pl.length) { box.innerHTML = '<p class="muted">No bookings yet. <a href="#/">Find a club</a> to book your first court.</p>'; return; }
+      if (!pl.length) { box.innerHTML = D.ui.emptyState('No bookings yet', 'Your court reservations will appear here.', 'event_available', { href: '#/', label: 'Find a club' }); return; }
       var bs = (await sb.from("bookings").select("*").in("player_id", pl.map(function (p) { return p.id; })).order("starts_at", { ascending: false }).limit(60)).data || [];
-      if (!bs.length) { box.innerHTML = '<p class="muted">No bookings yet. <a href="#/">Find a club</a> to book your first court.</p>'; return; }
+      if (!bs.length) { box.innerHTML = D.ui.emptyState('No bookings yet', 'Your court reservations will appear here.', 'event_available', { href: '#/', label: 'Find a club' }); return; }
       var cIds = Array.from(new Set(bs.map(function (b) { return b.court_id; })));
       var courts = (await sb.from("public_courts").select("id,name,club_slug").in("id", cIds)).data || [];
       var slugs = Array.from(new Set(courts.map(function (c) { return c.club_slug; })));
@@ -422,7 +422,7 @@
         { title: 'Upcoming confirmed bookings', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
       ].map(function (group) {
         return '<section class="booking-queue"><header class="booking-queue-heading"><span class="material-symbols-outlined" aria-hidden="true">' + group.icon + '</span><h3>' + group.title + '</h3><span class="booking-count' + (group.decide && group.items.length ? ' needs-attention' : '') + '">' + group.items.length + '</span></header>' +
-          (group.items.length ? group.items.map(function (b) { return row(b, !!group.decide); }).join('') : '<p class="booking-queue-empty">' + group.empty + '</p>') + '</section>';
+          (group.items.length ? group.items.map(function (b) { return row(b, !!group.decide); }).join('') : D.ui.emptyState(group.decide ? 'No pending approvals' : 'No bookings scheduled', group.empty, group.icon)) + '</section>';
       }).join('') + '</div>';
       startTicker();
       var byId = {}; bs.forEach(function (b) { byId[b.id] = b; });

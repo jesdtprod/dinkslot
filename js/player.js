@@ -90,7 +90,7 @@
       '<div class="panel wide"><h2>Next booking</h2>' + (next
         ? '<p><b>' + esc(clubName) + "</b> - " + esc(courtName) + '<br><span class="muted">' + esc(when) + "</span></p>" +
           '<p><span class="badge ' + esc(next.status) + '">' + esc(next.status) + "</span> <span class=\"muted small\">" + money(next.amount) + " - code " + esc(next.reference_code) + '</span></p><a class="btn sm" href="#/me/bookings">Manage bookings</a>'
-        : '<p class="muted">No upcoming bookings yet.</p><a class="btn sm" href="#/me/find">Find a club to book</a>') + "</div>" +
+        : D.ui.emptyState('No upcoming bookings', 'Find a club and reserve your next court.', 'event_available', { href: '#/me/find', label: 'Find a club' })) + "</div>" +
       (mc.clubs.length ? "" : '<div class="panel wide"><h2>Get started</h2><p class="muted">Join a club, pick a court and a time, then pay by QR. It takes a minute.</p>' +
         '<a class="btn" href="#/me/find">Find a club</a></div>');
   }
@@ -103,7 +103,7 @@
     function draw() {
       var term = q("#fq", sec).value.trim().toLowerCase();
       var list = all.filter(function (c) { return !term || (c.name + " " + (c.city || "")).toLowerCase().indexOf(term) !== -1; });
-      q("#flist", sec).innerHTML = list.length ? list.map(function (c) { return clubRow(c, !!joined[c.id]); }).join("") : '<p class="muted">No clubs match your search.</p>';
+      q("#flist", sec).innerHTML = list.length ? list.map(function (c) { return clubRow(c, !!joined[c.id]); }).join("") : D.ui.emptyState('No clubs found', 'Try a different search or adjust your filters.', 'search_off');
     }
     q("#fq", sec).oninput = draw; draw();
   }

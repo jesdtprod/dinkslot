@@ -56,7 +56,7 @@
         var d = describe(n);
         return '<button type="button" class="nitem' + (n.read_at ? "" : " unread") + '" data-id="' + esc(n.id) + '"><span class="mi">' + esc(d.icon) + "</span>" +
           '<span class="ntext">' + esc(d.text) + '<small>' + esc(ago(n.created_at)) + "</small></span></button>";
-      }).join("") : '<p class="muted small nempty">You are all caught up.</p>') + "</div></div></div>";
+      }).join("") : D.ui.emptyState('You?re all caught up', 'New notifications will appear here.', 'notifications_none')) + "</div></div></div>";
 
     slot.querySelector(".bellbtn").onclick = function (e) { e.stopPropagation(); openMenu = !openMenu; paint(); };
     var all = slot.querySelector("#markall");

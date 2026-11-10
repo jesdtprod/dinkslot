@@ -500,7 +500,7 @@
               "</td><td class=\"py-space-sm px-space-md\">" + c.slot_minutes + ' min slots</td><td class=\"py-space-sm px-space-md\"><span class="px-space-xs py-0.5 rounded-full font-label-sm ' + (c.status === "active" ? "bg-primary/10 text-primary" : "bg-error/10 text-error") + '">' + esc(c.status.charAt(0).toUpperCase() + c.status.slice(1)) +
               '</span></td><td class="py-space-sm px-space-md text-right whitespace-nowrap"><button class="court-icon-action" data-edit="' + esc(c.id) + '" type="button" title="Edit court" aria-label="Edit ' + esc(c.name) + '"><span class="material-symbols-outlined" aria-hidden="true">edit</span></button> ' +
               '<button class="court-icon-action is-danger" data-del="' + esc(c.id) + '" type="button" title="Delete court" aria-label="Delete ' + esc(c.name) + '"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></td></tr>';
-          }).join("") + "</tbody></table></div>" : '<p class="text-on-surface-variant font-body-md">No courts listed yet. Add your first court above.</p>') +
+          }).join("") + "</tbody></table></div>" : D.ui.emptyState('No courts yet', 'Add your first court to configure pricing and availability.', 'sports_tennis')) +
       '</div>' +
 
       '<div class="court-panel">' +
