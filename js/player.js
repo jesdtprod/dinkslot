@@ -342,16 +342,28 @@
         '<div id="next-booking-card-slot" class="space-y-3" role="tabpanel" aria-label="Upcoming bookings">' + bookingResults('upcoming') + '</div>' +
       '</section>';
 
+    var joinedCourts = [];
+    if (mc.clubs.length) {
+      var joinedCourtsResult = await sb.from('public_courts').select('id,club_slug,surface,is_indoor,hourly_rate').in('club_slug', mc.clubs.map(function (club) { return club.slug; }));
+      if (joinedCourtsResult.error) throw joinedCourtsResult.error;
+      joinedCourts = joinedCourtsResult.data || [];
+    }
     // Joined clubs use saved media and venue details, without sample time slots.
     var homeClubHtml = '<section id="my-home-club"><header class="home-clubs-heading"><div><h2>My Clubs</h2><p>Your joined clubs, ready for your next game.</p></div><a class="btn ghost" href="#/me/clubs"><span class="material-symbols-outlined" aria-hidden="true">groups</span>View All Clubs</a></header>' +
       '<div class="home-clubs-grid">' + (mc.clubs.length ? mc.clubs.map(function (club) {
         var addressParts = [club.street || club.address, club.barangay, club.city, club.province].filter(Boolean);
         var address = addressParts.filter(function (part, index) { return addressParts.indexOf(part) === index; }).join(', ');
+        var courts = joinedCourts.filter(function (court) { return court.club_slug === club.slug; });
+        var surfaces = Array.from(new Set(courts.map(function (court) { return court.surface; }).filter(Boolean)));
+        var formats = Array.from(new Set(courts.map(function (court) { return court.is_indoor ? 'Indoor' : 'Outdoor'; })));
+        var detailHtml = '<div class="home-club-details"><div><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span><span>' + courts.length + (courts.length === 1 ? ' active court' : ' active courts') + (formats.length ? ' ? ' + esc(formats.join(' / ')) : '') + '</span></div>' +
+          (surfaces.length ? '<div><span class="material-symbols-outlined" aria-hidden="true">layers</span><span>' + esc(surfaces.join(', ')) + '</span></div>' : '') +
+          (club.contact_phone ? '<div><span class="material-symbols-outlined" aria-hidden="true">call</span><span>' + esc(club.contact_phone) + '</span></div>' : '') + '</div>';
         return '<article class="home-club-card"><a class="home-club-cover" href="#/c/' + esc(club.slug) + '" aria-label="View ' + esc(club.name) + '">' +
           (club.cover_path ? '<img src="' + esc(D.mediaUrl(club.cover_path)) + '" alt="' + esc(club.name) + ' cover" loading="lazy">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</a>' +
           '<div class="home-club-body"><div class="home-club-identity"><div class="home-club-avatar">' + (club.logo_path ? '<img src="' + esc(D.mediaUrl(club.logo_path)) + '" alt="' + esc(club.name) + ' logo" loading="lazy">' : esc((club.name || 'C').charAt(0))) + '</div><span class="badge approved">Joined</span></div>' +
           '<h3>' + esc(club.name) + '</h3><p class="home-club-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span><span>' + esc(address || 'Location not provided') + '</span></p>' +
-          '<div class="home-club-actions"><a class="btn ghost" href="#/c/' + esc(club.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="#/c/' + esc(club.slug) + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></div></article>';
+          detailHtml + '<div class="home-club-actions"><a class="btn ghost" href="#/c/' + esc(club.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="#/c/' + esc(club.slug) + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></div></article>';
       }).join('') : D.ui.emptyState('No clubs joined', 'Find a club to start booking courts.', 'groups', {href:'#/me/find',label:'Find a Club'})) + '</div></section>';
 
     sec.innerHTML = '<div class="space-y-9" data-purpose="player-dashboard">' +
