@@ -2997,3 +2997,7 @@ body:has(.confirmation-modal[open]) { overflow: hidden; }
 /* Circular QR frame with a larger, uncropped scan area. */
 .booking-ticket-modal .ticket-qr { display: grid; place-items: center; width: min(280px,100%); aspect-ratio: 1; margin: 20px auto; padding: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px #ffffff04; }
 .booking-ticket-modal .ticket-qr svg { width: 88%; height: auto; }
+
+/* Form feedback is delivered through floating notifications. */
+body .msg { display: none !important; }
+#ds-toast-stack[popover] { inset: auto 24px 24px auto; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; }

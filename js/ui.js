@@ -462,6 +462,8 @@
   function toast(message, kind) {
     var stack = document.getElementById('ds-toast-stack');
     if (!stack) { stack = document.createElement('div'); stack.id = 'ds-toast-stack'; document.body.appendChild(stack); }
+    stack.setAttribute('popover', 'manual');
+    if (typeof stack.showPopover === 'function' && !stack.matches(':popover-open')) stack.showPopover();
     var item = document.createElement('div'); item.className = 'ds-toast' + (kind === 'err' ? ' is-error' : ''); item.setAttribute('role', kind === 'err' ? 'alert' : 'status');
     item.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">' + (kind === 'err' ? 'error' : 'check_circle') + '</span><span class="ds-toast-text"></span><button type="button" aria-label="Dismiss notification"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>';
     item.querySelector('.ds-toast-text').textContent = message;
@@ -475,6 +477,28 @@
     item.addEventListener('focusout', schedule);
     stack.appendChild(item); schedule();
     while (stack.children.length > 3) stack.firstElementChild.remove();
+  }
+
+  // Legacy forms still write to .msg nodes directly. Forward them to the
+  // floating notification system and clear their inline layout immediately.
+  function forwardAlerts() {
+    document.querySelectorAll('.msg').forEach(function (node) {
+      if (node.closest('#ds-toast-stack,.toast-region')) return;
+      var message = node.textContent.trim();
+      if (!message) return;
+      var kind = node.classList.contains('err') ? 'err' : node.classList.contains('ok') ? 'ok' : 'info';
+      node.replaceChildren();
+      toast(message, kind);
+    });
+  }
+  if (typeof MutationObserver !== 'undefined') {
+    var alertsQueued = false;
+    new MutationObserver(function () {
+      if (alertsQueued) return;
+      alertsQueued = true;
+      queueMicrotask(function () { alertsQueued = false; forwardAlerts(); });
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    forwardAlerts();
   }
 
   var confirmationId = 0;
