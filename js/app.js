@@ -50,14 +50,34 @@
   function mountCaptcha(container) {
     var h = { token: null, id: null };
     var tries = 0;
+    var note = document.createElement("p");
+    note.className = "msg err small";
+    container.parentNode.insertBefore(note, container.nextSibling);
+    function retryLink() {
+      note.innerHTML = ' <a href="#" class="retry">Retry the check</a>';
+      note.querySelector(".retry").onclick = function (e) { e.preventDefault(); note.textContent = ""; h.reset(); arm(); };
+    }
+    var slow;
+    function arm() {
+      clearTimeout(slow);
+      slow = setTimeout(function () {
+        if (!h.token) { note.textContent = "The human check is taking long. "; retryLink(); }
+      }, 20000);
+    }
     (function wait() {
       if (window.turnstile) {
         h.id = window.turnstile.render(container, {
           sitekey: cfg.TURNSTILE_SITE_KEY,
-          callback: function (t) { h.token = t; },
+          callback: function (t) { h.token = t; note.textContent = ""; clearTimeout(slow); },
           "expired-callback": function () { h.token = null; },
-          "error-callback": function () { h.token = null; }
+          "error-callback": function (code) {
+            h.token = null; clearTimeout(slow);
+            note.textContent = "Human check error" + (code ? " (" + code + ")" : "") + ". Disable ad blockers for this site, check your connection, then ";
+            retryLink();
+            return true;
+          }
         });
+        arm();
       } else if (tries++ < 100) {
         setTimeout(wait, 100);
       } else {
