@@ -373,9 +373,10 @@
       var host = document.createElement('span'); host.className = 'datetime-control';
       var trigger = document.createElement('button'); trigger.type = 'button'; trigger.className = 'datetime-trigger';
       var name = input.closest('label').firstChild.textContent.trim();
-      trigger.setAttribute('aria-label', name + ' time'); trigger.setAttribute('aria-haspopup', 'dialog'); trigger.setAttribute('aria-expanded', 'false');
+      var title = name === 'Closes' ? 'Closing time' : name === 'Opens' ? 'Opening time' : name + ' time';
+      trigger.setAttribute('aria-label', title); trigger.setAttribute('aria-haspopup', 'dialog'); trigger.setAttribute('aria-expanded', 'false');
       var panel = document.createElement('div'); panel.className = 'datetime-picker time-picker'; panel.id = input.id + '-picker';
-      panel.setAttribute('popover', 'auto'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', name + ' time');
+      panel.setAttribute('popover', 'auto'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', title);
       trigger.setAttribute('aria-controls', panel.id);
       input.type = 'hidden'; input.required = false; input.after(host); host.append(trigger, panel);
       function text() {
@@ -390,7 +391,7 @@
         function options(count, selected) {
           var html = ''; for (var n = 0; n < count; n++) html += '<option value="' + pad(n) + '"' + (Number(selected) === n ? ' selected' : '') + '>' + pad(n) + '</option>'; return html;
         }
-        panel.innerHTML = '<div class="time-picker-title">' + esc(name) + ' time</div><div class="time-picker-fields"><label>Hour<select aria-label="Hour">' + options(24, parts[0]) + '</select></label><span>:</span><label>Minute<select aria-label="Minute">' + options(60, parts[1]) + '</select></label></div><p class="time-picker-hint">24-hour time · 00:00 is midnight</p><div class="datetime-actions"><button type="button" data-cancel>Cancel</button><button type="button" data-apply>Apply</button></div>';
+        panel.innerHTML = '<div class="time-picker-title">' + esc(title) + '</div><div class="time-picker-fields"><label>Hour<select aria-label="Hour">' + options(24, parts[0]) + '</select></label><span>:</span><label>Minute<select aria-label="Minute">' + options(60, parts[1]) + '</select></label></div><p class="time-picker-hint">24-hour time · 00:00 is midnight</p><div class="datetime-actions"><button type="button" data-cancel>Cancel</button><button type="button" data-apply>Apply</button></div>';
         panel.showPopover();
         var rect = trigger.getBoundingClientRect(), width = Math.min(250, innerWidth - 24);
         panel.style.width = width + 'px'; panel.style.left = Math.max(12, Math.min(rect.left, innerWidth - width - 12)) + 'px';

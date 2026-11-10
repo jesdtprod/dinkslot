@@ -2843,3 +2843,9 @@ body:has(.court-config-modal[open]) { overflow: hidden; }
 .court-qr-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; color: #bbcbbf; font-size: 12px; }
 .court-qr-copy u { color: #c6dfa8; text-underline-offset: 3px; }
 .court-qr-copy small, .court-qr-filename { font-size: 10px; color: #8a9e8f; overflow-wrap: anywhere; }
+.time-picker { padding: 16px; }
+.time-picker .time-picker-fields { display: grid; grid-template-columns: minmax(0,1fr) 8px minmax(0,1fr); gap: 8px; }
+.time-picker .time-picker-fields > label { margin: 0; padding: 0; gap: 6px; }
+#ds-tenant-dashboard #sec .time-picker .time-picker-fields select { display: flex; align-items: center; justify-content: space-between; height: 38px; padding: 0 10px; line-height: 20px; }
+.time-picker .datetime-actions { margin-top: 16px; padding-top: 12px; border-top: 1px solid #ffffff0b; align-items: center; }
+.time-picker .datetime-actions button { min-height: 32px; padding: 6px 12px; }
