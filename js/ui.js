@@ -13,6 +13,7 @@
   // Apply one action-button system to dynamically rendered screens and dialogs.
   function enhanceActions(root) {
     var rules = [
+      [/google/i, 'login', 'secondary'],
       [/^(?:block time|block court|maintenance)/i, 'event_busy', 'primary'],
       [/^(?:today|tomorrow|select date)/i, 'calendar_today', 'secondary'],
       [/^(?:quick book|new booking|book now|book a|reserve|confirm booking)/i, 'calendar_today', 'primary'],
