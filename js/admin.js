@@ -786,7 +786,7 @@
         var query = lat !== '' && lng !== '' ? lat + ',' + lng : [t.name,t.address,t.city,'Philippines'].filter(Boolean).join(', ');
         var container = q('#club-location-map',sec), frame = container.querySelector('iframe');
         if (!frame) { frame = document.createElement('iframe'); frame.title = 'Google Maps club location'; frame.loading = 'lazy'; frame.allowFullscreen = true; frame.style.cssText = 'width:100%;height:100%;border:0;display:block'; container.replaceChildren(frame); }
-        var source = 'https://maps.google.com/maps?q=' + encodeURIComponent(query) + '&t=p&z=15&output=embed';
+        var source = 'https://maps.google.com/maps?q=' + encodeURIComponent(query) + '&t=k&z=17&output=embed';
         if (frame.getAttribute('src') !== source) frame.src = source;
       }
       function centerLocation() { renderMap(); }
