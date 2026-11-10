@@ -2829,3 +2829,16 @@ body:has(.court-config-modal[open]) { overflow: hidden; }
 .court-config-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid #ffffff0b; }
 .court-config-close:focus-visible { outline: 2px solid #b1df74; outline-offset: 2px; }
 @media (max-width:540px) { #ds-tenant-dashboard #sec .court-config-modal #cf > .grid { grid-template-columns: minmax(0,1fr); } .court-config-modal label:has(#ci) { padding-top: 0; } }
+.court-qr-heading { display: flex; align-items: center; gap: 8px; }
+.court-qr-heading strong { color: #d3dfd6; font-size: 12px; font-weight: 500; }
+.court-qr-heading > span { padding: 1px 6px; border: 1px solid #ffffff0a; border-radius: 4px; color: #8fa28f; font-size: 9px; }
+#ds-tenant-dashboard #sec .court-qr-upload > p { margin: 4px 0 12px; font-size: 11px; }
+.court-matrix label.court-qr-drop { position: relative; display: flex; flex-direction: row; align-items: center; gap: 14px; padding: 16px; border: 1px dashed #ffffff25; border-radius: 10px; background: #ffffff02; cursor: pointer; }
+#ds-tenant-dashboard #sec .court-qr-drop input[type="file"] { position: absolute; width: 1px; height: 1px; padding: 0; opacity: 0; overflow: hidden; }
+.court-qr-drop:hover, .court-qr-drop.is-dragging { border-color: #a3e63570; background: #a3e63506; }
+.court-qr-drop:focus-within { outline: 2px solid #b1df74; outline-offset: 2px; }
+.court-qr-preview { display: grid; place-items: center; flex-shrink: 0; width: 58px; height: 58px; border: 1px solid #ffffff10; border-radius: 8px; background: #ffffff04; color: #9fbc8a; overflow: hidden; }
+.court-qr-preview img { width: 100%; height: 100%; object-fit: contain; background: white; }
+.court-qr-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; color: #bbcbbf; font-size: 12px; }
+.court-qr-copy u { color: #c6dfa8; text-underline-offset: 3px; }
+.court-qr-copy small, .court-qr-filename { font-size: 10px; color: #8a9e8f; overflow-wrap: anywhere; }

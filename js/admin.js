@@ -571,7 +571,8 @@
         (v.status === "maintenance" ? " selected" : "") + '>Maintenance (not bookable)</option></select></label>' +
         '<label class="flex items-center gap-2 pt-6 font-body-md text-on-surface cursor-pointer"><input id="ci" type="checkbox"' + (v.is_indoor ? " checked" : "") + ' class="w-4 h-4 accent-primary"> Indoor Cushioned Court</label>' +
       "</div>" +
-      '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Dedicated Payment QR for this court (optional, overrides club QR)<input id="cq" type="file" accept="image/jpeg,image/png,image/webp" class="bg-surface-container p-2 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
+      '<div class="court-qr-upload"><div class="court-qr-heading"><strong>Court payment QR</strong><span>Optional</span></div><p>Use a separate QR for this court, or leave it empty to use the club QR.</p>' +
+        '<label class="court-qr-drop" for="cq"><input id="cq" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose court payment QR image"><span class="court-qr-preview"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span></span><span class="court-qr-copy"><span>Drop a QR image here, or <u>browse files</u></span><small>JPG, PNG or WebP - Up to 5 MB</small><span class="court-qr-filename" aria-live="polite">No image selected</span></span></label></div>' +
       (c && c.qr_path ? '<label class="flex items-center gap-2 font-body-sm text-on-surface-variant"><input id="cqx" type="checkbox"> Remove this court\'s custom QR</label>' : "") +
       '<p class="msg" role="alert"></p>' +
       '<div class="court-config-actions"><button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="submit">Save Court</button> <button class="px-space-md py-2.5 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" id="cx" type="button">Cancel</button></div></form></dialog>';
@@ -588,6 +589,27 @@
     });
     modal.showModal();
     D.ui.timePickers(box);
+    var qrInput = q("#cq", box), qrDrop = q(".court-qr-drop", box);
+    qrInput.onchange = function () {
+      var file = qrInput.files[0], filename = q(".court-qr-filename", box);
+      if (!file) { filename.textContent = "No image selected"; return; }
+      try { checkImage(file); } catch (err) { qrInput.value = ""; filename.textContent = err.message; return; }
+      filename.textContent = file.name;
+      var reader = new FileReader();
+      reader.onload = function () {
+        if (qrInput.files[0] !== file) return;
+        var image = document.createElement("img"); image.src = reader.result; image.alt = "Selected court QR preview";
+        q(".court-qr-preview", box).replaceChildren(image);
+      };
+      reader.readAsDataURL(file);
+    };
+    ["dragenter", "dragover"].forEach(function (type) { qrDrop.addEventListener(type, function (event) { event.preventDefault(); qrDrop.classList.add("is-dragging"); }); });
+    qrDrop.addEventListener("dragleave", function (event) { if (!qrDrop.contains(event.relatedTarget)) qrDrop.classList.remove("is-dragging"); });
+    qrDrop.addEventListener("drop", function (event) {
+      event.preventDefault(); qrDrop.classList.remove("is-dragging");
+      if (!event.dataTransfer.files.length) return;
+      var transfer = new DataTransfer(); transfer.items.add(event.dataTransfer.files[0]); qrInput.files = transfer.files; qrInput.onchange();
+    });
     q("#cf", box).onsubmit = async function (e) {
       e.preventDefault();
       var f = q("#cf", box), btn = q("button[type=submit]", f);
