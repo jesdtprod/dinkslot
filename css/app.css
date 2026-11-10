@@ -1590,7 +1590,8 @@ body.tenant-dashboard-mode #app {
 
 
 /* Sidebar branding shares the content header's 64px alignment. */
-#ds-tenant-dashboard #ds-side { padding-top: 0; }
+#ds-tenant-dashboard #ds-side { padding-top: 0; padding-bottom: 0; }
+#ds-tenant-dashboard #ds-side > div:last-child { padding-top: 8px; padding-bottom: 8px; }
 #ds-tenant-dashboard .facility-brand-row { display: flex; align-items: center; flex-shrink: 0; height: 64px; padding: 0 16px; border-bottom: 1px solid #ffffff06; }
 #ds-tenant-dashboard .facility-brand { display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; color: var(--ink); text-decoration: none; }
 #ds-tenant-dashboard .facility-brand img { flex: none; width: 42px; height: 42px; object-fit: contain; }
