@@ -35,6 +35,13 @@
       var copy = button.cloneNode(true);
       copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });
       var label = copy.textContent.trim().replace(/\s+/g, ' ');
+      if (label === 'Cancel booking') {
+        var walker = document.createTreeWalker(button, NodeFilter.SHOW_TEXT), textNode;
+        while ((textNode = walker.nextNode())) {
+          if (textNode.nodeValue.includes('Cancel booking')) textNode.nodeValue = textNode.nodeValue.replace('Cancel booking', 'Cancel Booking');
+        }
+        label = 'Cancel Booking';
+      }
       if (!label) return;
       var rule = rules.find(function (entry) { return entry[0].test(label); });
       if (!rule) {
