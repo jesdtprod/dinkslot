@@ -681,58 +681,62 @@
             };
           }
 
-          // Render the actual ticket face so the JPEG matches the on-screen design.
-          async function passJpeg() {
-            await document.fonts.ready;
-            var face = ticket.firstElementChild;
-            // the saved pass ends right after the date and time: no scanner strip, notches, instructions or buttons
-            var sections = face.querySelectorAll('section'), last = sections[sections.length - 1];
-            var height = last ? last.offsetTop + last.offsetHeight + 28 : face.scrollHeight;
-            face.setAttribute('data-ticket-export', 'true');
-            var canvas = await window.html2canvas(face, {
-              scale: 2, backgroundColor: null, height: height,
-              logging: false, useCORS: true,
-              onclone: function (clonedDocument) {
-                var exported = clonedDocument.querySelector('[data-ticket-export]');
-                if (!exported) return;
-                exported.querySelectorAll('*').forEach(function (element) {
-                  element.style.fontFamily = 'Arial, sans-serif';
-                  element.style.letterSpacing = 'normal';
-                });
-                exported.querySelectorAll('[data-copy-ref], [data-copy-ref] *').forEach(function (element) {
-                  element.style.backgroundImage = 'none'; element.style.webkitTextFillColor = 'currentColor'; element.style.opacity = '1';
-                  element.style.color = element.classList.contains('ticket-reference') ? '#a3e635' : '#94a3b8';
-                });
-                var strip = exported.querySelector('.ticket-white-frame > div:last-child'); if (strip) strip.style.display = 'none';
-                exported.querySelectorAll('[data-copy-ref] svg').forEach(function (element) { element.style.display = 'none'; });
-                var refPill = exported.querySelector('[data-copy-ref]');
-                if (refPill) { refPill.style.background = '#0f172a'; refPill.style.borderColor = 'rgba(163,230,53,.45)'; refPill.style.boxShadow = 'none'; refPill.style.opacity = '1'; }
-                exported.querySelectorAll('.animate-pulse').forEach(function (element) { element.style.animation = 'none'; });
-                // html2canvas draws text a little low inside flex pills: lift the text so it sits centred
-                exported.querySelectorAll('header span, [data-copy-ref] span').forEach(function (element) {
-                  if (element.children.length === 0 && element.textContent.trim()) { element.style.position = 'relative'; element.style.top = '-3px'; }
-                });
-                exported.querySelectorAll('h1').forEach(function (element) { element.style.lineHeight = '1.35'; });
-              },
-              ignoreElements: function (element) { return element.tagName === 'FOOTER' || element.id === 'pass-toast' || element.hasAttribute('data-close') || element.classList.contains('ticket-notch-left') || element.classList.contains('ticket-notch-right'); }
-            });
-            face.removeAttribute('data-ticket-export');
-            // JPEG has no transparency: use a dark matte around the rounded ticket.
-            var output = document.createElement('canvas'); output.width = canvas.width; output.height = canvas.height;
-            var context = output.getContext('2d'), radius = 32 * 2;
-            context.fillStyle = '#080d12'; context.fillRect(0, 0, output.width, output.height);
-            context.save(); context.beginPath(); context.roundRect(0, 0, output.width, output.height, radius); context.clip();
-            context.fillStyle = '#101720'; context.fillRect(0, 0, output.width, output.height); context.drawImage(canvas, 0, 0); context.restore();
+          // Download = the pass as shown on screen (status, name, court, QR, ref, date) drawn to a PNG: no buttons, footer or instructions.
+          function passPng() {
             return new Promise(function (resolve, reject) {
-              output.toBlob(function (blob) { if (blob) resolve(blob); else reject(new Error('Ticket export failed.')); }, 'image/jpeg', 0.96);
+              var W = 720, H = 1030, k = 2, pad = 40;
+              var cv = document.createElement('canvas'); cv.width = W * k; cv.height = H * k;
+              var c = cv.getContext('2d'); c.scale(k, k);
+              function rr(x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+              var sans = '"Segoe UI", Inter, Arial, sans-serif', mono = 'Consolas, "Courier New", monospace', LIME = '#a3e635';
+              // text parts on one line, centred on cy; the vertical position comes from the glyph box so it is truly centred
+              function line(parts, cy) {
+                var w = 0; parts.forEach(function (p) { c.font = p.f; p.w = c.measureText(p.t).width; w += p.w; });
+                c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+                var x = (W - w) / 2;
+                parts.forEach(function (p) {
+                  c.font = p.f; var m = c.measureText(p.t);
+                  c.fillStyle = p.c; c.fillText(p.t, x, cy + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2 + (p.dy || 0)); x += p.w;
+                });
+                return w;
+              }
+              function pill(parts, cy, fill, stroke, h) {
+                var w = 0; parts.forEach(function (p) { c.font = p.f; w += c.measureText(p.t).width; });
+                var bw = w + 48; rr((W - bw) / 2, cy - h / 2, bw, h, h / 2.6); c.fillStyle = fill; c.fill(); c.strokeStyle = stroke; c.lineWidth = 1.5; c.stroke();
+                line(parts, cy);
+              }
+              var img = new Image();
+              img.onload = function () {
+                var bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#151c28'); bg.addColorStop(1, '#0d121b');
+                rr(0, 0, W, H, 40); c.fillStyle = bg; c.fill();
+                var bar = c.createLinearGradient(0, 0, W, 0); bar.addColorStop(0, LIME); bar.addColorStop(0.5, '#34d399'); bar.addColorStop(1, '#22d3ee');
+                c.save(); rr(0, 0, W, H, 40); c.clip(); c.fillStyle = bar; c.fillRect(0, 0, W, 8); c.restore();
+                pill([{ t: 'CONFIRMED PASS', f: '700 20px ' + sans, c: LIME }], 66, 'rgba(163,230,53,.10)', 'rgba(163,230,53,.40)', 46);
+                c.beginPath(); c.arc(W / 2 - c.measureText('CONFIRMED PASS').width / 2 - 16, 66, 5, 0, 7); c.fillStyle = LIME; c.fill();
+                line([{ t: 'SINGLE COURT RESERVATION', f: '500 17px ' + mono, c: '#94a3b8' }], 126);
+                var nm = playerName, size = 48; c.font = '700 ' + size + 'px ' + sans;
+                while (c.measureText(nm).width > W - pad * 2 && size > 24) { size -= 2; c.font = '700 ' + size + 'px ' + sans; }
+                line([{ t: nm, f: '700 ' + size + 'px ' + sans, c: '#ffffff' }], 182);
+                pill([{ t: courtName, f: '700 22px ' + sans, c: LIME }, { t: '   |   ', f: '400 22px ' + sans, c: '#475569' }, { t: courtSurface, f: '500 22px ' + sans, c: '#e2e8f0' }, { t: '   \u2022   ', f: '400 22px ' + sans, c: '#475569' }, { t: clubName, f: '500 22px ' + sans, c: '#94a3b8' }], 242, 'rgba(255,255,255,.05)', 'rgba(255,255,255,.12)', 54);
+                var fw = 560, fx = (W - fw) / 2, fy = 296;
+                rr(fx, fy, fw, fw, 32); c.fillStyle = '#fff'; c.fill();
+                c.drawImage(img, fx + 22, fy + 22, fw - 44, fw - 44);
+                var ry = fy + fw + 56;
+                pill([{ t: 'REF:  ', f: '500 20px ' + mono, c: '#94a3b8' }, { t: refCode, f: '700 32px ' + mono, c: LIME }], ry, '#0f172a', 'rgba(163,230,53,.45)', 62);
+                line([{ t: dateLabel, f: '700 28px ' + sans, c: '#ffffff' }, { t: '   \u2022   ', f: '700 28px ' + sans, c: '#64748b' }, { t: timeRange, f: '700 28px ' + sans, c: LIME }], ry + 74);
+                cv.toBlob(function (b) { b ? resolve(b) : reject(new Error('png')); }, 'image/png');
+              };
+              img.onerror = function () { reject(new Error('qr image')); };
+              img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.indexOf('xmlns') < 0 ? svg.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"') : svg);
             });
           }
           ticket.querySelector('[data-download]').onclick = async function () {
             try {
-              var blob = await passJpeg(), url = URL.createObjectURL(blob), link = document.createElement('a');
-              link.href = url; link.download = 'booking-' + (refCode || 'pass') + '.jpg'; link.click();
+              await document.fonts.ready;
+              var blob = await passPng(), url = URL.createObjectURL(blob), link = document.createElement('a');
+              link.href = url; link.download = 'booking-' + (refCode || 'pass') + '.png'; link.click();
               setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-              D.ui.toast('Your booking ticket has been downloaded as a JPEG.', 'ok');
+              D.ui.toast('Your booking ticket has been downloaded.', 'ok');
             } catch (e) { D.ui.toast('Unable to download the booking ticket. Please try again.', 'err'); }
           };
 
