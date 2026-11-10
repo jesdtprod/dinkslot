@@ -140,12 +140,10 @@
   <footer class="site-footer w-full bg-surface-container-lowest mt-space-xl pt-space-xl pb-space-lg shadow-[0_-1px_12px_rgba(0,0,0,0.5)] border-t border-white/5">
     <div class="w-full px-gutter md:px-margin-desktop grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-xl">
       <div class="lg:col-span-2 flex flex-col gap-space-md">
-        <div class="flex items-center gap-space-sm">
-          <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
-            <span class="material-symbols-outlined text-label-lg">sports_tennis</span>
-          </div>
-          <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface font-bold uppercase">DINK<span class="text-primary">SLOT</span></span>
-        </div>
+        <a href="#/" class="footer-brand" aria-label="DINKSLOT home">
+          <img src="assets/dinkslot-logo.png" alt="" width="44" height="44" />
+          <span class="footer-brand-copy"><strong>DINKSLOT</strong><span>Book Your Slot. Own the Court.</span></span>
+        </a>
         <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
           Next-generation competitive court scheduling, DUPR Ready play, verified paddle leagues, and live venue management for the modern pickleball athlete.
         </p>
@@ -154,12 +152,12 @@
             <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>LIVE SYSTEM OPERATIONAL
           </span>
         </div>
-        <div class="flex items-center gap-space-md pt-space-xs text-on-surface-variant">
-          <a class="p-space-xs rounded-full bg-surface-container hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#/"><span class="material-symbols-outlined text-headline-sm">terminal</span></a>
-          <a class="p-space-xs rounded-full bg-surface-container hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#/"><span class="material-symbols-outlined text-headline-sm">podcasts</span></a>
-          <a class="p-space-xs rounded-full bg-surface-container hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#/"><span class="material-symbols-outlined text-headline-sm">public</span></a>
-          <a class="p-space-xs rounded-full bg-surface-container hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#/"><span class="material-symbols-outlined text-headline-sm">forum</span></a>
-        </div>
+        <nav class="footer-quick-links" aria-label="Quick links">
+          <a href="#/" aria-label="Find courts" title="Find courts"><span class="material-symbols-outlined" aria-hidden="true">search</span></a>
+          <a href="#/register-club" aria-label="Register your club" title="Register your club"><span class="material-symbols-outlined" aria-hidden="true">storefront</span></a>
+          <a href="#/me" aria-label="My bookings" title="My bookings"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span></a>
+          <a href="#/auth" aria-label="Player account" title="Player account"><span class="material-symbols-outlined" aria-hidden="true">account_circle</span></a>
+        </nav>
       </div>
       <div class="flex flex-col gap-space-sm">
         <span class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider font-semibold">Company</span>

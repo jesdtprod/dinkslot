@@ -109,14 +109,31 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
         <h2 class="font-headline-lg text-headline-lg text-on-surface mt-1">Trending Pickleball Clubs Near You</h2>
       </div>
       <div class="club-filters" role="group" aria-label="Filter clubs by court type">
-        <button type="button" class="club-tab" data-tab="all" aria-pressed="true">All Clubs</button>
-        <button type="button" class="club-tab" data-tab="indoor" aria-pressed="false">Indoor Courts</button>
-        <button type="button" class="club-tab" data-tab="outdoor" aria-pressed="false">Outdoor Courts</button>
+        <button type="button" class="club-tab" data-tab="all" aria-pressed="true">
+          <span class="material-symbols-outlined text-base" aria-hidden="true">grid_view</span>
+          <span>All Clubs</span>
+        </button>
+        <button type="button" class="club-tab" data-tab="indoor" aria-pressed="false">
+          <span class="material-symbols-outlined text-base" aria-hidden="true">roofing</span>
+          <span>Indoor Courts</span>
+        </button>
+        <button type="button" class="club-tab" data-tab="outdoor" aria-pressed="false">
+          <span class="material-symbols-outlined text-base" aria-hidden="true">wb_sunny</span>
+          <span>Outdoor Courts</span>
+        </button>
       </div>
     </div>
-    <p id="ccount" class="font-label-sm text-label-sm text-on-surface-variant" role="status">Loading clubs...</p>
+    <div class="flex items-center">
+      <div id="ccount" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high/60 border border-outline-variant/20 font-mono text-xs text-on-surface-variant" role="status">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+        <span>Discovering premier pickleball venues...</span>
+      </div>
+    </div>
     <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg">
-      <p class="text-on-surface-variant">Loading clubs...</p>
+      <div class="h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col gap-3 ds-skeleton"></div>
+      <div class="h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col gap-3 ds-skeleton"></div>
+      <div class="h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col gap-3 ds-skeleton"></div>
+      <div class="h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col gap-3 ds-skeleton"></div>
     </div>
   </div>
 </section>
@@ -281,11 +298,9 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
       </div>
     </div>
   </div>
-</section>
 
-<!-- CLUB OWNER / PARTNER PRO BANNER -->
-<section class="w-full py-space-lg px-gutter md:px-margin-desktop bg-surface">
-  <div class="max-w-7xl mx-auto p-space-xl rounded-3xl bg-gradient-to-r from-surface-container-high via-surface-container to-surface-container-high shadow-2xl relative overflow-hidden">
+<!-- CLUB OWNER / PARTNER PRO BANNER: shares the open-play section -->
+  <div class="club-owner-banner max-w-7xl mx-auto p-space-xl rounded-3xl bg-gradient-to-r from-surface-container-high via-surface-container to-surface-container-high shadow-2xl relative overflow-hidden">
     <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-primary/5 blur-3xl pointer-events-none"></div>
     <div class="flex flex-col md:flex-row items-center justify-between gap-space-xl relative z-10">
       <div class="flex flex-col gap-space-xs max-w-2xl">
@@ -313,38 +328,21 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
 
 <!-- CALL TO ACTION BANNER (BOTTOM) -->
 <section class="w-full py-space-xl px-gutter md:px-margin-desktop bg-surface-container-lowest">
-  <div class="max-w-6xl mx-auto rounded-3xl p-space-xl md:p-20 text-center relative overflow-hidden bg-gradient-to-b from-surface-container to-surface-container-lowest shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-    <!-- Glow ambient backdrop -->
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[250px] bg-primary/15 rounded-full blur-[100px] pointer-events-none"></div>
-    <div class="relative z-10 flex flex-col items-center max-w-3xl mx-auto">
-      <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">Instant Access</span>
-      <h2 class="font-headline-display text-headline-display-mobile md:text-headline-display text-on-surface font-bold mt-2">
-        Ready to rule the court?
-      </h2>
-      <p class="font-body-lg text-body-md md:text-body-lg text-on-surface-variant mt-space-md max-w-xl">
-        Find your club and book your next court slot online in under 60 seconds.
-      </p>
-      <!-- CTA Buttons -->
-      <div class="flex flex-col sm:flex-row items-center gap-space-md mt-space-xl">
-        <a class="px-space-xl py-space-md rounded-full bg-primary hover:bg-secondary-fixed text-on-primary font-label-lg text-label-lg font-bold shadow-[0_0_28px_rgba(163,230,53,0.4)] hover:shadow-[0_0_36px_rgba(163,230,53,0.6)] transition-all no-underline" href="#/auth?mode=up">
-          Get Started for Free
-        </a>
-        <div class="flex items-center gap-space-sm">
-          <a class="flex items-center gap-space-xs px-space-md py-space-sm rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors no-underline" href="#/auth">
-            <span class="material-symbols-outlined text-primary text-headline-sm">phone_iphone</span>
-            <span class="font-label-md text-label-md font-semibold">Player Sign In</span>
-          </a>
-          <a class="flex items-center gap-space-xs px-space-md py-space-sm rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors no-underline" href="#/auth">
-            <span class="material-symbols-outlined text-primary text-headline-sm">smart_display</span>
-            <span class="font-label-md text-label-md font-semibold">My Bookings</span>
-          </a>
-        </div>
+  <div class="court-cta">
+    <div class="court-cta-copy">
+      <span class="court-cta-eyebrow"><span></span> YOUR NEXT MATCH STARTS HERE</span>
+      <h2>Ready to rule<br>the <em>court?</em></h2>
+      <p>More play. Less planning. Find your club, pick your time, and make the court yours.</p>
+      <div class="court-cta-actions">
+        <a href="#/auth?mode=up" class="court-cta-primary">Get Started for Free <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
+        <a href="#/auth" class="court-cta-secondary">Player Sign In <span class="material-symbols-outlined" aria-hidden="true">login</span></a>
       </div>
-      <!-- Footnote guarantee -->
-      <p class="font-label-sm text-label-sm text-outline mt-space-lg flex items-center gap-1.5">
-        <span class="material-symbols-outlined text-label-md text-primary">verified</span>
-        Booking rates and cancellation policies are set by each club.
-      </p>
+      <p class="court-cta-note"><span class="material-symbols-outlined" aria-hidden="true">info</span> Rates and cancellation policies are set by each club.</p>
+    </div>
+    <div class="court-cta-visual">
+      <div class="court-cta-court" aria-hidden="true"><i></i><span class="court-cta-ball"></span></div>
+      <div class="court-cta-steps"><span>01 <b>Find a club</b></span><span>02 <b>Book a slot</b></span><span>03 <b>Hit the court</b></span></div>
+      <a class="court-cta-bookings" href="#/me"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span><span>Already have a game lined up?<strong>View my bookings</strong></span><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
     </div>
   </div>
 </section>

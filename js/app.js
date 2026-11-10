@@ -243,7 +243,10 @@
     document.body.classList.add("landing-page");
     app.innerHTML = window.DINKSLOT_LANDING;
     if (cleanupAuthPattern) cleanupAuthPattern();
-    cleanupAuthPattern = mountAuthPattern($("#ds-landing"));
+    var sectionPatterns = Array.from(app.querySelectorAll("#ds-landing > section")).map(function (section) {
+      return mountAuthPattern(section);
+    });
+    cleanupAuthPattern = function () { sectionPatterns.forEach(function (cleanup) { cleanup(); }); };
     app.querySelectorAll('a[href="#clubs-section"]').forEach(function (link) {
       link.onclick = function (event) { event.preventDefault(); $("#clubs-section").scrollIntoView({ behavior: "smooth" }); };
     });
@@ -310,51 +313,101 @@
       });
       var ccount = $("#ccount");
       if (ccount) {
-        ccount.textContent = list.length + (list.length === 1 ? " club available now" : " clubs available now");
+        if (list.length > 0) {
+          ccount.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span><span>' + list.length + (list.length === 1 ? ' club available now' : ' clubs available now') + '</span>';
+        } else {
+          ccount.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-error"></span><span>0 clubs matching current filters</span>';
+        }
       }
       var grid = $("#grid");
       if (!grid) return;
-      grid.innerHTML = list.length ? list.map(function (c, idx) {
-        var i = info[c.slug];
-        var coverSrc = c.cover_path ? mediaUrl(c.cover_path) : fallbackImages[idx % fallbackImages.length];
-        var courtLabel = i
-          ? i.n + (i.n === 1 ? " Court" : " Courts") + " (" + (i.indoor > 0 ? "Indoor" : "Outdoor") + (i.surfaces.length ? " • " + i.surfaces[0] : "") + ")"
-          : "Court schedule open";
-        var priceHtml = i && isFinite(i.min)
-          ? '<span class="font-headline-sm text-on-surface">PHP ' + esc(i.min.toFixed(0)) + '</span><span class="font-label-sm text-outline">/hr</span>'
-          : '<span class="font-label-sm text-outline">View rates</span>';
+      if (list.length) {
+        grid.innerHTML = list.map(function (c, idx) {
+          var i = info[c.slug];
+          var coverSrc = c.cover_path ? mediaUrl(c.cover_path) : fallbackImages[idx % fallbackImages.length];
+          var courtLabel = i
+            ? i.n + (i.n === 1 ? " Court" : " Courts") + " (" + (i.indoor > 0 ? "Indoor" : "Outdoor") + (i.surfaces.length ? " • " + i.surfaces[0] : "") + ")"
+            : "Court schedule open";
+          var priceHtml = i && isFinite(i.min)
+            ? '<span class="font-headline-sm text-on-surface">PHP ' + esc(i.min.toFixed(0)) + '</span><span class="font-label-sm text-outline">/hr</span>'
+            : '<span class="font-label-sm text-outline">View rates</span>';
 
-        return '<article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg hover:shadow-[0_0_24px_rgba(163,230,53,0.15)] transition-all duration-300">' +
-          '<a href="#/c/' + esc(c.slug) + '" class="relative h-48 w-full overflow-hidden bg-surface-container block no-underline">' +
-            '<img src="' + esc(coverSrc) + '" alt="' + esc(c.name) + '" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>' +
-            '<div class="absolute top-3 left-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">' +
-              '<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> ' + esc(i ? i.n + (i.n === 1 ? " Pro Court" : " Pro Courts") : "12 Pro Courts") +
-            '</div>' +
-            '<div class="absolute top-3 right-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-on-surface flex items-center gap-1">' +
-              '<span class="material-symbols-outlined text-primary text-label-sm" style="font-variation-settings: \'FILL\' 1;">star</span> 4.9' +
-            '</div>' +
-          '</a>' +
-          '<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">' +
-            '<div>' +
-              '<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">' +
-                '<span class="material-symbols-outlined text-label-md">pin_drop</span> ' + esc(c.city || c.address || "Metro Manila") +
+          return '<article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg hover:shadow-[0_0_24px_rgba(163,230,53,0.15)] transition-all duration-300">' +
+            '<a href="#/c/' + esc(c.slug) + '" class="relative h-48 w-full overflow-hidden bg-surface-container block no-underline">' +
+              '<img src="' + esc(coverSrc) + '" alt="' + esc(c.name) + '" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>' +
+              '<div class="absolute top-3 left-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">' +
+                '<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> ' + esc(i ? i.n + (i.n === 1 ? " Pro Court" : " Pro Courts") : "12 Pro Courts") +
               '</div>' +
-              '<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mt-1 group-hover:text-primary transition-colors">' +
-                '<a href="#/c/' + esc(c.slug) + '" class="text-inherit no-underline">' + esc(c.name) + '</a>' +
-              '</h3>' +
-              '<div class="mt-space-sm flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">' +
-                '<span class="material-symbols-outlined text-primary text-label-md">schedule</span> ' + esc(courtLabel) +
+              '<div class="absolute top-3 right-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-on-surface flex items-center gap-1">' +
+                '<span class="material-symbols-outlined text-primary text-label-sm" style="font-variation-settings: \'FILL\' 1;">star</span> 4.9' +
+              '</div>' +
+            '</a>' +
+            '<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">' +
+              '<div>' +
+                '<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">' +
+                  '<span class="material-symbols-outlined text-label-md">pin_drop</span> ' + esc(c.city || c.address || "Metro Manila") +
+                '</div>' +
+                '<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mt-1 group-hover:text-primary transition-colors">' +
+                  '<a href="#/c/' + esc(c.slug) + '" class="text-inherit no-underline">' + esc(c.name) + '</a>' +
+                '</h3>' +
+                '<div class="mt-space-sm flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">' +
+                  '<span class="material-symbols-outlined text-primary text-label-md">schedule</span> ' + esc(courtLabel) +
+                '</div>' +
+              '</div>' +
+              '<div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">' +
+                '<div>' + priceHtml + '</div>' +
+                '<a href="#/c/' + esc(c.slug) + '" class="px-space-md py-2 rounded-full bg-primary hover:bg-secondary-fixed text-on-primary font-label-md text-label-md font-bold transition-all shadow-[0_0_12px_rgba(163,230,53,0.25)] no-underline">' +
+                  'Instant Book' +
+                '</a>' +
               '</div>' +
             '</div>' +
-            '<div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">' +
-              '<div>' + priceHtml + '</div>' +
-              '<a href="#/c/' + esc(c.slug) + '" class="px-space-md py-2 rounded-full bg-primary hover:bg-secondary-fixed text-on-primary font-label-md text-label-md font-bold transition-all shadow-[0_0_12px_rgba(163,230,53,0.25)] no-underline">' +
-                'Instant Book' +
-              '</a>' +
-            '</div>' +
+          '</article>';
+        }).join("");
+      } else {
+        grid.innerHTML = '<div class="col-span-full py-16 px-6 sm:px-10 rounded-3xl bg-surface-container-low/70 border border-outline-variant/30 flex flex-col items-center justify-center text-center my-6 shadow-2xl backdrop-blur-md max-w-2xl mx-auto w-full">' +
+          '<div class="relative w-20 h-20 rounded-3xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary mb-5 shadow-[0_0_30px_rgba(163,230,53,0.15)]">' +
+            '<span class="material-symbols-outlined text-4xl">sports_tennis</span>' +
+            '<span class="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center text-on-surface-variant">' +
+              '<span class="material-symbols-outlined text-xs">search_off</span>' +
+            '</span>' +
           '</div>' +
-        '</article>';
-      }).join("") : '<p class="text-on-surface-variant font-body-md col-span-full">No clubs match your search. Try another city or check back as clubs join.</p>';
+          '<h3 class="font-headline-md text-xl font-bold text-on-surface mb-2">No Matching Pickleball Clubs</h3>' +
+          '<p class="font-body-md text-sm text-on-surface-variant max-w-md leading-relaxed mb-6">' +
+            'We couldn\'t find any venues matching your current filters. Try switching between indoor/outdoor courts, or reset to view all clubs across all cities.' +
+          '</p>' +
+          '<div class="flex flex-wrap items-center justify-center gap-3">' +
+            '<button type="button" id="clear-filters-btn" class="px-6 py-3 rounded-full bg-primary hover:bg-secondary-fixed text-on-primary font-bold text-xs tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(163,230,53,0.3)] border-0 cursor-pointer flex items-center gap-2">' +
+              '<span class="material-symbols-outlined text-base">refresh</span>' +
+              '<span>Show All Clubs</span>' +
+            '</button>' +
+            '<a href="#/register-club" class="px-6 py-3 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface font-semibold text-xs tracking-wider uppercase transition-all border border-outline-variant/30 no-underline flex items-center gap-2">' +
+              '<span class="material-symbols-outlined text-base">add_business</span>' +
+              '<span>Register a Facility</span>' +
+            '</a>' +
+          '</div>' +
+        '</div>';
+
+        var clearBtn = grid.querySelector("#clear-filters-btn");
+        if (clearBtn) {
+          clearBtn.onclick = function () {
+            surfaceFilter = "all";
+            if (qEl) qEl.value = "";
+            if (cityEl) cityEl.value = "";
+            var cityMenu = $("#city-menu");
+            if (cityMenu) {
+              var sel = cityMenu.querySelector(".city-selected");
+              if (sel) sel.textContent = "All cities";
+              cityMenu.querySelectorAll("[data-city]").forEach(function (item) {
+                item.setAttribute("aria-pressed", String(item.getAttribute("data-city") === ""));
+              });
+            }
+            document.querySelectorAll(".club-tab").forEach(function (b) {
+              b.setAttribute("aria-pressed", String((b.getAttribute("data-tab") || "all") === "all"));
+            });
+            draw();
+          };
+        }
+      }
     }
 
     var qInput = $("#q");
@@ -377,6 +430,9 @@
             ? "surf-pill px-3 py-1 rounded-full bg-primary/15 text-primary border border-primary/30 font-label-sm transition-colors cursor-pointer"
             : "surf-pill px-3 py-1 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface-variant font-label-sm transition-colors border-0 cursor-pointer";
         });
+        document.querySelectorAll(".club-tab").forEach(function (b) {
+          b.setAttribute("aria-pressed", String((b.getAttribute("data-tab") || "all") === surfaceFilter));
+        });
         draw();
       };
     });
@@ -385,10 +441,13 @@
         var tab = btn.getAttribute("data-tab") || "all";
         surfaceFilter = (tab === "indoor" || tab === "outdoor") ? tab : "all";
         document.querySelectorAll(".club-tab").forEach(function (b) {
-          var active = (b === btn);
+          b.setAttribute("aria-pressed", String(b === btn));
+        });
+        document.querySelectorAll(".surf-pill").forEach(function (b) {
+          var active = (b.getAttribute("data-filter") === surfaceFilter);
           b.className = active
-            ? "club-tab px-4 py-2 rounded-full bg-primary-container text-on-primary font-body-sm font-semibold whitespace-nowrap border-0 cursor-pointer"
-            : "club-tab px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-body-sm font-medium whitespace-nowrap transition-colors border-0 cursor-pointer";
+            ? "surf-pill px-3 py-1 rounded-full bg-primary/15 text-primary border border-primary/30 font-label-sm transition-colors cursor-pointer"
+            : "surf-pill px-3 py-1 rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface-variant font-label-sm transition-colors border-0 cursor-pointer";
         });
         draw();
       };
@@ -513,6 +572,21 @@
     function schedule() { if (!frame && !disposed) frame = requestAnimationFrame(tick); }
     function resize() {
       width = stage.clientWidth; height = stage.clientHeight;
+      if (stage.id === "ds-landing") {
+        var origin = stage.getBoundingClientRect().top;
+        var stops = [];
+        Array.from(stage.children).filter(function (element) { return element.tagName === "SECTION"; }).forEach(function (section) {
+          var bounds = section.getBoundingClientRect();
+          var top = bounds.top - origin, bottom = bounds.bottom - origin;
+          var fade = Math.min(48, bounds.height / 4);
+          stops.push("transparent " + top + "px", "#000 " + (top + fade) + "px", "#000 " + (bottom - fade) + "px", "transparent " + bottom + "px");
+        });
+        if (stops.length) {
+          var mask = "linear-gradient(to bottom, " + stops.join(", ") + ")";
+          canvas.style.maskImage = mask;
+          canvas.style.webkitMaskImage = mask;
+        }
+      }
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw();
