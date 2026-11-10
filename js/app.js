@@ -230,7 +230,7 @@
         '<button id="signout" type="button"><span class="material-symbols-outlined" aria-hidden="true">logout</span><span>Sign out</span></button></div></details>' +
         (state.managedSlug || state.accountType === "player" ? "" : '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>');
     } else {
-      h += '<a href="#/auth">Sign in</a><a href="#/register-club" class="pill">Register your club</a>';
+      h += '<a href="#/auth?mode=in">Sign in</a><a href="#/auth?mode=up">Sign up</a><a href="#/register-club" class="pill">Register your club</a>';
     }
     nav.innerHTML = h;
     var accountMenu = nav.querySelector(".facility-account");
