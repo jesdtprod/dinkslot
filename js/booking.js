@@ -685,8 +685,9 @@
           async function passJpeg() {
             await document.fonts.ready;
             var face = ticket.firstElementChild;
-            var footer = face.querySelector('footer');
-            var height = footer ? footer.offsetTop : face.scrollHeight;
+            // the saved pass ends right after the date and time: no scanner strip, notches, instructions or buttons
+            var sections = face.querySelectorAll('section'), last = sections[sections.length - 1];
+            var height = last ? last.offsetTop + last.offsetHeight + 28 : face.scrollHeight;
             face.setAttribute('data-ticket-export', 'true');
             var canvas = await window.html2canvas(face, {
               scale: 2, backgroundColor: null, height: height,
@@ -702,9 +703,18 @@
                   element.style.backgroundImage = 'none'; element.style.webkitTextFillColor = 'currentColor'; element.style.opacity = '1';
                   element.style.color = element.classList.contains('ticket-reference') ? '#a3e635' : '#94a3b8';
                 });
+                var strip = exported.querySelector('.ticket-white-frame > div:last-child'); if (strip) strip.style.display = 'none';
+                exported.querySelectorAll('[data-copy-ref] svg').forEach(function (element) { element.style.display = 'none'; });
+                var refPill = exported.querySelector('[data-copy-ref]');
+                if (refPill) { refPill.style.background = '#0f172a'; refPill.style.borderColor = 'rgba(163,230,53,.45)'; refPill.style.boxShadow = 'none'; refPill.style.opacity = '1'; }
+                exported.querySelectorAll('.animate-pulse').forEach(function (element) { element.style.animation = 'none'; });
+                // html2canvas draws text a little low inside flex pills: lift the text so it sits centred
+                exported.querySelectorAll('header span, [data-copy-ref] span').forEach(function (element) {
+                  if (element.children.length === 0 && element.textContent.trim()) { element.style.position = 'relative'; element.style.top = '-3px'; }
+                });
                 exported.querySelectorAll('h1').forEach(function (element) { element.style.lineHeight = '1.35'; });
               },
-              ignoreElements: function (element) { return element.tagName === 'FOOTER' || element.id === 'pass-toast'; }
+              ignoreElements: function (element) { return element.tagName === 'FOOTER' || element.id === 'pass-toast' || element.hasAttribute('data-close') || element.classList.contains('ticket-notch-left') || element.classList.contains('ticket-notch-right'); }
             });
             face.removeAttribute('data-ticket-export');
             // JPEG has no transparency: use a dark matte around the rounded ticket.
