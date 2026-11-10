@@ -1666,8 +1666,10 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard #sec .settings-payments #sf { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 18px; align-items: start; }
 .settings-payments #sf > label:has(input[type="checkbox"]), .settings-payments #sf > .grid, .settings-payments #sf > .msg { grid-column: 1 / -1; }
 #ds-tenant-dashboard #sec .settings-payments #sf > .grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; padding-top: 4px; }
-.settings-payments #sf > label:has(textarea) { align-self: start; }
-#ds-tenant-dashboard #sec .settings-payments textarea { flex: none; min-height: 140px; height: 160px; resize: vertical; }
+.settings-payments #sf > label:has(textarea) { align-self: stretch; }
+#ds-tenant-dashboard #sec .settings-payments textarea { flex: 1; min-height: 140px; height: auto; resize: none; }
+.settings-payments #sf > .payment-qr-card { align-self: stretch; }
+.payment-qr-card > .media-upload { height: 100%; }
 .settings-payments #sf > label:has(input[type="checkbox"]) { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 12px 14px; border: 1px solid #ffffff0c; border-radius: 9px; background: #ffffff02; color: #c3d0c6; font-size: 12px; }
 .settings-payments #sf > button { justify-self: start; }
 .payment-qr-card .media-preview { width: 72px; height: 72px; border-radius: 8px; background: #ffffff04; }
