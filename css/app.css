@@ -2558,3 +2558,63 @@ select::picker(select)::-webkit-scrollbar { display: none; width: 0; height: 0; 
 .settings-payments .qr-manager input { max-width: 100%; }
 @media (max-width:760px) { .settings-payments #sf > .qr-manager { grid-column: 1; } }
 @media (max-width:480px) { .settings-payments .qr-manager .grid2 { grid-template-columns: minmax(0,1fr); } }
+.qrgroup{margin-top:.4rem}.qrgroup h4{margin:.6rem 0 .5rem}
+.qrthumbbox{flex:none}
+.qrthumb.empty{display:flex;align-items:center;justify-content:center;background:transparent;border:2px dashed var(--line-strong);color:var(--muted-dim);font-size:.75rem;text-align:center}
+.qrcard .ph-wide{grid-column:1 / -1}
+
+/* ==========================================================================
+   Book for a Customer Modal (Staff Desk Mode)
+   ========================================================================== */
+dialog#booking-modal.booking-modal {
+  width: min(780px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #242e3d;
+  border-radius: 1rem;
+  background-color: #0f141c;
+  color: #f1f5f9;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+dialog#booking-modal.booking-modal::backdrop {
+  background: rgba(8, 11, 15, 0.85);
+  backdrop-filter: blur(8px);
+}
+dialog#booking-modal .custom-modal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+dialog#booking-modal .custom-modal-scrollbar::-webkit-scrollbar-track {
+  background: #0f141c;
+}
+dialog#booking-modal .custom-modal-scrollbar::-webkit-scrollbar-thumb {
+  background: #242e3d;
+  border-radius: 9999px;
+}
+dialog#booking-modal .custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+.bg-brand-dark { background-color: #080b0f; }
+.bg-brand-surface { background-color: #0f141c; }
+.bg-brand-card { background-color: #151b24; }
+.bg-brand-elevated { background-color: #1c2430; }
+.bg-brand-lime { background-color: #a3e635; }
+.bg-brand-limeHover { background-color: #bef264; }
+.text-brand-lime { color: #a3e635; }
+.text-brand-subtle { color: #64748b; }
+.border-brand-border { border-color: #242e3d; }
+.border-brand-borderHover { border-color: #334155; }
+.border-brand-lime { border-color: #a3e635; }
+.shadow-neon-lime { box-shadow: 0 0 25px -4px rgba(163, 230, 53, 0.35); }
+.shadow-neon-lime-sm { box-shadow: 0 0 12px -2px rgba(163, 230, 53, 0.25); }
+.shadow-modal { box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.07); }
+
+/* payment cards: full width, 3 per row (3 GCash / 3 Maya / 3 Bank) */
+.settings-payments #sf > .qr-manager{grid-column:1 / -1}
+.settings-payments .qr-manager .qr-list{grid-template-columns:minmax(0,1fr)}
+@media (min-width:1000px){.settings-payments .qr-manager .qr-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.settings-payments .qr-manager .qrcard{flex-direction:column}
+.settings-payments .qr-manager .qrthumbbox{width:100%}
+.settings-payments .qr-manager .qrthumb{width:100%;height:150px}
