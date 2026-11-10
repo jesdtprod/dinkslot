@@ -25,3 +25,8 @@
 .booking-ticket-modal > div > section:first-of-type { padding-left: 14px; padding-right: 14px; }
 .booking-ticket-modal .ticket-white-frame { width: min(300px, 84%); margin: 0 auto; padding: 0; border-radius: 12px; overflow: hidden; }
 .booking-ticket-modal .ticket-white-frame > div:last-child { padding: 6px 8px; }
+
+/* Center the pass status without the duplicate club name. */
+.booking-ticket-modal > div > header > div:first-child { justify-content: center; }
+.booking-ticket-modal > div > header > div:first-child > div { justify-content: center; }
+.booking-ticket-modal > div > header > div:first-child > div > span:last-child { display: none; }
