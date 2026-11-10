@@ -1762,7 +1762,29 @@
   });
   window.addEventListener("hashchange", render);
   sb.auth.onAuthStateChange(function (ev) { if (ev === "SIGNED_OUT") refreshSession(); });
-  refreshSession().then(render);
+  var startupAttempt = 0;
+  async function startApp() {
+    var attempt = ++startupAttempt, timer;
+    document.body.classList.add("app-booting");
+    var startup = document.getElementById("app-startup");
+    try {
+      await Promise.race([
+        refreshSession(),
+        new Promise(function (_, reject) { timer = setTimeout(function () { reject(new Error("Session restoration timed out.")); }, 20000); })
+      ]);
+      clearTimeout(timer);
+      if (attempt !== startupAttempt) return;
+      await render();
+      document.body.classList.remove("app-booting");
+      if (startup) startup.remove();
+    } catch (error) {
+      clearTimeout(timer);
+      if (attempt !== startupAttempt || !startup) return;
+      startup.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">cloud_off</span><h1>Unable to load this page</h1><p>Please check your connection and try again.</p><button type="button">Retry</button>';
+      startup.querySelector("button").onclick = function () { location.reload(); };
+    }
+  }
+  window.addEventListener("load", startApp, { once: true });
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
 })();
 

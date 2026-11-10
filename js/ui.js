@@ -553,5 +553,9 @@
   function emptyState(title, description, symbol, action) {
     return '<div class="app-empty-state"><span class="material-symbols-outlined" aria-hidden="true">' + esc(symbol || 'inbox') + '</span><div><strong>' + esc(title) + '</strong><p>' + esc(description) + '</p>' + (action ? '<a href="' + esc(action.href) + '">' + esc(action.label) + '</a>' : '') + '</div></div>';
   }
-  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers, toast: toast, confirmAction: confirmAction, emptyState: emptyState };
+  function errorPage(root, options) {
+    root.innerHTML = '<section class="page-load-error"><span class="material-symbols-outlined" aria-hidden="true">' + esc(options.icon || 'error') + '</span><h1>' + esc(options.title || 'Unable to load this page') + '</h1><p>' + esc(options.text || 'Please try again.') + '</p><div>' + (options.retry ? '<button type="button">Retry</button>' : '') + '<a class="btn" href="#/">Return home</a></div></section>';
+    if (options.retry) root.querySelector('button').onclick = options.retry;
+  }
+  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers, toast: toast, confirmAction: confirmAction, emptyState: emptyState, errorPage: errorPage };
 })();

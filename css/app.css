@@ -3025,3 +3025,19 @@ body #app .app-empty-state p, .app-empty-state p { margin: 2px 0 0; color: #8296
 /* Dotted QR pattern in a clean square frame. */
 .booking-ticket-modal .ticket-qr { border-radius: 12px; box-shadow: none; padding: 0; overflow: hidden; }
 .booking-ticket-modal .ticket-qr svg { display: block; width: 100%; height: auto; }
+
+/* Keep public chrome out of the session-restoration screen on refresh. */
+#app-startup { display: none; }
+body.app-booting > :is(header,main,footer) { visibility: hidden; }
+body.app-booting #app-startup { position: fixed; inset: 0; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px; background: #0f1419; color: #b3c1b7; text-align: center; }
+#app-startup img { object-fit: contain; }
+#app-startup p { margin: 0; font: 400 13px/20px "Plus Jakarta Sans",sans-serif; }
+#app-startup h1 { margin: 0; color: #e0e8e2; font: 600 20px/28px "Plus Jakarta Sans",sans-serif; }
+.startup-spinner { width: 24px; height: 24px; border: 2px solid #ffffff12; border-top-color: #a3e635; border-radius: 50%; animation: startup-spin .8s linear infinite; }
+#app-startup button { padding: 9px 16px; border: 1px solid #a3e63530; border-radius: 8px; background: #a3e63515; color: #c6e2a8; cursor: pointer; }
+@keyframes startup-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .startup-spinner { animation: none; } }
+.page-load-error { width: min(520px,calc(100% - 32px)); margin: 80px auto; padding: 28px; border: 1px solid #ffffff12; border-radius: 12px; background: #192127; text-align: center; }
+.page-load-error h1 { margin: 12px 0; font-size: 22px; }
+.page-load-error p { margin: 0 0 20px; color: #96aa9c; }
+.page-load-error > div { display: flex; justify-content: center; gap: 10px; }
