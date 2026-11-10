@@ -260,20 +260,22 @@ function createMockSec() {
   nameInput.oninput();
   assert.equal(elements['#card-player-name'].textContent, 'Carlos Yulo', 'Card name should sync with name input');
 
-  // 7. Test Dominant Hand Selection
+  // Test 7: Discard changes before submit resets to Marlon Quinto
+  const discardBtn = elements['#btn-discard'];
+  discardBtn.onclick();
+  assert.equal(elements['#mp-name'].value, 'Marlon Quinto', 'Name should be restored from profile data');
+
+  // 8. Test Dominant Hand Selection
   const leftHandBtn = elements['[data-hand="left"]'];
   leftHandBtn.onclick();
 
-  // 8. Test Form Submission
+  // 9. Change name and Submit Form
+  nameInput.value = 'Carlos Yulo';
+  nameInput.oninput();
   const form = elements['#myprofile'];
   await form.onsubmit({ preventDefault() {} });
   assert.ok(updatedRow, 'Profile row should have been updated in Supabase');
   assert.equal(updatedRow.full_name, 'Carlos Yulo', 'Updated full name should match input');
-
-  // Test 9: Discard changes
-  const discardBtn = elements['#btn-discard'];
-  discardBtn.onclick();
-  assert.equal(elements['#mp-name'].value, 'Marlon Quinto', 'Name should be restored from profile data');
 
   console.log('Member profile header, digital identity card, turnstile pass, form sections, interactive specs & submission passed!');
 })().catch(err => {

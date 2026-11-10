@@ -503,23 +503,24 @@
       .sort(function (a, b) { return DAY_ORDER[a.day_type] - DAY_ORDER[b.day_type] || a.start_min - b.start_min; });
     var inp = "bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30";
     var lab = "flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase";
+    host.classList.add("rate-editor");
     host.innerHTML =
-      '<p class="font-body-sm text-on-surface-variant">' + (courtId
-        ? "These rates apply to this court only and win over the club-wide rates. Any time not covered here uses the club-wide rate, or the Hourly Rate above."
+      '<p class="rate-editor-description">' + (courtId
+        ? "Set custom prices by day and time. Other hours use club-wide pricing or the court?s standard hourly rate."
         : "These rates apply to every court that has no rates of its own. Any time not covered uses the court's Hourly Rate.") + "</p>" +
       (mine.length ? '<div class="overflow-x-auto"><table class="w-full text-left font-body-sm text-body-sm"><thead class="text-on-surface-variant font-label-sm uppercase tracking-wider"><tr><th class="py-1 pr-3">Days</th><th class="py-1 pr-3">Time</th><th class="py-1 pr-3">Rate</th><th></th></tr></thead><tbody class="divide-y divide-surface-container-high">' +
         mine.map(function (x) {
           return '<tr><td class="py-1.5 pr-3">' + esc(DAY_LABEL[x.day_type]) + '</td><td class="py-1.5 pr-3">' + esc(clock(x.start_min) + " - " + clock(x.end_min)) +
             '</td><td class="py-1.5 pr-3 text-primary font-bold">' + money(x.hourly_rate) + '/hr</td><td class="py-1.5 text-right"><button class="court-icon-action is-danger" type="button" data-delrate="' + esc(x.id) + '" title="Remove rate" aria-label="Remove rate"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></td></tr>';
         }).join("") + "</tbody></table></div>"
-        : '<p class="font-body-sm text-on-surface-variant"><strong>No time-based rates yet.</strong> ' + (courtId ? "This court charges its Hourly Rate, or the club-wide rates." : "Courts charge their Hourly Rate all day.") + "</p>") +
+        : '<div class="rate-editor-empty"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><div><strong>No custom rates</strong><span>Standard pricing applies until you add a rate.</span></div></div>') +
       '<div class="rate-add flex flex-wrap items-end gap-space-sm">' +
         '<label class="' + lab + '">Days<select class="' + inp + '" data-rd><option value="all">Every day</option><option value="weekday">Weekdays (Mon - Fri)</option><option value="weekend">Weekends (Sat - Sun)</option></select></label>' +
         '<label class="' + lab + '">From<input type="time" value="06:00" data-rs></label>' +
         '<label class="' + lab + '">To<input type="time" value="18:00" data-re></label>' +
-        '<label class="' + lab + '">Rate / hr (PHP)<input type="number" min="0" step="0.01" placeholder="150" data-rr class="' + inp + ' w-32"></label>' +
+        '<label class="' + lab + '">Hourly Rate (PHP)<input type="number" min="0" step="0.01" placeholder="150" data-rr class="' + inp + ' w-32"></label>' +
         '<button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="button" data-addrate>Add rate</button>' +
-      '</div><p class="font-body-sm text-on-surface-variant">Set "To" as 12:00 AM for midnight. Each slot is charged at the rate in force when it starts.</p>';
+      '</div><p class="rate-editor-note">Use 12:00 AM as the end time for midnight. Pricing follows the slot?s start time.</p>';
     D.ui.timePickers(host);
 
     Array.prototype.forEach.call(host.querySelectorAll("[data-delrate]"), function (b) {

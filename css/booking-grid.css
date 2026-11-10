@@ -554,3 +554,17 @@ body .proof-icon-action { display:inline-flex !important; align-items:center; ju
 .booking-pass-actions { display:flex; align-items:center; gap:6px; }
 body .booking-pass-actions .proof-icon-action { display:inline-flex !important; align-items:center !important; justify-content:center !important; width:36px; height:36px; min-height:36px !important; padding:0 !important; margin:0; }
 .booking-pass-actions .proof-icon-action .material-symbols-outlined { display:block; font-size:18px; line-height:1; }
+
+/* Clear, compact time-based pricing editor. */
+.rate-editor { display:flex; flex-direction:column; gap:12px; }
+.rate-editor-description { margin:0; color:#91a69a; font-size:11px; line-height:18px; max-width:65ch; }
+.rate-editor-empty { display:flex; align-items:center; gap:10px; padding:12px; border:1px dashed #ffffff12; border-radius:10px; background:#11191e; }
+.rate-editor-empty > .material-symbols-outlined { color:#91b37e; font-size:20px; }
+.rate-editor-empty strong { display:block; color:#bbcdc0; font-size:11px; font-weight:500; }
+.rate-editor-empty div > span { display:block; margin-top:3px; color:#779181; font-size:10px; }
+#ds-tenant-dashboard #sec .rate-editor .rate-add { display:grid; grid-template-columns:minmax(130px,1.2fr) minmax(90px,1fr) minmax(90px,1fr) minmax(100px,1fr) auto; align-items:end; gap:10px; padding:12px; border:1px solid #ffffff0a; border-radius:10px; background:#ffffff02; }
+.rate-editor .rate-add label { display:flex; flex-direction:column; min-width:0; gap:4px; color:#97ad9e; font:500 10px/16px "Plus Jakarta Sans",sans-serif; text-transform:none; }
+#ds-tenant-dashboard #sec .rate-editor .rate-add :is(input,select,.datetime-trigger) { width:100%; min-width:0; height:36px; min-height:36px; padding:7px 10px; border:1px solid #ffffff12; background-color:#202a30; color:#c9d7ce; font-size:11px; box-sizing:border-box; }
+body .rate-editor .rate-add > button { min-height:36px !important; font-size:11px !important; }
+.rate-editor-note { margin:0; color:#718b7c; font-size:10px; line-height:16px; }
+@media(max-width:650px) { #ds-tenant-dashboard #sec .rate-editor .rate-add { grid-template-columns:repeat(2,minmax(0,1fr)); } .rate-editor .rate-add > button { grid-column:1/-1; } }
