@@ -2858,3 +2858,17 @@ body:has(.court-config-modal[open]) { overflow: hidden; }
 /* Center the booking close action within the title header. */
 dialog#booking-modal > header { align-items: center; }
 dialog#booking-modal > header > .booking-modal-close { align-self: center; }
+
+/* Consistent primary, secondary and destructive actions on every screen. */
+body .ds-action { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 7px !important; min-height: 36px !important; padding: 8px 12px !important; border: 1px solid transparent !important; border-radius: 10px !important; font: 500 12px/18px "Plus Jakarta Sans",sans-serif !important; letter-spacing: 0 !important; text-transform: none !important; text-decoration: none !important; box-shadow: none !important; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s; }
+body .ds-action-primary { background: #b5ec08 !important; border-color: #b5ec08 !important; color: #182200 !important; }
+body .ds-action-primary:hover { background: #c5f43e !important; border-color: #c5f43e !important; }
+body .ds-action-secondary { background: #262d33 !important; border-color: #ffffff12 !important; color: #dce5df !important; }
+body .ds-action-secondary:hover { background: #303940 !important; border-color: #ffffff24 !important; }
+body .ds-action-danger { background: #e6a18d0c !important; border-color: #e6a18d30 !important; color: #e6b29f !important; }
+body .ds-action-danger:hover { background: #e6a18d1b !important; border-color: #e6a18d50 !important; }
+body .ds-action > :is(.material-symbols-outlined,.mi,i) { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 16px; height: 18px; font-size: 16px !important; line-height: 1 !important; color: inherit !important; }
+body .ds-action > svg { flex-shrink: 0; width: 16px; height: 16px; }
+body .ds-action:focus-visible { outline: 2px solid #b1df74; outline-offset: 3px; }
+body .ds-action:disabled, body .ds-action[aria-disabled="true"] { opacity: .45 !important; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { body .ds-action { transition: none; } }

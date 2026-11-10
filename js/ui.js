@@ -10,6 +10,50 @@
 
   function icon(name) { return '<span class="material-symbols-outlined text-xl shrink-0" aria-hidden="true">' + esc(name) + "</span>"; }
 
+  // Apply one action-button system to dynamically rendered screens and dialogs.
+  function enhanceActions(root) {
+    var rules = [
+      [/^(?:quick book|new booking|book now|book a|reserve|confirm booking)/i, 'calendar_today', 'primary'],
+      [/^(?:save|confirm|approve|accept|complete|submit)/i, 'check', 'primary'],
+      [/^(?:add staff|add player|invite)/i, 'person_add', 'secondary'],
+      [/^(?:add|create|register|sign up)/i, 'add', 'primary'],
+      [/^(?:upload|replace image)/i, 'upload', 'secondary'],
+      [/^(?:export|download)/i, 'download', 'secondary'],
+      [/^(?:view public|public club)/i, 'open_in_new', 'secondary'],
+      [/^(?:manage|view|open|details)/i, 'arrow_forward', 'secondary'],
+      [/^(?:edit|configure|set rules|connect)/i, 'edit', 'secondary'],
+      [/^(?:cancel|close|back|clear|reset)/i, 'close', 'secondary'],
+      [/^(?:delete|remove|reject)/i, 'delete', 'danger'],
+      [/^(?:sign in|log in|continue)/i, 'login', 'primary'],
+      [/^(?:sign out|log out)/i, 'logout', 'secondary'],
+      [/^(?:apply|search|find courts)/i, 'check', 'primary']
+    ];
+    root.querySelectorAll('button, a.btn, a.pill, a.transactions-button, a.setup-action, a[class*="bg-"], label.qrfile').forEach(function (button) {
+      if (button.matches('[role="tab"],.segbtn,.slot,.slot-btn,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"]')) return;
+      var copy = button.cloneNode(true);
+      copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });
+      var label = copy.textContent.trim().replace(/\s+/g, ' ');
+      if (!label) return;
+      var rule = rules.find(function (entry) { return entry[0].test(label); });
+      if (!rule) return;
+      button.classList.add('ds-action');
+      button.classList.remove('ds-action-primary', 'ds-action-secondary', 'ds-action-danger');
+      button.classList.add('ds-action-' + rule[2]);
+      if (!button.querySelector('svg,i,.material-symbols-outlined,.mi')) {
+        var symbol = document.createElement('span'); symbol.className = 'material-symbols-outlined ds-action-icon'; symbol.setAttribute('aria-hidden', 'true'); symbol.textContent = rule[1]; button.prepend(symbol);
+      }
+    });
+  }
+  if (typeof MutationObserver !== 'undefined') {
+    var queued = false;
+    new MutationObserver(function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; enhanceActions(document); });
+    }).observe(document.body, { childList: true, subtree: true });
+    enhanceActions(document);
+  }
+
   // Shared account card for the public navigation and facility dashboard.
   function renderAccountMenu(h, signoutId) {
     h = h || {};
