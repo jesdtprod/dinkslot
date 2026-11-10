@@ -2964,7 +2964,6 @@ body:has(.confirmation-modal[open]) { overflow: hidden; }
 #ds-tenant-dashboard .facility-partner-badge,
 #ds-tenant-dashboard .facility-account > summary { box-sizing: border-box; height: 38px; min-height: 38px; border-radius: 12px; }
 #ds-tenant-dashboard .facility-partner-badge { align-items: center; padding: 0 12px; gap: 7px; }
-.booking-queues .bcard { background: transparent; padding: 0; border: 0; }
 .booking-ticket-modal { width: min(440px,calc(100vw - 24px)); max-height: calc(100dvh - 32px); margin: auto; padding: 0; overflow: visible; border: 0; border-radius: 24px; background: transparent; color: #f1f5f9; box-shadow: none; }
 .booking-ticket-modal::backdrop { background: rgba(6, 9, 14, 0.88); backdrop-filter: blur(8px); }
 .ticket-notch-left { position: absolute; left: -12px; width: 24px; height: 24px; border-radius: 9999px; background-color: #06090e; box-shadow: inset -3px 0 5px rgba(0,0,0,0.5); }
@@ -3062,74 +3061,7 @@ html:not(.boot-dashboard) .boot-subtitle { margin: 0 auto 36px; }
 @media (max-width:767px) { .boot-dashboard .boot-skeleton aside { display: none; } .boot-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .boot-panels { grid-template-columns: minmax(0,1fr); } .boot-skeleton-page main { padding: 20px 16px; } }
 @media (prefers-reduced-motion: reduce) { .boot-skeleton :is(i,b)::after { animation: none; } }
 
-/* Clean reservation records with distinct identity, details and actions. */
-.booking-queues .bcard.booking-record { display: flex; flex-direction: column; gap: 0; margin-top: 14px; padding: 0; border: 1px solid #ffffff0c; border-radius: 10px; background: #ffffff02; overflow: hidden; }
-.booking-record-heading { display: flex; align-items: center; gap: 10px; padding: 16px; }
-.booking-record-avatar { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border: 1px solid #a3e63520; border-radius: 10px; background: #a3e63509; color: #b9d89d; font: 600 14px/20px "Plus Jakarta Sans",sans-serif; }
-.booking-record-person { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.booking-record-person strong { color: #dce6df; font: 600 13px/20px "Plus Jakarta Sans",sans-serif; }
-.booking-record-person > span { color: #8fa396; font-size: 11px; }
-.booking-record-badge { margin-left: auto; color: #a6b89e; font-size: 10px; }
-.booking-record-details { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr) auto; gap: 20px; padding: 0 16px 16px; }
-.booking-record-details > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.booking-detail-label { color: #7f9686; font: 400 10px/16px "Plus Jakarta Sans",sans-serif; }
-.booking-record-details strong { color: #bfcdc3; font: 500 12px/18px "Plus Jakarta Sans",sans-serif; overflow-wrap: anywhere; }
-.booking-record-details > div > span:not(.booking-detail-label) { color: #9caea0; font-size: 11px; line-height: 18px; }
-.booking-record-amount { text-align: right; }
-.booking-record-details .booking-record-amount strong { color: #c5dfa9; font-size: 15px; font-weight: 600; }
-.booking-record .booking-card-actions { padding: 12px 16px; background: #0000000c; gap: 8px; }
-@media (max-width:640px) { .booking-record-details { grid-template-columns: minmax(0,1fr); gap: 12px; } .booking-record-amount { text-align: left; } .booking-record .booking-card-actions { justify-content: flex-start; } }
+/* Responsive booking queues card grid */
+.booking-record-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; margin-top: 14px; }
+@media (max-width: 640px) { .booking-record-grid { grid-template-columns: 1fr; } }
 
-/* Compact multi-column reservation rows with right-aligned actions. */
-.booking-queues .bcard.booking-record { display: grid; grid-template-columns: minmax(180px,1fr) minmax(0,2.4fr); align-items: center; padding: 14px 16px; gap: 12px 20px; }
-.booking-record .booking-record-heading { padding: 0; flex-wrap: wrap; gap: 9px; }
-.booking-record .booking-record-badge { margin-left: 46px; }
-.booking-record .booking-record-details { padding: 0; gap: 16px; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr) auto; }
-.booking-record .booking-card-actions { grid-column: 1 / -1; justify-content: flex-end; padding: 10px 0 0; background: transparent; }
-.booking-record > .msg { grid-column: 1 / -1; }
-.booking-record > div:not(.booking-record-details):not(.booking-card-actions) { grid-column: 1 / -1; }
-@media (max-width:760px) { .booking-queues .bcard.booking-record { grid-template-columns: minmax(0,1fr); gap: 12px; } .booking-record .booking-record-details { grid-template-columns: repeat(2,minmax(0,1fr)); } .booking-record .booking-record-amount { text-align: left; } .booking-record .booking-record-badge { margin-left: auto; } }
-@media (max-width:480px) { .booking-record .booking-record-details { grid-template-columns: minmax(0,1fr); } }
-
-/* Independent reservation cards arranged side by side. */
-.booking-record-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 14px; }
-.booking-record-grid .bcard.booking-record { display: flex; flex-direction: column; align-items: stretch; gap: 0; margin: 0; padding: 0; background: linear-gradient(135deg,#20292e,#1a2227); border-color: #ffffff0d; border-radius: 12px; }
-.booking-record-grid .booking-record-heading { flex-wrap: nowrap; padding: 14px 16px; gap: 10px; }
-.booking-record-grid .booking-record-badge { margin-left: auto; white-space: nowrap; }
-.booking-record-grid .booking-record-details { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px 16px; padding: 0 16px 14px; }
-.booking-record-grid .booking-record-details > div:first-child { grid-column: 1 / -1; padding-bottom: 12px; border-bottom: 1px solid #ffffff09; }
-.booking-record-grid .booking-record-amount { text-align: right; }
-.booking-record-grid .booking-record .booking-card-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: auto; padding: 12px 16px; border-top: 1px solid #ffffff09; background: #0000000b; }
-.booking-record-grid .booking-record > div:not(.booking-record-heading):not(.booking-record-details):not(.booking-card-actions) { margin: 0 16px 12px; }
-@media (min-width:1700px) { .booking-record-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
-@media (max-width:1000px) { .booking-record-grid { grid-template-columns: minmax(0,1fr); } }
-
-/* Four balanced reservation cards per desktop row. */
-.booking-record-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; align-items: stretch; }
-.booking-record-grid > .bcard { display: flex; flex-direction: column; min-width: 0; margin: 0; padding: 14px; border: 1px solid #ffffff0e; border-radius: 12px; background: linear-gradient(135deg,#20292e,#1a2227); box-shadow: none; }
-.booking-record-grid > .bcard > div:first-child { flex-wrap: wrap; padding: 0; gap: 10px; }
-.booking-record-grid > .bcard h4 { margin: 0; color: #dce6df; font: 600 13px/20px "Plus Jakarta Sans",sans-serif; }
-.booking-record-grid > .bcard > div:nth-child(2) { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; margin-top: 14px; }
-.booking-record-grid > .bcard > div:nth-child(2) > div { max-width: 100%; overflow-wrap: anywhere; font-size: 11px; }
-.booking-record-grid > .bcard > div:last-of-type { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 14px; }
-.booking-record-grid > .bcard .ds-action { padding: 7px 9px !important; font-size: 11px !important; }
-@media (max-width:1250px) { .booking-record-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
-@media (max-width:650px) { .booking-record-grid { grid-template-columns: minmax(0,1fr); } }
-
-/* Court and price share the first metadata row. */
-.booking-record-grid > .bcard > div:nth-child(2) { display: grid; grid-template-columns: max-content max-content; justify-content: start; align-items: center; gap: 7px; }
-.booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(1) { grid-column: 1; grid-row: 1; }
-.booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(3) { grid-column: 2; grid-row: 1; }
-.booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
-.booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(4) { grid-column: 1 / -1; grid-row: 3; justify-self: start; }
-
-/* Give the booking reference breathing room above the action divider. */
-.booking-record-grid > .bcard > div:nth-child(2) { margin-bottom: 12px; }
-.booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(4) { margin-top: 3px; }
-
-/* Darker reservation card surface. */
-.booking-record-grid > .bcard { background: linear-gradient(135deg,#12191f,#10161b); }
-.booking-record-grid > .bcard:hover { background: #151e24; }
-
-/* Proper-case booking reference prefixes. */
-.booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(4) { text-transform: capitalize; }

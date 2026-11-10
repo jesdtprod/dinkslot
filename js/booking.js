@@ -454,13 +454,62 @@
       function row(b, withDecide) {
         var p = pm[b.player_id] || {}, c = cm[b.court_id] || {}, py = pay[b.id];
         p = { display_name: p.display_name || b.guest_name, phone: p.phone || b.guest_phone };
-        return '<div class="bcard booking-record" data-b="' + esc(b.id) + '">' +
-          '<header class="booking-record-heading"><span class="booking-record-avatar" aria-hidden="true">' + esc((p.display_name || 'G').charAt(0).toUpperCase()) + '</span><div class="booking-record-person"><strong>' + esc(p.display_name || 'Guest') + '</strong>' + (p.phone ? '<span>' + esc(p.phone) + '</span>' : '') + '</div><div class="booking-record-badge">' + (!withDecide ? srcBadge(b) : py ? '<span>Proof uploaded</span>' : '<span>Awaiting payment proof</span>') + '</div></header>' +
-          '<div class="booking-record-details"><div><span class="booking-detail-label">Court & schedule</span><strong>' + esc(c.name || 'Court') + '</strong><span>' + esc(range(b.starts_at, b.ends_at, tz)) + '</span></div><div><span class="booking-detail-label">Booking reference</span><strong class="booking-reference">' + esc(b.reference_code) + '</strong></div><div class="booking-record-amount"><span class="booking-detail-label">Total amount</span><strong>' + money(b.amount) + '</strong></div></div>' +
-          (py ? '<div class="flex items-center justify-between text-xs font-mono text-on-surface-variant bg-surface-container-high px-3 py-2 rounded"><span>Payer ref: <strong class="text-on-surface">' + esc(py.payer_reference) + '</strong>' + (py.method ? ' via ' + esc(py.method) : '') + '</span><button class="px-3 py-1 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm border border-outline-variant/30 cursor-pointer" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
-              : (b.expires_at ? '<p class="text-xs text-on-surface-variant bg-surface-container-high px-3 py-2 rounded">Unpaid. Hold ends in <b class="timer text-primary font-mono" data-exp="' + esc(b.expires_at) + '"></b></p>' : "")) +
-          '<div class="booking-card-actions">' + (!withDecide ? '<button type="button" class="ds-action ds-action-secondary" data-ticket="' + esc(b.id) + '"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>QR Ticket</button>' : '') + (withDecide ? '<button class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-sm font-bold border-0 cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button> <button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
-            : '<button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-cx="' + esc(b.id) + '" type="button">Cancel Booking</button>') + '</div><p class="msg" role="alert"></p></div>';
+        var displayName = p.display_name || "Guest";
+        var initials = displayName.split(" ").filter(Boolean).map(function (w) { return w[0]; }).slice(0, 2).join("").toUpperCase() || "BK";
+
+        var statusBadge = !withDecide
+          ? srcBadge(b)
+          : (py
+              ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Proof uploaded</span>'
+              : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>No proof</span>');
+
+        return '<div class="bcard relative bg-[#121822] hover:bg-[#151c27] border border-white/10 hover:border-brand-lime/30 rounded-2xl p-4 sm:p-5 mb-3 transition-all duration-200 shadow-md hover:shadow-xl group" data-b="' + esc(b.id) + '">' +
+          '<div class="flex items-start justify-between gap-3">' +
+            '<div class="flex items-center gap-3 min-w-0">' +
+              '<div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-brand-lime/20 via-emerald-400/10 to-transparent border border-brand-lime/30 flex items-center justify-center font-display font-bold text-brand-lime text-sm sm:text-base tracking-wider shrink-0 shadow-sm">' + esc(initials) + '</div>' +
+              '<div class="min-w-0">' +
+                '<h4 class="text-base sm:text-lg font-display font-bold text-white group-hover:text-brand-lime transition-colors leading-tight truncate">' + esc(displayName) + '</h4>' +
+                (p.phone ? '<div class="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 mt-0.5"><svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>' + esc(p.phone) + '</div>' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="shrink-0">' + statusBadge + '</div>' +
+          '</div>' +
+
+          '<div class="mt-3.5 flex flex-wrap items-center gap-2">' +
+            '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-slate-200">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime"></span>' + esc(c.name || "Court") +
+            '</div>' +
+            '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">' +
+              '<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' +
+              esc(range(b.starts_at, b.ends_at, tz)) +
+            '</div>' +
+            '<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-lime/10 border border-brand-lime/25 text-xs font-mono font-bold text-brand-lime">' +
+              money(b.amount) +
+            '</div>' +
+            '<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-white/10 text-xs font-mono text-slate-400 tracking-wider">' +
+              'Ref #' + esc(b.reference_code) +
+            '</div>' +
+          '</div>' +
+
+          (py ? '<div class="mt-2.5 flex items-center justify-between text-xs font-mono bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-slate-300"><span>Payer ref: <strong class="text-white">' + esc(py.payer_reference) + '</strong>' + (py.method ? ' via ' + esc(py.method) : '') + '</span><button class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-100 text-xs font-sans font-semibold border border-white/10 cursor-pointer transition-colors" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
+              : (b.expires_at ? '<div class="mt-2.5 flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-3 py-2 rounded-xl font-mono"><span>Hold ends in <b class="timer text-amber-200" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : "")) +
+
+          '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
+            '<div>' +
+              '<button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-brand-lime/15 text-slate-300 hover:text-brand-lime border border-white/10 hover:border-brand-lime/30 text-xs font-display font-semibold transition-all cursor-pointer" data-ticket="' + esc(b.id) + '">' +
+                '<svg class="w-4 h-4 text-brand-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm-5 0h3v3h-3v-3zm2 2h2v4h-2v-4zm3 3h3v3h-3v-3zm-5 2h3v1h-3v-1z"/></svg>' +
+                'QR Pass' +
+              '</button>' +
+            '</div>' +
+            '<div class="flex items-center gap-2">' +
+              (withDecide
+                ? '<button class="px-3.5 py-1.5 rounded-xl bg-brand-lime hover:bg-brand-limeHover text-slate-950 font-display font-bold text-xs shadow-sm hover:shadow-neon-lime transition-all cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button>' +
+                  '<button class="px-3.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 font-display font-semibold text-xs transition-all cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
+                : '<button class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 border border-white/10 hover:border-rose-500/30 text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-1.5" data-cx="' + esc(b.id) + '" type="button"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>Cancel booking</button>') +
+            '</div>' +
+          '</div>' +
+          '<p class="msg" role="alert"></p>' +
+        '</div>';
       }
       box.innerHTML = '<div class="booking-queues">' + [
         { title: 'Needs approval', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
@@ -475,21 +524,185 @@
       box.querySelectorAll('[data-ticket]').forEach(function (button) {
         button.onclick = async function () {
           var logo = await loadQrLogo();
-          var booking = byId[button.getAttribute('data-ticket')], player = pm[booking.player_id] || {}, court = cm[booking.court_id] || {};
-          var ticket = document.createElement('dialog'); ticket.className = 'booking-ticket-modal';
-          ticket.setAttribute('aria-label', 'Booking QR ticket');
-          ticket.innerHTML = '<header><span class="ticket-caption">Booking ticket</span><h2></h2><p></p></header><div class="ticket-qr"></div><strong class="ticket-reference"></strong><p class="ticket-schedule"></p><p class="ticket-note">Scan to read the booking reference. This ticket does not confirm payment or check-in.</p><div class="ticket-actions"><button type="button" class="ds-action ds-action-secondary" data-download><span class="material-symbols-outlined" aria-hidden="true">download</span>Download QR</button><button type="button" class="ds-action ds-action-secondary" data-close><span class="material-symbols-outlined" aria-hidden="true">close</span>Close</button></div>';
-          ticket.querySelector('h2').textContent = player.display_name || booking.guest_name || 'Guest';
-          ticket.querySelector('header p').textContent = court.name || 'Court';
-          ticket.querySelector('.ticket-reference').textContent = booking.reference_code;
-          ticket.querySelector('.ticket-schedule').textContent = range(booking.starts_at, booking.ends_at, tz);
-          var svg = bookingQrSvg(booking.reference_code, logo);
+          var booking = byId[button.getAttribute('data-ticket')],
+              player = pm[booking.player_id] || {},
+              court = cm[booking.court_id] || {};
+          var playerName = player.display_name || booking.guest_name || 'Guest';
+          var courtName = court.name || 'Court';
+          var courtSurface = court.surface_type || 'Indoor Cushion Pro';
+          var clubName = t.name || 'DINKSLOT Club';
+          var refCode = booking.reference_code || '';
+          var sDate = new Date(booking.starts_at), eDate = new Date(booking.ends_at);
+          var dateLabel = sDate.toLocaleDateString('en-PH', { timeZone: tz, weekday: 'short', month: 'short', day: 'numeric' });
+          var timeRange = timeOf(sDate, tz) + ' \u2013 ' + timeOf(eDate, tz);
+          var durationMins = Math.round((eDate - sDate) / (60 * 1000)) || 60;
+          var pinDigits = refCode.replace(/\D/g, '');
+          var gatePin = '#' + (pinDigits.length >= 4 ? pinDigits.slice(-4) : (refCode.slice(-4) || '4829'));
+          var lightDate = new Date(sDate.getTime() - 10 * 60 * 1000);
+          var lightsLabel = 'Auto ' + timeOf(lightDate, tz);
+
+          var ticket = document.createElement('dialog');
+          ticket.className = 'booking-ticket-modal';
+          ticket.setAttribute('aria-label', 'Booking QR Pass');
+
+          ticket.innerHTML =
+            '<div class="relative bg-[#121822]/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-modal-elevated overflow-hidden transition-all duration-300 text-slate-100 max-w-md w-full">' +
+              '<div class="h-1.5 w-full bg-gradient-to-r from-brand-lime via-emerald-400 to-cyan-400"></div>' +
+              '<header class="p-5 sm:p-6 pb-4">' +
+                '<div class="flex items-center justify-between gap-2">' +
+                  '<div class="flex items-center gap-2">' +
+                    '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-brand-lime/10 text-brand-lime border border-brand-lime/20">' +
+                      '<span class="w-2 h-2 rounded-full bg-brand-lime animate-pulse"></span>Confirmed Pass' +
+                    '</span>' +
+                    '<span class="text-xs text-slate-400 hidden sm:inline-block">• ' + esc(clubName) + '</span>' +
+                  '</div>' +
+                  '<button aria-label="Close ticket dialog" class="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors border border-white/5 cursor-pointer" data-close type="button">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>' +
+                  '</button>' +
+                '</div>' +
+                '<div class="mt-4 text-center">' +
+                  '<div class="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-slate-400 mb-1">' +
+                    '<svg class="w-3.5 h-3.5 text-brand-lime" fill="currentColor" viewBox="0 0 24 24">' +
+                      '<circle cx="12" cy="12" fill="none" r="10" stroke="currentColor" stroke-width="2"></circle>' +
+                      '<circle cx="9" cy="9" r="1.5"></circle><circle cx="15" cy="9" r="1.5"></circle>' +
+                      '<circle cx="12" cy="12" r="1.5"></circle><circle cx="9" cy="15" r="1.5"></circle><circle cx="15" cy="15" r="1.5"></circle>' +
+                    '</svg>' +
+                    'Single Court Reservation' +
+                  '</div>' +
+                  '<h1 class="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight ticket-player-name">' + esc(playerName) + '</h1>' +
+                  '<div class="inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm font-medium text-slate-200">' +
+                    '<span class="text-brand-lime font-bold">' + esc(courtName) + '</span>' +
+                    '<span class="text-slate-600">|</span>' +
+                    '<span>' + esc(courtSurface) + '</span>' +
+                    '<span class="text-slate-600">•</span>' +
+                    '<span class="text-slate-400">' + esc(clubName) + '</span>' +
+                  '</div>' +
+                '</div>' +
+              '</header>' +
+
+              '<section class="px-5 sm:px-6 py-2">' +
+                '<div class="bg-white rounded-2xl p-4 shadow-2xl flex flex-col items-center justify-center relative group">' +
+                  '<div class="ticket-qr relative w-full max-w-[240px] aspect-square flex items-center justify-center"></div>' +
+                  '<div class="w-full mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium px-1">' +
+                    '<span class="flex items-center gap-1">' +
+                      '<svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                      'Auto-Scanner Ready' +
+                    '</span>' +
+                    '<span class="font-mono text-slate-400">Turn brightness up</span>' +
+                  '</div>' +
+                '</div>' +
+              '</section>' +
+
+              '<section class="px-5 sm:px-6 pt-4 pb-2 text-center">' +
+                '<div class="inline-flex items-center justify-center gap-2 bg-slate-900/90 border border-brand-lime/30 px-3.5 py-1.5 rounded-xl shadow-inner cursor-pointer hover:border-brand-lime transition-all" data-copy-ref title="Click to copy">' +
+                  '<span class="text-xs uppercase font-mono tracking-wider text-slate-400">Ref:</span>' +
+                  '<span class="text-brand-lime font-mono font-bold tracking-widest text-base sm:text-lg ticket-reference">' + esc(refCode) + '</span>' +
+                  '<svg class="w-4 h-4 text-brand-lime/80 hover:text-brand-lime transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                '</div>' +
+                '<div class="mt-3 flex items-center justify-center gap-2 text-sm sm:text-base font-semibold text-white">' +
+                  '<svg class="w-4 h-4 text-brand-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  '<span>' + esc(dateLabel) + '</span>' +
+                  '<span class="text-slate-500">•</span>' +
+                  '<span class="text-brand-lime">' + esc(timeRange) + '</span>' +
+                '</div>' +
+              '</section>' +
+
+              '<div class="relative flex items-center my-4">' +
+                '<div aria-hidden="true" class="ticket-notch-left"></div>' +
+                '<div aria-hidden="true" class="ticket-notch-right"></div>' +
+                '<div class="w-full border-t border-dashed border-white/15 mx-4"></div>' +
+              '</div>' +
+
+              '<section class="px-5 sm:px-6 grid grid-cols-3 gap-2 text-center">' +
+                '<div class="bg-white/5 border border-white/5 rounded-xl p-2.5">' +
+                  '<span class="block text-[10px] uppercase font-mono tracking-wider text-slate-400">Duration</span>' +
+                  '<span class="text-xs sm:text-sm font-bold text-white mt-0.5 block">' + esc(durationMins) + ' Mins</span>' +
+                '</div>' +
+                '<div class="bg-white/5 border border-white/5 rounded-xl p-2.5">' +
+                  '<span class="block text-[10px] uppercase font-mono tracking-wider text-slate-400">Gate PIN</span>' +
+                  '<span class="text-xs sm:text-sm font-mono font-bold text-brand-lime mt-0.5 block">' + esc(gatePin) + '</span>' +
+                '</div>' +
+                '<div class="bg-white/5 border border-white/5 rounded-xl p-2.5">' +
+                  '<span class="block text-[10px] uppercase font-mono tracking-wider text-slate-400">Smart Lights</span>' +
+                  '<span class="text-xs sm:text-sm font-bold text-emerald-400 mt-0.5 block">' + esc(lightsLabel) + '</span>' +
+                '</div>' +
+              '</section>' +
+
+              '<div class="px-6 py-3 text-center">' +
+                '<p class="text-[11px] leading-relaxed text-slate-400">Scan at court scanner or reception totem to check in and initialize smart net cams. Hold QR 10cm from optical glass.</p>' +
+              '</div>' +
+
+              '<footer class="p-5 sm:p-6 pt-2 bg-slate-950/40 border-t border-white/5 flex flex-col sm:flex-row items-center gap-2.5">' +
+                '<button class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-brand-lime hover:bg-brand-limeHover active:scale-[0.98] text-slate-950 font-display font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-neon-lime cursor-pointer" data-download type="button">' +
+                  '<svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round"></path></svg>' +
+                  'Download QR' +
+                '</button>' +
+                '<button class="w-full sm:w-auto px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-[0.98] text-white border border-white/10 text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer" data-share type="button">' +
+                  '<svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  'Share' +
+                '</button>' +
+                '<button class="w-full sm:w-auto px-3.5 py-3 rounded-xl bg-transparent hover:bg-white/5 text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors cursor-pointer" data-close type="button">Close</button>' +
+              '</footer>' +
+
+              '<div class="opacity-0 transition-opacity duration-300 absolute bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 border border-brand-lime/40 text-brand-lime text-xs font-mono font-medium px-4 py-2 rounded-full shadow-lg pointer-events-none z-50 whitespace-nowrap" id="pass-toast"></div>' +
+            '</div>';
+
+          var svg = bookingQrSvg(refCode, logo);
           ticket.querySelector('.ticket-qr').innerHTML = svg;
-          ticket.querySelector('[data-close]').onclick = function () { ticket.close(); };
+
+          function showToast(text) {
+            var tBox = ticket.querySelector('#pass-toast');
+            if (!tBox) return;
+            tBox.textContent = text;
+            tBox.classList.remove('opacity-0');
+            clearTimeout(tBox._tm);
+            tBox._tm = setTimeout(function () { tBox.classList.add('opacity-0'); }, 2200);
+          }
+
+          ticket.querySelectorAll('[data-close]').forEach(function (btn) {
+            btn.onclick = function () { ticket.close(); };
+          });
+
+          ticket.onclick = function (e) {
+            if (e.target === ticket) ticket.close();
+          };
+
+          var copyBtn = ticket.querySelector('[data-copy-ref]');
+          if (copyBtn) {
+            copyBtn.onclick = function () {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(refCode);
+              }
+              showToast('Reference code copied: ' + refCode);
+            };
+          }
+
+          var shareBtn = ticket.querySelector('[data-share]');
+          if (shareBtn) {
+            shareBtn.onclick = async function () {
+              var shareData = {
+                title: 'DINKSLOT Booking Pass - ' + playerName,
+                text: 'Court Booking Pass: ' + courtName + ' on ' + dateLabel + ' (' + timeRange + '). Ref: ' + refCode,
+                url: window.location.href
+              };
+              if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                try { await navigator.share(shareData); } catch (_) {}
+              } else {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(refCode);
+                }
+                showToast('Booking details copied to clipboard!');
+              }
+            };
+          }
+
           ticket.querySelector('[data-download]').onclick = function () {
             var url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' })), link = document.createElement('a');
-            link.href = url; link.download = 'booking-' + booking.reference_code + '.svg'; link.click(); setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+            link.href = url; link.download = 'booking-' + (refCode || 'pass') + '.svg'; link.click();
+            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+            showToast('Pass saved to downloads!');
           };
+
           ticket.addEventListener('close', function () { ticket.remove(); if (button.isConnected) button.focus(); }, { once: true });
           document.body.appendChild(ticket); ticket.showModal();
         };
@@ -541,8 +754,13 @@
   // Owner or staff books a court for a walk-in guest (name only) or for a registered player.
   // The database (create_admin_booking) checks membership, opening hours, slot grid, blocks and overlaps.
   function srcBadge(b) {
-    var label = b.source === "walk_in" ? "Walk-in guest" : b.source === "admin" ? "Booked by club" : "";
-    return label ? '<span class="px-2.5 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-mono text-xs font-semibold">' + label + "</span>" : "";
+    if (b.source === "walk_in") {
+      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Walk-in guest</span>';
+    }
+    if (b.source === "admin") {
+      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>Booked by club</span>';
+    }
+    return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-lime/10 border border-brand-lime/25 text-brand-lime text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-brand-lime"></span>Registered player</span>';
   }
 
   async function adminNew(box, t) {
