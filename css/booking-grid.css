@@ -262,3 +262,22 @@ body .club-directory-view button[aria-pressed="true"] { background:#a3e63515 !im
 /* Taller club cover images across both member pages. */
 .home-clubs-grid .home-club-cover { height:200px; flex-shrink:0; }
 @media(max-width:600px) { .home-clubs-grid .home-club-cover { height:180px; } }
+
+/* Clean directory search surface with one shared focus treatment. */
+#ds-tenant-dashboard #sec .member-find-page .club-directory-tools { padding:16px; border:1px solid #ffffff10; border-radius:12px; background:#171d23; }
+.club-directory-search { min-height:44px; gap:10px; padding:0 7px 0 12px; border:1px solid #ffffff12; border-radius:9px; background:#20282e; transition:border-color .15s,box-shadow .15s; }
+.club-directory-search:focus-within { border-color:#a3e63570; box-shadow:0 0 0 2px #a3e6350b; }
+#ds-tenant-dashboard #sec .member-find-page input#club-search-input { height:42px; min-height:42px; padding:8px 0; border:0; border-radius:0; background:transparent; color:#d7e1d9; font-size:12px; outline:none; box-shadow:none; }
+#ds-tenant-dashboard #sec .member-find-page input#club-search-input:focus-visible { outline:none; box-shadow:none; }
+.club-directory-search > .material-symbols-outlined { color:#91aa85; font-size:18px; }
+.club-directory-search input::placeholder { color:#7f9589; }
+body .club-directory-search #btn-clear-search { min-height:28px !important; padding:4px 9px !important; background:#ffffff04 !important; border-color:#ffffff0a !important; border-radius:6px !important; font-size:10px !important; }
+.member-find-page .club-directory-tools > .club-directory-filters { display:flex; align-items:center; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid #ffffff08; }
+#ds-tenant-dashboard #sec .club-directory-filters select { height:34px; min-width:145px; border-color:#ffffff0d; border-radius:7px; background-color:#1d252b; color:#afc1b4; font-size:11px; font-weight:500; }
+.club-directory-open { height:34px; border:1px solid #ffffff10; border-radius:7px; background:#ffffff02; color:#9daf9f; font-size:11px; }
+.club-directory-open:has(input:checked) { border-color:#a3e63538; background:#a3e6350a; color:#bdd79f; }
+.club-directory-open input { width:14px; height:14px; margin:0; }
+.club-directory-results { gap:8px; }
+.club-directory-results > span { border:0; background:transparent; color:#84998c; }
+.club-directory-view { padding:3px; border-radius:7px; background:#11181e; }
+@media(max-width:600px) { #ds-tenant-dashboard #sec .club-directory-filters select { min-width:0; } .club-directory-results { flex:1; justify-content:flex-end; } }
