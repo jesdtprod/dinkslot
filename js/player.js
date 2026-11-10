@@ -69,7 +69,7 @@
     else if (section === "profile") await profileView(sec);
     else await overviewView(sec);
     if (!sec.isConnected) return;
-    if (section !== "overview" && section !== "find" && section !== "clubs" && section !== "bookings") {
+    if (section !== "overview" && section !== "find" && section !== "clubs" && section !== "bookings" && section !== "profile") {
       sec.insertAdjacentHTML('afterbegin', '<header class="member-page-heading"><div><h1>' + esc(SECTIONS[section][0]) + '</h1><p>' + esc(SECTIONS[section][1]) + '</p></div>' + (section === 'bookings' || section === 'clubs' ? '<a class="btn" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a>' : '') + '</header>');
     }
   }

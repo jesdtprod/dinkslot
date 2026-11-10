@@ -256,12 +256,12 @@
     var r = await sb.from("public_clubs").select("*").order("name");
     if (!$("#ds-landing")) return;
     var clubs = r.data || [];
-    var cr = (await sb.from("public_courts").select("club_slug,hourly_rate,is_indoor,surface")).data || [];
+    var cr = (await sb.from("public_courts").select("club_slug,hourly_rate,rate_min,is_indoor,surface")).data || [];
     var info = {};
     cr.forEach(function (c) {
       var i = info[c.club_slug] || (info[c.club_slug] = { n: 0, min: Infinity, indoor: 0, outdoor: 0, surfaces: [] });
       i.n++;
-      i.min = Math.min(i.min, Number(c.hourly_rate));
+      i.min = Math.min(i.min, Number(c.rate_min != null ? c.rate_min : c.hourly_rate));
       if (c.is_indoor) i.indoor++; else i.outdoor++;
       if (c.surface && i.surfaces.indexOf(c.surface) === -1) i.surfaces.push(c.surface);
     });
@@ -503,7 +503,7 @@
       '<div class="sectionhead"><h2>Courts</h2></div>' +
       (courts.length ? '<div class="courtgrid">' + courts.map(function (k) {
         return '<div class="courtcard"><div class="cc-top"><h3>' + esc(k.name) + '</h3><span class="chip">' + (k.is_indoor ? "Indoor" : "Outdoor") + "</span></div>" +
-          '<p class="cc-rate"><b>PHP ' + esc(Number(k.hourly_rate).toFixed(2)) + "</b><span>/hr</span></p>" +
+          '<p class="cc-rate"><b>' + (k.rate_max != null && Number(k.rate_max) !== Number(k.rate_min) ? "PHP " + esc(Number(k.rate_min).toFixed(0)) + " - " + esc(Number(k.rate_max).toFixed(0)) : "PHP " + esc(Number(k.rate_min != null ? k.rate_min : k.hourly_rate).toFixed(2))) + "</b><span>/hr</span></p>" +
           '<p class="muted small"><span class="mi">schedule</span>' + esc(hoursText(k.open_time, k.close_time)) +
           " &middot; " + esc(String(k.slot_minutes)) + " min slots" + (k.surface ? " &middot; " + esc(k.surface) : "") + "</p>" +
           '<a class="btn sm" href="' + bookHref + '">' + (state.user ? "Book" : "Sign up to book") + "</a></div>";

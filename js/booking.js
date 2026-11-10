@@ -47,6 +47,23 @@
   function q(sel, root) { return (root || D.root()).querySelector(sel); }
   function alive(el) { return !!el && document.body.contains(el); }
   function money(n) { return "PHP " + Number(n).toFixed(2); }
+  // Time-based pricing: the database decides each slot's rate (court_slot_rates) and the booking total.
+  // These helpers only attach the rate to each slot and add them up for the preview.
+  function rateRange(c) {
+    var lo = c.rate_min != null ? Number(c.rate_min) : Number(c.hourly_rate), hi = c.rate_max != null ? Number(c.rate_max) : lo;
+    return lo === hi ? money(lo) + "/hr" : "PHP " + lo.toFixed(0) + " - " + hi.toFixed(0) + "/hr";
+  }
+  async function attachRates(court, date, slots) {
+    var r = await sb.rpc("court_slot_rates", { p_court_id: court.id, p_date: date }), by = {};
+    (r.data || []).forEach(function (x) { by[x.start_min] = Number(x.hourly_rate); });
+    slots.forEach(function (x) { x.rate = by[x.m] != null ? by[x.m] : Number(court.hourly_rate); });
+  }
+  function slotsTotal(slots, start, count, step) {
+    var t = 0;
+    for (var k = start; k < start + count; k++) t += (slots[k].rate != null ? slots[k].rate : 0) * step / 60;
+    return Math.round(t * 100) / 100;
+  }
+  function rateTag(x) { return x.rate != null ? '<small class="slot-rate">' + Math.round(x.rate) + "</small>" : ""; }
   function hhmm(t) { return String(t).slice(0, 5); }
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   // closing time 00:00 means midnight: the end of the day (1440 minutes), so the last slot can end at 12 AM
@@ -199,7 +216,7 @@
       '<div class="bookwrap"><a class="back" href="#/c/' + esc(slug) + '">&larr; ' + esc(club.name) + "</a><h1>Book a court</h1>" +
       '<div class="panel wide"><h2>1. Choose a court</h2>' + (courts.length ? '<div class="courtpick">' + courts.map(function (c) {
         return '<button type="button" class="courtbtn" data-c="' + esc(c.id) + '"><b>' + esc(c.name) + "</b><span>" + (c.is_indoor ? "Indoor" : "Outdoor") +
-          " - " + money(c.hourly_rate) + "/hr</span></button>";
+          " - " + rateRange(c) + "</span></button>";
       }).join("") + "</div>" : '<p class="muted">This club has no bookable courts yet.</p>') + "</div>" +
       '<div class="panel wide" id="slotpanel" hidden><h2>2. Pick a date and time</h2><div class="inline">' +
       '<label>Date<input id="bd" type="date"></label><label>Length<select id="bn"></select></label></div>' +
@@ -231,9 +248,10 @@
       var startM = toMin(hhmm(c.open_time)), endM = closeMin(c), slots = [];
       for (var m = startM; m + step <= endM; m += step) {
         var s = zonedToUtc(S.date + "T" + pad(Math.floor(m / 60)) + ":" + pad(m % 60), tz);
-        slots.push({ s: s, e: new Date(s.getTime() + step * 60000) });
+        slots.push({ s: s, e: new Date(s.getTime() + step * 60000), m: m });
       }
       if (!slots.length) { box.innerHTML = '<p class="muted">No times.</p>'; return; }
+      await attachRates(c, S.date, slots);
       var av = await sb.rpc("court_availability", { p_court_id: c.id, p_from: slots[0].s.toISOString(), p_to: slots[slots.length - 1].e.toISOString() });
       var taken = (av.data || []).map(function (r) { return [new Date(r.starts_at), new Date(r.ends_at)]; });
       var now = Date.now();
@@ -252,7 +270,7 @@
       var box = q("#slots", root);
       box.innerHTML = S.slots.map(function (x, i) {
         var inRange = S.start != null && i >= S.start && i < S.start + S.count;
-        return '<button type="button" class="slot' + (inRange ? (i === S.start ? " sel" : " in") : "") + '" data-i="' + i + '"' + (x.off ? " disabled" : "") + ">" + esc(timeOf(x.s, tz)) + "</button>";
+        return '<button type="button" class="slot' + (inRange ? (i === S.start ? " sel" : " in") : "") + '" data-i="' + i + '"' + (x.off ? " disabled" : "") + ">" + esc(timeOf(x.s, tz)) + rateTag(x) + "</button>";
       }).join("");
       Array.prototype.forEach.call(box.querySelectorAll(".slot"), function (b) {
         b.onclick = function () {
@@ -267,7 +285,7 @@
       var el = q("#sum", root), btn = q("#reserve", root);
       if (S.start == null || !rangeOk(S.start)) { el.innerHTML = ""; btn.disabled = true; return; }
       var first = S.slots[S.start], last = S.slots[S.start + S.count - 1], hrs = S.count * S.court.slot_minutes / 60;
-      el.innerHTML = "<b>" + esc(range(first.s, last.e, tz)) + "</b> - " + hrs + " h - <b>" + money(S.court.hourly_rate * hrs) + "</b>";
+      el.innerHTML = "<b>" + esc(range(first.s, last.e, tz)) + "</b> - " + hrs + " h - <b>" + money(slotsTotal(S.slots, S.start, S.count, S.court.slot_minutes)) + "</b>";
       btn.disabled = false;
     }
 
@@ -992,7 +1010,7 @@
             '<div>' +
               '<label class="block text-xs font-medium text-slate-300 mb-1.5 flex justify-between" for="nlen">' +
                 '<span>Length</span>' +
-                '<span id="rate-badge" class="text-[11px] text-slate-400 font-mono">' + money(S.court.hourly_rate) + '/hr</span>' +
+                '<span id="rate-badge" class="text-[11px] text-slate-400 font-mono">' + rateRange(S.court) + '</span>' +
               '</label>' +
               '<div class="relative">' +
                 '<select id="nlen" class="w-full appearance-none bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime cursor-pointer pr-9"></select>' +
@@ -1141,7 +1159,7 @@
         }
         q("#nlen", f).innerHTML = opts;
         var rateBadge = q("#rate-badge", f);
-        if (rateBadge) rateBadge.textContent = money(S.court.hourly_rate) + "/hr";
+        if (rateBadge) rateBadge.textContent = rateRange(S.court);
       }
 
       function rangeOk(i) {
@@ -1159,7 +1177,7 @@
           return;
         }
         var a = S.slots[S.start], z = S.slots[S.start + S.count - 1], hrs = (S.count * S.court.slot_minutes) / 60;
-        var total = S.court.hourly_rate * hrs;
+        var total = slotsTotal(S.slots, S.start, S.count, S.court.slot_minutes);
         if (priceEl) priceEl.textContent = money(total);
         if (descEl) descEl.textContent = S.court.name + " • " + range(a.s, z.e, tz) + " (" + hrs + " hr" + (hrs > 1 ? "s" : "") + ")";
         if (btn) btn.disabled = false;
@@ -1188,7 +1206,7 @@
                 var x = item.x, i = item.i;
                 var inRange = S.start != null && i >= S.start && i < S.start + S.count;
                 var isFirst = S.start != null && i === S.start;
-                var timeLabel = esc(timeOf(x.s, tz));
+                var timeLabel = esc(timeOf(x.s, tz)) + rateTag(x);
                 if (x.off) {
                   return '<button type="button" class="py-2.5 px-2 rounded-lg text-xs font-mono font-medium bg-brand-surface/40 text-slate-600 border border-brand-border/30 cursor-not-allowed text-center line-through" disabled>' + timeLabel + '</button>';
                 }
@@ -1232,12 +1250,15 @@
         var a = toMin(hhmm(c.open_time)), z = closeMin(c), slots = [];
         for (var m = a; m + step <= z; m += step) {
           var s0 = zonedToUtc(S.date + "T" + pad(Math.floor(m / 60)) + ":" + pad(m % 60), tz);
-          slots.push({ s: s0, e: new Date(s0.getTime() + step * 60000) });
+          slots.push({ s: s0, e: new Date(s0.getTime() + step * 60000), m: m });
         }
         if (!slots.length) {
           grid.innerHTML = '<p class="text-xs text-slate-500 font-mono py-4 text-center">No schedule slots configured for this court on this date.</p>';
           return;
         }
+        await attachRates(c, S.date, slots);
+        var rb = q("#rate-badge", f), rs = slots.map(function (x) { return x.rate; }), rlo = Math.min.apply(null, rs), rhi = Math.max.apply(null, rs);
+        if (rb) rb.textContent = rlo === rhi ? money(rlo) + "/hr" : "PHP " + rlo.toFixed(0) + " - " + rhi.toFixed(0) + "/hr";
         var av = await sb.rpc("court_availability", { p_court_id: c.id, p_from: slots[0].s.toISOString(), p_to: slots[slots.length - 1].e.toISOString() });
         var taken = (av.data || []).map(function (r) { return [new Date(r.starts_at), new Date(r.ends_at)]; }), now = Date.now();
         slots.forEach(function (x) { x.off = x.e.getTime() <= now || taken.some(function (k) { return k[0] < x.e && k[1] > x.s; }); });

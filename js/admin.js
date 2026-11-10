@@ -489,6 +489,65 @@
     }
   }
 
+  // ------------------------------------------------- time-based rates (rate bands)
+  // A band = days + time range + hourly rate, for ONE court or the WHOLE CLUB (court_id null).
+  // The database picks the rate for every slot and prices each booking (court_price); see migration 0024.
+  var DAY_LABEL = { all: "Every day", weekday: "Mon - Fri", weekend: "Sat - Sun" };
+  var DAY_ORDER = { all: 0, weekday: 1, weekend: 2 };
+  function clock(m) { if (m >= 1440) return "midnight"; var h = Math.floor(m / 60); return (h % 12 || 12) + ":" + String(m % 60).padStart(2, "0") + " " + (h >= 12 ? "PM" : "AM"); }
+  function toMinutes(hm) { var p = String(hm).split(":"); return Number(p[0]) * 60 + Number(p[1]); }
+
+  async function ratesEditor(host, courtId, onChange) {
+    var all = (await sb.from("court_rates").select("*").eq("tenant_id", ctx.t.id).order("start_min")).data || [];
+    var mine = all.filter(function (x) { return courtId ? x.court_id === courtId : x.court_id == null; })
+      .sort(function (a, b) { return DAY_ORDER[a.day_type] - DAY_ORDER[b.day_type] || a.start_min - b.start_min; });
+    var inp = "bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30";
+    var lab = "flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase";
+    host.innerHTML =
+      '<p class="font-body-sm text-on-surface-variant">' + (courtId
+        ? "These rates apply to this court only and win over the club-wide rates. Any time not covered here uses the club-wide rate, or the Hourly Rate above."
+        : "These rates apply to every court that has no rates of its own. Any time not covered uses the court's Hourly Rate.") + "</p>" +
+      (mine.length ? '<div class="overflow-x-auto"><table class="w-full text-left font-body-sm text-body-sm"><thead class="text-on-surface-variant font-label-sm uppercase tracking-wider"><tr><th class="py-1 pr-3">Days</th><th class="py-1 pr-3">Time</th><th class="py-1 pr-3">Rate</th><th></th></tr></thead><tbody class="divide-y divide-surface-container-high">' +
+        mine.map(function (x) {
+          return '<tr><td class="py-1.5 pr-3">' + esc(DAY_LABEL[x.day_type]) + '</td><td class="py-1.5 pr-3">' + esc(clock(x.start_min) + " - " + clock(x.end_min)) +
+            '</td><td class="py-1.5 pr-3 text-primary font-bold">' + money(x.hourly_rate) + '/hr</td><td class="py-1.5 text-right"><button class="court-icon-action is-danger" type="button" data-delrate="' + esc(x.id) + '" title="Remove rate" aria-label="Remove rate"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></td></tr>';
+        }).join("") + "</tbody></table></div>"
+        : '<p class="font-body-sm text-on-surface-variant"><strong>No time-based rates yet.</strong> ' + (courtId ? "This court charges its Hourly Rate, or the club-wide rates." : "Courts charge their Hourly Rate all day.") + "</p>") +
+      '<div class="rate-add flex flex-wrap items-end gap-space-sm">' +
+        '<label class="' + lab + '">Days<select class="' + inp + '" data-rd><option value="all">Every day</option><option value="weekday">Weekdays (Mon - Fri)</option><option value="weekend">Weekends (Sat - Sun)</option></select></label>' +
+        '<label class="' + lab + '">From<input type="time" value="06:00" data-rs></label>' +
+        '<label class="' + lab + '">To<input type="time" value="18:00" data-re></label>' +
+        '<label class="' + lab + '">Rate / hr (PHP)<input type="number" min="0" step="0.01" placeholder="150" data-rr class="' + inp + ' w-32"></label>' +
+        '<button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="button" data-addrate>Add rate</button>' +
+      '</div><p class="font-body-sm text-on-surface-variant">Set "To" as 12:00 AM for midnight. Each slot is charged at the rate in force when it starts.</p>';
+    D.ui.timePickers(host);
+
+    Array.prototype.forEach.call(host.querySelectorAll("[data-delrate]"), function (b) {
+      b.onclick = async function () {
+        var r = await sb.rpc("delete_court_rate", { p_rate_id: b.getAttribute("data-delrate") });
+        if (r.error) return setMsg(host, friendly(r.error), "err");
+        if (onChange) onChange();
+        ratesEditor(host, courtId, onChange);
+      };
+    });
+    var add = q("[data-addrate]", host), rateInput = q("[data-rr]", host);
+    rateInput.onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); add.click(); } };
+    add.onclick = async function () {
+      var from = toMinutes(val("[data-rs]", host)), to = toMinutes(val("[data-re]", host)) || 1440, rate = rateInput.value;
+      if (rate === "" || Number(rate) < 0) return setMsg(host, "Enter the hourly rate for this time range.", "err");
+      if (to <= from) return setMsg(host, "The end time must be after the start time. Use 12:00 AM for midnight.", "err");
+      add.disabled = true;
+      var r = await sb.from("court_rates").insert({ tenant_id: ctx.t.id, court_id: courtId || null, day_type: val("[data-rd]", host),
+        start_min: from, end_min: to, hourly_rate: Number(rate) });
+      if (r.error) {
+        add.disabled = false;
+        return setMsg(host, /no_overlap|exclusion/.test(r.error.message || "") ? "That time range overlaps another rate for the same days. Remove or change the other rate first." : friendly(r.error), "err");
+      }
+      if (onChange) onChange();
+      ratesEditor(host, courtId, onChange);
+    };
+  }
+
   // ---------------------------------------------------------------- courts
   async function courtsView(sec) {
     var t = ctx.t;
@@ -497,6 +556,9 @@
       .gte("ends_at", new Date().toISOString()).order("starts_at");
     var courts = cr.data || [], blocks = br.data || [];
     var byId = {}; courts.forEach(function (c) { byId[c.id] = c; });
+    var rateRows = (await sb.from("court_rates").select("court_id").eq("tenant_id", t.id)).data || [];
+    var rateCount = {}, clubRates = 0;
+    rateRows.forEach(function (x) { if (x.court_id) rateCount[x.court_id] = (rateCount[x.court_id] || 0) + 1; else clubRates++; });
 
     sec.innerHTML = '<div class="court-matrix">' +
       '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs pb-space-sm border-b border-outline-variant/20">' +
@@ -509,11 +571,16 @@
         (courts.length ? '<div class="overflow-x-auto"><table class="w-full text-left font-body-sm text-body-sm"><thead class="text-on-surface-variant font-label-sm uppercase tracking-wider bg-surface-container/60"><tr><th class="py-space-sm px-space-md rounded-l-DEFAULT">Court Details</th><th class="py-space-sm px-space-md">Hourly Rate</th><th class="py-space-sm px-space-md">Hours</th><th class="py-space-sm px-space-md">Slot Duration</th><th class="py-space-sm px-space-md">Status</th><th class="py-space-sm px-space-md rounded-r-DEFAULT text-right">Actions</th></tr></thead><tbody class="divide-y divide-surface-container-high">' +
           courts.map(function (c) {
             return '<tr class="hover:bg-surface-container transition-colors"><td class="py-space-sm px-space-md"><strong>' + esc(c.name) + '</strong><br><span class="font-label-sm text-on-surface-variant">' + esc(c.surface || "Acrylic Pro") + (c.is_indoor ? " • Indoor" : " • Outdoor") +
-              "</span></td><td class=\"py-space-sm px-space-md font-label-md text-primary font-bold\">" + money(c.hourly_rate) + "/hr</td><td class=\"py-space-sm px-space-md font-label-md\">" + D.hoursText(c.open_time, c.close_time) +
+              "</span></td><td class=\"py-space-sm px-space-md font-label-md text-primary font-bold\">" + money(c.hourly_rate) + "/hr" + (rateCount[c.id] ? '<br><span class="font-label-sm text-on-surface-variant font-normal">+ ' + rateCount[c.id] + " time-based rate" + (rateCount[c.id] === 1 ? "" : "s") + "</span>" : (clubRates ? '<br><span class="font-label-sm text-on-surface-variant font-normal">club-wide rates apply</span>' : "")) + "</td><td class=\"py-space-sm px-space-md font-label-md\">" + D.hoursText(c.open_time, c.close_time) +
               "</td><td class=\"py-space-sm px-space-md\">" + c.slot_minutes + ' min slots</td><td class=\"py-space-sm px-space-md\"><span class="px-space-xs py-0.5 rounded-full font-label-sm ' + (c.status === "active" ? "bg-primary/10 text-primary" : "bg-error/10 text-error") + '">' + esc(c.status.charAt(0).toUpperCase() + c.status.slice(1)) +
               '</span></td><td class="py-space-sm px-space-md text-right whitespace-nowrap"><button class="court-icon-action" data-edit="' + esc(c.id) + '" type="button" title="Edit court" aria-label="Edit ' + esc(c.name) + '"><span class="material-symbols-outlined" aria-hidden="true">edit</span></button> ' +
               '<button class="court-icon-action is-danger" data-del="' + esc(c.id) + '" type="button" title="Delete court" aria-label="Delete ' + esc(c.name) + '"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></td></tr>';
           }).join("") + "</tbody></table></div>" : D.ui.emptyState('No courts yet', 'Add your first court to configure pricing and availability.', 'sports_tennis')) +
+      '</div>' +
+
+      '<div class="court-panel">' +
+        '<div><h3 class="font-headline-sm text-on-surface">Club-wide Pricing Schedule</h3><p class="font-body-sm text-on-surface-variant">Different rates by time of day, weekdays or weekends. Example: 6:00 AM - 6:00 PM at PHP 150/hr and 6:00 PM - midnight at PHP 200/hr.</p></div>' +
+        '<div id="clubrates" class="flex flex-col gap-space-sm"></div>' +
       '</div>' +
 
       '<div class="court-panel">' +
@@ -533,6 +600,7 @@
       '</div></div>';
 
     D.ui.dateTimePickers(sec, t.timezone);
+    ratesEditor(q("#clubrates", sec), null, null);
     q("#addc", sec).onclick = function () { courtForm(null, byId); };
     Array.prototype.forEach.call(sec.querySelectorAll("[data-edit]"), function (b) {
       b.onclick = function () { courtForm(byId[b.getAttribute("data-edit")], byId); };
@@ -585,6 +653,9 @@
         (v.status === "maintenance" ? " selected" : "") + '>Maintenance (not bookable)</option></select></label>' +
         '<label class="flex items-center gap-2 pt-6 font-body-md text-on-surface cursor-pointer"><input id="ci" type="checkbox"' + (v.is_indoor ? " checked" : "") + ' class="w-4 h-4 accent-primary"> Indoor Cushioned Court</label>' +
       "</div></section>" +
+      '<section class="court-details-section"><div class="court-section-title"><span></span>Time-based rates for this court</div>' +
+        (c ? '<div id="courtrates" class="flex flex-col gap-space-sm"></div>' : '<p class="font-body-sm text-on-surface-variant">Save the court first, then reopen it to add rates by time of day or for weekdays and weekends. Until then it uses the club-wide rates, or its Hourly Rate.</p>') +
+      "</section>" +
       '<p class="msg" role="alert"></p>' +
       '</div><div class="court-config-actions"><button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="submit">Save Court</button> <button class="px-space-md py-2.5 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" id="cx" type="button">Cancel</button></div></form></dialog>';
 
@@ -600,6 +671,9 @@
     });
     modal.showModal();
     D.ui.timePickers(box);
+    var ratesChanged = false;
+    if (c) ratesEditor(q("#courtrates", box), c.id, function () { ratesChanged = true; });
+    modal.addEventListener("close", function () { if (ratesChanged) courtsView(q("#sec")); });
     q("#cf", box).onsubmit = async function (e) {
       e.preventDefault();
       var f = q("#cf", box), btn = q("button[type=submit]", f);
