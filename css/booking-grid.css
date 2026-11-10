@@ -256,3 +256,5 @@ body .club-directory-view button[aria-pressed="true"] { background:#a3e63515 !im
 .find-membership-grid .home-club-actions { padding-top:10px; }
 @media(max-width:1000px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:minmax(0,1fr); } }
+.find-membership-grid .home-club-card[hidden] { display:none !important; }
+#ds-tenant-dashboard #sec .member-find-page .find-membership-grid[data-view="list"] { grid-template-columns:minmax(0,1fr); }

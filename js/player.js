@@ -406,7 +406,7 @@
         var rates = courts.map(function (court) { return court.hourly_rate == null ? NaN : Number(court.hourly_rate); }).filter(Number.isFinite);
         var address = [club.street || club.address,club.barangay,club.city,club.province,club.zip_code].filter(Boolean).join(', ');
         var mapQuery = club.latitude != null && club.longitude != null ? club.latitude + ',' + club.longitude : address;
-        return '<article class="home-club-card"><a class="home-club-cover" href="#/c/' + esc(club.slug) + '" aria-label="View ' + esc(club.name) + '">' +
+        return '<article class="home-club-card" data-club-slug="' + esc(club.slug) + '"><a class="home-club-cover" href="#/c/' + esc(club.slug) + '" aria-label="View ' + esc(club.name) + '">' +
           (club.cover_path ? '<img src="' + esc(D.mediaUrl(club.cover_path)) + '" alt="' + esc(club.name) + ' cover" loading="lazy">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</a>' +
           '<div class="home-club-body"><div class="home-club-identity"><div class="home-club-avatar">' + (club.logo_path ? '<img src="' + esc(D.mediaUrl(club.logo_path)) + '" alt="Club logo" loading="lazy">' : esc((club.name || 'C').charAt(0))) + '</div></div>' +
           '<h3>' + esc(club.name) + '</h3><p class="home-club-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span><span>' + esc(address || 'Location not provided') + '</span></p>' +
@@ -420,53 +420,11 @@
           '<div class="home-club-actions"><a class="btn ghost" href="#/c/' + esc(club.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="#/c/' + esc(club.slug) + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></div></article>';
       }).join('') : D.ui.emptyState('No clubs joined', 'Explore the clubs below to find your next court.', 'groups')) + '</div></section>';
 
-    // 4. Discover More Clubs Section Shell
-    var discoverSectionHtml =
-      '<section class="space-y-5" data-purpose="nearby-clubs-grid">' +
-        '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">' +
-          '<div>' +
-            '<h2 class="text-xl font-extrabold text-white tracking-tight">Featured &amp; Nearby Clubs to Join</h2>' +
-            '<p class="text-xs sm:text-sm text-slate-400">Verified pickleball centers within your geographic matchmaking zone.</p>' +
-          '</div>' +
-          '<div class="flex items-center gap-2">' +
-            '<label for="sort-clubs-select" class="text-xs text-slate-400 font-medium">Sort by:</label>' +
-            '<select id="sort-clubs-select" class="bg-brand-cardDark border border-brand-borderDark text-xs text-white rounded-lg px-3 py-1.5 focus:border-brand-lime focus:ring-0 cursor-pointer">' +
-              '<option value="name">Club Name</option>' +
-              '<option value="courts">Most Courts</option>' +
-            '</select>' +
-          '</div>' +
-        '</div>' +
-        '<div id="discover-clubs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>' +
-      '</section>';
-
-    // 5. Facility Host CTA
-    var hostCtaHtml =
-      '<section class="rounded-2xl border border-brand-lime/30 bg-gradient-to-r from-brand-cardDark via-slate-900 to-brand-cardDark p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6" data-purpose="club-onboarding-cta">' +
-        '<div class="space-y-2 text-center md:text-left">' +
-          '<div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-brand-lime font-bold">' +
-            '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            'Facility Owners &amp; Club Directors' +
-          '</div>' +
-          '<h3 class="text-xl sm:text-2xl font-extrabold text-white">Own or manage a pickleball facility?</h3>' +
-          '<p class="text-slate-400 text-xs sm:text-sm max-w-xl">' +
-            'Connect your courts to DINKSLOT, sync reservations automatically, fill off-peak court slots, and host certified DUPR tournaments with zero paperwork.' +
-          '</p>' +
-        '</div>' +
-        '<div class="shrink-0">' +
-          '<a href="#/register-club" class="px-6 py-3.5 rounded-xl bg-brand-lime hover:bg-brand-limeGlow text-black font-extrabold text-sm shadow-lg transition-transform active:scale-95 flex items-center gap-2 no-underline">' +
-            '<span>List Your Club On DINKSLOT</span>' +
-            '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-          '</a>' +
-        '</div>' +
-      '</section>';
-
     sec.innerHTML =
       '<div class="member-find-page" data-purpose="player-find-club">' +
         heroHtml +
         filterBarHtml +
         joinedSectionHtml +
-        discoverSectionHtml +
-        hostCtaHtml +
       '</div>';
 
     // Renders the discover cards into #discover-clubs-list
@@ -490,6 +448,12 @@
         return sortBy === 'courts' ? (courtsBySlug[b.slug] || []).length - (courtsBySlug[a.slug] || []).length || a.name.localeCompare(b.name) : a.name.localeCompare(b.name);
       });
 
+      var visibleMemberships = 0;
+      sec.querySelectorAll('.find-membership-grid [data-club-slug]').forEach(function (card) {
+        var matches = list.some(function (club) { return club.slug === card.getAttribute('data-club-slug'); });
+        card.hidden = !matches;
+        if (matches) visibleMemberships++;
+      });
       var badge = q("#nearby-count-badge", sec);
       if (badge) badge.textContent = list.length;
 
@@ -553,6 +517,8 @@
 
     function setView(mode) {
       viewMode = mode;
+      var membershipGrid = q('.find-membership-grid', sec);
+      if (membershipGrid) membershipGrid.setAttribute('data-view', mode);
       var container = q("#discover-clubs-list", sec);
       if (btnGrid) btnGrid.className = mode === "grid" ? "p-1.5 rounded-md bg-brand-cardSubtle text-brand-lime shadow-sm cursor-pointer" : "p-1.5 rounded-md text-slate-400 hover:text-white transition-colors cursor-pointer";
       if (btnList) btnList.className = mode === "list" ? "p-1.5 rounded-md bg-brand-cardSubtle text-brand-lime shadow-sm cursor-pointer" : "p-1.5 rounded-md text-slate-400 hover:text-white transition-colors cursor-pointer";
