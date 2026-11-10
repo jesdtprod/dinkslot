@@ -442,11 +442,18 @@
           for (var row = 0; row < count; row++) {
             for (var col = 0; col < count; col++) {
               if (!code.isDark(row, col)) continue;
-              // Keep finder patterns solid for reliable scanning; round data modules.
               var finder = (row < 7 && col < 7) || (row < 7 && col >= count - 7) || (row >= count - 7 && col < 7);
-              svg += finder ? '<rect x="' + (col + 4) + '" y="' + (row + 4) + '" width="1" height="1"/>' : '<circle cx="' + (col + 4.5) + '" cy="' + (row + 4.5) + '" r="0.5"/>';
+              if (finder) continue;
+              var x = col + 4.5, y = row + 4.5;
+              svg += '<circle cx="' + x + '" cy="' + y + '" r="0.48"/>';
+              // Join adjacent modules into rounded strokes, leaving isolated dots.
+              if (col + 1 < count && code.isDark(row, col + 1)) svg += '<path d="M' + x + ' ' + y + 'h1" fill="none" stroke="black" stroke-width="0.96" stroke-linecap="round"/>';
+              if (row + 1 < count && code.isDark(row + 1, col)) svg += '<path d="M' + x + ' ' + y + 'v1" fill="none" stroke="black" stroke-width="0.96" stroke-linecap="round"/>';
             }
           }
+          [[4,4],[count - 3,4],[4,count - 3]].forEach(function (point) {
+            svg += '<rect x="' + point[0] + '" y="' + point[1] + '" width="7" height="7" rx="1.7"/><rect x="' + (point[0]+1) + '" y="' + (point[1]+1) + '" width="5" height="5" rx="0.9" fill="white"/><rect x="' + (point[0]+2) + '" y="' + (point[1]+2) + '" width="3" height="3" rx="0.65"/>';
+          });
           svg += '</g></svg>';
           ticket.querySelector('.ticket-qr').innerHTML = svg;
           ticket.querySelector('[data-close]').onclick = function () { ticket.close(); };
