@@ -413,7 +413,7 @@
           '<div>' + (!withDecide ? srcBadge(b) : py ? '<span class="px-2.5 py-1 rounded-full bg-secondary-container/30 border border-secondary/40 text-secondary font-mono text-xs font-semibold">Proof uploaded</span>' : '<span class="px-2.5 py-1 rounded-full bg-error-container/20 border border-error/30 text-error font-mono text-xs font-semibold">No proof</span>') + '</div></div>' +
           (py ? '<div class="flex items-center justify-between text-xs font-mono text-on-surface-variant bg-surface-container-high px-3 py-2 rounded"><span>Payer ref: <strong class="text-on-surface">' + esc(py.payer_reference) + '</strong>' + (py.method ? ' via ' + esc(py.method) : '') + '</span><button class="px-3 py-1 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm border border-outline-variant/30 cursor-pointer" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
               : (b.expires_at ? '<p class="text-xs text-on-surface-variant bg-surface-container-high px-3 py-2 rounded">Unpaid. Hold ends in <b class="timer text-primary font-mono" data-exp="' + esc(b.expires_at) + '"></b></p>' : "")) +
-          '<div class="flex items-center gap-2 pt-1">' + (withDecide ? '<button class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-sm font-bold border-0 cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button> <button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
+          '<div class="booking-card-actions">' + (!withDecide ? '<button type="button" class="ds-action ds-action-secondary" data-ticket="' + esc(b.id) + '"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>QR ticket</button>' : '') + (withDecide ? '<button class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-sm font-bold border-0 cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button> <button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
             : '<button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-cx="' + esc(b.id) + '" type="button">Cancel booking</button>') + '</div><p class="msg" role="alert"></p></div>';
       }
       box.innerHTML = '<div class="booking-queues">' + [
@@ -426,6 +426,28 @@
       }).join('') + '</div>';
       startTicker();
       var byId = {}; bs.forEach(function (b) { byId[b.id] = b; });
+      box.querySelectorAll('[data-ticket]').forEach(function (button) {
+        button.onclick = function () {
+          var booking = byId[button.getAttribute('data-ticket')], player = pm[booking.player_id] || {}, court = cm[booking.court_id] || {};
+          var ticket = document.createElement('dialog'); ticket.className = 'booking-ticket-modal';
+          ticket.setAttribute('aria-label', 'Booking QR ticket');
+          ticket.innerHTML = '<header><span class="ticket-caption">Booking ticket</span><h2></h2><p></p></header><div class="ticket-qr"></div><strong class="ticket-reference"></strong><p class="ticket-schedule"></p><p class="ticket-note">Scan to read the booking reference. This ticket does not confirm payment or check-in.</p><div class="ticket-actions"><button type="button" class="ds-action ds-action-secondary" data-download><span class="material-symbols-outlined" aria-hidden="true">download</span>Download QR</button><button type="button" class="ds-action ds-action-secondary" data-close><span class="material-symbols-outlined" aria-hidden="true">close</span>Close</button></div>';
+          ticket.querySelector('h2').textContent = player.display_name || booking.guest_name || 'Guest';
+          ticket.querySelector('header p').textContent = court.name || 'Court';
+          ticket.querySelector('.ticket-reference').textContent = booking.reference_code;
+          ticket.querySelector('.ticket-schedule').textContent = range(booking.starts_at, booking.ends_at, tz);
+          var code = window.qrcode(0, 'M'); code.addData(booking.reference_code); code.make();
+          var svg = code.createSvgTag({ cellSize: 6, margin: 24, scalable: true });
+          ticket.querySelector('.ticket-qr').innerHTML = svg;
+          ticket.querySelector('[data-close]').onclick = function () { ticket.close(); };
+          ticket.querySelector('[data-download]').onclick = function () {
+            var url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' })), link = document.createElement('a');
+            link.href = url; link.download = 'booking-' + booking.reference_code + '.svg'; link.click(); setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+          };
+          ticket.addEventListener('close', function () { ticket.remove(); if (button.isConnected) button.focus(); }, { once: true });
+          document.body.appendChild(ticket); ticket.showModal();
+        };
+      });
       function card(el) { return el.closest(".bcard"); }
       async function decide(el, id, decision, reason) {
         el.disabled = true;
