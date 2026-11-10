@@ -1647,6 +1647,27 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard #sec .font-label-sm { font-family: "JetBrains Mono",monospace; font-size: 10px; line-height: 16px; font-weight: 500; }
 #ds-tenant-dashboard #sec :is(button,a):is(.font-label-md,.font-label-lg) { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; font-weight: 600; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 10px; }
 #ds-tenant-dashboard #sec .text-headline-display { font-family: "Space Grotesk",sans-serif; font-size: 40px; line-height: 1.1; font-weight: 600; letter-spacing: -.035em; }
+.transactions-card { border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); overflow: hidden; }
+.transactions-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; }
+#ds-tenant-dashboard #sec .transactions-header h3 { margin: 0 0 4px; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; color: #e0e8e2; }
+#ds-tenant-dashboard #sec .transactions-header p { margin: 0; color: #94a39a; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; }
+.transactions-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.transactions-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 32px; padding: 6px 10px; border: 1px solid #ffffff12; border-radius: 7px; background: #ffffff04; color: #bdc9c1; text-decoration: none; cursor: pointer; }
+.transactions-button .material-symbols-outlined { font-size: 16px; }
+.transactions-button.is-primary { color: #c6e2a8; background: #a3e63509; border-color: #a3e63524; }
+.transactions-button:hover { background: #ffffff0a; border-color: #ffffff25; }
+.transactions-button:focus-visible { outline: 2px solid #b1df74; outline-offset: 3px; }
+.transactions-scroll { overflow-x: auto; }
+.transactions-card table { border-collapse: collapse; min-width: 680px; width: 100%; }
+.transactions-card th { padding: 10px 20px; border-top: 1px solid #ffffff08; border-bottom: 1px solid #ffffff08; background: #0c121633; color: #8f9f94; text-align: left; font: 600 9px/14px "Plus Jakarta Sans",sans-serif; letter-spacing: .08em; }
+.transactions-card td { padding: 10px 20px; color: #b7c5bc; font-size: 12px; }
+.transactions-card th:last-child, .transactions-card td:last-child { text-align: right; }
+.transactions-card td.transactions-empty { padding: 22px 20px; text-align: center; }
+.transactions-empty > div { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.transactions-empty > div > .material-symbols-outlined { display: grid; place-items: center; width: 36px; height: 36px; background: #ffffff03; border: 1px solid #ffffff0a; border-radius: 9px; color: #829488; font-size: 19px; }
+.transactions-empty strong { display: block; text-align: left; color: #c1cdc5; font-size: 12px; font-weight: 500; }
+.transactions-empty p { margin: 3px 0 0; color: #83958a; font-size: 11px; }
+@media (max-width:640px) { .transactions-header { flex-direction: column; align-items: stretch; padding: 16px; gap: 12px; } .transactions-actions { justify-content: flex-end; } }
 .overview-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .metric-card { display: block; min-width: 0; padding: 16px 18px 0; border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); color: #dfe7e1; text-decoration: none; box-shadow: inset 0 1px 0 #ffffff03; transition: border-color .15s, background .15s; }
 .metric-card:hover { border-color: #a3d97340; background: #1c2529; }

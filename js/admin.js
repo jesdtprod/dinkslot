@@ -399,18 +399,18 @@
       '</div>' +
 
       '<!-- Live Transaction & Member Activity Strip -->' +
-      '<section class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm flex flex-col gap-space-md border border-outline-variant/20">' +
-        '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">' +
+      '<section class="transactions-card">' +
+        '<div class="transactions-header">' +
           '<div>' +
             '<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Booking Transactions</h3>' +
-            '<p class="font-body-sm text-body-sm text-on-surface-variant">Real-time member check-ins, automated payments, and guest registrations.</p>' +
+            '<p class="font-body-sm text-body-sm text-on-surface-variant">Your latest reservations, payment statuses, and booking details.</p>' +
           '</div>' +
-          '<div class="flex items-center gap-space-xs">' +
-            '<button id="export-csv-btn" class="px-space-md py-space-xs rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-colors border border-outline-variant/30 cursor-pointer">Export CSV</button>' +
-            '<a href="#/admin/' + esc(ctx.slug) + '/bookings" class="px-space-md py-space-xs rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright transition-colors border border-outline-variant/30 no-underline">Manage All</a>' +
+          '<div class="transactions-actions">' +
+            '<button id="export-csv-btn" class="transactions-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">download</span>Export CSV</button>' +
+            '<a href="#/admin/' + esc(ctx.slug) + '/bookings" class="transactions-button is-primary">Manage all<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>' +
           '</div>' +
         '</div>' +
-        '<div class="overflow-x-auto">' +
+        '<div class="transactions-scroll">' +
           '<table class="w-full text-left font-body-sm text-body-sm">' +
             '<thead>' +
               '<tr class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider bg-surface-container/60">' +
@@ -448,7 +448,7 @@
                   '<td class="py-space-sm px-space-md text-right font-label-md text-label-md font-bold text-on-surface">' + money(b.amount) + '</td>' +
                 '</tr>';
               }).join("") :
-              '<tr><td colspan="6" class="py-space-lg text-center text-on-surface-variant">No booking transactions recorded yet. When players reserve courts, records update in real time.</td></tr>') +
+              '<tr><td colspan="6" class="transactions-empty"><div><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><div><strong>No bookings yet</strong><p>New reservations will appear here.</p></div></div></td></tr>') +
             '</tbody>' +
           '</table>' +
         '</div>' +
