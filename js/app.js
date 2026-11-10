@@ -57,53 +57,9 @@
     for (var k in MESSAGES) if (m.indexOf(k) !== -1) return MESSAGES[k];
     return m || "Something went wrong.";
   }
-  var toastTimer = null, toastRegion = null;
   function setMsg(root, text, kind, action) {
-    clearTimeout(toastTimer);
-    if (toastRegion) toastRegion.replaceChildren();
-    if (!text) return;
-    if (!toastRegion) {
-      toastRegion = document.createElement("div");
-      toastRegion.className = "toast-region";
-      toastRegion.setAttribute("aria-label", "Notifications");
-      document.body.appendChild(toastRegion);
-    }
-    var toast = document.createElement("div");
-    toast.className = "toast " + (kind === "err" ? "toast-error" : kind === "ok" ? "toast-success" : "toast-info");
-    toast.setAttribute("role", kind === "err" ? "alert" : "status");
-    toast.setAttribute("aria-atomic", "true");
-    var icon = document.createElement("span");
-    icon.className = "material-symbols-outlined toast-icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = kind === "err" ? "error" : kind === "ok" ? "check_circle" : "info";
-    var message = document.createElement("p");
-    message.textContent = text;
-    var close = document.createElement("button");
-    close.type = "button";
-    close.className = "toast-close";
-    close.setAttribute("aria-label", "Dismiss notification");
-    close.textContent = "\u00d7";
-    function dismiss() { if (toast.parentNode) { toast.remove(); if (!toastRegion.children.length) clearTimeout(toastTimer); } }
-    function scheduleDismiss() {
-      clearTimeout(toastTimer);
-      if (!action) toastTimer = setTimeout(dismiss, kind === "err" ? 10000 : 7000);
-    }
-    close.onclick = dismiss;
-    toast.onpointerenter = function () { clearTimeout(toastTimer); };
-    toast.onpointerleave = function () { if (!toast.contains(document.activeElement)) scheduleDismiss(); };
-    toast.onfocusin = function () { clearTimeout(toastTimer); };
-    toast.onfocusout = scheduleDismiss;
-    toast.append(icon, message);
-    if (action) {
-      var retry = document.createElement("button");
-      retry.type = "button"; retry.className = "toast-action"; retry.textContent = action.label;
-      retry.onclick = function () { dismiss(); action.run(); };
-      toast.appendChild(retry);
-    }
-    toast.appendChild(close);
-    toastRegion.appendChild(toast);
-    if (!action) scheduleDismiss();
-    return dismiss;
+    if (!text) return function () {};
+    return window.DS.ui.toast(text, kind, action);
   }
   // "06:00 - midnight", "Open 24 hours" ... (a closing time of 00:00 means midnight, the end of the day)
   function hoursText(open, close) {

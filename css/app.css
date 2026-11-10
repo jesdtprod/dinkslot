@@ -3005,3 +3005,10 @@ body .msg { display: none !important; }
 .court-blocks-empty > .material-symbols-outlined { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border: 1px solid #ffffff0b; border-radius: 9px; background: #ffffff03; color: #8fab82; font-size: 20px; }
 .court-blocks-empty strong { color: #c1cfc4; font: 500 12px/20px "Plus Jakarta Sans",sans-serif; }
 #ds-tenant-dashboard #sec .court-blocks-empty p { margin-top: 2px; color: #82968a; font-size: 11px; line-height: 18px; }
+
+/* App-wide notifications remain centered at the top, including above modals. */
+#ds-toast-stack, #ds-toast-stack[popover] { position: fixed; inset: 20px auto auto 50%; transform: translateX(-50%); width: min(480px,calc(100vw - 32px)); margin: 0; }
+.ds-toast { align-items: flex-start; }
+.ds-toast > .material-symbols-outlined { margin-top: 1px; }
+.ds-toast .ds-toast-action { width: auto; height: auto; padding: 3px 8px; border: 1px solid #ffffff18; border-radius: 6px; background: #ffffff08; color: #c4dfa8; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; white-space: nowrap; }
+.ds-toast button:focus-visible { outline: 2px solid #b1df74; outline-offset: 2px; }

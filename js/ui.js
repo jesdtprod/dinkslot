@@ -31,7 +31,7 @@
       [/^(?:apply|search|find courts)/i, 'check', 'primary']
     ];
     root.querySelectorAll('button, a.btn, a.pill, a.transactions-button, a.setup-action, a[class*="bg-"], label.qrfile').forEach(function (button) {
-      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('.confirmation-modal,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"]')) return;
+      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('#ds-toast-stack,.toast-region,.confirmation-modal,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"]')) return;
       var copy = button.cloneNode(true);
       copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });
       var label = copy.textContent.trim().replace(/\s+/g, ' ');
@@ -459,30 +459,57 @@
     });
   }
 
-  function toast(message, kind) {
+  function notificationText(message) {
+    var text = String(message || '').trim();
+    var wording = {
+      'End must be after start.': 'Select an end date and time later than the start.',
+      'Choose an image first.': 'Select an image before uploading.',
+      'Only JPG, PNG or WebP images are allowed.': 'Select a JPG, PNG, or WebP image.',
+      'The image must be 5 MB or smaller.': 'Select an image no larger than 5 MB.',
+      'Profile saved.': 'Your profile has been updated successfully.',
+      'Saving court...': 'Saving court details…',
+      'Uploading...': 'Uploading your image…',
+      'Staff member successfully added.': 'The staff member has been added successfully.',
+      'Payment and booking settings saved.': 'Payment preferences and booking rules have been updated.',
+      "Enter the player's email.": 'Enter the player’s email address to continue.',
+      'Choose a player first.': 'Select a registered player to continue.',
+      'Enter the guest name.': 'Enter the guest’s name to continue.',
+      'Pick a start time.': 'Select an available start time to continue.'
+    };
+    return wording[text] || text.replace(/^Saved (.+)\.$/, '$1 has been saved successfully.').replace(/^Cleared (.+)\.$/, '$1 has been cleared successfully.');
+  }
+  function toast(message, kind, action) {
+    message = notificationText(message);
+    if (!message) return function () {};
     var stack = document.getElementById('ds-toast-stack');
     if (!stack) { stack = document.createElement('div'); stack.id = 'ds-toast-stack'; document.body.appendChild(stack); }
     stack.setAttribute('popover', 'manual');
     if (typeof stack.showPopover === 'function' && !stack.matches(':popover-open')) stack.showPopover();
     var item = document.createElement('div'); item.className = 'ds-toast' + (kind === 'err' ? ' is-error' : ''); item.setAttribute('role', kind === 'err' ? 'alert' : 'status');
-    item.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">' + (kind === 'err' ? 'error' : 'check_circle') + '</span><span class="ds-toast-text"></span><button type="button" aria-label="Dismiss notification"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>';
+    item.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">' + (kind === 'err' ? 'error' : kind === 'ok' ? 'check_circle' : 'info') + '</span><span class="ds-toast-text"></span><button type="button" class="ds-toast-dismiss" aria-label="Dismiss notification"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>';
     item.querySelector('.ds-toast-text').textContent = message;
     var timer;
     function dismiss() { clearTimeout(timer); item.remove(); }
-    function schedule() { clearTimeout(timer); timer = setTimeout(dismiss, 5500); }
-    item.querySelector('button').onclick = dismiss;
+    function schedule() { clearTimeout(timer); if (!action) timer = setTimeout(dismiss, kind === 'err' ? 10000 : 6500); }
+    item.querySelector('.ds-toast-dismiss').onclick = dismiss;
+    if (action) {
+      var retry = document.createElement('button'); retry.type = 'button'; retry.className = 'ds-toast-action'; retry.textContent = action.label;
+      retry.onclick = function () { dismiss(); action.run(); }; item.querySelector('.ds-toast-dismiss').before(retry);
+    }
     item.addEventListener('mouseenter', function () { clearTimeout(timer); });
     item.addEventListener('mouseleave', schedule);
     item.addEventListener('focusin', function () { clearTimeout(timer); });
     item.addEventListener('focusout', schedule);
     stack.appendChild(item); schedule();
     while (stack.children.length > 3) stack.firstElementChild.remove();
+    return dismiss;
   }
 
   // Legacy forms still write to .msg nodes directly. Forward them to the
   // floating notification system and clear their inline layout immediately.
   function forwardAlerts() {
-    document.querySelectorAll('.msg').forEach(function (node) {
+    document.querySelectorAll('.msg,[role="alert"]').forEach(function (node) {
+      if (!node.classList.contains('msg') && node.querySelector('button,input,form')) return;
       if (node.closest('#ds-toast-stack,.toast-region')) return;
       var message = node.textContent.trim();
       if (!message) return;
