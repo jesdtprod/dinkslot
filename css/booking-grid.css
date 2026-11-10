@@ -445,3 +445,17 @@ body .myclubs-directory-tools #myclubs-clear { width:28px; min-height:28px !impo
 body .myclubs-directory-tools #myclubs-clear[hidden] { display:none !important; }
 .myclubs-directory-tools #myclubs-clear .material-symbols-outlined { font-size:14px; }
 #ds-tenant-dashboard #sec .myclubs-directory-tools #myclubs-result-count { display:inline-flex; align-items:center; height:34px; padding:0 10px; color:#b1c79e; }
+
+/* Refined quick-book court tiles. */
+.membership-court-tile { gap:8px; padding:14px; border-color:#ffffff10; background:#141e24; }
+.membership-court-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.membership-court-top .membership-court-icon { display:grid; place-items:center; width:28px; height:28px; border:1px solid #9dbd7720; border-radius:7px; background:#9dbd7708; color:#abc590; font-size:17px; }
+.membership-court-top .membership-court-type { padding:3px 7px; border:1px solid #76b7cb25; border-radius:10px; background:#76b7cb08; color:#9dbec6; font-size:9px; line-height:14px; }
+.membership-court-tile strong { font-size:14px; line-height:20px; }
+.membership-court-hours { display:flex; align-items:center; gap:5px; color:#91a79b; font-size:10px; line-height:16px; }
+.membership-court-hours .material-symbols-outlined { font-size:13px; color:#7d9789; }
+.membership-court-bottom { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:3px; padding-top:10px; border-top:1px solid #ffffff08; }
+.membership-court-bottom b { padding:3px 7px; border:1px solid #a3e63520; border-radius:10px; background:#a3e63508; color:#b9d49f; font-size:11px; line-height:16px; font-weight:600; }
+.membership-court-bottom small { margin-left:3px; color:#839b78; font-size:9px; font-weight:400; }
+.membership-court-bottom > .material-symbols-outlined { color:#789187; font-size:16px; transition:transform .15s,color .15s; }
+.membership-court-tile:hover .membership-court-bottom > .material-symbols-outlined { transform:translateX(3px); color:#b4d593; }
