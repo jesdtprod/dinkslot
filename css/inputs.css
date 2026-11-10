@@ -10,10 +10,50 @@ html body textarea.ds-input-icon { background-position: 12px 12px !important; }
 html body .ds-input-icon:disabled { opacity: .55; }
 
 /* Shared compact button radius across pages, dialogs and navigation. */
-:root { --button-radius:15px; --badge-radius:7px; }
+:root { --ui-radius:10px; --button-radius:var(--ui-radius); --badge-radius:var(--ui-radius); }
 html body :is(button,.btn,.ds-action,.pill,.transactions-button,.setup-action),
 html body :is(#app,#nav,#ds-toast-stack) :is(button,.btn,.ds-action,.pill,.transactions-button,.setup-action) { border-radius:var(--button-radius) !important; }
 html body input::file-selector-button { border-radius:var(--button-radius) !important; }
 
-/* Badges retain the compact location-filter radius. */
+/* Shared badge corners. */
 html body :is(.badge,.chip,.home-club-joined,.home-club-fact,.home-club-format,.member-reservation-ref,.member-overview-stat-value,.membership-panel-summary,.membership-panel-features > span,.member-reservation-meta > span,.member-reservation-meta > strong,.club-directory-results > span,#myclubs-result-count,#club-map-status) { border-radius:var(--badge-radius) !important; }
+
+/* One radius across controls, containers, menus and feedback surfaces. */
+html body :is(button, .btn, .ds-action, .pill, .transactions-button, .setup-action,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]), select, textarea,
+.datetime-trigger, .datetime-picker, .city-options, [role="listbox"], [role="menu"],
+article, .panel, .card, .courtcard, .clubrow, .clubbanner, .dashboard-rounded, .rounded-lg, .rounded-xl, .rounded-2xl,
+.member-overview-header, .member-overview-stats, .member-reservation-card, .home-club-card, .home-club-cover, .membership-panel, .membership-panel-courts, .membership-court-tile,
+.club-directory-tools, .club-directory-search, .club-directory-open, .member-clubs-toolbar, .member-clubs-search, .club-discovery-toolbar, .club-map-settings,
+dialog, .ds-toast, .bellmenu, .facility-account-menu, .facility-menu-header, .app-empty-state,
+.media-upload, .media-drop, .media-preview, .court-qr-drop, .qrthumb, .court-config-modal, .booking-modal, .booking-ticket-modal, .confirmation-modal,
+.badge, .chip, .home-club-joined, .home-club-fact, .home-club-format, .member-reservation-ref, .member-overview-stat-value, .membership-panel-summary,
+.membership-panel-features > span, .member-reservation-meta > span, .member-reservation-meta > strong, .club-directory-results > span, #myclubs-result-count, #club-map-status,
+#ds-side nav [data-key][aria-current="page"], #ds-side nav [data-key].active),
+html body #ds-tenant-dashboard #sec :is(button, .btn, .ds-action, .pill, .transactions-button, .setup-action,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]), select, textarea,
+.datetime-trigger, .datetime-picker, .city-options, [role="listbox"], [role="menu"],
+article, .panel, .card, .courtcard, .clubrow, .clubbanner, .dashboard-rounded, .rounded-lg, .rounded-xl, .rounded-2xl,
+.member-overview-header, .member-overview-stats, .member-reservation-card, .home-club-card, .home-club-cover, .membership-panel, .membership-panel-courts, .membership-court-tile,
+.club-directory-tools, .club-directory-search, .club-directory-open, .member-clubs-toolbar, .member-clubs-search, .club-discovery-toolbar, .club-map-settings,
+dialog, .ds-toast, .bellmenu, .facility-account-menu, .facility-menu-header, .app-empty-state,
+.media-upload, .media-drop, .media-preview, .court-qr-drop, .qrthumb, .court-config-modal, .booking-modal, .booking-ticket-modal, .confirmation-modal,
+.badge, .chip, .home-club-joined, .home-club-fact, .home-club-format, .member-reservation-ref, .member-overview-stat-value, .membership-panel-summary,
+.membership-panel-features > span, .member-reservation-meta > span, .member-reservation-meta > strong, .club-directory-results > span, #myclubs-result-count, #club-map-status,
+#ds-side nav [data-key][aria-current="page"], #ds-side nav [data-key].active),
+html body #app #ds-tenant-dashboard #sec :is(button, .btn, .ds-action, .pill, .transactions-button, .setup-action,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]), select, textarea,
+.datetime-trigger, .datetime-picker, .city-options, [role="listbox"], [role="menu"],
+article, .panel, .card, .courtcard, .clubrow, .clubbanner, .dashboard-rounded, .rounded-lg, .rounded-xl, .rounded-2xl,
+.member-overview-header, .member-overview-stats, .member-reservation-card, .home-club-card, .home-club-cover, .membership-panel, .membership-panel-courts, .membership-court-tile,
+.club-directory-tools, .club-directory-search, .club-directory-open, .member-clubs-toolbar, .member-clubs-search, .club-discovery-toolbar, .club-map-settings,
+dialog, .ds-toast, .bellmenu, .facility-account-menu, .facility-menu-header, .app-empty-state,
+.media-upload, .media-drop, .media-preview, .court-qr-drop, .qrthumb, .court-config-modal, .booking-modal, .booking-ticket-modal, .confirmation-modal,
+.badge, .chip, .home-club-joined, .home-club-fact, .home-club-format, .member-reservation-ref, .member-overview-stat-value, .membership-panel-summary,
+.membership-panel-features > span, .member-reservation-meta > span, .member-reservation-meta > strong, .club-directory-results > span, #myclubs-result-count, #club-map-status,
+#ds-side nav [data-key][aria-current="page"], #ds-side nav [data-key].active) { border-radius:var(--ui-radius) !important; }
+
+select::picker(select) { border-radius:var(--ui-radius) !important; }
+/* Identity photos and radio controls retain their circular shape. */
+html body :is(.home-club-avatar,.bigcircle,.member-avatar,.nav-avatar,.facility-avatar,.facility-menu-header-avatar,.membership-panel-avatar),
+html body #app #ds-tenant-dashboard #sec :is(.home-club-avatar,.bigcircle,.member-avatar,.nav-avatar,.facility-avatar,.facility-menu-header-avatar,.membership-panel-avatar) { border-radius:50% !important; }
