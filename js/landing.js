@@ -139,64 +139,162 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
 </section>
 
 <!-- WHY PLAYERS & CLUB OWNERS CHOOSE DINKSLOT -->
-<section id="landing-features" class="w-full py-space-xl px-gutter md:px-margin-desktop bg-surface-container-low">
+<section id="landing-features" class="w-full py-space-xl px-gutter md:px-margin-desktop bg-surface-container-low relative">
   <div class="max-w-7xl mx-auto flex flex-col gap-space-xl">
-    <div class="text-center max-w-2xl mx-auto">
-      <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-semibold">Engineered For Performance</span>
-      <h2 class="font-headline-lg text-headline-lg text-on-surface mt-1">Why Players &amp; Club Owners Choose DINKSLOT</h2>
-      <p class="font-body-md text-body-md text-on-surface-variant mt-2">The complete technological backbone designed to elevate recreational recreation into competitive perfection.</p>
+    <div class="text-center max-w-3xl mx-auto flex flex-col items-center">
+      <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-surface-container border border-white/[0.08] text-primary font-label-sm text-[11px] font-semibold tracking-widest uppercase mb-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+        Engineered For Performance
+      </span>
+      <h2 class="font-headline-lg text-2xl md:text-4xl text-on-surface font-extrabold tracking-tight mt-1">Why Players &amp; Club Owners Choose DINKSLOT</h2>
+      <p class="font-body-md text-sm md:text-base text-on-surface-variant mt-2.5 max-w-2xl leading-relaxed">The modern athletic operating system designed to elevate recreational play into competitive perfection and maximize court yield.</p>
     </div>
-    <!-- 3 Glassmorphism Feature Cards -->
-    <div class="landing-feature-grid grid grid-cols-1 md:grid-cols-3 gap-space-lg">
-      <!-- Card 1 -->
-      <div class="relative p-space-xl rounded-2xl bg-surface-container-high backdrop-blur-md shadow-lg flex flex-col justify-between overflow-hidden group hover:translate-y-[-4px] transition-all">
-        <div class="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all"></div>
+    <!-- 3 Modern Bento Feature Cards -->
+    <div class="landing-feature-grid grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+      <!-- Card 1: Frictionless Booking -->
+      <div class="relative p-6 sm:p-7 rounded-3xl bg-surface-container/70 hover:bg-surface-container border border-white/[0.08] hover:border-primary/40 transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.35)] hover:shadow-[0_16px_40px_-10px_rgba(177,233,3,0.18)] hover:-translate-y-1 flex flex-col justify-between overflow-hidden group">
+        <!-- Specular top highlight -->
+        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+        <!-- Ambient gradient glow on hover -->
+        <div class="absolute -right-12 -top-12 w-44 h-44 bg-primary/10 rounded-full blur-3xl pointer-events-none group-hover:bg-primary/20 transition-all duration-500"></div>
+
         <div>
-          <div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-primary shadow-[0_0_16px_rgba(163,230,53,0.2)] mb-space-lg">
-            <span class="material-symbols-outlined text-headline-md">touch_app</span>
+          <!-- Card top row: icon + micro-badge -->
+          <div class="flex items-center justify-between gap-3 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 flex items-center justify-center text-primary shadow-[0_0_20px_rgba(177,233,3,0.18)]">
+              <span class="material-symbols-outlined text-2xl">key</span>
+            </div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-label-sm text-[11px] font-semibold tracking-wide uppercase">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              3-Tap Reserve
+            </span>
           </div>
-          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Frictionless Booking</h3>
-          <p class="font-body-md text-body-md text-on-surface-variant mt-space-sm leading-relaxed">
+
+          <h3 class="font-headline-md text-xl md:text-2xl text-on-surface font-bold tracking-tight">Frictionless Booking</h3>
+          <p class="font-body-md text-sm text-on-surface-variant mt-2.5 leading-relaxed">
             Reserve private courts in under 3 taps, effortlessly split fees with doubles partners via QR/SMS, and automatically unlock gate access codes synced to your reservation time.
           </p>
+
+          <!-- Micro-widget: Smart Gate Access preview -->
+          <div class="my-5 p-3.5 rounded-2xl bg-surface-container-lowest/80 border border-white/[0.06] flex items-center justify-between gap-3 shadow-inner">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-surface-container-high border border-white/[0.06] flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-lg">pin</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">Gate PIN Code</span>
+                <span class="font-label-lg text-xs md:text-sm text-primary font-bold tracking-widest font-mono">#4892 • Court 2</span>
+              </div>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-label-sm font-semibold border border-primary/20 shrink-0">
+              <span class="material-symbols-outlined text-xs">lock_open</span> Auto-Sync
+            </span>
+          </div>
         </div>
-        <div class="mt-space-lg pt-space-md flex items-center gap-2 text-primary font-label-md text-label-md font-semibold">
-          <span>Learn smart court locks</span>
-          <span class="material-symbols-outlined text-label-md group-hover:translate-x-1 transition-transform">arrow_forward</span>
+
+        <div class="pt-4 border-t border-white/[0.06] flex items-center justify-between">
+          <a href="#/auth?mode=up" class="inline-flex items-center gap-2 text-primary hover:text-secondary-fixed font-label-sm text-xs font-semibold tracking-wide transition-colors group/link no-underline">
+            <span>Learn smart court locks</span>
+            <span class="material-symbols-outlined text-sm transition-transform duration-200 group-hover/link:translate-x-1">arrow_forward</span>
+          </a>
         </div>
       </div>
-      <!-- Card 2 -->
-      <div class="relative p-space-xl rounded-2xl bg-surface-container-high backdrop-blur-md shadow-lg flex flex-col justify-between overflow-hidden group hover:translate-y-[-4px] transition-all">
-        <div class="absolute -right-8 -top-8 w-32 h-32 bg-secondary/15 rounded-full blur-2xl group-hover:bg-secondary/25 transition-all"></div>
+
+      <!-- Card 2: DUPR Ready -->
+      <div class="relative p-6 sm:p-7 rounded-3xl bg-surface-container/70 hover:bg-surface-container border border-white/[0.08] hover:border-secondary/40 transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.35)] hover:shadow-[0_16px_40px_-10px_rgba(164,214,76,0.18)] hover:-translate-y-1 flex flex-col justify-between overflow-hidden group">
+        <!-- Specular top highlight -->
+        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent"></div>
+        <!-- Ambient gradient glow on hover -->
+        <div class="absolute -right-12 -top-12 w-44 h-44 bg-secondary/10 rounded-full blur-3xl pointer-events-none group-hover:bg-secondary/20 transition-all duration-500"></div>
+
         <div>
-          <div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-secondary shadow-[0_0_16px_rgba(164,214,76,0.2)] mb-space-lg">
-            <span class="material-symbols-outlined text-headline-md">analytics</span>
+          <!-- Card top row: icon + micro-badge -->
+          <div class="flex items-center justify-between gap-3 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary/20 to-secondary/5 border border-secondary/30 flex items-center justify-center text-secondary shadow-[0_0_20px_rgba(164,214,76,0.18)]">
+              <span class="material-symbols-outlined text-2xl">verified</span>
+            </div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-secondary font-label-sm text-[11px] font-semibold tracking-wide uppercase">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+              DUPR Certified
+            </span>
           </div>
-          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">DUPR Ready</h3>
-          <p class="font-body-md text-body-md text-on-surface-variant mt-space-sm leading-relaxed">
-            Bring your DUPR rating to your club community. Find players at your skill level and get ready for your next competitive match.
+
+          <h3 class="font-headline-md text-xl md:text-2xl text-on-surface font-bold tracking-tight">DUPR Ready</h3>
+          <p class="font-body-md text-sm text-on-surface-variant mt-2.5 leading-relaxed">
+            Bring your DUPR rating to your club community. Find players at your exact skill level, record validated match outcomes, and get ready for your next competitive match.
           </p>
+
+          <!-- Micro-widget: DUPR Live Rating preview -->
+          <div class="my-5 p-3.5 rounded-2xl bg-surface-container-lowest/80 border border-white/[0.06] flex items-center justify-between gap-3 shadow-inner">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-surface-container-high border border-white/[0.06] flex items-center justify-center text-secondary font-label-lg font-bold text-xs font-mono">
+                DUPR
+              </div>
+              <div class="flex flex-col">
+                <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">Dynamic Rating</span>
+                <span class="font-label-lg text-xs md:text-sm text-on-surface font-bold tracking-tight font-mono">4.38 <span class="text-secondary text-xs font-normal">±0.06</span></span>
+              </div>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-secondary/10 text-secondary text-[10px] font-label-sm font-semibold border border-secondary/20 shrink-0">
+              <span class="material-symbols-outlined text-xs">trending_up</span> 100% Reliable
+            </span>
+          </div>
         </div>
-        <div class="mt-space-lg pt-space-md flex items-center gap-2 text-secondary font-label-md text-label-md font-semibold">
-          <span>Explore DUPR Ready play</span>
-          <span class="material-symbols-outlined text-label-md group-hover:translate-x-1 transition-transform">arrow_forward</span>
+
+        <div class="pt-4 border-t border-white/[0.06] flex items-center justify-between">
+          <a href="#/auth?mode=up" class="inline-flex items-center gap-2 text-secondary hover:text-secondary-fixed font-label-sm text-xs font-semibold tracking-wide transition-colors group/link no-underline">
+            <span>Explore DUPR Ready play</span>
+            <span class="material-symbols-outlined text-sm transition-transform duration-200 group-hover/link:translate-x-1">arrow_forward</span>
+          </a>
         </div>
       </div>
-      <!-- Card 3 -->
-      <div class="relative p-space-xl rounded-2xl bg-surface-container-high backdrop-blur-md shadow-lg flex flex-col justify-between overflow-hidden group hover:translate-y-[-4px] transition-all">
-        <div class="absolute -right-8 -top-8 w-32 h-32 bg-primary-fixed-dim/15 rounded-full blur-2xl group-hover:bg-primary-fixed-dim/25 transition-all"></div>
+
+      <!-- Card 3: Club Management Suite -->
+      <div class="relative p-6 sm:p-7 rounded-3xl bg-surface-container/70 hover:bg-surface-container border border-white/[0.08] hover:border-primary-fixed-dim/40 transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.35)] hover:shadow-[0_16px_40px_-10px_rgba(152,218,39,0.18)] hover:-translate-y-1 flex flex-col justify-between overflow-hidden group">
+        <!-- Specular top highlight -->
+        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-fixed-dim/30 to-transparent"></div>
+        <!-- Ambient gradient glow on hover -->
+        <div class="absolute -right-12 -top-12 w-44 h-44 bg-primary-fixed-dim/10 rounded-full blur-3xl pointer-events-none group-hover:bg-primary-fixed-dim/20 transition-all duration-500"></div>
+
         <div>
-          <div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-primary-fixed-dim shadow-[0_0_16px_rgba(152,218,39,0.2)] mb-space-lg">
-            <span class="material-symbols-outlined text-headline-md">domain_add</span>
+          <!-- Card top row: icon + micro-badge -->
+          <div class="flex items-center justify-between gap-3 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-fixed-dim/20 to-primary-fixed-dim/5 border border-primary-fixed-dim/30 flex items-center justify-center text-primary-fixed-dim shadow-[0_0_20px_rgba(152,218,39,0.18)]">
+              <span class="material-symbols-outlined text-2xl">monitoring</span>
+            </div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed-dim/10 border border-primary-fixed-dim/20 text-primary-fixed-dim font-label-sm text-[11px] font-semibold tracking-wide uppercase">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim"></span>
+              Turnkey OS
+            </span>
           </div>
-          <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Club Management Suite</h3>
-          <p class="font-body-md text-body-md text-on-surface-variant mt-space-sm leading-relaxed">
+
+          <h3 class="font-headline-md text-xl md:text-2xl text-on-surface font-bold tracking-tight">Club Management Suite</h3>
+          <p class="font-body-md text-sm text-on-surface-variant mt-2.5 leading-relaxed">
             Turnkey court operations for facility owners. Dynamic slot yield pricing, automated floodlight control integrations, membership tiered booking windows, and pro shop POS.
           </p>
+
+          <!-- Micro-widget: Facility Yield & IoT Lights preview -->
+          <div class="my-5 p-3.5 rounded-2xl bg-surface-container-lowest/80 border border-white/[0.06] flex items-center justify-between gap-3 shadow-inner">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-surface-container-high border border-white/[0.06] flex items-center justify-center text-primary-fixed-dim">
+                <span class="material-symbols-outlined text-lg">lightbulb</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">IoT Court Lights</span>
+                <span class="font-label-lg text-xs md:text-sm text-on-surface font-bold tracking-tight font-mono">Auto-On <span class="text-primary-fixed-dim text-xs font-normal">Active</span></span>
+              </div>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary-fixed-dim/10 text-primary-fixed-dim text-[10px] font-label-sm font-semibold border border-primary-fixed-dim/20 shrink-0">
+              <span class="material-symbols-outlined text-xs">north_east</span> +38% Yield
+            </span>
+          </div>
         </div>
-        <div class="mt-space-lg pt-space-md flex items-center gap-2 text-primary font-label-md text-label-md font-semibold">
-          <span>Explore Partner Pro features</span>
-          <span class="material-symbols-outlined text-label-md group-hover:translate-x-1 transition-transform">arrow_forward</span>
+
+        <div class="pt-4 border-t border-white/[0.06] flex items-center justify-between">
+          <a href="#/register-club" class="inline-flex items-center gap-2 text-primary-fixed-dim hover:text-primary font-label-sm text-xs font-semibold tracking-wide transition-colors group/link no-underline">
+            <span>Explore Partner Pro features</span>
+            <span class="material-symbols-outlined text-sm transition-transform duration-200 group-hover/link:translate-x-1">arrow_forward</span>
+          </a>
         </div>
       </div>
     </div>
@@ -208,93 +306,159 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
     <!-- Left Column text info -->
     <div class="lg:col-span-5 flex flex-col gap-space-md">
-      <span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-semibold">Peer-to-Peer Match Engine</span>
-      <h2 class="font-headline-lg text-headline-lg text-on-surface">Looking for players at your exact skill level?</h2>
-      <p class="font-body-lg text-body-md md:text-body-lg text-on-surface-variant">
+      <div class="inline-flex items-center gap-2 font-label-sm text-label-sm uppercase tracking-widest text-primary font-semibold">
+        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        Peer-to-Peer Match Engine
+      </div>
+      <h2 class="font-headline-lg text-2xl md:text-4xl text-on-surface font-extrabold tracking-tight">Looking for players at your exact skill level?</h2>
+      <p class="font-body-lg text-body-md md:text-body-lg text-on-surface-variant leading-relaxed">
         Never sit on the bench waiting for partners again. Drop into verified open play rotations, connect with players at your skill level, or host private King of the Court lobbies.
       </p>
-      <div class="flex flex-col gap-space-sm pt-space-sm">
-        <div class="flex items-center gap-space-sm">
-          <span class="material-symbols-outlined text-primary text-headline-sm">verified_user</span>
-          <span class="font-body-md text-body-md text-on-surface">Algorithmic handicap matchmaking ensures competitive rallies</span>
+      <div class="flex flex-col gap-3.5 pt-2">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-surface-container-high border border-white/[0.06] flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-lg">verified_user</span>
+          </div>
+          <span class="font-body-md text-sm text-on-surface">Algorithmic handicap matchmaking ensures competitive rallies</span>
         </div>
-        <div class="flex items-center gap-space-sm">
-          <span class="material-symbols-outlined text-primary text-headline-sm">notifications_active</span>
-          <span class="font-body-md text-body-md text-on-surface">Instant court push notifications when slots drop near you</span>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-surface-container-high border border-white/[0.06] flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-lg">notifications_active</span>
+          </div>
+          <span class="font-body-md text-sm text-on-surface">Instant court push notifications when slots drop near you</span>
         </div>
-        <div class="flex items-center gap-space-sm">
-          <span class="material-symbols-outlined text-primary text-headline-sm">groups</span>
-          <span class="font-body-md text-body-md text-on-surface">Community dinking ladders &amp; weekend round-robins</span>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-surface-container-high border border-white/[0.06] flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-lg">groups</span>
+          </div>
+          <span class="font-body-md text-sm text-on-surface">Community dinking ladders &amp; weekend round-robins</span>
         </div>
       </div>
-      <div class="pt-space-md">
-        <a class="inline-flex items-center gap-space-xs font-label-lg text-label-lg px-space-lg py-space-sm bg-surface-container-high hover:bg-surface-bright text-on-surface rounded-full transition-colors no-underline" href="#/auth?mode=up">
+      <div class="pt-4">
+        <a class="inline-flex items-center gap-2 font-label-lg text-xs md:text-sm px-6 py-3 bg-surface-container-high hover:bg-surface-bright border border-white/[0.08] hover:border-white/[0.16] text-on-surface rounded-full transition-all shadow-md no-underline group" href="#/auth?mode=up">
           <span>Browse All Active Lobbies</span>
-          <span class="material-symbols-outlined text-label-md">arrow_forward</span>
+          <span class="material-symbols-outlined text-base transition-transform group-hover:translate-x-1">arrow_forward</span>
         </a>
       </div>
     </div>
     <!-- Right Column: Live Open Sessions Widget -->
-    <div class="lg:col-span-7 flex flex-col gap-space-md bg-surface-container-high p-space-lg md:p-space-xl rounded-2xl shadow-xl">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-space-xs">
-          <span class="w-3 h-3 rounded-full bg-primary animate-pulse"></span>
-          <span class="font-headline-sm text-headline-sm text-on-surface font-bold">Open Play Preview</span>
+    <div class="lg:col-span-7 flex flex-col gap-4 p-5 sm:p-7 md:p-8 rounded-3xl bg-surface-container-low/95 border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl relative overflow-hidden">
+      <!-- Subtle top-right ambient glow -->
+      <div class="absolute -top-20 -right-20 w-56 h-56 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Widget Header -->
+      <div class="flex items-center justify-between gap-3 relative z-10">
+        <div class="flex items-center gap-2.5">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+          </span>
+          <h3 class="font-headline-sm text-lg md:text-xl text-on-surface font-bold tracking-tight">Open Play Preview</h3>
         </div>
-        <span class="font-label-sm text-label-sm text-on-surface-variant">Metro Region • Sample Sessions</span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-highest/80 border border-white/[0.06] text-on-surface-variant font-label-sm text-[11px]">
+          <span class="material-symbols-outlined text-[13px] text-primary">sensors</span> Metro Region • Real-time
+        </span>
       </div>
-      <div class="flex flex-col gap-space-sm mt-space-xs">
+
+      <!-- Match Sessions List -->
+      <div class="flex flex-col gap-3 relative z-10 mt-1">
         <!-- Match Session 1: Full -->
-        <div class="p-space-md rounded-xl bg-surface-container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
-          <div class="flex items-center gap-space-md">
-            <div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary font-headline-sm font-bold">
-              3.5
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-surface-container/70 hover:bg-surface-container border border-white/[0.06] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-12 h-12 rounded-xl bg-surface-container-highest/70 border border-white/[0.06] flex flex-col items-center justify-center text-center shrink-0">
+              <span class="text-[9px] font-label-sm text-outline uppercase font-semibold leading-none">DUPR</span>
+              <span class="font-headline-sm text-base font-bold text-on-surface leading-tight mt-0.5">3.5</span>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Intermediate Open Play</h4>
-                <span class="px-2 py-0.5 rounded-full bg-surface-bright text-outline text-label-sm font-label-sm">4/4 Full</span>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h4 class="font-headline-sm text-sm sm:text-base text-on-surface font-semibold truncate">Intermediate Open Play</h4>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-highest border border-white/[0.04] text-outline text-[11px] font-label-sm font-medium">
+                  <span class="material-symbols-outlined text-[12px]">lock</span> 4/4 Full
+                </span>
               </div>
-              <p class="font-body-sm text-body-sm text-on-surface-variant">Southside Courts • Starts in 45m • 2hr session</p>
+              <p class="font-body-sm text-xs text-on-surface-variant mt-0.5 flex items-center gap-1.5 flex-wrap">
+                <span>Southside Courts</span>
+                <span class="text-outline-variant">•</span>
+                <span>Starts in 45m</span>
+                <span class="text-outline-variant">•</span>
+                <span>2hr session</span>
+              </p>
             </div>
           </div>
-          <button class="px-space-md py-2 rounded-full bg-surface-container-highest text-outline font-label-md text-label-md cursor-not-allowed border-0" disabled="">
+          <button class="sm:self-center px-4 py-2 rounded-xl bg-surface-container-highest/40 border border-white/[0.04] text-outline font-label-sm text-xs cursor-not-allowed whitespace-nowrap self-start" disabled="">
             Waitlist Full
           </button>
         </div>
+
         <!-- Match Session 2: 1 Spot Remaining (Active Highlight) -->
-        <div class="p-space-md rounded-xl bg-surface-container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md relative overflow-hidden shadow-[0_0_20px_rgba(163,230,53,0.15)]">
-          <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary"></div>
-          <div class="flex items-center gap-space-md pl-1">
-            <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-headline-sm font-bold">
-              4.5+
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-primary/[0.12] via-surface-container/90 to-surface-container/90 border border-primary/40 shadow-[0_0_24px_rgba(177,233,3,0.18)] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 relative overflow-hidden group">
+          <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary shadow-[0_0_12px_rgba(177,233,3,0.8)]"></div>
+          <div class="flex items-center gap-3.5 min-w-0 pl-1">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold shadow-[0_0_16px_rgba(177,233,3,0.35)] flex flex-col items-center justify-center text-center shrink-0">
+              <span class="text-[9px] font-label-sm uppercase font-extrabold leading-none opacity-90">DUPR</span>
+              <span class="font-headline-sm text-base font-extrabold leading-tight mt-0.5">4.5+</span>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Competitive King of Court</h4>
-                <span class="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-label-sm font-label-sm font-bold animate-pulse">1 Spot Left!</span>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h4 class="font-headline-sm text-sm sm:text-base text-on-surface font-bold truncate">Competitive King of Court</h4>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 text-[11px] font-label-sm font-bold tracking-wide animate-pulse">
+                  <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 1 Spot Left!
+                </span>
               </div>
-              <p class="font-body-sm text-body-sm text-on-surface-variant">Apex Dinking Hub • Today, 7:00 PM • DUPR Ready</p>
+              <p class="font-body-sm text-xs text-on-surface-variant mt-0.5 flex items-center gap-1.5 flex-wrap">
+                <span>Apex Dinking Hub</span>
+                <span class="text-outline-variant">•</span>
+                <span>Today, 7:00 PM</span>
+                <span class="text-outline-variant">•</span>
+                <span class="text-primary font-medium">DUPR Ready</span>
+              </p>
             </div>
           </div>
-          <a class="px-space-lg py-2 rounded-full bg-primary hover:bg-secondary-fixed text-on-primary font-label-md text-label-md font-bold shadow-[0_0_16px_rgba(163,230,53,0.35)] transition-all no-underline" href="#/auth?mode=up">Claim Slot</a>
+          <a class="sm:self-center inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary hover:bg-[#c2f822] text-on-primary font-label-sm text-xs font-bold tracking-wide shadow-[0_0_18px_rgba(177,233,3,0.35)] hover:shadow-[0_0_24px_rgba(177,233,3,0.55)] transition-all whitespace-nowrap no-underline self-start" href="#/auth?mode=up">
+            <span>Claim Slot</span>
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
         </div>
+
         <!-- Match Session 3: Clinic Spots -->
-        <div class="p-space-md rounded-xl bg-surface-container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
-          <div class="flex items-center gap-space-md">
-            <div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-secondary font-headline-sm font-bold">
-              2.5
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-surface-container/70 hover:bg-surface-container border border-white/[0.06] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-12 h-12 rounded-xl bg-surface-container-highest/80 border border-white/[0.08] text-secondary flex flex-col items-center justify-center text-center shrink-0">
+              <span class="text-[9px] font-label-sm text-outline uppercase font-semibold leading-none">DUPR</span>
+              <span class="font-headline-sm text-base font-bold leading-tight mt-0.5">2.5</span>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Mixed Doubles Beginner Clinic</h4>
-                <span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary text-label-sm font-label-sm">6/8 Filled</span>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h4 class="font-headline-sm text-sm sm:text-base text-on-surface font-semibold truncate">Mixed Doubles Beginner Clinic</h4>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-highest border border-white/[0.04] text-secondary text-[11px] font-label-sm font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> 6/8 Filled
+                </span>
               </div>
-              <p class="font-body-sm text-body-sm text-on-surface-variant">The Pickleshot Club • Tomorrow, 10:00 AM • Led by Coach Vance</p>
+              <p class="font-body-sm text-xs text-on-surface-variant mt-0.5 flex items-center gap-1.5 flex-wrap">
+                <span>The Pickleshot Club</span>
+                <span class="text-outline-variant">•</span>
+                <span>Tomorrow, 10:00 AM</span>
+                <span class="text-outline-variant">•</span>
+                <span>Coach Vance</span>
+              </p>
             </div>
           </div>
-          <a class="px-space-md py-2 rounded-full bg-surface-bright hover:bg-surface-container-highest text-on-surface font-label-md text-label-md font-semibold transition-colors no-underline" href="#/auth?mode=up">Join Clinic</a>
+          <a class="sm:self-center inline-flex items-center justify-center px-4 py-2 rounded-xl bg-surface-container-highest hover:bg-surface-bright border border-white/[0.08] hover:border-white/[0.16] text-on-surface font-label-sm text-xs font-semibold transition-all whitespace-nowrap no-underline self-start" href="#/auth?mode=up">
+            <span>Join Clinic</span>
+          </a>
         </div>
+      </div>
+
+      <!-- Telemetry Bottom Strip -->
+      <div class="pt-3.5 mt-1 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-on-surface-variant font-label-sm text-[11px] relative z-10">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm text-primary">bolt</span>
+          <span>Skill-balanced handicap algorithms active</span>
+        </div>
+        <a href="#/auth?mode=up" class="inline-flex items-center gap-1 text-primary hover:text-secondary-fixed transition-colors no-underline font-semibold">
+          <span>View all rotations</span>
+          <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+        </a>
       </div>
     </div>
   </div>
@@ -340,7 +504,7 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
       <p class="court-cta-note"><span class="material-symbols-outlined" aria-hidden="true">info</span> Rates and cancellation policies are set by each club.</p>
     </div>
     <div class="court-cta-visual">
-      <div class="court-cta-court" aria-hidden="true"><i></i><span class="court-cta-ball"></span></div>
+      <figure class="court-cta-photo"><img src="assets/pickleball-courts-hd.jpg" alt="Players enjoying outdoor pickleball courts, photographed from above" width="2560" height="1440" loading="lazy" decoding="async"><figcaption><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span> Find your next court</figcaption></figure>
       <div class="court-cta-steps"><span>01 <b>Find a club</b></span><span>02 <b>Book a slot</b></span><span>03 <b>Hit the court</b></span></div>
       <a class="court-cta-bookings" href="#/me"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span><span>Already have a game lined up?<strong>View my bookings</strong></span><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
     </div>
