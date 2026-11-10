@@ -11,7 +11,7 @@
   function icon(name) { return '<span class="material-symbols-outlined text-xl shrink-0" aria-hidden="true">' + esc(name) + "</span>"; }
 
   // Shared account card for the public navigation and facility dashboard.
-  function accountMenu(h, signoutId) {
+  function renderAccountMenu(h, signoutId) {
     h = h || {};
     var initial = esc((h.initial || h.title || "?").charAt(0).toUpperCase());
     return '<div class="facility-menu-header">' +
@@ -174,7 +174,7 @@
                 '</span>' +
                 '<span class="material-symbols-outlined facility-chevron" aria-hidden="true">expand_more</span>' +
               '</summary><div class="facility-account-menu">' +
-                accountMenu(h) +
+                renderAccountMenu(h) +
               '</div></details>' +
             '</div>' +
           '</header>' +
@@ -272,5 +272,5 @@
     return api;
   }
 
-  D.ui = { dash: dash, icon: icon, accountMenu: accountMenu };
+  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu };
 })();
