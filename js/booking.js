@@ -714,8 +714,7 @@
             '</div>' +
           '</div>' +
 
-          (py ? '<div class="mt-2.5 flex items-center justify-between text-xs font-mono bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-slate-300"><span>Payer ref: <strong class="text-white">' + esc(py.payer_reference) + '</strong>' + (py.method ? ' via ' + esc(py.method) : '') + '</span><button class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-100 text-xs font-sans font-semibold border border-white/10 cursor-pointer transition-colors" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
-              : (b.expires_at ? '<div class="mt-2.5 flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-3 py-2 rounded-xl font-mono"><span>Hold ends in <b class="timer text-amber-200" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : "")) +
+          (!py && b.expires_at ? '<div class="mt-2.5 flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-3 py-2 rounded-xl font-mono"><span>Hold ends in <b class="timer text-amber-200" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
 
           '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
             '<div>' +
@@ -723,6 +722,7 @@
                 '<svg class="w-4 h-4 text-brand-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm-5 0h3v3h-3v-3zm2 2h2v4h-2v-4zm3 3h3v3h-3v-3zm-5 2h3v1h-3v-1z"/></svg>' +
                 'QR Pass' +
               '</button>' +
+              (py ? '<button type="button" class="proof-icon-action" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span aria-hidden="true">&#8369;</span></button>' : '') +
             '</div>' +
             '<div class="flex items-center gap-2">' +
               (withDecide
@@ -781,8 +781,13 @@
       Array.prototype.forEach.call(box.querySelectorAll("[data-proof]"), function (b) {
         b.onclick = async function () {
           var bk = byId[b.getAttribute("data-proof")], py = pay[bk.id], url = await signed(py.proof_path);
-          modal('<h3>Payment proof</h3><p class="small">Amount due <b>' + money(bk.amount) + "</b> - payer ref <b>" + esc(py.payer_reference) + "</b> - code <b>" + esc(bk.reference_code) + "</b></p>" +
-            (url ? '<img class="proofimg" src="' + esc(url) + '" alt="Payment proof">' : "<p>Could not load the image.</p>"));
+          var proof = document.createElement('dialog');
+          proof.className = 'payment-proof-modal'; proof.setAttribute('aria-label','Payment Proof');
+          proof.innerHTML = '<header><div><span class="payment-proof-eyebrow">Booking Payment</span><h2>Payment Proof</h2></div><button type="button" data-close aria-label="Close payment proof"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="payment-proof-details"><div><span>Amount Due</span><strong>' + money(bk.amount) + '</strong></div><div><span>Payer Reference</span><strong>' + esc(py.payer_reference || 'Not provided') + '</strong></div><div><span>Booking Reference</span><strong>' + esc(bk.reference_code) + '</strong></div></div><div class="payment-proof-image">' + (url ? '<img src="' + esc(url) + '" alt="Uploaded payment proof">' : D.ui.emptyState('Image unavailable','The payment proof could not be loaded. Please try again.','image_not_supported')) + '</div><footer><button type="button" class="btn ghost" data-close><span class="material-symbols-outlined" aria-hidden="true">close</span>Close</button></footer>';
+          proof.querySelectorAll('[data-close]').forEach(function (button) { button.onclick = function () { proof.close(); }; });
+          proof.addEventListener('click',function (event) { if (event.target === proof) { var rect = proof.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) proof.close(); } });
+          proof.addEventListener('close',function () { proof.remove(); if (b.isConnected) b.focus(); },{once:true});
+          document.body.appendChild(proof); proof.showModal();
         };
       });
     }
