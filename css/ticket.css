@@ -20,3 +20,6 @@
 .booking-ticket-modal > div > div:first-child { display: none; }
 .booking-ticket-modal > div { border: 1px solid #ffffff !important; }
 .booking-ticket-modal > div > header button[data-close] { display: none; }
+.booking-ticket-modal { width: min(500px,calc(100vw - 24px)); }
+.booking-ticket-modal > div { max-width: none; }
+.booking-ticket-modal > div > section:first-of-type { padding-left: 14px; padding-right: 14px; }
