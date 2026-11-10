@@ -516,7 +516,7 @@
           blocks.map(function (b) {
             return '<tr class="hover:bg-surface-container transition-colors"><td class="py-space-sm px-space-md font-semibold">' + esc((byId[b.court_id] || {}).name || "Court") + "</td><td class=\"py-space-sm px-space-md font-label-md\">" + esc(when(b.starts_at)) + "</td><td class=\"py-space-sm px-space-md font-label-md\">" + esc(when(b.ends_at)) +
               "</td><td class=\"py-space-sm px-space-md text-on-surface-variant\">" + esc(b.reason || "Maintenance") + '</td><td class="py-space-sm px-space-md text-right"><button class="court-icon-action is-danger" title="Remove blocked window" aria-label="Remove blocked window" data-delb="' + esc(b.id) + '" type="button"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></td></tr>';
-          }).join("") + "</tbody></table></div>" : '<p class="text-on-surface-variant font-body-md">No upcoming blocked windows.</p>') +
+          }).join("") + "</tbody></table></div>" : '<div class="court-blocks-empty"><span class="material-symbols-outlined" aria-hidden="true">event_available</span><div><strong>No blocked windows</strong><p>Scheduled maintenance and court closures will appear here.</p></div></div>') +
       '</div></div>';
 
     D.ui.dateTimePickers(sec, t.timezone);

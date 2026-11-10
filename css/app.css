@@ -3001,3 +3001,7 @@ body:has(.confirmation-modal[open]) { overflow: hidden; }
 /* Form feedback is delivered through floating notifications. */
 body .msg { display: none !important; }
 #ds-toast-stack[popover] { inset: auto 24px 24px auto; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; }
+.court-blocks-empty { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 22px 16px; border: 1px dashed #ffffff10; border-radius: 10px; background: #ffffff02; }
+.court-blocks-empty > .material-symbols-outlined { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border: 1px solid #ffffff0b; border-radius: 9px; background: #ffffff03; color: #8fab82; font-size: 20px; }
+.court-blocks-empty strong { color: #c1cfc4; font: 500 12px/20px "Plus Jakarta Sans",sans-serif; }
+#ds-tenant-dashboard #sec .court-blocks-empty p { margin-top: 2px; color: #82968a; font-size: 11px; line-height: 18px; }
