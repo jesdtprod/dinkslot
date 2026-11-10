@@ -1,5 +1,5 @@
-﻿const CACHE = "dinkslot-shell-v1";
-const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/config.js", "manifest.webmanifest", "assets/logo.png", "assets/icons/icon-192.png", "assets/icons/icon-512.png"];
+const CACHE = "dinkslot-shell-v2";
+const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/config.js", "manifest.webmanifest", "assets/dinkslot-logo.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", (e) => { e.waitUntil(caches.keys().then((k) => Promise.all(k.filter((x) => x !== CACHE).map((x) => caches.delete(x)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", (e) => {

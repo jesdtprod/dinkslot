@@ -1,8 +1,8 @@
-﻿(function () {
+(function () {
   var app = document.getElementById("app");
   var routes = {
     "/": function () {
-      return '<section class="hero"><img src="assets/logo.png" alt="DINKSLOT logo"><h1>DINKSLOT</h1><p>Book Your Slot. Own the Court.</p><p>Clubs coming soon.</p></section>';
+      return '<section class="hero"><img src="assets/dinkslot-logo.png" alt="DINKSLOT logo"><h1>DINKSLOT</h1><p>Book Your Slot. Own the Court.</p><p>Clubs coming soon.</p></section>';
     }
   };
   function render() {
