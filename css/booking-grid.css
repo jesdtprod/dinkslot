@@ -58,3 +58,18 @@
 #my-home-club > div:nth-child(2) > div:last-child > a .material-symbols-outlined { font-size:17px; }
 @media(max-width:1100px) { #my-home-club > div:nth-child(2) > div:nth-child(2) { align-items:flex-start; flex-direction:column; gap:16px; } #my-home-club > div:nth-child(2) > div:nth-child(2) > div:last-child { align-self:flex-start; justify-content:flex-start; } #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:540px) { #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) { padding:16px; } #ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { grid-template-columns:repeat(2,minmax(0,1fr)); } #my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child { align-items:flex-start; gap:12px; } }
+
+/* Compact home-club spacing; preserve the icon font inside schedule actions. */
+#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) { padding:16px 18px; }
+#my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child { gap:14px; }
+#my-home-club > div:nth-child(2) > div:nth-child(2) > div:first-child > div:first-child { width:52px; height:52px; border-radius:10px; }
+#my-home-club h3 { font-size:16px; line-height:22px; }
+#my-home-club .space-y-2 > div:nth-child(2) { margin-top:4px; font-size:11px; line-height:18px; }
+#my-home-club .space-y-2 > div:last-child { padding-top:4px; }
+#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child { gap:8px; margin-top:14px; padding-top:12px; }
+#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child > a { display:grid !important; grid-template-columns:18px minmax(0,1fr); align-content:center; column-gap:8px !important; row-gap:3px !important; min-height:70px !important; padding:10px 12px !important; }
+#my-home-club > div:nth-child(2) > div:last-child > a > span { grid-column:2; margin:0; }
+#ds-tenant-dashboard #sec #my-home-club > div:nth-child(2) > div:last-child > a > .material-symbols-outlined { grid-column:1; grid-row:1 / span 3; align-self:center; font-family:"Material Symbols Outlined" !important; font-size:18px !important; font-weight:400; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; word-wrap:normal; direction:ltr; font-feature-settings:"liga"; -webkit-font-feature-settings:"liga"; -webkit-font-smoothing:antialiased; }
+#my-home-club > div:nth-child(2) > div:last-child > a > span:not(.material-symbols-outlined) { font-family:"Plus Jakarta Sans",sans-serif; }
+#my-home-club > div:nth-child(2) > div:last-child > a > span:nth-child(3) { font-size:13px; line-height:18px; }
+#my-home-club > div:nth-child(2) > div:last-child > a > span:last-child { font-size:10px; line-height:14px; }
