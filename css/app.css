@@ -2854,3 +2854,7 @@ body:has(.court-config-modal[open]) { overflow: hidden; }
 #ds-tenant-dashboard #sec .court-config-modal label:has(#ci) { align-self: end; display: flex; flex-direction: row; align-items: center; gap: 10px; min-height: 38px; margin: 0; padding: 8px 12px; border: 1px solid #ffffff12; border-radius: 8px; background: #20282e; color: #becdc1; cursor: pointer; }
 .court-config-modal label:has(#ci):hover { border-color: #a3e63538; }
 .court-config-modal label:has(#ci):focus-within { outline: 2px solid #a9d77b70; outline-offset: 2px; }
+
+/* Center the booking close action within the title header. */
+dialog#booking-modal > header { align-items: center; }
+dialog#booking-modal > header > .booking-modal-close { align-self: center; }
