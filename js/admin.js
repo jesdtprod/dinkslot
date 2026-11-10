@@ -473,33 +473,6 @@
             }).join("") + '</ol>' +
             '<footer class="setup-footer"><span class="material-symbols-outlined" aria-hidden="true">task_alt</span><span>' + (done === checklist.length ? 'All set. Your facility profile is complete.' : 'Your progress is saved as you complete each step.') + '</span></footer>' +
           '</section>' +
-          '<!-- Venue Hardware & Gate Snapshot -->' +
-          '<div class="bg-surface-container-low dashboard-rounded p-space-lg flex flex-col gap-space-md shadow-sm border border-outline-variant/20">' +
-            '<div class="flex items-center justify-between">' +
-              '<div class="flex items-center gap-space-xs">' +
-                '<span class="material-symbols-outlined text-primary text-xl">lock_open</span>' +
-                '<h3 class="font-headline-sm text-headline-sm text-on-surface">Smart Court Access &amp; IoT Status</h3>' +
-              '</div>' +
-              '<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">All Systems Nominal</span>' +
-            '</div>' +
-            '<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm">' +
-              '<div class="bg-surface-container p-space-sm dashboard-rounded flex flex-col gap-1 border border-outline-variant/20">' +
-                '<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Keypad PIN Code</span>' +
-                '<span class="font-label-lg text-label-lg text-on-surface tracking-wider font-bold">#' + esc(t.id.slice(0, 4)) + '</span>' +
-                '<span class="font-label-sm text-label-sm text-primary">Rotates at 12:00 PM</span>' +
-              '</div>' +
-              '<div class="bg-surface-container p-space-sm dashboard-rounded flex flex-col gap-1 border border-outline-variant/20">' +
-                '<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Court LED Lumens</span>' +
-                '<span class="font-label-lg text-label-lg text-on-surface font-bold">750 Lux (Auto)</span>' +
-                '<span class="font-label-sm text-label-sm text-on-surface-variant">Scheduled for Dusk</span>' +
-              '</div>' +
-              '<div class="bg-surface-container p-space-sm dashboard-rounded flex flex-col gap-1 border border-outline-variant/20">' +
-                '<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Court Temperature</span>' +
-                '<span class="font-label-lg text-label-lg text-on-surface font-bold">71°F / 45% Hum</span>' +
-                '<span class="font-label-sm text-label-sm text-primary">Optimal Bounce</span>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
         '</section>' +
 
       '</div>' +
