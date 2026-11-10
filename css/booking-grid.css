@@ -205,3 +205,6 @@ body .club-directory-view button[aria-pressed="true"] { background:#a3e63513 !im
 .find-membership-map .material-symbols-outlined { font-size:15px; }
 @media(max-width:1000px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:minmax(0,1fr); } }
+
+/* Reference toolbar surface; retain its existing compact control layout. */
+#ds-tenant-dashboard #sec .member-find-page .club-directory-tools { background:#101720; }
