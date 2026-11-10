@@ -267,7 +267,7 @@
               '<span id="dashboard-bellslot" class="dashboard-bellslot"></span>' +
               '<details class="facility-account"><summary aria-label="Account menu">' +
                 '<div class="facility-avatar-wrap">' +
-                  '<span class="facility-avatar">' + accountInitial + '</span>' +
+                  '<span class="facility-avatar">' + (h.img ? '<img src="' + esc(h.img) + '" alt="">' : accountInitial) + '</span>' +
                   '<span class="facility-status-dot" aria-hidden="true"></span>' +
                 '</div>' +
                 '<span class="facility-account-text">' +
