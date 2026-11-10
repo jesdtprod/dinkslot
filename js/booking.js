@@ -687,13 +687,34 @@
             var face = ticket.firstElementChild;
             var footer = face.querySelector('footer');
             var height = footer ? footer.offsetTop : face.scrollHeight;
+            face.setAttribute('data-ticket-export', 'true');
             var canvas = await window.html2canvas(face, {
-              scale: 2, backgroundColor: '#101720', height: height,
+              scale: 2, backgroundColor: null, height: height,
               logging: false, useCORS: true,
+              onclone: function (clonedDocument) {
+                var exported = clonedDocument.querySelector('[data-ticket-export]');
+                if (!exported) return;
+                exported.querySelectorAll('*').forEach(function (element) {
+                  element.style.fontFamily = 'Arial, sans-serif';
+                  element.style.letterSpacing = 'normal';
+                });
+                exported.querySelectorAll('[data-copy-ref], [data-copy-ref] *').forEach(function (element) {
+                  element.style.backgroundImage = 'none'; element.style.webkitTextFillColor = 'currentColor'; element.style.opacity = '1';
+                  element.style.color = element.classList.contains('ticket-reference') ? '#a3e635' : '#94a3b8';
+                });
+                exported.querySelectorAll('h1').forEach(function (element) { element.style.lineHeight = '1.35'; });
+              },
               ignoreElements: function (element) { return element.tagName === 'FOOTER' || element.id === 'pass-toast'; }
             });
+            face.removeAttribute('data-ticket-export');
+            // JPEG has no transparency: use a dark matte around the rounded ticket.
+            var output = document.createElement('canvas'); output.width = canvas.width; output.height = canvas.height;
+            var context = output.getContext('2d'), radius = 32 * 2;
+            context.fillStyle = '#080d12'; context.fillRect(0, 0, output.width, output.height);
+            context.save(); context.beginPath(); context.roundRect(0, 0, output.width, output.height, radius); context.clip();
+            context.fillStyle = '#101720'; context.fillRect(0, 0, output.width, output.height); context.drawImage(canvas, 0, 0); context.restore();
             return new Promise(function (resolve, reject) {
-              canvas.toBlob(function (blob) { if (blob) resolve(blob); else reject(new Error('Ticket export failed.')); }, 'image/jpeg', 0.96);
+              output.toBlob(function (blob) { if (blob) resolve(blob); else reject(new Error('Ticket export failed.')); }, 'image/jpeg', 0.96);
             });
           }
           ticket.querySelector('[data-download]').onclick = async function () {
