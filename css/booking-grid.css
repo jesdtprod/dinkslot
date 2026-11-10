@@ -402,3 +402,8 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 .member-clubs-chips button { min-height:24px; padding:2px 7px; font-size:10px; line-height:18px; }
 .member-clubs-toolbar > label { grid-column:2; margin:0; padding:0; border:0; width:auto; }
 @media(max-width:600px) { .member-clubs-toolbar { grid-template-columns:minmax(0,1fr); } .member-clubs-toolbar > label { grid-column:1; justify-content:flex-start; padding-top:3px; } }
+
+/* Match Find a Club search control height. */
+.member-clubs-search { height:44px; padding:0 12px; }
+#ds-tenant-dashboard #sec .member-clubs-search input { height:42px; padding:8px 0; font-size:12px; }
+.member-clubs-search .material-symbols-outlined { font-size:18px; }
