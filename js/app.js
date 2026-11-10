@@ -1,4 +1,4 @@
-﻿// DINKSLOT frontend (vanilla JS). Hash routes: /#/c/<slug>. No business rules live here:
+// DINKSLOT frontend (vanilla JS). Hash routes: /#/c/<slug>. No business rules live here:
 // the database decides; this file only calls views and functions.
 (function () {
   "use strict";
@@ -59,7 +59,10 @@
     note.className = "msg err small";
     container.parentNode.insertBefore(note, container.nextSibling);
     function retryLink() {
-      note.innerHTML = ' <a href="#" class="retry">Retry the check</a>';
+      note.appendChild(document.createTextNode(" "));
+      var retry = document.createElement("a");
+      retry.href = "#"; retry.className = "retry"; retry.textContent = "Retry the check";
+      note.appendChild(retry);
       note.querySelector(".retry").onclick = function (e) { e.preventDefault(); note.textContent = ""; h.reset(); arm(); };
     }
     var slow;
@@ -74,6 +77,7 @@
         h.id = window.turnstile.render(container, {
           sitekey: cfg.TURNSTILE_SITE_KEY,
           theme: "dark",
+          size: "flexible",
           callback: function (t) { h.token = t; note.textContent = ""; clearTimeout(slow); },
           "expired-callback": function () { h.token = null; },
           "error-callback": function (code) {
@@ -181,82 +185,250 @@
   function viewAuth(opts) {
     opts = opts || {};
     var next = opts.next || "/me";
-    var defaultTitleIn = opts.title || "Sign in";
-    var defaultTitleUp = opts.title || "Create an account";
-    var defaultIntroIn = opts.intro || "Enter your email and password to access your account.";
-    var defaultIntroUp = opts.intro || "Enter your details below to get started with DINKSLOT.";
+    var defaultTitleIn = opts.title || "Welcome back to the court";
+    var defaultTitleUp = opts.title || "Create your player account";
+    var defaultIntroIn = opts.intro || "Enter your credentials to access your bookings and club schedule.";
+    var defaultIntroUp = opts.intro || "Register your DINKSLOT profile to book courts or manage your club.";
     app.innerHTML =
-      '<div class="auth-wrap"><section class="panel auth-panel">' +
-      '<div class="auth-header"><h1 id="auth-title">' + defaultTitleIn + '</h1>' +
-      '<p id="auth-sub">' + defaultIntroIn + '</p></div>' +
-      '<div class="tabs" role="tablist"><button type="button" id="tab-in" class="tab on" role="tab" aria-selected="true">Sign in</button>' +
-      '<button type="button" id="tab-up" class="tab" role="tab" aria-selected="false">Create account</button></div>' +
-      '<form id="f" novalidate>' +
-      '<label id="l-name" hidden>Full name<input id="name" autocomplete="name" placeholder="Alex Rivera"></label>' +
-      '<label>Email address<input id="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>' +
-      '<label>Password<div class="pw-wrap"><input id="pw" type="password" autocomplete="current-password" minlength="6" placeholder="••••••••" required>' +
-      '<button type="button" id="pw-toggle" class="pw-toggle" aria-label="Show password">Show</button></div>' +
-      '<span id="pw-hint" class="field-hint" hidden>Must be at least 6 characters.</span></label>' +
-      (opts.join ? '<label id="l-dn">Display name at this club<input id="dn" maxlength="60" placeholder="How other players see you"></label>' : "") +
-      '<div id="cap" class="cap"></div><p class="msg" role="alert"></p>' +
-      '<button class="btn" id="go" type="submit">Sign in</button></form>' +
-      '<p class="auth-switch"><span id="switch-text">Don\'t have an account?</span>' +
-      '<button type="button" id="switch-btn">Create account</button></p>' +
-      '</section></div>';
+      '<div id="ds-auth-screen" class="flex flex-col w-full">' +
+      '<div class="auth-stage relative w-full min-h-[calc(100vh-4rem)] flex items-center justify-center p-gutter lg:p-gutter-desktop overflow-hidden bg-surface">' +
+      '<!-- Ambient Court Kinetic Background Glows -->' +
+      '<div class="pointer-events-none absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-[140px] mix-blend-screen"></div>' +
+      '<div class="pointer-events-none absolute -bottom-48 -right-32 w-[30rem] h-[30rem] bg-primary-container/15 rounded-full blur-[160px] mix-blend-screen"></div>' +
+      '<!-- Geometric Court Grid Motif Vector Underlay -->' +
+      '<div class="pointer-events-none absolute inset-0 opacity-[0.035] flex items-center justify-center">' +
+      '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">' +
+      '<line class="text-primary" stroke-width="2" x1="200" x2="200" y1="0" y2="800"></line>' +
+      '<line class="text-primary" stroke-width="2" x1="1000" x2="1000" y1="0" y2="800"></line>' +
+      '<line class="text-primary" stroke-dasharray="12 12" stroke-width="2" x1="600" x2="600" y1="0" y2="800"></line>' +
+      '<circle class="text-primary" cx="600" cy="400" r="180" stroke-width="2"></circle>' +
+      '<line class="text-primary" stroke-width="2" x1="200" x2="1000" y1="400" y2="400"></line>' +
+      '</svg>' +
+      '</div>' +
+      '<!-- Main Dynamic Auth Card Container -->' +
+      '<div class="auth-card relative z-10 w-full max-w-5xl my-auto grid grid-cols-1 lg:grid-cols-12 rounded-lg bg-surface-container-low shadow-2xl overflow-hidden">' +
+      '<!-- Left Hero & Brand Identity Panel -->' +
+      '<div class="auth-story lg:col-span-5 relative flex flex-col justify-between p-8 lg:p-10 bg-surface-container overflow-hidden">' +
+      '<div class="absolute inset-0 bg-gradient-to-b from-surface-container-highest/20 via-transparent to-surface-container-lowest/80 pointer-events-none"></div>' +
+      '<div class="absolute -right-20 -bottom-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>' +
+      '<div class="relative z-10 space-y-6">' +
+      '<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high">' +
+      '<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>' +
+      '<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest">DS COMPETITIVE PORTAL</span>' +
+      '</div>' +
+      '<div class="flex items-center gap-4 pt-2">' +
+      '<div class="auth-logo-frame">' +
+      '<img class="auth-logo" src="assets/dinkslot-logo.png" alt="DINKSLOT logo" width="80" height="80" />' +
+      '</div>' +
+      '<div>' +
+      '<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">DINKSLOT</h2>' +
+      '<p class="font-label-sm text-label-sm text-primary tracking-wider uppercase font-semibold">Pro Match Engine • Club Sync</p>' +
+      '</div>' +
+      '</div>' +
+      '<div class="space-y-2 pt-2">' +
+      '<h1 class="font-headline-lg text-headline-lg text-on-surface leading-tight">' +
+      'Elevate your game. <span class="text-primary italic font-headline-display">Rule the court.</span>' +
+      '</h1>' +
+      '<p class="font-body-md text-body-md text-on-surface-variant max-w-sm">' +
+      'Instant court reservations, verified club memberships, real-time slot availability, and seamless QR booking approvals.' +
+      '</p>' +
+      '</div>' +
+      '</div>' +
+      '<!-- Mid Photo Card Inset -->' +
+      '<div class="auth-photo relative z-10 my-6 rounded-DEFAULT overflow-hidden shadow-lg bg-surface-container-high group">' +
+      '<img class="w-full h-44 object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-80" alt="Competitive Pickleball Court" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3opnNx-xsTA73_2sEb3cw28fjSj6yHpaIXn0yCWSqxHyYYdmCYfIokpfSKl6P-dOTar3W4w7BC-8romQ67GnntAhYuXiGdngYUAbuuEuFmgVyV0YxFBkLznLBXIi2kOk2TOxNYVPw6zImufyd5hNpy9JTHAg6GQa0sZhT21WRW2WOkXTD0ZCFMeDa94rWdQVy9wD9EK3esyUKF4KRmQqJ2vtTBJctiucz-CRFTc4" />' +
+      '<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/40 to-transparent"></div>' +
+      '<div class="absolute bottom-3 left-4 right-4 flex items-center justify-between">' +
+      '<div class="flex items-center gap-2">' +
+      '<span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>' +
+      '<span class="font-label-md text-label-md text-on-surface font-semibold">Center Court #4</span>' +
+      '</div>' +
+      '<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary font-bold">GAME POINT • 10-9</span>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '<!-- Right Interactive Auth Form Panel -->' +
+      '<div class="auth-form-panel lg:col-span-7 p-8 lg:p-12 flex flex-col justify-center bg-surface-container-low">' +
+      '<div class="auth-form-content max-w-md w-full mx-auto space-y-6">' +
+      '<!-- Header Inside Card -->' +
+      '<div class="space-y-1">' +
+      '<span id="auth-kicker" class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-widest">Player Access</span>' +
+      '<h2 id="auth-title" class="font-headline-lg text-headline-lg text-on-surface">' + defaultTitleIn + '</h2>' +
+      '<p id="auth-sub" class="font-body-sm text-body-sm text-on-surface-variant">' + defaultIntroIn + '</p>' +
+      '</div>' +
+      '<!-- Interactive Form -->' +
+      '<form class="space-y-4" id="f" novalidate>' +
+      '<!-- Full Name Field (Create Account mode) -->' +
+      '<div id="l-name" class="space-y-1" hidden>' +
+      '<label class="block font-label-md text-label-md text-on-surface font-semibold tracking-wide" for="name">Full Name</label>' +
+      '<div class="relative flex items-center">' +
+      '<span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px] pointer-events-none">person</span>' +
+      '<input id="name" autocomplete="name" placeholder="Alex Rivera" class="w-full pl-11 pr-4 py-3 rounded-full bg-surface-container text-on-surface font-body-md text-body-md placeholder-on-surface-variant/40 focus:outline-none focus:bg-surface-container-high transition-all" />' +
+      '</div>' +
+      '</div>' +
+      '<!-- Email Field -->' +
+      '<div class="space-y-1">' +
+      '<label class="block font-label-md text-label-md text-on-surface font-semibold tracking-wide" for="email">Email Address</label>' +
+      '<div class="relative flex items-center">' +
+      '<span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px] pointer-events-none">alternate_email</span>' +
+      '<input id="email" type="email" autocomplete="email" placeholder="player@dinkslot.club" required class="w-full pl-11 pr-4 py-3 rounded-full bg-surface-container text-on-surface font-body-md text-body-md placeholder-on-surface-variant/40 focus:outline-none focus:bg-surface-container-high transition-all" />' +
+      '</div>' +
+      '</div>' +
+      '<!-- Password Field -->' +
+      '<div class="space-y-1">' +
+      '<div class="flex items-center justify-between">' +
+      '<label class="block font-label-md text-label-md text-on-surface font-semibold tracking-wide" for="pw">Password</label>' +
+      '<a id="forgot-pw" class="font-label-sm text-label-sm text-primary hover:text-secondary-fixed transition-colors font-semibold" href="#">Forgot password?</a>' +
+      '</div>' +
+      '<div class="relative flex items-center">' +
+      '<span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px] pointer-events-none">lock</span>' +
+      '<input id="pw" type="password" autocomplete="current-password" minlength="6" placeholder="••••••••••••" required class="w-full pl-11 pr-12 py-3 rounded-full bg-surface-container text-on-surface font-body-md text-body-md placeholder-on-surface-variant/40 focus:outline-none focus:bg-surface-container-high transition-all" />' +
+      '<button aria-label="Toggle password visibility" class="absolute right-3.5 text-on-surface-variant hover:text-primary transition-colors focus:outline-none p-1" id="toggle-password-btn" type="button">' +
+      '<span class="material-symbols-outlined text-[20px]" id="eye-icon">visibility</span>' +
+      '</button>' +
+      '</div>' +
+      '</div>' +
+      (opts.join ?
+        '<div id="l-dn" class="space-y-1">' +
+        '<label class="block font-label-md text-label-md text-on-surface font-semibold tracking-wide" for="dn">Display Name at This Club</label>' +
+        '<div class="relative flex items-center">' +
+        '<span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px] pointer-events-none">badge</span>' +
+        '<input id="dn" maxlength="60" placeholder="How other players see you" class="w-full pl-11 pr-4 py-3 rounded-full bg-surface-container text-on-surface font-body-md text-body-md placeholder-on-surface-variant/40 focus:outline-none focus:bg-surface-container-high transition-all" />' +
+        '</div>' +
+        '</div>' : '') +
+      '<!-- Remember Me & Security Meta -->' +
+      '<div class="flex items-center justify-between pt-1">' +
+      '<label class="flex items-center gap-2.5 cursor-pointer select-none group">' +
+      '<input class="sr-only peer" id="remember-me" type="checkbox" checked />' +
+      '<div class="w-4 h-4 rounded bg-surface-container peer-checked:bg-primary-container peer-focus:ring-2 peer-focus:ring-primary flex items-center justify-center transition-colors">' +
+      '<span class="material-symbols-outlined text-on-primary text-[14px] font-bold opacity-0 peer-checked:opacity-100 transition-opacity">check</span>' +
+      '</div>' +
+      '<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Remember me</span>' +
+      '</label>' +
+      '<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">' +
+      '<span class="material-symbols-outlined text-[16px] text-primary">security</span>' +
+      '<span>Secure sign in</span>' +
+      '</div>' +
+      '</div>' +
+      '<!-- Turnstile & Feedback -->' +
+      '<div id="cap" class="cap"></div>' +
+      '<p class="msg" role="alert"></p>' +
+      '<!-- Primary Neon CTA Action -->' +
+      '<div class="pt-2">' +
+      '<button class="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm uppercase tracking-wider hover:bg-secondary-fixed active:scale-[0.99] transition-all duration-150 shadow-[0_0_24px_rgba(163,230,53,0.35)]" id="go" type="submit">' +
+      '<span id="go-text">Sign In to Court</span>' +
+      '<span class="material-symbols-outlined text-[22px] font-bold">arrow_forward</span>' +
+      '</button>' +
+      '</div>' +
+      '</form>' +
+      '<!-- Register Prompt & Switcher -->' +
+      '<div class="text-center pt-2">' +
+      '<p class="font-body-sm text-body-sm text-on-surface-variant">' +
+      '<span id="switch-text">New to DINKSLOT?</span> ' +
+      '<a id="switch-btn" class="font-label-md text-label-md text-primary font-bold hover:underline hover:text-secondary-fixed transition-colors ml-1 inline-flex items-center gap-1" href="#">' +
+      '<span id="switch-btn-label">Create an account</span>' +
+      '<span class="material-symbols-outlined text-[16px]">open_in_new</span>' +
+      '</a>' +
+      '</p>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '</div>';
+
+    document.body.classList.add("auth-page");
     var mode = "in", cap = mountCaptcha($("#cap"));
+    function setBtnIdle() {
+      var label = mode === "up" ? "Create Player Account" : "Sign In to Court";
+      $("#go").innerHTML = '<span id="go-text">' + label + '</span><span class="material-symbols-outlined text-[22px] font-bold">arrow_forward</span>';
+    }
+
     function setMode(m) {
       mode = m;
       var isUp = m === "up";
-      $("#tab-in").classList.toggle("on", !isUp);
-      $("#tab-up").classList.toggle("on", isUp);
-      $("#tab-in").setAttribute("aria-selected", String(!isUp));
-      $("#tab-up").setAttribute("aria-selected", String(isUp));
       $("#l-name").hidden = !isUp;
-      $("#pw-hint").hidden = !isUp;
+      $("#forgot-pw").hidden = isUp;
+      $("#auth-kicker").textContent = isUp ? "Player Registration" : "Player Access";
       $("#auth-title").textContent = isUp ? defaultTitleUp : defaultTitleIn;
       $("#auth-sub").textContent = isUp ? defaultIntroUp : defaultIntroIn;
-      $("#go").textContent = isUp ? "Create account" : "Sign in";
       $("#pw").autocomplete = isUp ? "new-password" : "current-password";
-      $("#switch-text").textContent = isUp ? "Already have an account?" : "Don't have an account?";
-      $("#switch-btn").textContent = isUp ? "Sign in" : "Create account";
+      $("#switch-text").textContent = isUp ? "Already have an account?" : "New to DINKSLOT?";
+      $("#switch-btn-label").textContent = isUp ? "Sign in to court" : "Create an account";
+      setBtnIdle();
       setMsg(app, "", "");
     }
-    $("#tab-in").onclick = function () { setMode("in"); };
-    $("#tab-up").onclick = function () { setMode("up"); };
-    $("#switch-btn").onclick = function () { setMode(mode === "in" ? "up" : "in"); };
-    $("#pw-toggle").onclick = function () {
-      var pwInput = $("#pw");
-      var show = pwInput.type === "password";
-      pwInput.type = show ? "text" : "password";
-      this.textContent = show ? "Hide" : "Show";
-      this.setAttribute("aria-label", show ? "Hide password" : "Show password");
+
+    $("#switch-btn").onclick = function (e) {
+      e.preventDefault();
+      setMode(mode === "in" ? "up" : "in");
     };
+    $("#toggle-password-btn").onclick = function () {
+      var passwordInput = $("#pw");
+      var eyeIcon = $("#eye-icon");
+      if (!passwordInput || !eyeIcon) return;
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        eyeIcon.textContent = "visibility_off";
+      } else {
+        passwordInput.type = "password";
+        eyeIcon.textContent = "visibility";
+      }
+    };
+    $("#forgot-pw").onclick = async function (e) {
+      e.preventDefault();
+      var email = $("#email").value.trim();
+      if (!email) return setMsg(app, "Enter your email address above first, then click Forgot password.", "err");
+      if (!cap.token) return setMsg(app, MESSAGES.captcha_required, "err");
+      var r = await sb.auth.resetPasswordForEmail(email, {
+        captchaToken: cap.token,
+        redirectTo: location.origin + location.pathname
+      });
+      cap.reset();
+      if (r.error) return setMsg(app, friendly(r.error), "err");
+      setMsg(app, "Password reset instructions sent. Check your email inbox.", "ok");
+    };
+
     $("#f").onsubmit = async function (e) {
       e.preventDefault();
       var email = $("#email").value.trim(), pw = $("#pw").value;
       if (!email || pw.length < 6) return setMsg(app, "Enter your email and a password of at least 6 characters.", "err");
       if (!cap.token) return setMsg(app, MESSAGES.captcha_required, "err");
-      $("#go").disabled = true; setMsg(app, "Please wait...", "");
+      var btn = $("#go");
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[22px]">progress_activity</span><span>Authenticating Player...</span>';
+      setMsg(app, "", "");
       var res;
       if (mode === "up") {
         res = await sb.auth.signUp({ email: email, password: pw, options: {
           captchaToken: cap.token,
-          // The confirmation link returns to the site the person signed up from (localhost in dev, Pages in prod).
-          // The URL must be in the Auth redirect allow list (localhost:8080 and the Pages URL are).
           emailRedirectTo: location.origin + location.pathname,
           data: { full_name: $("#name").value.trim() } } });
       } else {
         res = await sb.auth.signInWithPassword({ email: email, password: pw, options: { captchaToken: cap.token } });
       }
-      cap.reset(); $("#go").disabled = false;
-      if (res.error) return setMsg(app, friendly(res.error), "err");
-      if (!res.data.session) return setMsg(app, "Account created. Check your email to confirm, then sign in.", "ok");
+      cap.reset();
+      if (res.error) {
+        btn.disabled = false;
+        setBtnIdle();
+        return setMsg(app, friendly(res.error), "err");
+      }
+      if (!res.data.session) {
+        btn.disabled = false;
+        setBtnIdle();
+        return setMsg(app, "Account created. Check your email to confirm, then sign in.", "ok");
+      }
+      btn.innerHTML = '<span class="material-symbols-outlined text-[22px]">sports_tennis</span><span>Access Granted &bull; Entering Court</span>';
       await refreshSession();
       if (state.isPlatform) return go("/platform");
       if (opts.join) {
         var dn = ($("#dn") && $("#dn").value.trim()) || $("#name").value.trim() || email.split("@")[0];
         var j = await sb.rpc("join_club", { p_slug: opts.join, p_display_name: dn });
-        if (j.error) return setMsg(app, friendly(j.error), "err");
+        if (j.error) {
+          btn.disabled = false;
+          setBtnIdle();
+          return setMsg(app, friendly(j.error), "err");
+        }
       }
       go(next);
     };
@@ -422,6 +594,7 @@
     var m;
     window.scrollTo(0, 0);
     stopLive();
+    document.body.classList.remove("auth-page");
     // Supabase Auth returns here with #error=... (expired/used link) or #access_token=... (signed in).
     // These are not page routes.
     if (/^(error|access_token|error_code|error_description)=/.test(raw)) {
@@ -441,7 +614,7 @@
       // Super admin never uses tenant/player screens.
       if (state.isPlatform && (path === "/me" || path === "/register-club" || path === "/auth")) return go("/platform");
       if (path === "/") return await viewHome();
-      if (path === "/auth") { var n = q.get("next"); return viewAuth({ next: n && n.charAt(0) === "/" ? n : "/me" }); }
+      if (path === "/auth") { var n = q.get("next"), mMode = q.get("mode"); return viewAuth({ next: n && n.charAt(0) === "/" ? n : "/me", mode: mMode }); }
       if (path === "/register-club") return viewRegisterClub();
       if (path === "/me") return await viewMe();
       if (path === "/platform") return await viewPlatform();

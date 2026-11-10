@@ -1,28 +1,158 @@
-﻿<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html class="dark" lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DINKSLOT - Book Your Slot. Own the Court.</title>
-<meta name="theme-color" content="#0b0d10">
-<meta name="color-scheme" content="dark">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-<link rel="stylesheet" href="css/app.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta content="web_standard" name="shell-type" />
+  <title>DINKSLOT - Book Your Slot. Own the Court.</title>
+  <meta name="theme-color" content="#10141a" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#121f00",
+            "inverse-primary": "#446900",
+            "surface-container-highest": "#31353c",
+            "primary": "#ccff80",
+            "inverse-on-surface": "#2d3137",
+            "primary-container": "#a3e635",
+            "surface-container-lowest": "#0a0e14",
+            "outline-variant": "#424936",
+            "on-secondary-container": "#1e2f00",
+            "outline": "#8c947c",
+            "on-tertiary-fixed": "#102000",
+            "on-primary": "#213600",
+            "secondary-fixed-dim": "#a4d64c",
+            "secondary-fixed": "#bff365",
+            "tertiary-container": "#9de737",
+            "on-tertiary-container": "#3e6500",
+            "surface-variant": "#31353c",
+            "error": "#ffb4ab",
+            "on-surface": "#dfe2eb",
+            "primary-fixed": "#b2f746",
+            "surface-container": "#1c2026",
+            "surface-container-low": "#181c22",
+            "surface-container-high": "#262a31",
+            "on-error": "#690005",
+            "tertiary-fixed": "#acf847",
+            "error-container": "#93000a",
+            "surface-bright": "#353940",
+            "tertiary": "#caff88",
+            "on-primary-fixed-variant": "#334f00",
+            "on-secondary-fixed": "#131f00",
+            "surface": "#10141a",
+            "primary-fixed-dim": "#98da27",
+            "surface-tint": "#98da27",
+            "surface-dim": "#10141a",
+            "on-background": "#dfe2eb",
+            "on-secondary-fixed-variant": "#354e00",
+            "tertiary-fixed-dim": "#91db2a",
+            "on-primary-container": "#416400",
+            "on-secondary": "#233600",
+            "on-surface-variant": "#c2cab0",
+            "on-tertiary-fixed-variant": "#304f00",
+            "secondary": "#a4d64c",
+            "on-error-container": "#ffdad6",
+            "secondary-container": "#719e13",
+            "background": "#10141a",
+            "on-tertiary": "#1f3700",
+            "inverse-surface": "#dfe2eb"
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            lg: "2rem",
+            xl: "3rem",
+            full: "9999px"
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "gutter": "1.25rem",
+            "margin": "1rem",
+            "space-xl": "2.5rem",
+            "space-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "margin-desktop": "2.5rem",
+            "gutter-desktop": "1.5rem",
+            "space-md": "1rem"
+          },
+          fontFamily: {
+            "label-sm": ["JetBrains Mono", "monospace"],
+            "headline-md": ["Space Grotesk", "sans-serif"],
+            "body-md": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-display-mobile": ["Space Grotesk", "sans-serif"],
+            "headline-sm": ["Space Grotesk", "sans-serif"],
+            "label-lg": ["JetBrains Mono", "monospace"],
+            "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "body-sm": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-display": ["Space Grotesk", "sans-serif"],
+            "headline-lg-mobile": ["Space Grotesk", "sans-serif"],
+            "headline-lg": ["Space Grotesk", "sans-serif"],
+            "label-md": ["JetBrains Mono", "monospace"]
+          },
+          fontSize: {
+            "label-sm": ["10px", { lineHeight: "14px", fontWeight: "500" }],
+            "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "body-md": ["15px", { lineHeight: "24px", fontWeight: "400" }],
+            "headline-display-mobile": ["38px", { lineHeight: "46px", fontWeight: "700" }],
+            "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+            "label-lg": ["14px", { lineHeight: "20px", fontWeight: "600" }],
+            "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+            "body-sm": ["13px", { lineHeight: "20px", fontWeight: "400" }],
+            "headline-display": ["56px", { lineHeight: "64px", fontWeight: "700" }],
+            "headline-lg-mobile": ["28px", { lineHeight: "36px", fontWeight: "700" }],
+            "headline-lg": ["36px", { lineHeight: "44px", fontWeight: "700" }],
+            "label-md": ["12px", { lineHeight: "16px", fontWeight: "500" }]
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="css/app.css" />
 </head>
-<body>
-<header class="top">
-  <a href="#/" class="brand"><img src="assets/dinkslot-logo.png" alt="DINKSLOT" width="40" height="40"><span>DINKSLOT</span></a>
-  <nav id="nav"></nav>
-</header>
-<main id="app" aria-live="polite"></main>
-<footer class="foot">Book Your Slot. Own the Court.</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-<script src="js/config.js"></script>
-<script src="js/app.js"></script>
-<script src="js/admin.js"></script>
+<body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col">
+  <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-white/5">
+    <div class="h-16 w-full px-gutter lg:px-gutter-desktop flex items-center justify-between">
+      <a href="#/" class="site-brand flex items-center gap-space-sm no-underline">
+        <div class="site-logo-frame">
+          <img src="assets/dinkslot-logo.png" alt="DINKSLOT" class="site-logo" />
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface font-bold leading-none">DINKSLOT</span>
+          <span class="font-label-sm text-label-sm tracking-widest text-primary font-medium">SPORTS • DS PICKLEBALL</span>
+        </div>
+      </a>
+      <nav id="nav" class="flex items-center gap-space-md"></nav>
+    </div>
+  </header>
+  <main id="app" class="relative w-full pt-16 flex-1 flex flex-col bg-surface" aria-live="polite"></main>
+  <footer class="w-full bg-surface-container-lowest py-space-lg mt-auto border-t border-white/5">
+    <div class="w-full px-gutter lg:px-gutter-desktop flex flex-col md:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
+      <div class="flex items-center gap-space-sm">
+        <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+        <span>DINKSLOT SPORTS NETWORK • BOOK YOUR SLOT. OWN THE COURT.</span>
+      </div>
+      <div class="flex items-center gap-space-lg">
+        <a class="hover:text-on-surface transition-colors" href="#/">Court Finder</a>
+        <a class="hover:text-on-surface transition-colors" href="#/register-club">Register Club</a>
+        <span>© 2026 DS Pickleball</span>
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
 </body>
 </html>
-
