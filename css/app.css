@@ -2959,3 +2959,8 @@ body:has(.confirmation-modal[open]) { overflow: hidden; }
 #ds-tenant-dashboard #sec .booking-launch h2 { font-family: "Space Grotesk",sans-serif; font-size: 28px; line-height: 34px; font-weight: 600; letter-spacing: -.035em; }
 .booking-launch .booking-launch-copy p { margin: 4px 0 0; font-size: 12px; line-height: 18px; }
 @media (max-width:640px) { .booking-launch .booking-launch-action { margin-left: 0; } }
+
+/* Match the partner badge to the account control geometry. */
+#ds-tenant-dashboard .facility-partner-badge,
+#ds-tenant-dashboard .facility-account > summary { box-sizing: border-box; height: 38px; min-height: 38px; border-radius: 12px; }
+#ds-tenant-dashboard .facility-partner-badge { align-items: center; padding: 0 12px; gap: 7px; }

@@ -219,7 +219,7 @@
               '</div>' +
             '</div>' +
             '<div class="flex items-center gap-space-md">' +
-              '<div class="hidden lg:flex items-center gap-space-xs bg-primary/10 px-space-md py-space-xs rounded-full border border-primary/20">' +
+              '<div class="facility-partner-badge hidden lg:flex items-center gap-space-xs bg-primary/10 px-space-md py-space-xs rounded-full border border-primary/20">' +
                 '<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>' +
                 '<span class="font-label-md text-label-md text-primary font-semibold">' + (o.pill != null ? esc(o.pill) : (h.status === "approved" ? "Approved Partner" : esc(h.status || "Active Partner"))) + '</span>' +
               '</div>' +
