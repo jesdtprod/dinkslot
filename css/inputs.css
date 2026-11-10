@@ -10,10 +10,10 @@ html body textarea.ds-input-icon { background-position: 12px 12px !important; }
 html body .ds-input-icon:disabled { opacity: .55; }
 
 /* Shared compact button radius across pages, dialogs and navigation. */
-:root { --button-radius:7px; }
+:root { --button-radius:10px; --badge-radius:7px; }
 html body :is(button,.btn,.ds-action,.pill,.transactions-button,.setup-action),
 html body :is(#app,#nav,#ds-toast-stack) :is(button,.btn,.ds-action,.pill,.transactions-button,.setup-action) { border-radius:var(--button-radius) !important; }
 html body input::file-selector-button { border-radius:var(--button-radius) !important; }
 
-/* Badges share the same corners as the location filter and action buttons. */
-html body :is(.badge,.chip,.home-club-joined,.home-club-fact,.home-club-format,.member-reservation-ref,.member-overview-stat-value,.membership-panel-summary,.membership-panel-features > span,.member-reservation-meta > span,.member-reservation-meta > strong,.club-directory-results > span,#myclubs-result-count,#club-map-status) { border-radius:var(--button-radius) !important; }
+/* Badges retain the compact location-filter radius. */
+html body :is(.badge,.chip,.home-club-joined,.home-club-fact,.home-club-format,.member-reservation-ref,.member-overview-stat-value,.membership-panel-summary,.membership-panel-features > span,.member-reservation-meta > span,.member-reservation-meta > strong,.club-directory-results > span,#myclubs-result-count,#club-map-status) { border-radius:var(--badge-radius) !important; }
