@@ -2880,3 +2880,12 @@ body .ds-action:disabled, body .ds-action[aria-disabled="true"] { opacity: .45 !
 .settings-payments .qrbody > label:not(.qrswitch) { margin-top: 14px; }
 .settings-payments .qrbody label:not(.qrswitch) > input { margin-top: 0; }
 .settings-payments .qrbody .qract { margin-top: 14px; }
+#ds-toast-stack { position: fixed; right: 24px; bottom: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; width: min(380px,calc(100vw - 32px)); pointer-events: none; }
+.ds-toast { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1px solid #a3e63528; border-radius: 12px; background: #202b25; color: #dce8dd; box-shadow: 0 12px 36px #0006; pointer-events: auto; animation: court-form-enter .18s ease-out; font: 400 12px/19px "Plus Jakarta Sans",sans-serif; }
+.ds-toast > .material-symbols-outlined { color: #b1d984; font-size: 19px; }
+.ds-toast-text { flex: 1; overflow-wrap: anywhere; }
+.ds-toast button { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; background: transparent; color: #9daf9f; cursor: pointer; }
+.ds-toast button .material-symbols-outlined { font-size: 16px; }
+.ds-toast.is-error { border-color: #e6a18d40; background: #302725; }
+.ds-toast.is-error > .material-symbols-outlined { color: #e6b29f; }
+@media (prefers-reduced-motion: reduce) { .ds-toast { animation: none; } }

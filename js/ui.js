@@ -459,5 +459,23 @@
     });
   }
 
-  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers };
+  function toast(message, kind) {
+    var stack = document.getElementById('ds-toast-stack');
+    if (!stack) { stack = document.createElement('div'); stack.id = 'ds-toast-stack'; document.body.appendChild(stack); }
+    var item = document.createElement('div'); item.className = 'ds-toast' + (kind === 'err' ? ' is-error' : ''); item.setAttribute('role', kind === 'err' ? 'alert' : 'status');
+    item.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">' + (kind === 'err' ? 'error' : 'check_circle') + '</span><span class="ds-toast-text"></span><button type="button" aria-label="Dismiss notification"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>';
+    item.querySelector('.ds-toast-text').textContent = message;
+    var timer;
+    function dismiss() { clearTimeout(timer); item.remove(); }
+    function schedule() { clearTimeout(timer); timer = setTimeout(dismiss, 5500); }
+    item.querySelector('button').onclick = dismiss;
+    item.addEventListener('mouseenter', function () { clearTimeout(timer); });
+    item.addEventListener('mouseleave', schedule);
+    item.addEventListener('focusin', function () { clearTimeout(timer); });
+    item.addEventListener('focusout', schedule);
+    stack.appendChild(item); schedule();
+    while (stack.children.length > 3) stack.firstElementChild.remove();
+  }
+
+  D.ui = { dash: dash, icon: icon, accountMenu: renderAccountMenu, dateTimePickers: dateTimePickers, timePickers: timePickers, toast: toast };
 })();

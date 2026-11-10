@@ -948,8 +948,8 @@
         '<div class="qr-tabs" role="tablist">' + KINDS.map(function (k) {
           return '<button type="button" role="tab" class="qr-tab' + (k[0] === curKind ? " on" : "") + '" data-kind="' + k[0] + '" aria-selected="' + (k[0] === curKind) + '">' + esc(k[1]) +
             '<small>' + count(k[0]) + " / 3 active</small></button>"; }).join("") + "</div>" +
-        (flash ? '<p class="msg ok">' + esc(flash) + "</p>" : "") +
         '<div class="qr-list">' + list.map(function (x) { return cardHtml(x, urls); }).join("") + "</div>";
+      if (flash) D.ui.toast(flash, "ok");
       flash = "";
       Array.prototype.forEach.call(box.querySelectorAll(".qr-tab"), function (b) {
         b.onclick = function () { curKind = b.getAttribute("data-kind"); draw(lastRows, lastUrls); };
