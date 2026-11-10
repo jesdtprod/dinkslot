@@ -6,3 +6,18 @@
 .booking-record-grid > .bcard .ds-action { padding: 7px 9px !important; font-size: 11px !important; }
 @media (max-width: 1000px) { .booking-record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .booking-record-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Member overview reservation: saved venue details with compact actions. */
+.member-reservation-card { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:20px; border:1px solid #ffffff12; border-radius:12px; background:#171d23; }
+.member-reservation-main { min-width:0; flex:1; }
+.member-reservation-top { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
+.member-reservation-ref { color:#8e9faa; font-size:11px; overflow-wrap:anywhere; }
+.member-reservation-card h3 { margin:0 0 8px; color:#e1e7e3; font-size:17px; line-height:24px; font-weight:650; }
+.member-reservation-address { display:flex; align-items:flex-start; gap:7px; color:#a2b2ac; font-size:12px; line-height:20px; }
+.member-reservation-card .material-symbols-outlined { font-size:17px; flex-shrink:0; }
+.member-reservation-meta { display:flex; flex-wrap:wrap; align-items:center; gap:12px 20px; margin-top:14px; padding-top:12px; border-top:1px solid #ffffff09; color:#c3cec8; font-size:12px; }
+.member-reservation-meta > span { display:inline-flex; align-items:center; gap:7px; }
+.member-reservation-meta strong { color:#a3e635; font-weight:600; }
+.member-reservation-actions { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
+.member-reservation-actions .btn { justify-content:center; }
+@media(max-width:700px) { .member-reservation-card { align-items:stretch; flex-direction:column; gap:16px; padding:16px; } .member-reservation-actions { flex-direction:row; flex-wrap:wrap; } .member-reservation-actions .btn { flex:1; } }

@@ -46,7 +46,7 @@
     else if (section === "profile") await profileView(sec);
     else await overviewView(sec);
     if (!sec.isConnected) return;
-    if (section !== "overview") {
+    if (section !== "overview" && section !== "find") {
       sec.insertAdjacentHTML('afterbegin', '<header class="member-page-heading"><div><h1>' + esc(SECTIONS[section][0]) + '</h1><p>' + esc(SECTIONS[section][1]) + '</p></div>' + (section === 'bookings' || section === 'clubs' ? '<a class="btn" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a>' : '') + '</header>');
     }
   }
@@ -89,7 +89,7 @@
         var cl = c ? mc.clubs.filter(function (x) { return x.slug === c.club_slug; })[0] : null;
         clubName = cl ? cl.name : "";
         if (c) {
-          var t = (await sb.from("public_clubs").select("name,timezone").eq("slug", c.club_slug).maybeSingle()).data;
+          var t = (await sb.from("public_clubs").select("*").eq("slug", c.club_slug).maybeSingle()).data;
           if (t) {
             if (!clubName && t.name) clubName = t.name;
             if (t.timezone) tz = t.timezone;
@@ -298,69 +298,15 @@
           '</a>' +
         '</div>' +
         '<div id="next-booking-card-slot">' +
-          '<div class="relative overflow-hidden rounded-2xl bg-[#121924] border border-[#202c3d] p-6 sm:p-7 shadow-xl">' +
-            '<div class="absolute left-0 top-0 bottom-0 w-2 bg-[#a3e635] shadow-[0_0_15px_#a3e635]"></div>' +
-            '<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pl-2">' +
-              '<div class="space-y-3">' +
-                '<div class="flex flex-wrap items-center gap-2 sm:gap-3">' +
-                  '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#a3e635]/15 text-[#a3e635] border border-[#a3e635]/40 shadow-sm">' +
-                    '<span class="w-2 h-2 rounded-full bg-[#a3e635] animate-pulse"></span>' +
-                    (next ? (next.status === "approved" ? "Confirmed Match Pass" : "Pending Approval") : "Confirmed Match Pass") +
-                  '</span>' +
-                  '<span class="text-xs font-mono text-gray-400">Ref: <strong class="text-white">' + esc(activeRef) + '</strong></span>' +
-                  '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#1a2535] text-gray-300 border border-[#28384d]">Single Court Reservation</span>' +
-                '</div>' +
-                '<div>' +
-                  '<h3 class="text-xl sm:text-2xl font-bold font-display text-white">' +
-                    esc(activeClubTitle) + ' • ' + esc(activeCourtTitle) +
-                  '</h3>' +
-                  '<p class="text-xs sm:text-sm text-gray-400 mt-1 flex flex-wrap items-center gap-y-1 gap-x-3">' +
-                    '<span class="flex items-center gap-1 text-white font-medium">' +
-                      '<span class="material-symbols-outlined text-sm text-[#a3e635]" aria-hidden="true">calendar_today</span>' +
-                      esc(when) +
-                    '</span>' +
-                    '<span class="text-gray-600">•</span>' +
-                    '<span>' + esc(activeCity) + '</span>' +
-                    '<span class="text-gray-600">•</span>' +
-                    '<span class="text-[#a3e635]">' + mins + ' Mins Duration</span>' +
-                    (next ? ('<span class="text-gray-600">•</span><span>' + money(next.amount) + '</span>') : '') +
-                  '</p>' +
-                '</div>' +
-                '<div class="flex flex-wrap items-center gap-4 pt-1">' +
-                  '<div class="flex items-center gap-2">' +
-                    '<span class="text-xs font-mono text-gray-400">Players:</span>' +
-                    '<div class="flex -space-x-2">' +
-                      '<div class="w-7 h-7 rounded-full bg-[#a3e635] text-black font-bold text-xs flex items-center justify-center border-2 border-[#121924]">' + esc(initials) + '</div>' +
-                      '<div class="w-7 h-7 rounded-full bg-cyan-600 text-white font-bold text-xs flex items-center justify-center border-2 border-[#121924]">TL</div>' +
-                      '<div class="w-7 h-7 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center border-2 border-[#121924]">MR</div>' +
-                      '<div class="w-7 h-7 rounded-full bg-amber-600 text-white font-bold text-xs flex items-center justify-center border-2 border-[#121924]">AK</div>' +
-                    '</div>' +
-                    '<span class="text-xs text-gray-400 ml-1">4.0+ Doubles</span>' +
-                  '</div>' +
-                  '<div class="flex items-center gap-2">' +
-                    '<div class="px-3 py-1 rounded-lg bg-[#0c121a] border border-[#212e3e] flex items-center gap-1.5">' +
-                      '<span class="text-[10px] uppercase font-mono text-gray-400">Gate PIN:</span>' +
-                      '<span class="font-mono font-bold text-[#a3e635] text-sm">#4829</span>' +
-                    '</div>' +
-                    '<div class="px-3 py-1 rounded-lg bg-[#0c121a] border border-[#212e3e] flex items-center gap-1.5">' +
-                      '<span class="text-[10px] uppercase font-mono text-gray-400">Smart Lights:</span>' +
-                      '<span class="text-xs font-bold text-emerald-400">Auto 6:50 PM</span>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-              '<div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 flex-shrink-0">' +
-                '<a class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#a3e635] hover:bg-[#bef264] text-black font-display font-bold text-sm shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:shadow-[0_0_28px_rgba(163,230,53,0.5)] transition-all no-underline" href="' + (next ? '#/me/bookings' : bookHref) + '">' +
-                  '<span class="material-symbols-outlined text-black text-lg font-bold" aria-hidden="true">qr_code_2</span>' +
-                  '<span>' + (next ? 'View Pass / QR Ticket' : 'Book Match Pass') + '</span>' +
-                '</a>' +
-                '<button id="btn-invite-partner" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#192331] hover:bg-[#223043] text-gray-200 border border-[#2c3d52] text-xs font-semibold transition-colors cursor-pointer" type="button">' +
-                  '<span class="material-symbols-outlined text-sm" aria-hidden="true">share</span>' +
-                  '<span>Invite Partner</span>' +
-                '</button>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
+          (next ? '<article class="member-reservation-card">' +
+            '<div class="member-reservation-main">' +
+              '<div class="member-reservation-top"><span class="badge approved">' + (next.status === 'approved' ? 'Confirmed Booking' : 'Pending Approval') + '</span><span class="member-reservation-ref">Ref: ' + esc(activeRef) + '</span></div>' +
+              '<h3>' + esc(activeClubTitle) + ' &middot; ' + esc(activeCourtTitle) + '</h3>' +
+              '<div class="member-reservation-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span><span>' + esc(activeCity) + '</span></div>' +
+              '<div class="member-reservation-meta"><span><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>' + esc(when) + '</span><span><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + mins + ' minutes</span><strong>' + money(next.amount) + '</strong></div>' +
+            '</div><div class="member-reservation-actions"><a class="btn" href="#/me/bookings"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>View Booking Pass</a>' +
+              (directionsHref ? '<a class="btn ghost" href="' + esc(directionsHref) + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">directions</span>View Location</a>' : '') +
+            '</div></article>' : D.ui.emptyState('No upcoming bookings', 'Your next court reservation will appear here.', 'event_available')) +
         '</div>' +
       '</section>';
 
