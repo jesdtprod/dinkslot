@@ -632,7 +632,7 @@
           '</div>' +
           '<div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">' +
             '<div>' +
-              '<label class="block text-xs font-medium text-slate-300 mb-1.5" for="ncourt">Court</label>' +
+              '<label class="sr-only" for="ncourt">Court</label>' +
               '<div class="relative">' +
                 '<select id="ncourt" class="w-full appearance-none bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime cursor-pointer pr-9">' +
                   courts.map(function (c) {
