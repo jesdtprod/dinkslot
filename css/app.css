@@ -3090,3 +3090,16 @@ html:not(.boot-dashboard) .boot-subtitle { margin: 0 auto 36px; }
 .booking-record > div:not(.booking-record-details):not(.booking-card-actions) { grid-column: 1 / -1; }
 @media (max-width:760px) { .booking-queues .bcard.booking-record { grid-template-columns: minmax(0,1fr); gap: 12px; } .booking-record .booking-record-details { grid-template-columns: repeat(2,minmax(0,1fr)); } .booking-record .booking-record-amount { text-align: left; } .booking-record .booking-record-badge { margin-left: auto; } }
 @media (max-width:480px) { .booking-record .booking-record-details { grid-template-columns: minmax(0,1fr); } }
+
+/* Independent reservation cards arranged side by side. */
+.booking-record-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 14px; }
+.booking-record-grid .bcard.booking-record { display: flex; flex-direction: column; align-items: stretch; gap: 0; margin: 0; padding: 0; background: linear-gradient(135deg,#20292e,#1a2227); border-color: #ffffff0d; border-radius: 12px; }
+.booking-record-grid .booking-record-heading { flex-wrap: nowrap; padding: 14px 16px; gap: 10px; }
+.booking-record-grid .booking-record-badge { margin-left: auto; white-space: nowrap; }
+.booking-record-grid .booking-record-details { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px 16px; padding: 0 16px 14px; }
+.booking-record-grid .booking-record-details > div:first-child { grid-column: 1 / -1; padding-bottom: 12px; border-bottom: 1px solid #ffffff09; }
+.booking-record-grid .booking-record-amount { text-align: right; }
+.booking-record-grid .booking-record .booking-card-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: auto; padding: 12px 16px; border-top: 1px solid #ffffff09; background: #0000000b; }
+.booking-record-grid .booking-record > div:not(.booking-record-heading):not(.booking-record-details):not(.booking-card-actions) { margin: 0 16px 12px; }
+@media (min-width:1700px) { .booking-record-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media (max-width:1000px) { .booking-record-grid { grid-template-columns: minmax(0,1fr); } }
