@@ -1647,9 +1647,45 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard #sec .font-label-sm { font-family: "JetBrains Mono",monospace; font-size: 10px; line-height: 16px; font-weight: 500; }
 #ds-tenant-dashboard #sec :is(button,a):is(.font-label-md,.font-label-lg) { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; font-weight: 600; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 10px; }
 #ds-tenant-dashboard #sec .text-headline-display { font-family: "Space Grotesk",sans-serif; font-size: 40px; line-height: 1.1; font-weight: 600; letter-spacing: -.035em; }
-#ds-tenant-dashboard .dashboard-checklist { gap: 10px; }
-#ds-tenant-dashboard .dashboard-checklist > div { padding: 16px; gap: 16px; }
-#ds-tenant-dashboard .dashboard-checklist .font-semibold { font-weight: 600; }
+.setup-card { background: #151b20; border: 1px solid #ffffff0d; border-radius: 16px; overflow: hidden; }
+.setup-header { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 24px; }
+.setup-eyebrow { color: #8a9a90; font: 600 9px/16px "Plus Jakarta Sans",sans-serif; letter-spacing: .14em; }
+#ds-tenant-dashboard #sec .setup-header h2 { margin: 4px 0 6px; font-size: 21px; line-height: 28px; }
+.setup-header p, .setup-copy p { margin: 0; color: #8f9d96; font-size: 12px; line-height: 19px; }
+.setup-progress { width: 200px; flex-shrink: 0; }
+.setup-progress > div:first-child { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 10px; color: #9ca9a1; font-size: 11px; }
+.setup-progress strong { color: #c4e69b; font-weight: 600; }
+.setup-progress-track { height: 5px; background: #ffffff0a; border-radius: 8px; overflow: hidden; }
+.setup-progress-track > span { display: block; height: 100%; background: #aed970; border-radius: inherit; }
+.setup-list { list-style: none; padding: 0 24px; margin: 0; }
+.setup-row { display: flex; align-items: center; gap: 16px; padding: 18px 0; border-top: 1px solid #ffffff08; }
+.setup-step { width: 22px; flex-shrink: 0; color: #64736b; font: 500 11px/20px "JetBrains Mono",monospace; }
+.setup-step .material-symbols-outlined { font-size: 18px; color: #a9d77b; vertical-align: middle; }
+.setup-icon { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border: 1px solid #ffffff0b; border-radius: 9px; background: #ffffff03; color: #95a59b; font-size: 19px; }
+.setup-row.is-complete .setup-icon { color: #a9d77b; background: #a3e63508; border-color: #a3e63516; }
+.setup-copy { flex: 1; min-width: 0; }
+.setup-row-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 3px; }
+#ds-tenant-dashboard #sec .setup-row-heading h3 { margin: 0; color: #dce4df; font: 600 13px/20px "Plus Jakarta Sans",sans-serif; letter-spacing: 0; }
+.setup-badge { padding: 1px 6px; border-radius: 4px; background: #ffffff05; color: #86968c; font-size: 9px; line-height: 16px; }
+.setup-badge.is-required { color: #d8b295; background: #d8b2950a; }
+.is-complete .setup-badge { color: #a6cb87; background: #a3e6350a; }
+.setup-action { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 32px; min-width: 126px; padding: 6px 10px; border: 1px solid #ffffff10; border-radius: 7px; background: #ffffff04; color: #d0dbd4; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; text-decoration: none; white-space: nowrap; transition: background .15s, border-color .15s; }
+.setup-action > .material-symbols-outlined { font-size: 15px; color: #899b8f; }
+.setup-action:hover { background: #a3e6350b; border-color: #a3e63538; color: #d0e7b5; }
+.setup-action:focus-visible { outline: 2px solid #b1df74; outline-offset: 3px; }
+.setup-footer { display: flex; align-items: center; gap: 8px; padding: 13px 24px; border-top: 1px solid #ffffff08; background: #00000012; color: #788b7e; font-size: 11px; }
+.setup-footer > .material-symbols-outlined { font-size: 16px; }
+@media (max-width:640px) {
+  .setup-header { flex-direction: column; align-items: stretch; gap: 18px; padding: 20px 16px; }
+  .setup-progress { width: 100%; }
+  .setup-list { padding: 0 16px; }
+  .setup-row { flex-wrap: wrap; gap: 10px; padding: 16px 0; }
+  .setup-step { display: none; }
+  .setup-copy { flex-basis: calc(100% - 46px); }
+  .setup-action { margin-left: 46px; }
+  .setup-footer { padding: 13px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .setup-action { transition: none; } }
 #ds-tenant-dashboard #ds-side { --action-font-size: 12px; --action-line-height: 18px; }
 #ds-tenant-dashboard #ds-side nav :is(a,button)[data-key] { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; font-weight: 500; }
 #ds-tenant-dashboard #ds-side nav [data-key] > .material-symbols-outlined { font-size: 18px; line-height: 20px; }

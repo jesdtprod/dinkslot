@@ -455,66 +455,24 @@
       '<div class="flex flex-col gap-space-lg">' +
         '<!-- LEFT COLUMN: Redesigned Setup Checklist (7 Columns) -->' +
         '<section class="flex flex-col gap-space-md">' +
-          '<!-- Checklist Master Card -->' +
-          '<div class="bg-surface-container-low dashboard-rounded p-space-lg flex flex-col gap-space-md shadow-md border border-outline-variant/20">' +
-            '<!-- Header with Progress -->' +
-            '<div class="flex items-center justify-between pb-space-sm border-b border-outline-variant/20">' +
-              '<div class="flex flex-col">' +
-                '<div class="flex items-center gap-space-xs">' +
-                  '<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Setup Checklist</h2>' +
-                  '<span class="px-space-xs py-0.5 bg-primary/10 text-primary font-label-sm text-label-sm rounded-full font-semibold">' + (done === checklist.length ? 'Completed' : 'Priority') + '</span>' +
-                '</div>' +
-                '<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Complete your facility profile to unlock DUPR-sanctioned events &amp; instant payouts.</p>' +
+          '<section class="setup-card" aria-labelledby="setup-title">' +
+            '<header class="setup-header">' +
+              '<div><span class="setup-eyebrow">GETTING STARTED</span><h2 id="setup-title">Set up your facility</h2><p>A few finishing touches to get your club ready for players.</p></div>' +
+              '<div class="setup-progress"><div><span>' + done + ' of ' + checklist.length + ' complete</span><strong>' + pct + '%</strong></div>' +
+                '<div class="setup-progress-track" role="progressbar" aria-label="Facility setup completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><span style="width:' + pct + '%"></span></div>' +
               '</div>' +
-              '<!-- Progress Pill Counter -->' +
-              '<div class="flex items-center gap-space-sm bg-surface-container-high px-space-md py-space-xs rounded-full border border-outline-variant/30">' +
-                '<div class="flex flex-col items-end">' +
-                  '<span class="font-label-sm text-label-sm text-on-surface-variant">Completion</span>' +
-                  '<span class="font-label-md text-label-md text-primary font-bold">' + pct + '% (' + done + '/' + checklist.length + ')</span>' +
-                '</div>' +
-                '<div class="w-8 h-8 relative flex items-center justify-center">' +
-                  '<svg class="w-8 h-8 -rotate-90" viewbox="0 0 36 36">' +
-                    '<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>' +
-                    '<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="' + pct + ', 100" stroke-linecap="round" stroke-width="3.5"></path>' +
-                  '</svg>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-            '<!-- Checklist Rows -->' +
-            '<div class="dashboard-checklist flex flex-col gap-space-xs">' +
-              checklist.map(function (item) {
-                var isOk = item.ok;
-                return '<div class="group flex items-center justify-between p-space-md dashboard-rounded ' + (isOk ? 'bg-primary/5 hover:bg-primary/10' : 'bg-surface-container hover:bg-surface-container-high') + ' transition-all border border-outline-variant/20">' +
-                  '<div class="flex items-center gap-space-md">' +
-                    '<div class="w-7 h-7 rounded-full ' + (isOk ? 'bg-primary/20 text-primary' : 'bg-surface-container-highest text-outline') + ' flex items-center justify-center transition-colors">' +
-                      '<span class="material-symbols-outlined text-base font-bold">' + (isOk ? 'check_circle' : 'radio_button_unchecked') + '</span>' +
-                    '</div>' +
-                    '<div class="flex flex-col">' +
-                      '<div class="flex items-center gap-space-xs">' +
-                        '<span class="font-body-md text-body-md ' + (isOk ? 'text-on-surface' : 'text-on-surface') + ' font-semibold">' + esc(item.label) + '</span>' +
-                        '<span class="font-label-sm text-label-sm ' + (isOk ? 'text-primary bg-primary/10' : (item.req === 'Required' ? 'text-error bg-error/10' : 'text-tertiary-fixed bg-tertiary-fixed/10')) + ' px-1.5 py-0.2 rounded font-semibold">' + esc(isOk ? 'Completed' : item.req) + '</span>' +
-                      '</div>' +
-                      '<span class="font-body-sm text-body-sm ' + (isOk ? 'text-primary/80' : 'text-on-surface-variant') + '">' + esc(item.sub) + '</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<a class="px-space-md py-space-xs rounded-full ' + (isOk ? 'bg-surface-container-high hover:bg-surface-bright text-primary' : 'bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface') + ' font-label-md text-label-md transition-all font-semibold whitespace-nowrap no-underline" href="' + esc(item.href) + '">' +
-                    esc(item.action) +
-                  '</a>' +
-                '</div>';
-              }).join("") +
-            '</div>' +
-            '<!-- Motivation Incentive Callout -->' +
-            '<div class="p-space-md dashboard-rounded bg-surface-container-lowest flex items-center gap-space-md mt-space-xs border border-outline-variant/20">' +
-              '<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">' +
-                '<span class="material-symbols-outlined text-xl">verified</span>' +
-              '</div>' +
-              '<div class="flex-1 min-w-0">' +
-                '<span class="font-body-sm text-body-sm text-on-surface font-semibold block">Official DUPR Rating Integration Ready</span>' +
-                '<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Once verified, matches played at ' + esc(t.name) + ' automatically sync to player ratings nationwide.</p>' +
-              '</div>' +
-              '<span class="material-symbols-outlined text-outline text-lg hidden sm:block">arrow_forward</span>' +
-            '</div>' +
-          '</div>' +
+            '</header>' +
+            '<ol class="setup-list">' + checklist.map(function (item, index) {
+              var icons = { avatar: "image", cover: "panorama", courts: "sports_tennis", qr: "qr_code_2", rules: "description" };
+              return '<li class="setup-row' + (item.ok ? ' is-complete' : '') + '">' +
+                '<span class="setup-step" aria-hidden="true">' + (item.ok ? '<span class="material-symbols-outlined">check</span>' : String(index + 1).padStart(2, '0')) + '</span>' +
+                '<span class="setup-icon material-symbols-outlined" aria-hidden="true">' + (icons[item.key] || 'settings') + '</span>' +
+                '<div class="setup-copy"><div class="setup-row-heading"><h3>' + esc(item.label) + '</h3><span class="setup-badge' + (!item.ok && item.req === 'Required' ? ' is-required' : '') + '">' + esc(item.ok ? 'Complete' : item.req) + '</span></div><p>' + esc(item.sub) + '</p></div>' +
+                '<a class="setup-action" href="' + esc(item.href) + '"><span>' + esc(item.action) + '</span><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>' +
+              '</li>';
+            }).join("") + '</ol>' +
+            '<footer class="setup-footer"><span class="material-symbols-outlined" aria-hidden="true">task_alt</span><span>' + (done === checklist.length ? 'All set. Your facility profile is complete.' : 'Your progress is saved as you complete each step.') + '</span></footer>' +
+          '</section>' +
           '<!-- Venue Hardware & Gate Snapshot -->' +
           '<div class="bg-surface-container-low dashboard-rounded p-space-lg flex flex-col gap-space-md shadow-sm border border-outline-variant/20">' +
             '<div class="flex items-center justify-between">' +
