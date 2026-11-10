@@ -27,3 +27,11 @@
 #ds-tenant-dashboard #sec .map-location-footer #club-map-status { margin:0; color:#8faa88; font-size:11px; }
 .map-location-footer .club-map-actions { justify-content:flex-end; }
 @media(max-width:760px) { .map-location-editor { grid-template-columns:minmax(0,1fr); } }
+
+/* Profile and media on the left, satellite location on the right. */
+.club-profile-left { display:flex; flex-direction:column; gap:20px; min-width:0; }
+#ds-tenant-dashboard #sec .club-profile-left > div:has(> #pf) { padding:20px; border:1px solid #ffffff10; border-radius:12px; background:linear-gradient(135deg,#1b2228,#171d22); box-shadow:none; }
+.club-profile-left .media-upload-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.club-profile-right .map-location-editor { grid-template-columns:minmax(0,1fr); }
+.club-profile-right .map-coordinate-heading { flex-wrap:wrap; }
+@media(max-width:1100px) { .club-profile-left .media-upload-grid { grid-template-columns:minmax(0,1fr); } }

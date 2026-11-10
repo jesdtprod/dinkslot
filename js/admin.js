@@ -742,9 +742,11 @@
     sec.innerHTML = '<div class="settings-page ' + (part === "profile" ? "club-profile" : "settings-" + esc(part)) + '">' + PANELS[part] + '</div>';
     if (part === "profile") {
       var profileLayout = sec.querySelector('.club-profile'), mediaCard = sec.querySelector('.profile-media'), mapCard = sec.querySelector('.club-map-settings');
+      var detailsCard = sec.querySelector('#pf').parentElement;
+      var leftColumn = document.createElement('div'); leftColumn.className = 'club-profile-left';
       var rightColumn = document.createElement('div'); rightColumn.className = 'club-profile-right';
       mapCard.querySelectorAll('input').forEach(function (input) { input.setAttribute('form', 'pf'); });
-      rightColumn.append(mediaCard); profileLayout.append(rightColumn, mapCard);
+      leftColumn.append(detailsCard, mediaCard); rightColumn.append(mapCard); profileLayout.append(leftColumn, rightColumn);
     }
 
     if (part === "profile") {
