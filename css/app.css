@@ -3021,3 +3021,7 @@ body #app .app-empty-state p, .app-empty-state p { margin: 2px 0 0; color: #8296
 .app-empty-state a { display: inline-block; margin-top: 6px; color: #badb9c; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; text-underline-offset: 3px; }
 .transactions-empty > div { padding: 16px; border: 1px dashed #ffffff10; border-radius: 10px; background: #ffffff02; }
 .booking-queue > .app-empty-state { margin-top: 12px; }
+
+/* Dotted QR pattern in a clean square frame. */
+.booking-ticket-modal .ticket-qr { border-radius: 12px; box-shadow: none; padding: 0; overflow: hidden; }
+.booking-ticket-modal .ticket-qr svg { display: block; width: 100%; height: auto; }

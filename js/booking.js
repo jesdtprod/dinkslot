@@ -437,7 +437,17 @@
           ticket.querySelector('.ticket-reference').textContent = booking.reference_code;
           ticket.querySelector('.ticket-schedule').textContent = range(booking.starts_at, booking.ends_at, tz);
           var code = window.qrcode(0, 'M'); code.addData(booking.reference_code); code.make();
-          var svg = code.createSvgTag({ cellSize: 6, margin: 24, scalable: true });
+          var count = code.getModuleCount(), size = count + 8;
+          var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '"><rect width="100%" height="100%" fill="white"/><g fill="black">';
+          for (var row = 0; row < count; row++) {
+            for (var col = 0; col < count; col++) {
+              if (!code.isDark(row, col)) continue;
+              // Keep finder patterns solid for reliable scanning; round data modules.
+              var finder = (row < 7 && col < 7) || (row < 7 && col >= count - 7) || (row >= count - 7 && col < 7);
+              svg += finder ? '<rect x="' + (col + 4) + '" y="' + (row + 4) + '" width="1" height="1"/>' : '<circle cx="' + (col + 4.5) + '" cy="' + (row + 4.5) + '" r="0.5"/>';
+            }
+          }
+          svg += '</g></svg>';
           ticket.querySelector('.ticket-qr').innerHTML = svg;
           ticket.querySelector('[data-close]').onclick = function () { ticket.close(); };
           ticket.querySelector('[data-download]').onclick = function () {
