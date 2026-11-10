@@ -148,7 +148,8 @@
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body class="app-booting bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col">
-  <div id="app-startup" role="status"><img src="assets/dinkslot-logo.png" alt="DINKSLOT" width="48" height="48"><span class="startup-spinner" aria-hidden="true"></span><p>Loading your page…</p></div>
+  <div id="app-startup" role="status" aria-label="Loading page"><div class="boot-skeleton" aria-hidden="true"><aside><i></i><b></b><b></b><b></b><b></b><b></b></aside><div class="boot-skeleton-page"><header><i></i><b></b></header><main><i class="boot-title"></i><i class="boot-subtitle"></i><div class="boot-metrics"><b></b><b></b><b></b><b></b></div><div class="boot-panels"><b></b><b></b></div><b class="boot-table"></b></main></div></div></div>
+  <script>document.documentElement.classList.toggle('boot-dashboard', /^#\/(admin|platform|me)(\/|\?|$)/.test(location.hash));</script>
   <header class="site-header fixed top-0 w-full z-50">
     <div class="h-16 w-full px-gutter lg:px-gutter-desktop flex items-center justify-between">
       <a href="#/" class="site-brand flex items-center gap-space-sm no-underline">
