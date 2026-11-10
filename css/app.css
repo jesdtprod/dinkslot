@@ -2890,3 +2890,16 @@ body .ds-action:disabled, body .ds-action[aria-disabled="true"] { opacity: .45 !
 .ds-toast.is-error { border-color: #e6a18d40; background: #302725; }
 .ds-toast.is-error > .material-symbols-outlined { color: #e6b29f; }
 @media (prefers-reduced-motion: reduce) { .ds-toast { animation: none; } }
+
+/* Court editor follows the same header, body and footer as New Booking. */
+.court-config-modal[open] { width: min(860px,calc(100vw - 32px)); overflow: hidden; border-color: #ffffff18; outline: none; }
+.court-config-modal::before { content: ''; display: block; height: 2px; background: #a7d67c; }
+#ds-tenant-dashboard #sec .court-matrix .court-config-modal #cf { display: flex; flex-direction: column; max-height: calc(100dvh - 44px); padding: 0; gap: 0; }
+.court-config-modal .court-config-heading { flex-shrink: 0; padding: 18px 20px; gap: 16px; }
+.court-config-modal .court-config-caption { display: inline-block; padding: 2px 8px; margin-bottom: 6px; border: 1px solid #a3e63525; border-radius: 6px; background: #a3e6350a; color: #b4d993; font-size: 9px; line-height: 14px; letter-spacing: .05em; text-transform: uppercase; }
+.court-config-body { display: flex; flex-direction: column; gap: 18px; min-height: 0; padding: 20px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.court-config-body::-webkit-scrollbar { display: none; }
+#ds-tenant-dashboard #sec .court-config-modal .court-config-body > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 16px; }
+.court-config-modal .court-config-actions { flex-shrink: 0; margin: 0; padding: 14px 20px; border-top: 1px solid #ffffff12; background: #192127; }
+.court-config-modal .datetime-trigger { justify-content: space-between; }
+@media (max-width:540px) { #ds-tenant-dashboard #sec .court-config-modal .court-config-body > .grid { grid-template-columns: minmax(0,1fr); } .court-config-body { padding: 16px; } }

@@ -31,7 +31,7 @@
       [/^(?:apply|search|find courts)/i, 'check', 'primary']
     ];
     root.querySelectorAll('button, a.btn, a.pill, a.transactions-button, a.setup-action, a[class*="bg-"], label.qrfile').forEach(function (button) {
-      if (button.matches('[role="tab"],.segbtn,.slot,.slot-btn,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"]')) return;
+      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"]')) return;
       var copy = button.cloneNode(true);
       copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });
       var label = copy.textContent.trim().replace(/\s+/g, ' ');
