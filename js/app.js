@@ -1,4 +1,4 @@
-// DINKSLOT frontend (vanilla JS). Hash routes: /#/c/<slug>. No business rules live here:
+﻿// DINKSLOT frontend (vanilla JS). Hash routes: /#/c/<slug>. No business rules live here:
 // the database decides; this file only calls views and functions.
 (function () {
   "use strict";
@@ -109,7 +109,7 @@
   // ------------------------------------------------------------------ views
   async function viewHome() {
     app.innerHTML =
-      '<section class="hero"><img src="assets/logo.png" alt="DINKSLOT logo"><h1>DINKSLOT</h1>' +
+      '<section class="hero"><img src="assets/dinkslot-logo.png" alt="DINKSLOT logo"><h1>DINKSLOT</h1>' +
       '<p>Book Your Slot. Own the Court.</p></section>' +
       '<div class="filters"><input id="q" type="search" placeholder="Search clubs" aria-label="Search clubs">' +
       '<select id="city" aria-label="City"><option value="">All cities</option></select></div>' +
@@ -353,3 +353,4 @@
   refreshSession().then(render);
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
 })();
+

@@ -53,3 +53,4 @@ body.sa .top{background:#14171a;border-bottom:4px solid var(--lime)}
 .stat b{display:block;font-size:1.6rem}.stat span{color:var(--muted);text-transform:capitalize;font-size:.85rem}
 .stat.pending{border-left-color:#e0a800}.stat.approved{border-left-color:#43a047}
 .stat.rejected,.stat.suspended{border-left-color:var(--err)}
+.brand img{background:#fff;border-radius:8px;padding:2px;object-fit:contain}
