@@ -2,7 +2,14 @@
 
 Every club has **9 ready-made payment cards: 3 GCash, 3 Maya and 3 Bank account**. One card = one account. All start **inactive**. The owner fills a card in, uploads its QR and switches it on. (Clubs created later get their 9 cards automatically; existing clubs were given theirs.)
 
-## Owner: Dashboard > Payments and rules > Payment methods
+## Owner: Dashboard > Payments and rules
+The page has three sections and one Save button:
+1. **Checkout**: pay-by-QR switch, "I approve every booking myself" switch, and the payment instructions (full width).
+2. **Payment methods (QR codes)**: the nine cards, shown as three tabs (GCash, Maya, Bank account), three cards per tab, with an "N of 9 active" counter and "x / 3 active" on each tab. The cards sit outside the settings form, so pressing Enter in a card never saves the settings; each card saves on its own.
+3. **Booking rules**: days ahead, minimum and maximum hours, cancellation cutoff, hold time.
+**Save settings** saves sections 1 and 3 (maximum hours must be at least the minimum).
+
+### The cards
 - Each card has: label players see (default "GCash 1"), account name, mobile number (GCash/Maya) or bank and account number (Bank), the QR image, and an **Active / Inactive** switch.
 - **The switch stays off until the card has a QR image**; a card cannot be active without one (enforced by the database).
 - **Check on upload:** when a file is chosen, the browser scans it. "QR code detected" lets you save; "No QR code found in this image" blocks saving. Uses the browser's `BarcodeDetector` when it has one, otherwise the small jsQR library (loaded on demand, 10 s time limit). If the scanner cannot load, you may still save, with a clear warning.
