@@ -44,3 +44,5 @@
 .member-profile-close { display:grid; place-items:center; width:30px; height:30px; padding:0; border:1px solid #ffffff12; border-radius:8px; background:#ffffff04; color:#aebfb3; cursor:pointer; }
 .member-profile-modal footer { display:flex; justify-content:flex-end; gap:8px; padding-top:16px; border-top:1px solid #ffffff0b; }
 body:has(.member-profile-modal[open]) { overflow:hidden; }
+/* Keep member account status visible immediately above Browse All Clubs. */
+.member-dashboard #ds-side #side-status-box { display:flex; align-items:center; justify-content:space-between; min-height:40px; margin:0 0 4px; padding:10px 12px; border:1px solid #ffffff0c; border-radius:12px; background:#ffffff04; }
