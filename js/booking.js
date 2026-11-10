@@ -114,10 +114,22 @@
     if (!info.payment_enabled) {
       el.innerHTML = '<p class="msg ok">Request sent. The club will review it and you will see the result here.</p>'; return;
     }
-    var qr = await signed(info.qr_path);
-    var attemptKey = uuid();
+    var qrs = info.qrs || [], urls = {}, method = qrs.length ? qrs[0].label : null, attemptKey = uuid();
+    if (qrs.length) {
+      var su = await sb.storage.from("payment").createSignedUrls(qrs.map(function (x) { return x.qr_path; }), 600);
+      (su.data || []).forEach(function (x) { if (x.path && x.signedUrl) urls[x.path] = x.signedUrl; });
+    }
+    // one QR per payment method: tabs switch between the ones the club accepts
+    function qrSide(i) {
+      var x = qrs[i];
+      if (!x) return '<div class="qr ph"></div><p class="muted small">The club has not set up a payment QR yet. Contact the club to pay.</p>';
+      return (qrs.length > 1 ? '<div class="qrtabs" role="tablist">' + qrs.map(function (y, k) {
+          return '<button type="button" role="tab" class="qrtab' + (k === i ? " on" : "") + '" data-i="' + k + '">' + esc(y.label) + "</button>"; }).join("") + "</div>" : "") +
+        (urls[x.qr_path] ? '<img class="qr" src="' + esc(urls[x.qr_path]) + '" alt="' + esc(x.label) + ' QR">' : '<div class="qr ph"></div>') +
+        '<p class="small"><b>' + esc(x.label) + "</b>" + (x.account_name ? "<br>" + esc(x.account_name) : "") + (x.account_number ? "<br>" + esc(x.account_number) : "") + "</p>";
+    }
     el.innerHTML =
-      '<div class="pay"><div>' + (qr ? '<img class="qr" src="' + esc(qr) + '" alt="Payment QR">' : '<div class="qr ph"></div>') + "</div>" +
+      '<div class="pay"><div id="qrside">' + qrSide(0) + "</div>" +
       "<div><p class=\"muted small\">Amount to pay</p><p class=\"bigamt\">" + money(b.amount) + "</p>" +
       '<p class="muted small">Include this code in your payment note</p><p class="refcode">' + esc(b.reference_code) + "</p>" +
       (info.payment_instructions ? '<p class="small">' + esc(info.payment_instructions) + "</p>" : "") +
@@ -126,6 +138,12 @@
       '<label>Screenshot of the payment<input id="pfile" type="file" accept="image/jpeg,image/png,image/webp" required></label>' +
       '<p class="msg" role="alert"></p><button class="btn" type="submit">Submit proof</button></form>';
     startTicker();
+    function bindTabs() {
+      Array.prototype.forEach.call(el.querySelectorAll(".qrtab"), function (b) {
+        b.onclick = function () { var i = +b.getAttribute("data-i"); method = qrs[i].label; q("#qrside", el).innerHTML = qrSide(i); bindTabs(); };
+      });
+    }
+    bindTabs();
     q("form.proof", el).onsubmit = async function (e) {
       e.preventDefault();
       var f = this, btn = q("button", f);
@@ -138,7 +156,7 @@
         var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
         if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
         var r = await sb.rpc("attach_payment_proof", { p_booking_id: b.id, p_proof_path: path,
-          p_payer_reference: q("#pref", f).value.trim(), p_idempotency_key: attemptKey });
+          p_payer_reference: q("#pref", f).value.trim(), p_idempotency_key: attemptKey, p_method: method });
         if (r.error) throw r.error;
         el.innerHTML = '<p class="msg ok">Proof submitted. The club will check it and approve your booking. You will see the result here.</p>';
         if (ctx && ctx.onDone) ctx.onDone();
@@ -391,7 +409,7 @@
           '<div class="font-body-sm text-on-surface-variant mt-1"><span class="text-on-surface font-semibold">' + esc(c.name || "Court") + "</span> · " + esc(range(b.starts_at, b.ends_at, tz)) + '</div>' +
           '<div class="font-mono text-xs text-primary mt-1 font-bold">' + money(b.amount) + " · ref #" + esc(b.reference_code) + '</div></div>' +
           '<div>' + (!withDecide ? srcBadge(b) : py ? '<span class="px-2.5 py-1 rounded-full bg-secondary-container/30 border border-secondary/40 text-secondary font-mono text-xs font-semibold">Proof uploaded</span>' : '<span class="px-2.5 py-1 rounded-full bg-error-container/20 border border-error/30 text-error font-mono text-xs font-semibold">No proof</span>') + '</div></div>' +
-          (py ? '<div class="flex items-center justify-between text-xs font-mono text-on-surface-variant bg-surface-container-high px-3 py-2 rounded"><span>Payer ref: <strong class="text-on-surface">' + esc(py.payer_reference) + '</strong></span><button class="px-3 py-1 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm border border-outline-variant/30 cursor-pointer" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
+          (py ? '<div class="flex items-center justify-between text-xs font-mono text-on-surface-variant bg-surface-container-high px-3 py-2 rounded"><span>Payer ref: <strong class="text-on-surface">' + esc(py.payer_reference) + '</strong>' + (py.method ? ' via ' + esc(py.method) : '') + '</span><button class="px-3 py-1 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm border border-outline-variant/30 cursor-pointer" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
               : (b.expires_at ? '<p class="text-xs text-on-surface-variant bg-surface-container-high px-3 py-2 rounded">Unpaid. Hold ends in <b class="timer text-primary font-mono" data-exp="' + esc(b.expires_at) + '"></b></p>' : "")) +
           '<div class="flex items-center gap-2 pt-1">' + (withDecide ? '<button class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-sm font-bold border-0 cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button> <button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
             : '<button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-cx="' + esc(b.id) + '" type="button">Cancel booking</button>') + '</div><p class="msg" role="alert"></p></div>';

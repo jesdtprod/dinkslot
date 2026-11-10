@@ -337,6 +337,28 @@ begin
       ('Manager name is not in the public view',     'anon', $q$select manager_name from public.public_clubs$q$, 'deny'),
       ('Anonymous cannot read manager from tenants', 'anon', $q$select manager_name from public.tenants$q$, 'deny'),
       ('Platform admin sees the manager name',       'pa', $q$select manager_name from public.platform_list_clubs() where slug='club-one'$q$, 'eq:Juan Dela Cruz'),
+      -- multiple payment QR codes
+      ('Owner adds a payment QR',                    'a1', $q$with i as (insert into public.payment_qrs (tenant_id,label,account_name,account_number,qr_path) values ('{T1}','GCash','Juan D','0917 000 0000','{T1}/qr/gcash.png') returning 1) select count(*) from i$q$, 'pos'),
+      ('Owner adds a second QR',                     'a1', $q$with i as (insert into public.payment_qrs (tenant_id,label,qr_path,sort_order) values ('{T1}','Maya','{T1}/qr/maya.png',1) returning 1) select count(*) from i$q$, 'pos'),
+      ('Joined player sees both active QR codes',    'p2', $q$select jsonb_array_length(public.get_booking_info('{C1}')->'qrs')::text$q$, 'eq:2'),
+      ('Owner switches one QR off',                  'a1', $q$with u as (update public.payment_qrs set is_active=false where tenant_id='{T1}' and label='Maya' returning 1) select count(*) from u$q$, 'pos'),
+      ('Inactive QR is hidden from players',         'p2', $q$select jsonb_array_length(public.get_booking_info('{C1}')->'qrs')::text$q$, 'eq:1'),
+      ('Only the active QR is returned',             'p2', $q$select public.get_booking_info('{C1}')->'qrs'->0->>'label'$q$, 'eq:GCash'),
+      ('Players cannot read the QR table directly',  'p2', $q$select count(*) from public.payment_qrs$q$, 'zero'),
+      ('Staff cannot add a payment QR',              'sf', $q$insert into public.payment_qrs (tenant_id,label,qr_path) values ('{T1}','X','{T1}/qr/x.png')$q$, 'deny'),
+      ('Staff cannot switch a QR',                   'sf', $q$with u as (update public.payment_qrs set is_active=false where tenant_id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
+      ('Club 2 owner cannot add a QR to club 1',     'a2', $q$insert into public.payment_qrs (tenant_id,label,qr_path) values ('{T1}','X','{T1}/qr/x.png')$q$, 'deny'),
+      ('Club 2 owner cannot see club 1 QR codes',    'a2', $q$select count(*) from public.payment_qrs where tenant_id='{T1}'$q$, 'zero'),
+      ('QR path must stay in the club folder',       'a1', $q$insert into public.payment_qrs (tenant_id,label,qr_path) values ('{T1}','Bad','{T2}/qr/steal.png')$q$, 'deny'),
+      ('QR path cannot climb out of the folder',     'a1', $q$insert into public.payment_qrs (tenant_id,label,qr_path) values ('{T1}','Bad','{T1}/qr/../proofs/x.png')$q$, 'deny'),
+      ('QR needs a label',                           'a1', $q$insert into public.payment_qrs (tenant_id,label,qr_path) values ('{T1}','   ','{T1}/qr/y.png')$q$, 'deny'),
+      ('Anonymous cannot call get_booking_info',     'anon', $q$select public.get_booking_info('{C1}')$q$, 'deny'),
+      ('Non-member cannot see club 2 payment info',  'p3', $q$select public.get_booking_info('{C2}')$q$, 'deny'),
+      ('Owner deletes a QR via the function',        'a1', $q$select 'ok' from (select public.delete_payment_qr((select id from public.payment_qrs where tenant_id='{T1}' and label='Maya'))) s$q$, 'eq:ok'),
+      ('Club 2 owner cannot delete club 1 QR',       'a2', $q$select public.delete_payment_qr((select id from public.payment_qrs where tenant_id='{T1}' limit 1))$q$, 'deny'),
+      ('Cannot set deleted_at directly',             'a1', $q$update public.payment_qrs set deleted_at=now() where tenant_id='{T1}'$q$, 'deny'),
+      ('Payment off hides all QR codes',             'a1', $q$with u as (update public.tenant_settings set payment_enabled=false where tenant_id='{T1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('No QR codes are offered when payment is off','p2', $q$select jsonb_array_length(public.get_booking_info('{C1}')->'qrs')::text$q$, 'eq:0'),
       ('Creating many clubs in a day is limited (6th is refused)', 'pg', $q$do $d$ declare i int; begin
           perform set_config('request.jwt.claims', json_build_object('sub','{P2}','role','authenticated')::text, true);
           for i in 1..11 loop
