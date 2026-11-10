@@ -125,8 +125,12 @@
     var user = D.state.user || {};
     var fullName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email || "Player").split("@")[0];
     var initials = fullName.split(/\s+/).map(function (w) { return w.charAt(0).toUpperCase(); }).slice(0, 2).join("") || "JB";
-    var rawDupr = (user.user_metadata && (user.user_metadata.dupr_classification || user.user_metadata.skill_level)) || "4.2";
-    var duprVal = String(rawDupr).replace(/^dupr\s*/i, "") || "4.2";
+    var rawDupr = (user.user_metadata && (user.user_metadata.dupr_classification || user.user_metadata.skill_level)) || 'unrated';
+    var skillLabels = {unrated:'Not Rated', novice:'Novice', intermediate:'Intermediate', advanced:'Advanced', professional:'Professional'};
+    var duprVal = skillLabels[String(rawDupr).toLowerCase()] || String(rawDupr).replace(/^dupr\s*/i, '');
+    var activeCourtsResult = await sb.from('public_courts').select('id', {count:'exact', head:true});
+    if (activeCourtsResult.error) throw activeCourtsResult.error;
+    var activeCourtsCount = activeCourtsResult.count;
 
     var primaryClub = mc.clubs[0] || null;
     if (!primaryClub) {
@@ -182,20 +186,20 @@
           '<div class="flex items-center gap-4 sm:gap-6 self-start lg:self-auto bg-[#0d141e]/90 border border-[#212d3e] px-5 py-3 rounded-xl shadow-inner">' +
             '<div>' +
               '<span class="text-[11px] font-mono text-gray-400 uppercase tracking-wider block">Active Courts</span>' +
-              '<span class="font-display font-bold text-xl sm:text-2xl text-[#a3e635]">2,840+</span>' +
+              '<span class="font-display font-bold text-xl sm:text-2xl text-[#a3e635]">' + (activeCourtsCount == null ? 'Unavailable' : activeCourtsCount) + '</span>' +
             '</div>' +
             '<div class="w-px h-8 bg-[#223042]"></div>' +
             '<div>' +
-              '<span class="text-[11px] font-mono text-gray-400 uppercase tracking-wider block">DUPR Rating</span>' +
+              '<span class="text-[11px] font-mono text-gray-400 uppercase tracking-wider block">Skill Level</span>' +
               '<span class="font-display font-bold text-xl sm:text-2xl text-white flex items-center gap-1.5">' +
                 esc(duprVal) +
-                ' <span class="text-[10px] font-sans font-semibold text-[#a3e635] bg-[#a3e635]/10 px-1.5 py-0.5 rounded border border-[#a3e635]/30">Verified</span>' +
+                ' <span class="text-[10px] font-sans font-semibold text-[#a3e635] bg-[#a3e635]/10 px-1.5 py-0.5 rounded border border-[#a3e635]/30">Self-reported</span>' +
               '</span>' +
             '</div>' +
             '<div class="w-px h-8 bg-[#223042]"></div>' +
             '<div>' +
-              '<span class="text-[11px] font-mono text-gray-400 uppercase tracking-wider block">Avg Match Latency</span>' +
-              '<span class="font-display font-bold text-xl sm:text-2xl text-white">&lt;4 min</span>' +
+              '<span class="text-[11px] font-mono text-gray-400 uppercase tracking-wider block">Upcoming Bookings</span>' +
+              '<span class="font-display font-bold text-xl sm:text-2xl text-white">' + up + '</span>' +
             '</div>' +
           '</div>' +
         '</div>' +

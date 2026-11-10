@@ -14,7 +14,7 @@ const club = {id:'club',slug:'venue',name:'Real Club',street:'12 Real Street',ba
 const court = {id:'court',name:'Real Court',club_slug:'venue'};
 const D = {esc:escape,state:{user:{id:'user',email:'a@example.com'}},mediaUrl:x=>x,ui:{emptyState:(title,desc)=>`<p>${title}: ${desc}</p>`},sb:{from(table){
   const rows = table==='club_players' ? [{id:'player',tenant_id:'club'}] : table==='bookings' ? bookings : table==='public_courts' ? [court] : [club];
-  const query = {select(){return this;},eq(){return this;},in(){return this;},order(){return this;},limit(){return this;},maybeSingle(){return Promise.resolve({data:rows[0]});},then(resolve,reject){return Promise.resolve({data:rows}).then(resolve,reject);}};
+  const query = {select(){return this;},eq(){return this;},in(){return this;},order(){return this;},limit(){return this;},maybeSingle(){return Promise.resolve({data:rows[0]});},then(resolve,reject){return Promise.resolve({data:rows,count:7}).then(resolve,reject);}};
   return query;
 }}};
 const source = fs.readFileSync('js/player.js','utf8').replace('D.player = { render: render };','D.player = { render: render, overview: overviewView };');
@@ -27,6 +27,13 @@ function section(){
 (async()=>{
   let sec=section(); await D.player.overview(sec);
   assert.match(sec.innerHTML,/REAL-123/);
+  assert.match(sec.innerHTML,/Active Courts<\/span><span[^>]+>7<\/span>/);
+  assert.match(sec.innerHTML,/Skill Level/);
+  assert.match(sec.innerHTML,/Not Rated/);
+  assert.match(sec.innerHTML,/Self-reported/);
+  assert.match(sec.innerHTML,/Upcoming Bookings<\/span><span[^>]+>1<\/span>/);
+  assert.doesNotMatch(sec.innerHTML,/2,840|Avg Match Latency|>Verified<\/span>/);
+
   assert.match(sec.innerHTML,/12 Real Street, Poblacion, Isulan/);
   assert.match(sec.innerHTML,/90 minutes/);
   assert.match(sec.innerHTML,/PHP 225.00/);
