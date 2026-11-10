@@ -230,7 +230,18 @@
         '<button id="signout" type="button"><span class="material-symbols-outlined" aria-hidden="true">logout</span><span>Sign out</span></button></div></details>' +
         (state.managedSlug || state.accountType === "player" ? "" : '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>');
     } else {
-      h += '<a href="#/auth?mode=in">Sign in</a><a href="#/auth?mode=up">Sign up</a><a href="#/register-club" class="pill">Register your club</a>';
+      var authHash = (location.hash || "").slice(1);
+      var authPath = authHash.split("?")[0];
+      var authParams = new URLSearchParams(authHash.indexOf("?") < 0 ? "" : authHash.slice(authHash.indexOf("?") + 1));
+      var authIcon = function (name) { return '<span class="material-symbols-outlined" aria-hidden="true">' + name + '</span>'; };
+      if (authPath === "/auth") {
+        var isSignup = authParams.get("mode") === "up";
+        authParams.set("mode", isSignup ? "in" : "up");
+        h += '<a class="auth-nav-switch" href="#/auth?' + esc(authParams.toString()) + '">' + authIcon(isSignup ? "login" : "person_add") + '<span>' + (isSignup ? "Sign in" : "Create account") + '</span></a>';
+      } else {
+        h += '<a class="auth-nav-switch" href="#/auth?mode=in">' + authIcon("login") + '<span>Sign in</span></a><a class="auth-nav-switch" href="#/auth?mode=up">' + authIcon("person_add") + '<span>Create account</span></a>';
+      }
+      h += '<a href="#/register-club" class="pill">Register your club</a>';
     }
     nav.innerHTML = h;
     var accountMenu = nav.querySelector(".facility-account");
@@ -654,6 +665,7 @@
       }
       params.set("mode", screen);
       history.replaceState(null, "", location.pathname + location.search + "#/auth?" + params.toString());
+      renderNav();
     }
     function rememberIntent(dn) { setPending({ as: "player", join: opts.join || null, next: next, dn: dn || "" }); }
     // Google sign-in / sign-up. Works only once the Google provider is enabled in Supabase
@@ -797,8 +809,8 @@
         '<!-- Primary Neon CTA Action -->' +
         '<div class="pt-2">' +
         '<button class="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full bg-primary-container text-on-primary font-headline-sm text-headline-sm uppercase tracking-wider hover:bg-secondary-fixed active:scale-[0.99] transition-all duration-150 shadow-[0_0_24px_rgba(163,230,53,0.35)]" id="go" type="submit">' +
-        '<span id="go-text">Sign In to Court</span>' +
-        '<span class="material-symbols-outlined text-[22px] font-bold">arrow_forward</span>' +
+        '<span id="go-text">Sign in</span>' +
+        '<span class="material-symbols-outlined text-[20px]" aria-hidden="true">login</span>' +
         '</button>' +
         '</div>' +
         '</form>' +
@@ -821,7 +833,7 @@
       cleanupAuthPattern = mountAuthPattern($(".auth-stage"));
       var cap = mountCaptcha($("#cap"));
       function setBtnIdle() {
-        $("#go").innerHTML = '<span id="go-text">Sign In to Court</span><span class="material-symbols-outlined text-[22px] font-bold">arrow_forward</span>';
+        $("#go").innerHTML = '<span id="go-text">Sign in</span><span class="material-symbols-outlined text-[20px]" aria-hidden="true">login</span>';
       }
 
       $("#switch-btn").onclick = function (e) {
@@ -1039,7 +1051,7 @@
         '<p class="msg" role="alert"></p>' +
         '<!-- Neon Primary CTA Button -->' +
         '<button id="go" class="w-full mt-2 py-4 px-space-xl rounded-full bg-primary-container hover:bg-primary text-on-primary-container font-headline-sm text-headline-sm uppercase tracking-wider font-bold transition-all shadow-[0_0_24px_rgba(163,230,53,0.35)] hover:shadow-[0_0_32px_rgba(163,230,53,0.55)] flex items-center justify-center gap-space-sm" type="submit">' +
-        '<span>Create Free Account</span>' +
+        '<span>Create account</span>' +
         '<span class="material-symbols-outlined text-[22px]">sports_tennis</span>' +
         '</button>' +
         '</form>' +
@@ -1071,7 +1083,7 @@
       cleanupAuthPattern = mountAuthPattern($(".auth-stage"));
       var cap = mountCaptcha($("#cap"));
       function setBtnIdle() {
-        $("#go").innerHTML = '<span>Create Free Account</span><span class="material-symbols-outlined text-[22px]">sports_tennis</span>';
+        $("#go").innerHTML = '<span>Create account</span><span class="material-symbols-outlined text-[20px]" aria-hidden="true">person_add</span>';
       }
 
       var passInput = $("#pw"), toggleBtn = $("#toggle-password-btn"), eyeIcon = $("#eye-icon");
@@ -1212,7 +1224,9 @@
       var st = await fetch(cfg.SUPABASE_URL + "/auth/v1/settings", { headers: { apikey: cfg.SUPABASE_ANON_KEY } }).then(function (r) { return r.json(); });
       if (!st || !st.external || !st.external.google) return setMsg(app, "Google sign-in is not available yet. Please use your email and password.", "err");
     } catch (e) { return setMsg(app, friendly(e), "err"); }
-    setPending({ as: "tenant", join: null, next: "/register-club", dn: "" });
+    var clubName = $("#oclub") ? $("#oclub").value.trim() : "";
+    var name = $("#oname") ? $("#oname").value.trim() : "";
+    setPending({ as: "tenant", join: null, next: "/register-club", dn: name, club_name: clubName });
     var r = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: "select_account" } } });
     if (r.error) setMsg(app, friendly(r.error), "err");
   }
@@ -1220,31 +1234,246 @@
   // Step 1 for clubs, separate from player sign-up: create a CLUB account.
   function viewClubSignup() {
     app.innerHTML =
-      '<section class="panel"><span class="eyebrow">For clubs and court owners</span><h1>Register your club</h1>' +
-      '<p>Create a club account first. After you confirm your email you add your club details, and the platform admin approves it before it goes public.</p>' +
-      '<p class="muted small">Want to book a court instead? <a href="#/auth?mode=up">Sign up as a player</a>.</p>' +
-      '<form id="f" novalidate><label>Your name<input id="oname" maxlength="80" autocomplete="name" required></label>' +
-      '<label>Email<input id="oemail" type="email" autocomplete="email" required></label>' +
-      '<label>Password (6 or more characters)<input id="opw" type="password" minlength="6" autocomplete="new-password" required></label>' +
-      '<div id="cap" class="cap"></div><p class="msg" role="alert"></p>' +
-      '<button class="btn" id="go" type="submit">Create club account</button></form>' +
-      '<p class="muted small" style="text-align:center;margin:.9rem 0">or</p>' +
-      '<button class="btn ghost" id="ogoogle" type="button" style="width:100%">Continue with Google</button>' +
-      '<p class="muted small">Already have a club account? <a href="#/auth?mode=in&next=%2Fregister-club">Sign in</a></p></section>';
+      '<div class="w-full flex-1 flex items-center justify-center px-4 py-8 lg:py-14 court-grid-pattern">' +
+      '<div class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">' +
+      '<!-- BEGIN: LeftFeatureHero (Value Proposition for Venues) -->' +
+      '<div class="lg:col-span-5 flex flex-col justify-between rounded-3xl glass-panel glow-border p-7 lg:p-9 relative overflow-hidden border border-brand-border">' +
+      '<!-- Background Ambient Glow -->' +
+      '<div class="absolute -top-24 -left-24 w-72 h-72 bg-brand-neon/10 rounded-full blur-3xl pointer-events-none"></div>' +
+      '<div>' +
+      '<!-- Verified Partner Badge -->' +
+      '<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-surfaceLow border border-brand-neon/30 text-brand-neon text-xs font-mono font-medium tracking-wide mb-6">' +
+      '<span class="relative flex h-2 w-2">' +
+      '<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-neon opacity-75"></span>' +
+      '<span class="relative inline-flex rounded-full h-2 w-2 bg-brand-neon"></span>' +
+      '</span>' +
+      '<span>FOR CLUBS &amp; COURT OPERATORS</span>' +
+      '</div>' +
+      '<!-- Headline & Pitch -->' +
+      '<h1 class="text-3xl lg:text-4xl font-mono font-bold tracking-tight text-white leading-tight mb-4">' +
+      'Maximize Court Revenue. <br class="hidden sm:inline"/>' +
+      '<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-neon to-lime-200">Zero Idle Hours.</span>' +
+      '</h1>' +
+      '<p class="text-slate-400 text-sm leading-relaxed mb-8">' +
+      'The next-generation pickleball management system designed for indoor arenas, country clubs, and community parks.' +
+      '</p>' +
+      '<!-- Core Feature Bullets -->' +
+      '<div class="space-y-4">' +
+      '<div class="flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
+      '<div class="w-8 h-8 rounded-lg bg-brand-neon/10 flex items-center justify-center text-brand-neon shrink-0 mt-0.5">' +
+      '<i class="fa-solid fa-bolt text-xs"></i>' +
+      '</div>' +
+      '<div>' +
+      '<h4 class="text-xs font-mono font-bold text-white uppercase tracking-wider">IoT Door &amp; Court Lighting</h4>' +
+      '<p class="text-[11px] text-slate-400 mt-0.5">Automated keypad PINs and court light toggling tied directly to reservations.</p>' +
+      '</div>' +
+      '</div>' +
+      '<div class="flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
+      '<div class="w-8 h-8 rounded-lg bg-brand-neon/10 flex items-center justify-center text-brand-neon shrink-0 mt-0.5">' +
+      '<i class="fa-solid fa-ranking-star text-xs"></i>' +
+      '</div>' +
+      '<div>' +
+      '<h4 class="text-xs font-mono font-bold text-white uppercase tracking-wider">DUPR Integrated Leagues</h4>' +
+      '<p class="text-[11px] text-slate-400 mt-0.5">Real-time dynamic rating sync, round-robin generators, and bracket automation.</p>' +
+      '</div>' +
+      '</div>' +
+      '<div class="flex items-start gap-3.5 p-3 rounded-xl bg-brand-surfaceDim/80 border border-brand-border/60 hover:border-brand-neon/40 transition-colors">' +
+      '<div class="w-8 h-8 rounded-lg bg-brand-neon/10 flex items-center justify-center text-brand-neon shrink-0 mt-0.5">' +
+      '<i class="fa-solid fa-hand-holding-dollar text-xs"></i>' +
+      '</div>' +
+      '<div>' +
+      '<h4 class="text-xs font-mono font-bold text-white uppercase tracking-wider">Zero Booking Fees on Open Play</h4>' +
+      '<p class="text-[11px] text-slate-400 mt-0.5">Keep 100% of open play proceeds with instant Stripe Connect daily payouts.</p>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '<!-- Venue Endorsement Social Proof Card -->' +
+      '<div class="mt-8 pt-6 border-t border-brand-border">' +
+      '<div class="flex items-center justify-between text-xs text-slate-400 mb-2">' +
+      '<span class="font-mono text-slate-300 font-semibold flex items-center gap-1.5">' +
+      '<i class="fa-solid fa-award text-brand-neon"></i>' +
+      'Trusted by 500+ Facilities' +
+      '</span>' +
+      '<div class="flex text-brand-neon text-[10px]">' +
+      '<i class="fa-solid fa-star"></i>' +
+      '<i class="fa-solid fa-star"></i>' +
+      '<i class="fa-solid fa-star"></i>' +
+      '<i class="fa-solid fa-star"></i>' +
+      '<i class="fa-solid fa-star"></i>' +
+      '</div>' +
+      '</div>' +
+      '<p class="text-xs italic text-slate-300">' +
+      '"DinkSlot cut our desk check-in backlog to zero and spiked our 9 PM court utilization by 38% in 60 days."' +
+      '</p>' +
+      '<div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-400">' +
+      '<span class="font-medium text-white">Austin Pickle Club</span>' +
+      '<span class="font-mono text-brand-neon/80">14 Courts Active</span>' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '<!-- END: LeftFeatureHero -->' +
+      '<!-- BEGIN: RightRegisterForm -->' +
+      '<div class="lg:col-span-7 rounded-3xl glass-panel glow-border p-7 sm:p-10 border border-brand-border flex flex-col justify-center relative">' +
+      '<!-- Registration Stage Badge & Title -->' +
+      '<div class="mb-6">' +
+      '<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-neon/15 text-brand-neon text-[11px] font-mono font-semibold tracking-wider uppercase mb-3 border border-brand-neon/30">' +
+      '<i class="fa-solid fa-shield-halved text-[10px]"></i>' +
+      'FOR CLUBS AND COURT OWNERS' +
+      '</div>' +
+      '<h2 class="text-2xl sm:text-3xl font-mono font-bold text-white tracking-tight">' +
+      'Register your club' +
+      '</h2>' +
+      '<p class="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">' +
+      'Create a club account first. After you confirm your email you add your club details, and the platform admin approves it before it goes public.' +
+      '</p>' +
+      '<!-- Contextual Switch to Player -->' +
+      '<div class="mt-2 text-xs">' +
+      '<span class="text-slate-400">Want to book a court instead?</span>' +
+      '<a class="text-brand-neon hover:text-brand-neonHover underline font-medium ml-1 transition-colors" href="#/auth?mode=up">' +
+      'Sign up as a player.' +
+      '</a>' +
+      '</div>' +
+      '</div>' +
+      '<!-- Form Elements -->' +
+      '<form id="f" class="space-y-4" novalidate>' +
+      '<!-- Grid: Your Name & Club Name -->' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+      '<!-- Full Name Input -->' +
+      '<div class="space-y-1.5">' +
+      '<label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="oname">' +
+      'Your name' +
+      '</label>' +
+      '<div class="relative rounded-xl shadow-sm">' +
+      '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+      '<i class="fa-regular fa-user text-xs"></i>' +
+      '</div>' +
+      '<input class="w-full pl-10 pr-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="oname" name="owner-name" placeholder="e.g. Alex Morgan" required type="text" autocomplete="name" />' +
+      '</div>' +
+      '</div>' +
+      '<!-- Club / Facility Name Input -->' +
+      '<div class="space-y-1.5">' +
+      '<label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="oclub">' +
+      'Club / Facility Name' +
+      '</label>' +
+      '<div class="relative rounded-xl shadow-sm">' +
+      '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+      '<i class="fa-solid fa-building text-xs"></i>' +
+      '</div>' +
+      '<input class="w-full pl-10 pr-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="oclub" name="club-name" placeholder="e.g. Apex Pickleball Center" type="text" />' +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '<!-- Email Input -->' +
+      '<div class="space-y-1.5">' +
+      '<label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="oemail">' +
+      'Email' +
+      '</label>' +
+      '<div class="relative rounded-xl shadow-sm">' +
+      '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+      '<i class="fa-regular fa-envelope text-xs"></i>' +
+      '</div>' +
+      '<input class="w-full pl-10 pr-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="oemail" name="email" placeholder="manager@yourclub.com" required type="email" autocomplete="email" />' +
+      '</div>' +
+      '</div>' +
+      '<!-- Password Input with Helper Details -->' +
+      '<div class="space-y-1.5">' +
+      '<div class="flex items-center justify-between">' +
+      '<label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="opw">' +
+      'Password (6 or more characters)' +
+      '</label>' +
+      '<span class="text-[10px] font-mono text-brand-neon/80 flex items-center gap-1">' +
+      '<i class="fa-solid fa-lock text-[9px]"></i> Encrypted' +
+      '</span>' +
+      '</div>' +
+      '<div class="relative rounded-xl shadow-sm">' +
+      '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+      '<i class="fa-solid fa-key text-xs"></i>' +
+      '</div>' +
+      '<input class="w-full pl-10 pr-10 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="opw" minlength="6" name="password" placeholder="••••••••••••" required type="password" autocomplete="new-password" />' +
+      '<button id="pw-toggle" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 text-xs transition-colors" title="Toggle password view" type="button">' +
+      '<i id="pw-toggle-icon" class="fa-regular fa-eye"></i>' +
+      '</button>' +
+      '</div>' +
+      '</div>' +
+      '<!-- Cloudflare Turnstile & Message Container -->' +
+      '<div class="pt-1">' +
+      '<div id="cap" class="cap"></div>' +
+      '<p class="msg" role="alert"></p>' +
+      '</div>' +
+      '<!-- Primary Submit Action CTA -->' +
+      '<div class="pt-2">' +
+      '<button id="go" class="w-full py-3.5 px-6 rounded-xl font-mono text-sm font-bold uppercase tracking-wider bg-brand-neon hover:bg-brand-neonHover text-brand-dark neon-glow-btn flex items-center justify-center gap-2 group transition-all" type="submit">' +
+      '<span>CREATE CLUB ACCOUNT</span>' +
+      '<i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>' +
+      '</button>' +
+      '</div>' +
+      '<!-- Divider -->' +
+      '<div class="relative py-2 flex items-center justify-center">' +
+      '<div class="absolute inset-0 flex items-center">' +
+      '<div class="w-full border-t border-brand-border/80"></div>' +
+      '</div>' +
+      '<span class="relative px-4 text-xs font-mono lowercase text-slate-400 bg-brand-surfaceCard">or</span>' +
+      '</div>' +
+      '<!-- Google Social Authentication -->' +
+      '<div>' +
+      '<button id="ogoogle" class="w-full py-3 px-4 rounded-xl font-mono text-xs font-semibold uppercase tracking-wider bg-brand-surfaceDim hover:bg-brand-surfaceLow text-slate-200 border border-brand-border/80 hover:border-brand-neon/40 flex items-center justify-center gap-3 transition-colors shadow-sm" type="button">' +
+      '<svg class="w-4 h-4" viewBox="0 0 24 24">' +
+      '<path d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z" fill="#EA4335"></path>' +
+      '<path d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z" fill="#4285F4"></path>' +
+      '<path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15.2c0 2.8.7 5.5 1.9 7.8l3.7-2.9z" fill="#FBBC05"></path>' +
+      '<path d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16.4C3.7 20.1 7.5 23.5 12 23.5z" fill="#34A853"></path>' +
+      '</svg>' +
+      '<span>CONTINUE WITH GOOGLE</span>' +
+      '</button>' +
+      '</div>' +
+      '<!-- Bottom Prompt: Sign In Switch -->' +
+      '<div class="pt-3 text-center text-xs text-slate-400">' +
+      '<span>Already have a club account?</span>' +
+      '<a class="font-mono text-brand-neon hover:text-brand-neonHover font-semibold underline ml-1.5 transition-colors" href="#/auth?mode=in&next=%2Fregister-club">' +
+      'Sign in' +
+      '</a>' +
+      '</div>' +
+      '</form>' +
+      '</div>' +
+      '<!-- END: RightRegisterForm -->' +
+      '</div>' +
+      '</div>';
+
     var cap = mountCaptcha($("#cap"));
     $("#ogoogle").onclick = googleForClub;
+    var pwInput = $("#opw");
+    var pwToggle = $("#pw-toggle");
+    if (pwToggle && pwInput) {
+      pwToggle.onclick = function () {
+        var isPass = pwInput.type === "password";
+        pwInput.type = isPass ? "text" : "password";
+        var icon = $("#pw-toggle-icon");
+        if (icon) {
+          icon.className = isPass ? "fa-regular fa-eye-slash" : "fa-regular fa-eye";
+        }
+      };
+    }
     $("#f").onsubmit = async function (e) {
       e.preventDefault();
       var email = $("#oemail").value.trim(), pw = $("#opw").value, name = $("#oname").value.trim();
+      var clubName = $("#oclub") ? $("#oclub").value.trim() : "";
       if (!name || !email || pw.length < 6) return setMsg(app, "Enter your name, your email and a password of at least 6 characters.", "err");
       if (!cap.token) return setMsg(app, MESSAGES.captcha_required, "err");
       var btn = $("#go"); btn.disabled = true; setMsg(app, "Creating your club account...", "");
-      var res = await sb.auth.signUp({ email: email, password: pw, options: { captchaToken: cap.token,
-        emailRedirectTo: location.origin + location.pathname, data: { account_type: "tenant", full_name: name } } });
+      var res = await sb.auth.signUp({
+        email: email,
+        password: pw,
+        options: {
+          captchaToken: cap.token,
+          emailRedirectTo: location.origin + location.pathname,
+          data: { account_type: "tenant", full_name: name, club_name: clubName }
+        }
+      });
       cap.reset(); btn.disabled = false;
       if (res.error) return setMsg(app, friendly(res.error), "err");
       if (!res.data.session) {
-        setPending({ as: "tenant", join: null, next: "/register-club", dn: name });
+        setPending({ as: "tenant", join: null, next: "/register-club", dn: name, club_name: clubName });
         return setMsg(app, "Club account created. Check your email and click the confirmation link, then add your club details.", "ok");
       }
       await refreshSession();
@@ -1255,29 +1484,78 @@
   function viewRegisterClub() {
     if (!state.user) return viewClubSignup(); // clubs have their own sign-up, separate from players
     if (state.accountType === "player" && !state.managedSlug) {
-      app.innerHTML = '<section class="panel"><h1>This is a player account</h1>' +
-        '<p>Club owners register with a separate <b>club account</b>, so players and clubs never mix. Sign out and register your club with a different email.</p>' +
-        '<p><button class="btn" id="so-club" type="button">Sign out and register a club</button> <a class="btn ghost" href="#/me">Back to my account</a></p></section>';
+      app.innerHTML =
+        '<div class="w-full flex-1 flex items-center justify-center px-4 py-8 lg:py-14 court-grid-pattern">' +
+        '<div class="max-w-xl w-full mx-auto rounded-3xl glass-panel glow-border p-7 sm:p-10 border border-brand-border text-center">' +
+        '<div class="w-12 h-12 rounded-2xl bg-brand-neon/10 border border-brand-neon/30 text-brand-neon flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-user-lock text-lg"></i></div>' +
+        '<h1 class="text-2xl font-mono font-bold text-white mb-2">This is a player account</h1>' +
+        '<p class="text-slate-400 text-sm leading-relaxed mb-6">Club owners register with a separate <strong class="text-white">club account</strong>, so players and clubs never mix. Sign out and register your club with a different email.</p>' +
+        '<div class="flex flex-col sm:flex-row items-center justify-center gap-3">' +
+        '<button class="w-full sm:w-auto px-6 py-3 rounded-full bg-brand-neon hover:bg-brand-neonHover text-brand-dark font-mono text-xs font-bold uppercase tracking-wider neon-glow-btn" id="so-club" type="button">Sign out and register a club</button>' +
+        '<a class="w-full sm:w-auto px-6 py-3 rounded-full bg-brand-surfaceDim hover:bg-brand-surfaceLow text-slate-200 border border-brand-border font-mono text-xs font-semibold no-underline text-center" href="#/me">Back to my account</a>' +
+        '</div>' +
+        '</div></div>';
       $("#so-club").onclick = async function () { await sb.auth.signOut(); await refreshSession(); go("/register-club"); };
       return;
     }
     if (state.managedSlug) {
-      app.innerHTML = '<section class="panel"><h1>You already have a club</h1>' +
-        '<p>One account can manage one club. Open your dashboard to manage it.</p>' +
-        '<p><a class="btn" href="#/admin/' + esc(state.managedSlug) + '">Open my dashboard</a></p></section>';
+      app.innerHTML =
+        '<div class="w-full flex-1 flex items-center justify-center px-4 py-8 lg:py-14 court-grid-pattern">' +
+        '<div class="max-w-xl w-full mx-auto rounded-3xl glass-panel glow-border p-7 sm:p-10 border border-brand-border text-center">' +
+        '<div class="w-12 h-12 rounded-2xl bg-brand-neon/10 border border-brand-neon/30 text-brand-neon flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-circle-check text-lg"></i></div>' +
+        '<h1 class="text-2xl font-mono font-bold text-white mb-2">You already have a club</h1>' +
+        '<p class="text-slate-400 text-sm leading-relaxed mb-6">One account can manage one club. Open your dashboard to manage courts, schedules, and bookings.</p>' +
+        '<p><a class="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-brand-neon hover:bg-brand-neonHover text-brand-dark font-mono text-xs font-bold uppercase tracking-wider neon-glow-btn no-underline" href="#/admin/' + esc(state.managedSlug) + '"><span>Open my dashboard</span><i class="fa-solid fa-arrow-right text-xs"></i></a></p>' +
+        '</div></div>';
       return;
     }
+
+    var pendingClub = (getPending() && getPending().club_name) || (state.user && state.user.user_metadata && state.user.user_metadata.club_name) || "";
     app.innerHTML =
-      '<section class="panel"><h1>Register your club</h1><p>Your club appears publicly after the platform admin approves it.</p>' +
-      '<form id="f" novalidate><label>Club name<input id="name" maxlength="80" required></label>' +
-      '<label>Club address (web link)<input id="slug" maxlength="40" required placeholder="my-club"></label>' +
-      '<p class="muted small" id="slugprev"></p>' +
-      '<label>Description<textarea id="desc" rows="3"></textarea></label>' +
-      '<label>Street address<input id="addr"></label><label>City<input id="city"></label>' +
-      '<label>Contact email<input id="cemail" type="email"></label><label>Contact phone<input id="cphone"></label>' +
-      '<div id="cap" class="cap"></div><p class="msg" role="alert"></p><button class="btn" id="go" type="submit">Submit for approval</button></form></section>';
-    var cap = mountCaptcha($("#cap")), touched = false;
+      '<div class="w-full flex-1 flex items-center justify-center px-4 py-8 lg:py-14 court-grid-pattern">' +
+      '<div class="max-w-3xl w-full mx-auto rounded-3xl glass-panel glow-border p-7 sm:p-10 border border-brand-border">' +
+      '<div class="mb-6">' +
+      '<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-neon/15 text-brand-neon text-[11px] font-mono font-semibold tracking-wider uppercase mb-3 border border-brand-neon/30">' +
+      '<i class="fa-solid fa-building text-[10px]"></i> STEP 2: CLUB PROFILE' +
+      '</div>' +
+      '<h1 class="text-2xl sm:text-3xl font-mono font-bold text-white tracking-tight">Complete your club profile</h1>' +
+      '<p class="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">Your club appears publicly after the platform admin approves it. You can configure courts and pricing in the meantime.</p>' +
+      '</div>' +
+      '<form id="f" class="space-y-4" novalidate>' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="name">Club name</label>' +
+      '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="name" maxlength="80" required placeholder="e.g. Apex Pickleball Center" value="' + esc(pendingClub) + '"></div>' +
+      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="slug">Club address link</label>' +
+      '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="slug" maxlength="40" required placeholder="apex-pickleball"></div>' +
+      '</div>' +
+      '<p class="text-xs font-mono text-brand-neon/80" id="slugprev"></p>' +
+      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="desc">Description</label>' +
+      '<textarea class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="desc" rows="3" placeholder="Tell players about your facility, courts, and amenities..."></textarea></div>' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="addr">Street address</label>' +
+      '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="addr" placeholder="123 Pickleball Way"></div>' +
+      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="city">City</label>' +
+      '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="city" placeholder="e.g. Austin"></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="cemail">Contact email</label>' +
+      '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="cemail" type="email" placeholder="contact@yourclub.com"></div>' +
+      '<div class="space-y-1.5"><label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="cphone">Contact phone</label>' +
+      '<input class="w-full px-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon" id="cphone" placeholder="(555) 000-0000"></div>' +
+      '</div>' +
+      '<div class="pt-1"><div id="cap" class="cap"></div><p class="msg" role="alert"></p></div>' +
+      '<div class="pt-3">' +
+      '<button class="w-full py-3.5 px-6 rounded-xl font-mono text-sm font-bold uppercase tracking-wider bg-brand-neon hover:bg-brand-neonHover text-brand-dark neon-glow-btn flex items-center justify-center gap-2" id="go" type="submit">' +
+      '<span>Submit for approval</span><i class="fa-solid fa-arrow-right text-xs"></i>' +
+      '</button></div>' +
+      '</form></div></div>';
+
+    var cap = mountCaptcha($("#cap")), touched = !!pendingClub;
     function prev() { $("#slugprev").textContent = "Your page: #/c/" + ($("#slug").value || "..."); }
+    if (pendingClub) {
+      $("#slug").value = slugify(pendingClub);
+      prev();
+    }
     $("#name").oninput = function () { if (!touched) $("#slug").value = slugify($("#name").value); prev(); };
     $("#slug").oninput = function () { touched = true; this.value = slugify(this.value); prev(); };
     $("#f").onsubmit = async function (e) {
@@ -1303,9 +1581,15 @@
       cap.reset(); $("#go").disabled = false;
       if (r.error) return setMsg(app, friendly(r.error), "err");
       await refreshSession();
-      app.innerHTML = '<section class="panel"><h1>Thanks!</h1><p><strong>' + esc(r.data.name) +
-        '</strong> was submitted. It stays hidden until the platform admin approves it. You can set it up in the meantime.</p>' +
-        '<p><a class="btn" href="#/admin/' + esc(r.data.slug) + '">Open my dashboard</a></p></section>';
+      app.innerHTML =
+        '<div class="w-full flex-1 flex items-center justify-center px-4 py-8 lg:py-14 court-grid-pattern">' +
+        '<div class="max-w-xl w-full mx-auto rounded-3xl glass-panel glow-border p-7 sm:p-10 border border-brand-border text-center">' +
+        '<div class="w-12 h-12 rounded-2xl bg-brand-neon/10 border border-brand-neon/30 text-brand-neon flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-circle-check text-lg"></i></div>' +
+        '<h1 class="text-2xl font-mono font-bold text-white mb-2">Club Submitted!</h1>' +
+        '<p class="text-slate-400 text-sm leading-relaxed mb-6"><strong class="text-white">' + esc(r.data.name) +
+        '</strong> was submitted. It stays hidden until the platform admin approves it. You can configure your courts and slots in the meantime.</p>' +
+        '<p><a class="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-brand-neon hover:bg-brand-neonHover text-brand-dark font-mono text-xs font-bold uppercase tracking-wider neon-glow-btn no-underline" href="#/admin/' + esc(r.data.slug) + '"><span>Open my dashboard</span><i class="fa-solid fa-arrow-right text-xs"></i></a></p>' +
+        '</div></div>';
     };
   }
 

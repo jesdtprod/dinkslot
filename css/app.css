@@ -1999,3 +1999,48 @@ body input[type="checkbox"]:disabled { opacity: .45; cursor: not-allowed; }
     border-radius: 22px;
   }
 }
+
+
+#nav > a[href="#/auth"] { background: #262c31; color: var(--ink); border: 1px solid #ffffff0b; }
+#nav > a[href="#/auth"]:hover { background: #30373d; color: var(--lime); }
+
+
+#nav a.auth-nav-switch { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 7px 13px; border: 1px solid #ffffff0c; border-radius: 12px; background: #262c31; color: var(--ink); }
+#nav a.auth-nav-switch:hover { background: #30373d; color: var(--lime); }
+#nav .auth-nav-switch .material-symbols-outlined { font-size: 17px; }
+#ds-auth-screen #go { text-transform: none; letter-spacing: .01em; }
+
+/* Club Registration Styles */
+.neon-glow-btn {
+  box-shadow: 0 0 25px rgba(177, 233, 3, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.neon-glow-btn:hover {
+  box-shadow: 0 0 35px rgba(177, 233, 3, 0.55);
+  transform: translateY(-1px);
+}
+.court-grid-pattern {
+  background-image: 
+    radial-gradient(rgba(177, 233, 3, 0.07) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px, 64px 64px, 64px 64px;
+}
+.glass-panel {
+  background: rgba(19, 24, 33, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, rgba(177, 233, 3, 0.4), transparent 40%, rgba(177, 233, 3, 0.15));
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+}

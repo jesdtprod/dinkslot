@@ -1,11 +1,11 @@
-const CACHE = "dinkslot-shell-v99";
+const CACHE = "dinkslot-shell-v102";
 const RUNTIME = "dinkslot-cdn-v1";
 
 const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/landing.js", "js/config.js", "js/ui.js", "js/notify.js", "js/admin.js", "js/booking.js", "manifest.webmanifest", "favicon.ico", "assets/dinkslot-logo.png", "assets/landing-court.jpg", "assets/pickleball-courts-hd.jpg", "assets/icons/icon-192.png", "assets/icons/icon-512.png"];
 
 // Third-party static files the app needs to boot (libraries, CSS, fonts). Cached after first
 // load so the shell opens offline. API calls (supabase.co) and the human check are never cached.
-const CDN_HOSTS = ["cdn.jsdelivr.net", "cdn.tailwindcss.com", "fonts.googleapis.com", "fonts.gstatic.com"];
+const CDN_HOSTS = ["cdn.jsdelivr.net", "cdn.tailwindcss.com", "fonts.googleapis.com", "fonts.gstatic.com", "cdnjs.cloudflare.com"];
 
 self.addEventListener("install", (e) => {
   // Tolerant: one missing file must not break the whole install.
