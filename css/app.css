@@ -2918,3 +2918,13 @@ body #app label[for]:not(.sr-only):not(.media-drop):not(.court-qr-drop) { margin
 
 /* Match booking row spacing to the customer fields beside it. */
 dialog#booking-modal [data-purpose="booking-parameters"] > .grid { row-gap: 17px; }
+
+/* One field rhythm throughout the booking modal: 16px label, 3px gap, 38px control. */
+#ds-tenant-dashboard #sec #booking-modal :is(#view-walkin,#view-registered,[data-purpose="booking-parameters"]) label[for] { height: 16px; min-height: 16px; margin: 0 0 3px; padding: 0; font-size: 11px; line-height: 16px; }
+#ds-tenant-dashboard #sec #booking-modal :is(#view-walkin,#view-registered,[data-purpose="booking-parameters"]) label[for] + .relative { margin-top: 0; }
+#ds-tenant-dashboard #sec #booking-modal #view-walkin,
+#ds-tenant-dashboard #sec #booking-modal [data-purpose="booking-parameters"] > .grid { row-gap: 14px; }
+dialog#booking-modal [data-purpose="customer-selection-card"] > [role="tablist"] { height: 38px; min-height: 38px; margin-top: 19px; margin-bottom: 14px; }
+dialog#booking-modal [data-purpose="customer-selection-card"] > [role="tablist"]::before { top: -19px; line-height: 16px; }
+dialog#booking-modal [data-purpose="booking-parameters"] > .grid { padding-top: 19px; }
+#ds-tenant-dashboard #sec #booking-modal label.booking-court-label { top: -19px; margin: 0; }
