@@ -248,7 +248,12 @@
     sec.innerHTML = skeletonSection(section);
 
     var owner = ctx.role === "owner";
-    if (section === "bookings") return D.booking ? D.booking.queue(sec, ctx.t) : undefined;
+    if (section === "bookings") {
+      if (!D.booking) return;
+      sec.innerHTML = '<div id="newbk"></div><div id="queue"></div>';
+      D.booking.adminNew(q("#newbk", sec), ctx.t);
+      return D.booking.queue(q("#queue", sec), ctx.t);
+    }
     if (section === "account") return accountView(sec);
     if (section === "courts") return courtsView(sec);
     if (!owner && (section === "profile" || section === "payments" || section === "staff")) {

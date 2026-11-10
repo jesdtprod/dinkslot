@@ -28,7 +28,13 @@
     invalid_payer_reference: "Enter the reference number from your payment (3 to 60 characters).",
     invalid_proof_path: "The upload failed. Please try again.",
     payment_disabled: "This club does not take payment through the app.",
-    court_has_bookings: "That court has upcoming bookings."
+    court_has_bookings: "That court has upcoming bookings.",
+    choose_player_or_guest: "Choose a registered player, or enter a guest name.",
+    player_not_found: "That player is not on your club's list.",
+    user_not_found: "No confirmed player account has that email.",
+    club_account_cannot_book: "That is a club account. Club accounts cannot be players.",
+    guest_name_too_long: "The guest name is too long (60 characters at most).",
+    crosses_midnight: "A booking cannot run past midnight."
   };
   function nice(err) {
     var m = (err && (err.message || err.msg)) || String(err || "");
@@ -379,11 +385,12 @@
       var later = approved.filter(function (b) { return todayList.indexOf(b) === -1; });
       function row(b, withDecide) {
         var p = pm[b.player_id] || {}, c = cm[b.court_id] || {}, py = pay[b.id];
+        p = { display_name: p.display_name || b.guest_name, phone: p.phone || b.guest_phone };
         return '<div class="bcard bg-surface-container border border-outline-variant/30 rounded-DEFAULT p-space-md mb-space-sm flex flex-col gap-2" data-b="' + esc(b.id) + '">' +
-          '<div class="flex items-start justify-between gap-4"><div><div class="font-title-md text-on-surface font-bold">' + esc(p.display_name || "Player") + '</div>' + (p.phone ? ' <span class="font-mono text-xs text-on-surface-variant">' + esc(p.phone) + "</span>" : "") +
+          '<div class="flex items-start justify-between gap-4"><div><div class="font-title-md text-on-surface font-bold">' + esc(p.display_name || "Guest") + '</div>' + (p.phone ? ' <span class="font-mono text-xs text-on-surface-variant">' + esc(p.phone) + "</span>" : "") +
           '<div class="font-body-sm text-on-surface-variant mt-1"><span class="text-on-surface font-semibold">' + esc(c.name || "Court") + "</span> · " + esc(range(b.starts_at, b.ends_at, tz)) + '</div>' +
           '<div class="font-mono text-xs text-primary mt-1 font-bold">' + money(b.amount) + " · ref #" + esc(b.reference_code) + '</div></div>' +
-          '<div>' + (py ? '<span class="px-2.5 py-1 rounded-full bg-secondary-container/30 border border-secondary/40 text-secondary font-mono text-xs font-semibold">Proof uploaded</span>' : '<span class="px-2.5 py-1 rounded-full bg-error-container/20 border border-error/30 text-error font-mono text-xs font-semibold">No proof</span>') + '</div></div>' +
+          '<div>' + (!withDecide ? srcBadge(b) : py ? '<span class="px-2.5 py-1 rounded-full bg-secondary-container/30 border border-secondary/40 text-secondary font-mono text-xs font-semibold">Proof uploaded</span>' : '<span class="px-2.5 py-1 rounded-full bg-error-container/20 border border-error/30 text-error font-mono text-xs font-semibold">No proof</span>') + '</div></div>' +
           (py ? '<div class="flex items-center justify-between text-xs font-mono text-on-surface-variant bg-surface-container-high px-3 py-2 rounded"><span>Payer ref: <strong class="text-on-surface">' + esc(py.payer_reference) + '</strong></span><button class="px-3 py-1 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm border border-outline-variant/30 cursor-pointer" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
               : (b.expires_at ? '<p class="text-xs text-on-surface-variant bg-surface-container-high px-3 py-2 rounded">Unpaid. Hold ends in <b class="timer text-primary font-mono" data-exp="' + esc(b.expires_at) + '"></b></p>' : "")) +
           '<div class="flex items-center gap-2 pt-1">' + (withDecide ? '<button class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-sm font-bold border-0 cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button> <button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
@@ -434,5 +441,148 @@
     poll = setInterval(load, 20000);
   }
 
-  D.booking = { renderBook: renderBook, myBookings: myBookings, queue: queue };
+
+  // ============================================ club books for a customer
+  // Owner or staff books a court for a walk-in guest (name only) or for a registered player.
+  // The database (create_admin_booking) checks membership, opening hours, slot grid, blocks and overlaps.
+  function srcBadge(b) {
+    var label = b.source === "walk_in" ? "Walk-in guest" : b.source === "admin" ? "Booked by club" : "";
+    return label ? '<span class="px-2.5 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-mono text-xs font-semibold">' + label + "</span>" : "";
+  }
+
+  async function adminNew(box, t) {
+    var tz = t.timezone || "Asia/Manila", built = false;
+    box.innerHTML = '<div class="panel wide"><div class="row"><div><h2>Book for a customer</h2>' +
+      '<p class="muted small">For walk-in guests or registered players. The booking is confirmed right away.</p></div>' +
+      '<button class="btn sm" id="nbtoggle" type="button">New booking</button></div><div id="nbform" hidden></div></div>';
+    var formBox = q("#nbform", box);
+    q("#nbtoggle", box).onclick = function () {
+      formBox.hidden = !formBox.hidden;
+      if (!formBox.hidden && !built) { built = true; build(); }
+    };
+
+    async function build() {
+      formBox.innerHTML = '<p class="muted">Loading...</p>';
+      var courts = (await sb.from("courts").select("id,name,slot_minutes,open_time,close_time,hourly_rate")
+        .eq("tenant_id", t.id).eq("status", "active").order("name")).data || [];
+      var players = (await sb.from("club_players").select("id,display_name,phone")
+        .eq("tenant_id", t.id).eq("status", "active").order("display_name")).data || [];
+      if (!courts.length) { formBox.innerHTML = '<p class="muted">Add a court first, on the Courts page.</p>'; return; }
+      var S = { court: courts[0], date: dayStr(tz), slots: [], start: null, count: 1, who: "guest" };
+      var playerOpts = function () {
+        return '<option value="">Choose a player...</option>' + players.map(function (p) {
+          return '<option value="' + esc(p.id) + '">' + esc(p.display_name) + (p.phone ? " (" + esc(p.phone) + ")" : "") + "</option>";
+        }).join("");
+      };
+      formBox.innerHTML =
+        '<form id="nbf" class="subpanel" novalidate>' +
+        '<div class="seg"><button type="button" class="segbtn on" data-who="guest">Walk-in guest</button>' +
+        '<button type="button" class="segbtn" data-who="player">Registered player</button></div>' +
+        '<div id="whoGuest" class="grid2"><label>Guest name<input id="gname" maxlength="60" autocomplete="off"></label>' +
+        '<label>Phone (optional)<input id="gphone" maxlength="30" autocomplete="off"></label></div>' +
+        '<div id="whoPlayer" hidden><label>Player<select id="pplayer">' + playerOpts() + "</select></label>" +
+        '<div class="inline"><label>Not listed? Add by email<input id="pemail" type="email" placeholder="player@email.com" autocomplete="off"></label>' +
+        '<button class="btn sm ghost" id="padd" type="button">Add player</button></div></div>' +
+        '<div class="grid2"><label>Court<select id="ncourt">' + courts.map(function (c) {
+          return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>"; }).join("") + "</select></label>" +
+        '<label>Date<input id="ndate" type="date"></label><label>Length<select id="nlen"></select></label></div>' +
+        '<div id="nslots" class="slots"></div><div id="nsum" class="summary"></div><p class="msg" role="alert"></p>' +
+        '<button class="btn" id="nreserve" type="submit" disabled>Confirm booking</button></form>';
+
+      var f = q("#nbf", formBox);
+      function lengths() {
+        var step = S.court.slot_minutes, opts = "";
+        for (var n = 1; n <= 8; n++) opts += '<option value="' + n + '"' + (n === S.count ? " selected" : "") + ">" + (n * step / 60) + " hour" + (n * step === 60 ? "" : "s") + "</option>";
+        q("#nlen", f).innerHTML = opts;
+      }
+      function rangeOk(i) {
+        if (i == null || i + S.count > S.slots.length) return false;
+        for (var k = i; k < i + S.count; k++) if (S.slots[k].off) return false;
+        return true;
+      }
+      function summary() {
+        var el = q("#nsum", f), btn = q("#nreserve", f);
+        if (S.start == null || !rangeOk(S.start)) { el.innerHTML = ""; btn.disabled = true; return; }
+        var a = S.slots[S.start], z = S.slots[S.start + S.count - 1], hrs = S.count * S.court.slot_minutes / 60;
+        el.innerHTML = "<b>" + esc(range(a.s, z.e, tz)) + "</b> - " + hrs + " h - <b>" + money(S.court.hourly_rate * hrs) + "</b>";
+        btn.disabled = false;
+      }
+      function paint() {
+        var grid = q("#nslots", f);
+        grid.innerHTML = S.slots.map(function (x, i) {
+          var inRange = S.start != null && i >= S.start && i < S.start + S.count;
+          return '<button type="button" class="slot' + (inRange ? (i === S.start ? " sel" : " in") : "") + '" data-i="' + i + '"' + (x.off ? " disabled" : "") + ">" + esc(timeOf(x.s, tz)) + "</button>";
+        }).join("");
+        Array.prototype.forEach.call(grid.querySelectorAll(".slot"), function (b) {
+          b.onclick = function () {
+            S.start = +b.getAttribute("data-i"); paint(); summary();
+            msg(f, rangeOk(S.start) ? "" : "Not enough free time from here for that length. Try a shorter length or another start.", rangeOk(S.start) ? "" : "err");
+          };
+        });
+      }
+      async function draw() {
+        var c = S.court, step = c.slot_minutes, grid = q("#nslots", f);
+        grid.innerHTML = '<p class="muted">Loading times...</p>'; S.start = null; summary();
+        var a = toMin(hhmm(c.open_time)), z = toMin(hhmm(c.close_time)), slots = [];
+        for (var m = a; m + step <= z; m += step) {
+          var s0 = zonedToUtc(S.date + "T" + pad(Math.floor(m / 60)) + ":" + pad(m % 60), tz);
+          slots.push({ s: s0, e: new Date(s0.getTime() + step * 60000) });
+        }
+        if (!slots.length) { grid.innerHTML = '<p class="muted">No times.</p>'; return; }
+        var av = await sb.rpc("court_availability", { p_court_id: c.id, p_from: slots[0].s.toISOString(), p_to: slots[slots.length - 1].e.toISOString() });
+        var taken = (av.data || []).map(function (r) { return [new Date(r.starts_at), new Date(r.ends_at)]; }), now = Date.now();
+        slots.forEach(function (x) { x.off = x.e.getTime() <= now || taken.some(function (k) { return k[0] < x.e && k[1] > x.s; }); });
+        S.slots = slots; paint();
+      }
+
+      q("#ndate", f).value = S.date; q("#ndate", f).min = S.date; lengths();
+      Array.prototype.forEach.call(f.querySelectorAll(".segbtn"), function (b) {
+        b.onclick = function () {
+          S.who = b.getAttribute("data-who");
+          Array.prototype.forEach.call(f.querySelectorAll(".segbtn"), function (x) { x.classList.toggle("on", x === b); });
+          q("#whoGuest", f).hidden = S.who !== "guest"; q("#whoPlayer", f).hidden = S.who !== "player";
+          msg(f, "", "");
+        };
+      });
+      q("#ncourt", f).onchange = function () { S.court = courts.filter(function (c) { return c.id === this.value; }, this)[0]; lengths(); draw(); };
+      q("#ndate", f).onchange = function () { if (this.value) { S.date = this.value; draw(); } };
+      q("#nlen", f).onchange = function () { S.count = +this.value; paint(); summary(); };
+      q("#padd", f).onclick = async function () {
+        var email = q("#pemail", f).value.trim();
+        if (!email) return msg(f, "Enter the player's email.", "err");
+        var r = await sb.rpc("admin_add_player", { p_tenant_id: t.id, p_email: email });
+        if (r.error) return msg(f, nice(r.error), "err");
+        if (!players.some(function (p) { return p.id === r.data.id; })) players.push({ id: r.data.id, display_name: r.data.display_name, phone: r.data.phone });
+        q("#pplayer", f).innerHTML = playerOpts(); q("#pplayer", f).value = r.data.id; q("#pemail", f).value = "";
+        msg(f, r.data.display_name + " was added to your players.", "ok");
+      };
+      f.onsubmit = async function (e) {
+        e.preventDefault();
+        if (S.start == null || !rangeOk(S.start)) return;
+        var guest = q("#gname", f).value.trim(), pid = q("#pplayer", f).value;
+        if (S.who === "guest" && !guest) return msg(f, "Enter the guest's name.", "err");
+        if (S.who === "player" && !pid) return msg(f, "Choose a registered player.", "err");
+        var a = S.slots[S.start], z = S.slots[S.start + S.count - 1], btn = q("#nreserve", f);
+        var sig = "admin|" + S.court.id + "|" + a.s.toISOString() + "|" + z.e.toISOString() + "|" + (S.who === "guest" ? guest : pid);
+        keys[sig] = keys[sig] || uuid();
+        btn.disabled = true; msg(f, "Booking...", "");
+        var r = await sb.rpc("create_admin_booking", {
+          p_court_id: S.court.id, p_starts_at: a.s.toISOString(), p_ends_at: z.e.toISOString(), p_idempotency_key: keys[sig],
+          p_player_id: S.who === "player" ? pid : null, p_guest_name: S.who === "guest" ? guest : null,
+          p_guest_phone: S.who === "guest" ? (q("#gphone", f).value.trim() || null) : null
+        });
+        if (r.error) {
+          msg(f, nice(r.error), "err");
+          if (/slot_taken|slot_blocked/.test(r.error.message || "")) draw(); else btn.disabled = false;
+          return;
+        }
+        msg(f, "Booked " + (S.who === "guest" ? guest : "the player") + ": " + range(r.data.starts_at, r.data.ends_at, tz) + " (code " + r.data.reference_code + ").", "ok");
+        q("#gname", f).value = ""; q("#gphone", f).value = "";
+        draw(); // the new booking shows below and greys out its slot
+      };
+      draw();
+    }
+  }
+
+  D.booking = { renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew };
 })();

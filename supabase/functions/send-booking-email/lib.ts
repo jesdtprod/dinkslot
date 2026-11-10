@@ -5,7 +5,7 @@ export interface Ctx {
   booking: {
     id: string; status: string; starts_at: string; ends_at: string; amount: number | string;
     reference_code: string; reject_reason?: string | null; cancel_reason?: string | null;
-    cancelled_by?: string | null;
+    cancelled_by?: string | null; source?: string | null; guest_name?: string | null;
   };
   clubName: string;
   clubSlug: string;
@@ -95,7 +95,8 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
   } else if (status === "approved") {
     toPlayer("booking_approved", `Booking confirmed - ${b.reference_code}`, "Your booking is confirmed",
       ["See you on the court!", ...details(ctx)], { label: "View my bookings", url: myBookings });
-    if (isInsert) {
+    // bookings the club created itself (walk-in or for a player) do not need an alert to the club
+    if (isInsert && (b.source ?? "online") === "online") {
       toAdmins("booking_request", `New booking - ${b.reference_code}`, "New booking (auto-approved)",
         [`${ctx.playerName} booked a court.`, ...details(ctx)]);
     }

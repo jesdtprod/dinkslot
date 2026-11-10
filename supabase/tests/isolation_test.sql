@@ -8,7 +8,7 @@ do $test$
 declare
   a1 uuid := gen_random_uuid(); a2 uuid := gen_random_uuid();
   p1 uuid := gen_random_uuid(); p2 uuid := gen_random_uuid();
-  pa uuid := gen_random_uuid(); a3 uuid := gen_random_uuid();
+  pa uuid := gen_random_uuid(); a3 uuid := gen_random_uuid(); sf uuid := gen_random_uuid(); p3 uuid := gen_random_uuid();
   t1 text; t2 text; t3 text;
   c1 text; c1m text; c2 text; c3 text;
   b1 text; b1p2 text; b2 text;
@@ -23,7 +23,9 @@ begin
     (p1,'authenticated','authenticated','player1@test.local',now(),'{"full_name":"Player One"}'),
     (p2,'authenticated','authenticated','player2@test.local',now(),'{"full_name":"Player Two"}'),
     (pa,'authenticated','authenticated','platform@test.local',now(),'{"full_name":"Platform"}'),
-    (a3,'authenticated','authenticated','admin3@test.local',now(),'{"full_name":"Admin Three"}');
+    (a3,'authenticated','authenticated','admin3@test.local',now(),'{"full_name":"Admin Three"}'),
+    (sf,'authenticated','authenticated','staff1@test.local',now(),'{"full_name":"Staff One","account_type":"tenant"}'),
+    (p3,'authenticated','authenticated','player3@test.local',now(),'{"account_type":"player"}');
   update public.profiles set is_platform_admin = true where auth_user_id = pa;
 
   -- CAPTCHA passes (normally written by the verify-turnstile Edge Function)
@@ -231,21 +233,21 @@ begin
       ('A1 add_staff to club 2',                  'a1', $q$select * from public.add_staff('{T2}','player1@test.local')$q$, 'deny'),
       ('P1 add_staff (not owner)',                'p1', $q$select * from public.add_staff('{T1}','player2@test.local')$q$, 'deny'),
       ('A1 add_staff unknown email',              'a1', $q$select * from public.add_staff('{T1}','nobody@nowhere.test')$q$, 'deny'),
-      ('A1 adds P1 as staff of club 1',           'a1', $q$select role from public.add_staff('{T1}','player1@test.local')$q$, 'eq:staff'),
-      ('A1 add_staff twice is idempotent',        'a1', $q$select role from public.add_staff('{T1}','player1@test.local')$q$, 'eq:staff'),
-      ('Staff P1 now sees club 1 courts',         'p1', $q$select count(*) from public.courts where tenant_id='{T1}'$q$, 'pos'),
-      ('Staff P1 still blind to club 2 courts',   'p1', $q$select count(*) from public.courts where tenant_id='{T2}'$q$, 'zero'),
-      ('Staff P1 cannot edit club settings',      'p1', $q$with u as (update public.tenant_settings set payment_enabled=false where tenant_id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
-      ('Staff P1 cannot edit club profile',       'p1', $q$with u as (update public.tenants set name='x' where id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
-      ('Staff P1 cannot add staff',               'p1', $q$select * from public.add_staff('{T1}','player2@test.local')$q$, 'deny'),
-      ('Staff P1 cannot list staff',              'p1', $q$select * from public.list_tenant_staff('{T1}')$q$, 'deny'),
-      ('Staff P1 edits a court (allowed)',        'p1', $q$with u as (update public.courts set surface='Hard' where id='{C1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('A1 adds staff account to club 1',           'a1', $q$select role from public.add_staff('{T1}','staff1@test.local')$q$, 'eq:staff'),
+      ('A1 add_staff twice is idempotent',        'a1', $q$select role from public.add_staff('{T1}','staff1@test.local')$q$, 'eq:staff'),
+      ('Staff SF now sees club 1 courts',         'sf', $q$select count(*) from public.courts where tenant_id='{T1}'$q$, 'pos'),
+      ('Staff SF still blind to club 2 courts',   'sf', $q$select count(*) from public.courts where tenant_id='{T2}'$q$, 'zero'),
+      ('Staff SF cannot edit club settings',      'sf', $q$with u as (update public.tenant_settings set payment_enabled=false where tenant_id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
+      ('Staff SF cannot edit club profile',       'sf', $q$with u as (update public.tenants set name='x' where id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
+      ('Staff SF cannot add staff',               'sf', $q$select * from public.add_staff('{T1}','player2@test.local')$q$, 'deny'),
+      ('Staff SF cannot list staff',              'sf', $q$select * from public.list_tenant_staff('{T1}')$q$, 'deny'),
+      ('Staff SF edits a court (allowed)',        'sf', $q$with u as (update public.courts set surface='Hard' where id='{C1}' returning 1) select count(*) from u$q$, 'pos'),
       ('A1 lists staff (owner + staff = 2)',      'a1', $q$select count(*) from public.list_tenant_staff('{T1}')$q$, 'eq:2'),
       ('A2 list staff of club 1',                 'a2', $q$select count(*) from public.list_tenant_staff('{T1}')$q$, 'deny'),
       ('A1 cannot remove the owner',              'a1', $q$select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='owner' and deleted_at is null))$q$, 'deny'),
       ('A2 cannot remove club 1 staff',           'a2', $q$select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='staff' and deleted_at is null))$q$, 'deny'),
       ('A1 removes staff',                        'a1', $q$select 'ok' from (select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='staff' and deleted_at is null))) s$q$, 'eq:ok'),
-      ('Removed staff P1 loses access',           'p1', $q$select count(*) from public.courts where tenant_id='{T1}'$q$, 'zero'),
+      ('Removed staff SF loses access',           'sf', $q$select count(*) from public.courts where tenant_id='{T1}'$q$, 'zero'),
       -- Stage 6: cancel, expire, cutoff
       ('Player cancels own approved booking',     'p1', $q$select status from public.cancel_booking('{B1}')$q$, 'eq:cancelled'),
       ('Cancel retried returns same result',      'p1', $q$select status from public.cancel_booking('{B1}')$q$, 'eq:cancelled'),
@@ -276,9 +278,9 @@ begin
       ('Second club attempt does not use up the CAPTCHA pass', 'pg', $q$select count(*) from public.captcha_passes where user_id='{A1}' and used_at is null$q$, 'pos'),
       ('Owner of club 2 cannot add a club 1 owner as staff', 'a2', $q$select * from public.add_staff('{T2}','admin1@test.local')$q$, 'deny'),
       ('Duplicate membership row blocked by the database', 'pg', $q$insert into public.tenant_members (tenant_id,user_id,role) values ('{T2}','{A1}','staff')$q$, 'deny'),
-      ('Setup: give P1 a CAPTCHA pass',           'pg', $q$with i as (insert into public.captcha_passes (user_id,purpose) values ('{P1}','register_club') returning 1) select count(*) from i$q$, 'pos'),
-      ('A1 re-adds P1 as staff',                  'a1', $q$select role from public.add_staff('{T1}','player1@test.local')$q$, 'eq:staff'),
-      ('Staff P1 cannot register a club even with a pass', 'p1', $q$select * from public.register_club('Staff Club','staff-club')$q$, 'deny'),
+      ('Setup: give SF a CAPTCHA pass',           'pg', $q$with i as (insert into public.captcha_passes (user_id,purpose) values ('{SF}','register_club') returning 1) select count(*) from i$q$, 'pos'),
+      ('A1 re-adds staff account',                  'a1', $q$select role from public.add_staff('{T1}','staff1@test.local')$q$, 'eq:staff'),
+      ('Staff SF cannot register a club even with a pass', 'sf', $q$select * from public.register_club('Staff Club','staff-club')$q$, 'deny'),
       ('Club three owner cannot see club one data', 'a3', $q$select count(*) from public.bookings where tenant_id='{T1}'$q$, 'zero'),
       -- Stage 8: rate limits
       ('rate limit: 1st call allowed',            'pg', $q$select 'ok' from (select public._rate_limit('t:test', 2, 3600)) s$q$, 'eq:ok'),
@@ -287,6 +289,43 @@ begin
       ('Clients cannot call the limiter',         'p1', $q$select public._rate_limit('t:x', 1, 60)$q$, 'deny'),
       ('Clients cannot read or reset counters',   'p1', $q$select count(*) from public.rate_limits$q$, 'zero'),
       ('Clients cannot delete counters',          'p1', $q$delete from public.rate_limits$q$, 'deny'),
+      -- Separate registrations: players and clubs
+      ('Account types come from sign-up metadata',   'p3', $q$select account_type from public.profiles where auth_user_id=auth.uid()$q$, 'eq:player'),
+      ('Club signup account is a tenant',            'sf', $q$select account_type from public.profiles where auth_user_id=auth.uid()$q$, 'eq:tenant'),
+      ('Registering a club makes a tenant account',  'a1', $q$select account_type from public.profiles where auth_user_id=auth.uid()$q$, 'eq:tenant'),
+      ('Joining a club makes a player account',      'p1', $q$select account_type from public.profiles where auth_user_id=auth.uid()$q$, 'eq:player'),
+      ('Player account cannot register a club',      'p1', $q$select * from public.register_club('Player Club','player-club')$q$, 'deny'),
+      ('Club owner cannot join a club as a player',  'a1', $q$select * from public.join_club('club-two','Owner')$q$, 'deny'),
+      ('Club staff cannot join a club as a player',  'sf', $q$select * from public.join_club('club-two','Staff')$q$, 'deny'),
+      ('Player cannot be added as club staff',       'a1', $q$select * from public.add_staff('{T1}','player2@test.local')$q$, 'deny'),
+      ('Player cannot switch to a club account',     'p1', $q$select public.choose_account_type('tenant')$q$, 'deny'),
+      ('Player can confirm their own type',          'p1', $q$select public.choose_account_type('player')$q$, 'eq:player'),
+      ('Club owner cannot switch to a player',       'a1', $q$select public.choose_account_type('player')$q$, 'deny'),
+      ('Clients cannot edit account_type directly',  'p1', $q$update public.profiles set account_type='tenant' where auth_user_id=auth.uid()$q$, 'deny'),
+      -- Bookings made by the club (walk-in guests and registered players)
+      ('Club books a walk-in guest',                 'a1', $q$select status from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '14 hours','{D2}'::timestamptz+interval '15 hours','ab-1',null,'Walk-in Juan','0917')$q$, 'eq:approved'),
+      ('Guest booking is marked walk_in',            'a1', $q$select source from public.bookings where idempotency_key='ab-1'$q$, 'eq:walk_in'),
+      ('Club booking retry returns the same booking','a1', $q$select ((select id from public.bookings where idempotency_key='ab-1') = (select id from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '14 hours','{D2}'::timestamptz+interval '15 hours','ab-1',null,'Walk-in Juan','0917')))::text$q$, 'eq:true'),
+      ('Players cannot see the guest booking',       'p1', $q$select count(*) from public.bookings where guest_name='Walk-in Juan'$q$, 'zero'),
+      ('Guest booking holds the slot for players',   'p2', $q$select * from public.create_booking('{C1}','{D2}'::timestamptz+interval '14 hours','{D2}'::timestamptz+interval '15 hours','k-guestslot')$q$, 'deny'),
+      ('Club books for a registered player',         'a1', $q$select status from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '15 hours','{D2}'::timestamptz+interval '16 hours','ab-2',(select id from public.club_players where tenant_id='{T1}' and user_id='{P2}'))$q$, 'eq:approved'),
+      ('That player sees the booking made for them', 'p2', $q$select count(*) from public.bookings where idempotency_key='ab-2'$q$, 'pos'),
+      ('That player is notified',                    'p2', $q$select count(*) from public.notifications n join public.bookings b on b.id=n.booking_id where b.idempotency_key='ab-2' and n.user_id=auth.uid()$q$, 'pos'),
+      ('Cannot give both a player and a guest',      'a1', $q$select * from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '16 hours','{D2}'::timestamptz+interval '17 hours','ab-3',(select id from public.club_players where tenant_id='{T1}' and user_id='{P2}'),'Guest')$q$, 'deny'),
+      ('Cannot give neither a player nor a guest',   'a1', $q$select * from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '16 hours','{D2}'::timestamptz+interval '17 hours','ab-4')$q$, 'deny'),
+      ('Club cannot book outside opening hours',     'a1', $q$select * from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '3 hours','{D2}'::timestamptz+interval '4 hours','ab-5',null,'Guest')$q$, 'deny'),
+      ('Club booking must sit on the slot grid',     'a1', $q$select * from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '17 hours 30 minutes','{D2}'::timestamptz+interval '18 hours 30 minutes','ab-6',null,'Guest')$q$, 'deny'),
+      ('Club cannot double-book its own court',      'a1', $q$select * from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '14 hours','{D2}'::timestamptz+interval '15 hours','ab-7',null,'Another Guest')$q$, 'deny'),
+      ('Club 1 cannot book a club 2 court',          'a1', $q$select * from public.create_admin_booking('{C2}','{D2}'::timestamptz+interval '14 hours','{D2}'::timestamptz+interval '15 hours','ab-8',null,'Guest')$q$, 'deny'),
+      ('Players cannot use club booking',            'p2', $q$select * from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '18 hours','{D2}'::timestamptz+interval '19 hours','ab-9',null,'Guest')$q$, 'deny'),
+      ('Anonymous cannot use club booking',          'anon', $q$select * from public.create_admin_booking('{C1}', now(), now(), 'x', null, 'g')$q$, 'deny'),
+      ('Club can cancel its guest booking',          'a1', $q$select status from public.cancel_booking((select id from public.bookings where idempotency_key='ab-1'), 'Guest did not show')$q$, 'eq:cancelled'),
+      ('Club adds a registered player by email',     'a1', $q$select display_name from public.admin_add_player('{T1}','player3@test.local')$q$, 'eq:player3'),
+      ('Adding the same player again is harmless',   'a1', $q$select display_name from public.admin_add_player('{T1}','player3@test.local')$q$, 'eq:player3'),
+      ('Added player is notified',                   'p3', $q$select count(*) from public.notifications where type='added_to_club' and user_id=auth.uid()$q$, 'pos'),
+      ('Club cannot add a club account as a player','a1', $q$select * from public.admin_add_player('{T1}','staff1@test.local')$q$, 'deny'),
+      ('Unknown email cannot be added as a player',  'a1', $q$select * from public.admin_add_player('{T1}','nobody@nowhere.test')$q$, 'deny'),
+      ('Club 2 admin cannot add players to club 1',  'a2', $q$select * from public.admin_add_player('{T1}','player3@test.local')$q$, 'deny'),
       ('Creating many clubs in a day is limited (6th is refused)', 'pg', $q$do $d$ declare i int; begin
           perform set_config('request.jwt.claims', json_build_object('sub','{P2}','role','authenticated')::text, true);
           for i in 1..11 loop
@@ -298,10 +337,10 @@ begin
     sql := replace(sql, '{T1}', t1); sql := replace(sql, '{T2}', t2); sql := replace(sql, '{T3}', t3);
     sql := replace(sql, '{C1M}', c1m); sql := replace(sql, '{C1}', c1); sql := replace(sql, '{C2}', c2); sql := replace(sql, '{C3}', c3);
     sql := replace(sql, '{B1P2}', b1p2); sql := replace(sql, '{B1}', b1); sql := replace(sql, '{B2}', b2);
-    sql := replace(sql, '{A1}', a1::text); sql := replace(sql, '{P1}', p1::text); sql := replace(sql, '{P2}', p2::text);
+    sql := replace(sql, '{SF}', sf::text); sql := replace(sql, '{A1}', a1::text); sql := replace(sql, '{P1}', p1::text); sql := replace(sql, '{P2}', p2::text);
     sql := replace(sql, '{D2}', d2::text);
 
-    who := case t.who when 'a1' then a1 when 'a2' then a2 when 'p1' then p1 when 'p2' then p2 when 'pa' then pa when 'a3' then a3 else null end;
+    who := case t.who when 'a1' then a1 when 'a2' then a2 when 'p1' then p1 when 'p2' then p2 when 'pa' then pa when 'a3' then a3 when 'sf' then sf when 'p3' then p3 else null end;
     v := null; st := null; detail := null;
     begin
       if t.who = 'anon' then

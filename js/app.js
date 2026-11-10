@@ -8,7 +8,7 @@
   });
   var app = document.getElementById("app");
   var nav = document.getElementById("nav");
-  var state = { user: null, isPlatform: false, managedSlug: null };
+  var state = { user: null, isPlatform: false, managedSlug: null, accountType: null };
   var liveChannel = null, livePoll = null;
   var cleanupAuthPattern = function () {};
   function stopLive() {
@@ -41,6 +41,10 @@
     "Failed to fetch": "Cannot reach the server. Check your internet connection and try again.",
     "NetworkError": "Cannot reach the server. Check your internet connection and try again.",
     "Load failed": "Cannot reach the server. Check your internet connection and try again.",
+    club_account_cannot_book: "Club accounts cannot book as players. Use a player account to book a court.",
+    player_account_cannot_register_club: "This is a player account. Club owners register with a separate club account.",
+    user_is_player: "That email belongs to a player account. Staff need a club account.",
+    account_type_locked: "This account is already set up as a different type.",
     forbidden: "You do not have permission to do that."
   };
   function friendly(err) {
@@ -165,6 +169,10 @@
     var o = takePending();
     if (!o || !state.user) return;
     if (state.isPlatform) return go("/platform");
+    if (o.as) { // a Google sign-in cannot carry the account type, so set it now (locked after the first choice)
+      var ct = await sb.rpc("choose_account_type", { p_type: o.as });
+      if (!ct.error) { state.accountType = o.as; renderNav(); }
+    }
     if (o.join) {
       var j = await sb.rpc("join_club", { p_slug: o.join, p_display_name: (o.dn || (state.user.email || "").split("@")[0] || "Player").slice(0, 60) });
       if (j.error) return;
@@ -177,10 +185,12 @@
     state.user = r.data.session ? r.data.session.user : null;
     state.isPlatform = false;
     state.managedSlug = null;
+    state.accountType = null;
     if (state.user) {
       // Filter to our own row: a platform admin can read every profile, so maybeSingle() alone would fail.
-      var p = await sb.from("profiles").select("is_platform_admin").eq("auth_user_id", state.user.id).maybeSingle();
+      var p = await sb.from("profiles").select("is_platform_admin,account_type").eq("auth_user_id", state.user.id).maybeSingle();
       state.isPlatform = !!(p.data && p.data.is_platform_admin);
+      state.accountType = (p.data && p.data.account_type) || null; // 'player' | 'tenant' | null (not chosen yet)
       if (!state.isPlatform) {
         // Club owners and staff go straight to their dashboard instead of a separate account page.
         var m = await sb.from("tenant_members").select("tenants(slug)").eq("user_id", state.user.id).order("created_at").limit(1);
@@ -208,8 +218,8 @@
       var profileName = (state.user.user_metadata && state.user.user_metadata.full_name) || state.user.email || "Player";
       var initial = profileName.trim().charAt(0).toUpperCase() || "P";
       // Club owners and staff go straight to their dashboard; everyone else keeps My account.
-      var acctHref = state.managedSlug ? "#/admin/" + esc(state.managedSlug) : "#/me";
-      var acctLabel = state.managedSlug ? "Dashboard" : "My account";
+      var acctHref = state.managedSlug ? "#/admin/" + esc(state.managedSlug) : state.accountType === "tenant" ? "#/register-club" : "#/me";
+      var acctLabel = state.managedSlug ? "Dashboard" : state.accountType === "tenant" ? "Set up my club" : "My account";
       h += '<span id="bellslot" class="dashboard-bellslot"></span>' +
         '<details class="facility-account"><summary aria-label="Account menu"><span class="facility-avatar">' + esc(initial) + '</span>' +
         '<span class="facility-account-text"><strong>' + esc(profileName) + '</strong><small>' + acctLabel + '</small></span>' +
@@ -218,7 +228,7 @@
         '<a href="' + acctHref + '"><span class="material-symbols-outlined" aria-hidden="true">dashboard</span><span>' + acctLabel + '</span></a>' +
         '<a href="#/me"><span class="material-symbols-outlined" aria-hidden="true">account_circle</span><span>My Profile</span></a>' +
         '<button id="signout" type="button"><span class="material-symbols-outlined" aria-hidden="true">logout</span><span>Sign out</span></button></div></details>' +
-        (state.managedSlug ? "" : '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>');
+        (state.managedSlug || state.accountType === "player" ? "" : '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>');
     } else {
       h += '<a href="#/auth">Sign in</a><a href="#/register-club" class="pill">Register your club</a>';
     }
@@ -631,7 +641,21 @@
     opts = opts || {};
     var next = opts.next || "/me";
     var mode = opts.mode === "up" ? "up" : "in";
-    function rememberIntent(dn) { setPending({ join: opts.join || null, next: next, dn: dn || "" }); }
+    function rememberAuthScreen(screen) {
+      mode = screen;
+      var raw = (location.hash || "#/auth").slice(1);
+      var split = raw.indexOf("?");
+      var path = split < 0 ? raw : raw.slice(0, split);
+      var params = new URLSearchParams(split < 0 ? "" : raw.slice(split + 1));
+      if (path !== "/auth") {
+        params = new URLSearchParams();
+        if (opts.join) params.set("join", opts.join);
+        if (opts.next) params.set("next", opts.next);
+      }
+      params.set("mode", screen);
+      history.replaceState(null, "", location.pathname + location.search + "#/auth?" + params.toString());
+    }
+    function rememberIntent(dn) { setPending({ as: "player", join: opts.join || null, next: next, dn: dn || "" }); }
     // Google sign-in / sign-up. Works only once the Google provider is enabled in Supabase
     // (docs/google-signin.md); until then people get a clear message instead of an error page.
     async function googleAuth() {
@@ -646,18 +670,7 @@
       if (r.error) setMsg(app, friendly(r.error), "err");
     }
     var selectedSkill = "unrated";
-    function duprCategory(skill) {
-      if (/^(beginner|novice)_/.test(skill)) return "novice";
-      if (/^intermediate_/.test(skill)) return "intermediate";
-      if (/^advanced_/.test(skill)) return "advanced";
-      if (/^pro_/.test(skill)) return "professional";
-      return "unrated";
-    }
-    function updateDuprCategory() {
-      var categories = { unrated: "NR - Not Rated", novice: "Novice / 2.000 - 2.999", intermediate: "Intermediate / 3.000 - 3.999", advanced: "Advanced / 4.000 - 4.999", professional: "Professional / 5.000 - 8.000" };
-      var output = $("#dupr-category");
-      if (output) output.textContent = categories[duprCategory(selectedSkill)];
-    }
+
     var defaultTitleIn = opts.title || "Welcome back to the court";
     var defaultTitleUp = opts.title || 'Join the premier <span class="text-primary tracking-normal">pickleball</span> network';
     var defaultIntroIn = opts.intro || "Enter your credentials to access your bookings and club schedule.";
@@ -665,6 +678,7 @@
     document.body.classList.add("auth-page");
 
     function renderSignIn() {
+      rememberAuthScreen("in");
       mode = "in";
       if (cleanupAuthPattern) { cleanupAuthPattern(); cleanupAuthPattern = null; }
       app.innerHTML =
@@ -769,10 +783,7 @@
         '<!-- Remember Me & Security Meta -->' +
         '<div class="flex items-center justify-between pt-1">' +
         '<label class="flex items-center gap-2.5 cursor-pointer select-none group">' +
-        '<input class="sr-only peer" id="remember-me" type="checkbox" checked />' +
-        '<div class="w-4 h-4 rounded bg-surface-container peer-checked:bg-primary-container peer-focus:ring-2 peer-focus:ring-primary flex items-center justify-center transition-colors">' +
-        '<span class="material-symbols-outlined text-on-primary text-[14px] font-bold opacity-0 peer-checked:opacity-100 transition-opacity">check</span>' +
-        '</div>' +
+        '<input id="remember-me" type="checkbox" checked />' +
         '<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Remember me</span>' +
         '</label>' +
         '<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">' +
@@ -795,9 +806,9 @@
         '<div class="text-center pt-2">' +
         '<p class="font-body-sm text-body-sm text-on-surface-variant">' +
         '<span id="switch-text">New to DINKSLOT?</span> ' +
-        '<a id="switch-btn" class="font-label-md text-label-md text-primary font-bold hover:underline hover:text-secondary-fixed transition-colors ml-1 inline-flex items-center gap-1" href="#">' +
+        '<a id="switch-btn" class="font-label-md text-label-md text-primary font-bold hover:text-secondary-fixed transition-colors ml-1 inline-flex items-center gap-1" href="#">' +
         '<span id="switch-btn-label">Create an account</span>' +
-        '<span class="material-symbols-outlined text-[16px]">open_in_new</span>' +
+        '<span class="material-symbols-outlined auth-switch-icon" aria-hidden="true">arrow_forward</span>' +
         '</a>' +
         '</p>' +
         '</div>' +
@@ -879,6 +890,7 @@
     }
 
     function renderSignUp() {
+      rememberAuthScreen("up");
       mode = "up";
       if (cleanupAuthPattern) { cleanupAuthPattern(); cleanupAuthPattern = null; }
       app.innerHTML =
@@ -976,33 +988,14 @@
         '<span class="material-symbols-outlined text-[14px]">arrow_outward</span>' +
         '</a>' +
         '</div>' +
-        '<output id="dupr-category" class="dupr-category" aria-live="polite">NR - Not Rated</output>' +
-        '<p class="signup-skill-help">Based on your selected range. Self-reported; not verified with DUPR.</p>' +
-        '<h3 class="club-level-heading">Custom Club Level</h3>' +
-        '<div id="skill-selector" class="signup-skills" role="group" aria-label="Custom club skill level">' +
-        '<button type="button" class="skill-pill skill-unrated" data-skill="unrated" aria-pressed="true"><span class="font-label-md">Not rated</span><span class="font-label-sm">NR</span></button>' +
-        '<fieldset class="skill-group"><legend>Beginner</legend><div class="skill-group-options">' +
-        '<button type="button" class="skill-pill" data-skill="beginner_low" aria-label="Beginner Low (2.000 - 2.249)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">2.000 - 2.249</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="beginner_high" aria-label="Beginner High (2.250 - 2.499)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">2.250 - 2.499</span></button>' +
-        '</div></fieldset>' +
-        '<fieldset class="skill-group"><legend>Novice</legend><div class="skill-group-options">' +
-        '<button type="button" class="skill-pill" data-skill="novice_low" aria-label="Novice Low (2.500 - 2.749)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">2.500 - 2.749</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="novice_high" aria-label="Novice High (2.750 - 2.999)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">2.750 - 2.999</span></button>' +
-        '</div></fieldset>' +
-        '<fieldset class="skill-group"><legend>Intermediate</legend><div class="skill-group-options">' +
-        '<button type="button" class="skill-pill" data-skill="intermediate_low" aria-label="Intermediate Low (3.000 - 3.499)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">3.000 - 3.499</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="intermediate_high" aria-label="Intermediate High (3.500 - 3.999)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">3.500 - 3.999</span></button>' +
-        '</div></fieldset>' +
-        '<fieldset class="skill-group"><legend>Advanced</legend><div class="skill-group-options">' +
-        '<button type="button" class="skill-pill" data-skill="advanced_low" aria-label="Advanced Low (4.000 - 4.499)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">4.000 - 4.499</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="advanced_high" aria-label="Advanced High (4.500 - 4.999)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">4.500 - 4.999</span></button>' +
-        '</div></fieldset>' +
-        '<fieldset class="skill-group"><legend>Pro</legend><div class="skill-group-options">' +
-        '<button type="button" class="skill-pill" data-skill="pro_low" aria-label="Pro Low (5.000 - 5.999)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">5.000 - 5.999</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="pro_high" aria-label="Pro High (6.000 - 8.000)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">6.000 - 8.000</span></button>' +
-        '</div></fieldset>' +
+        '<div id="skill-selector" class="signup-skills official-dupr-options" role="group" aria-label="DUPR classification">' +
+        '<button type="button" class="skill-pill" data-skill="unrated" aria-pressed="true"><span class="font-label-md">Not Rated</span><span class="font-label-sm">NR</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="novice" aria-pressed="false"><span class="font-label-md">Novice</span><span class="font-label-sm">2.000 - 2.999</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="intermediate" aria-pressed="false"><span class="font-label-md">Intermediate</span><span class="font-label-sm">3.000 - 3.999</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="advanced" aria-pressed="false"><span class="font-label-md">Advanced</span><span class="font-label-sm">4.000 - 4.999</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="professional" aria-pressed="false"><span class="font-label-md">Professional</span><span class="font-label-sm">5.000 - 8.000</span></button>' +
         '</div>' +
-        '<p class="signup-skill-help">Low and High are custom club groupings, not official DUPR categories. Your DUPR rating remains unchanged.</p>' +
+        '<p class="signup-skill-help">Select your current DUPR classification, or Not Rated. Self-reported; not verified with DUPR.</p>' +
         '</div>' +
         '<!-- Password Field with Interactive Strength Meter -->' +
         '<div class="flex flex-col gap-1.5 mt-1">' +
@@ -1015,10 +1008,10 @@
         '</button>' +
         '</div>' +
         '<!-- Strength Meter Bars -->' +
-        '<div class="flex flex-col gap-1.5 mt-1">' +
-        '<div class="grid grid-cols-3 gap-1.5 h-1.5 w-full">' +
-        '<div class="h-full rounded-full bg-primary-container transition-all duration-300" id="bar-1"></div>' +
-        '<div class="h-full rounded-full bg-primary-container transition-all duration-300" id="bar-2"></div>' +
+        '<div class="signup-strength-meter">' +
+        '<div class="signup-strength-bars">' +
+        '<div class="h-full rounded-full bg-surface-container-highest transition-all duration-300" id="bar-1"></div>' +
+        '<div class="h-full rounded-full bg-surface-container-highest transition-all duration-300" id="bar-2"></div>' +
         '<div class="h-full rounded-full bg-surface-container-highest transition-all duration-300" id="bar-3"></div>' +
         '</div>' +
         '<div class="flex justify-between items-center text-label-sm font-label-sm">' +
@@ -1027,26 +1020,19 @@
         '</div>' +
         '</div>' +
         '</div>' +
-        (opts.join ?
+        '<hr class="signup-password-divider" />' +
           '<div id="l-dn" class="flex flex-col gap-1.5 mt-1">' +
-          '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="dn">Display Name at This Club</label>' +
+          '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="dn">Display Name</label>' +
           '<div class="relative flex items-center">' +
           '<span class="material-symbols-outlined text-outline absolute left-3.5 pointer-events-none text-[20px]">badge</span>' +
-          '<input class="w-full bg-surface-container-low rounded-DEFAULT pl-11 pr-space-md py-3 text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-high transition-colors" id="dn" maxlength="60" placeholder="How other players see you" />' +
+          '<input class="w-full bg-surface-container-low rounded-DEFAULT pl-11 pr-space-md py-3 text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-high transition-colors" id="dn" autocomplete="nickname" maxlength="60" placeholder="How other players see you" />' +
           '</div>' +
-          '</div>' : '') +
+          '</div>' +
         '<!-- Terms and Conditions Checkbox -->' +
-        '<div class="flex items-start gap-space-sm pt-2">' +
-        '<label class="relative flex items-center cursor-pointer pt-0.5">' +
-        '<input checked class="sr-only peer" id="terms" aria-label="Agree to Terms of Service and Privacy Policy" type="checkbox" />' +
-        '<div class="w-5 h-5 rounded bg-surface-container-low peer-checked:bg-primary-container flex items-center justify-center transition-colors">' +
-        '<span class="material-symbols-outlined text-[16px] text-on-primary-container scale-0 peer-checked:scale-100 transition-transform font-bold">check</span>' +
-        '</div>' +
-        '</label>' +
-        '<span class="font-body-sm text-body-sm text-on-surface-variant leading-tight">' +
-        'I agree to the <a class="text-primary underline hover:text-on-surface transition-colors" href="#/auth">Terms of Service</a>, ' +
-        '<a class="text-primary underline hover:text-on-surface transition-colors" href="#/auth">Privacy Policy</a>, and tournament fair-play conduct standard.' +
-        '</span>' +
+        '<div class="signup-consent">' +
+        '<input id="terms" type="checkbox" required />' +
+        '<label for="terms">I agree to the <a class="text-primary underline" href="#/auth">Terms of Service</a>, ' +
+        '<a class="text-primary underline" href="#/auth">Privacy Policy</a>, and tournament fair-play conduct standard.</label>' +
         '</div>' +
         '<!-- Turnstile & Feedback -->' +
         '<div id="cap" class="cap"></div>' +
@@ -1129,14 +1115,12 @@
         };
       }
 
-      updateDuprCategory();
       var pills = app.querySelectorAll(".skill-pill");
       pills.forEach(function (pill) {
         pill.setAttribute("aria-pressed", String(pill.getAttribute("data-skill") === selectedSkill));
         pill.onclick = function () {
           selectedSkill = pill.getAttribute("data-skill");
-          updateDuprCategory();
-          pills.forEach(function (item) { item.setAttribute("aria-pressed", String(item === pill)); });
+              pills.forEach(function (item) { item.setAttribute("aria-pressed", String(item === pill)); });
         };
       });
 
@@ -1154,6 +1138,7 @@
         var firstName = ($("#first_name") && $("#first_name").value.trim()) || "";
         var lastName = ($("#last_name") && $("#last_name").value.trim()) || "";
         var fullName = [firstName, lastName].filter(Boolean).join(" ");
+        var displayName = $("#dn").value.trim() || fullName;
         var email = $("#email").value.trim(), pw = $("#pw").value;
         if (!email || pw.length < 6) return setMsg(app, "Enter your email and a password of at least 6 characters.", "err");
         if ($("#terms") && !$("#terms").checked) return setMsg(app, "Please agree to the Terms of Service and Privacy Policy.", "err");
@@ -1168,7 +1153,7 @@
           options: {
             captchaToken: cap.token,
             emailRedirectTo: location.origin + location.pathname,
-            data: { full_name: fullName, skill_level: selectedSkill, club_skill_level: selectedSkill, dupr_classification: duprCategory(selectedSkill) }
+            data: { account_type: "player", full_name: fullName, display_name: displayName, skill_level: selectedSkill, dupr_classification: selectedSkill }
           }
         });
         cap.reset();
@@ -1180,7 +1165,7 @@
         if (!res.data.session) {
           btn.disabled = false;
           setBtnIdle();
-          rememberIntent(fullName);
+          rememberIntent(displayName);
           return setMsg(app, "Account created. Check your email and click the confirmation link" +
             (opts.join ? ", and you will come straight back to book your court." : ", then sign in."), "ok");
         }
@@ -1221,8 +1206,61 @@
     viewAuth({ title: "Join " + esc(c.name), intro: "Sign in or create an account to join this club.", join: slug, next: "/c/" + slug + "/book" });
   }
 
+  // Google for a CLUB account: same provider, but the person is marked as a club owner and lands on club setup.
+  async function googleForClub() {
+    try {
+      var st = await fetch(cfg.SUPABASE_URL + "/auth/v1/settings", { headers: { apikey: cfg.SUPABASE_ANON_KEY } }).then(function (r) { return r.json(); });
+      if (!st || !st.external || !st.external.google) return setMsg(app, "Google sign-in is not available yet. Please use your email and password.", "err");
+    } catch (e) { return setMsg(app, friendly(e), "err"); }
+    setPending({ as: "tenant", join: null, next: "/register-club", dn: "" });
+    var r = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: "select_account" } } });
+    if (r.error) setMsg(app, friendly(r.error), "err");
+  }
+
+  // Step 1 for clubs, separate from player sign-up: create a CLUB account.
+  function viewClubSignup() {
+    app.innerHTML =
+      '<section class="panel"><span class="eyebrow">For clubs and court owners</span><h1>Register your club</h1>' +
+      '<p>Create a club account first. After you confirm your email you add your club details, and the platform admin approves it before it goes public.</p>' +
+      '<p class="muted small">Want to book a court instead? <a href="#/auth?mode=up">Sign up as a player</a>.</p>' +
+      '<form id="f" novalidate><label>Your name<input id="oname" maxlength="80" autocomplete="name" required></label>' +
+      '<label>Email<input id="oemail" type="email" autocomplete="email" required></label>' +
+      '<label>Password (6 or more characters)<input id="opw" type="password" minlength="6" autocomplete="new-password" required></label>' +
+      '<div id="cap" class="cap"></div><p class="msg" role="alert"></p>' +
+      '<button class="btn" id="go" type="submit">Create club account</button></form>' +
+      '<p class="muted small" style="text-align:center;margin:.9rem 0">or</p>' +
+      '<button class="btn ghost" id="ogoogle" type="button" style="width:100%">Continue with Google</button>' +
+      '<p class="muted small">Already have a club account? <a href="#/auth?mode=in&next=%2Fregister-club">Sign in</a></p></section>';
+    var cap = mountCaptcha($("#cap"));
+    $("#ogoogle").onclick = googleForClub;
+    $("#f").onsubmit = async function (e) {
+      e.preventDefault();
+      var email = $("#oemail").value.trim(), pw = $("#opw").value, name = $("#oname").value.trim();
+      if (!name || !email || pw.length < 6) return setMsg(app, "Enter your name, your email and a password of at least 6 characters.", "err");
+      if (!cap.token) return setMsg(app, MESSAGES.captcha_required, "err");
+      var btn = $("#go"); btn.disabled = true; setMsg(app, "Creating your club account...", "");
+      var res = await sb.auth.signUp({ email: email, password: pw, options: { captchaToken: cap.token,
+        emailRedirectTo: location.origin + location.pathname, data: { account_type: "tenant", full_name: name } } });
+      cap.reset(); btn.disabled = false;
+      if (res.error) return setMsg(app, friendly(res.error), "err");
+      if (!res.data.session) {
+        setPending({ as: "tenant", join: null, next: "/register-club", dn: name });
+        return setMsg(app, "Club account created. Check your email and click the confirmation link, then add your club details.", "ok");
+      }
+      await refreshSession();
+      go("/register-club");
+    };
+  }
+
   function viewRegisterClub() {
-    if (!requireUser("/register-club")) return;
+    if (!state.user) return viewClubSignup(); // clubs have their own sign-up, separate from players
+    if (state.accountType === "player" && !state.managedSlug) {
+      app.innerHTML = '<section class="panel"><h1>This is a player account</h1>' +
+        '<p>Club owners register with a separate <b>club account</b>, so players and clubs never mix. Sign out and register your club with a different email.</p>' +
+        '<p><button class="btn" id="so-club" type="button">Sign out and register a club</button> <a class="btn ghost" href="#/me">Back to my account</a></p></section>';
+      $("#so-club").onclick = async function () { await sb.auth.signOut(); await refreshSession(); go("/register-club"); };
+      return;
+    }
     if (state.managedSlug) {
       app.innerHTML = '<section class="panel"><h1>You already have a club</h1>' +
         '<p>One account can manage one club. Open your dashboard to manage it.</p>' +
@@ -1274,6 +1312,7 @@
   async function viewMe() {
     if (!requireUser("/me")) return;
     if (state.managedSlug) return go("/admin/" + state.managedSlug); // owners and staff use the dashboard
+    if (state.accountType === "tenant") return go("/register-club"); // club account: add the club first
     var initial = (state.user.email || "?").charAt(0).toUpperCase();
     app.innerHTML =
       '<div class="pubwrap narrow"><div class="acchead"><span class="avatar big ph">' + esc(initial) + "</span>" +

@@ -78,3 +78,10 @@ Deno.test("MIME: headers, no header injection, UTF-8 subject, base64 bodies deco
 Deno.test("safeEqual", () => {
   if (!safeEqual("abc", "abc") || safeEqual("abc", "abd") || safeEqual("abc", "abcd") || safeEqual("", "x")) throw new Error("safeEqual");
 });
+
+Deno.test("booking made by the club: player is told, admins are not alerted; guests get no email", () => {
+  const forPlayer = planEmails(ctx({ status: "approved", source: "admin" }), true);
+  if (who(forPlayer).join() !== "booking_approved:player@x.com") throw new Error(who(forPlayer).join());
+  const guest = planEmails(ctx({ status: "approved", source: "walk_in", guest_name: "Juan" }, { playerEmail: null, playerUserId: null }), true);
+  if (guest.length !== 0) throw new Error("a walk-in guest has no email and admins need no alert");
+});

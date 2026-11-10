@@ -1815,3 +1815,69 @@ body .facility-menu-item .facility-item-title {
 .court-cta-bookings > .material-symbols-outlined { font-size: 20px; color: var(--lime); }
 @media (max-width:767px) { #ds-landing .court-cta { grid-template-columns: minmax(0,1fr); padding: 28px 24px; gap: 32px; border-radius: 22px; } .court-cta-court { height: 140px; max-width: 360px; } }
 @media (max-width:400px) { #ds-landing .court-cta-actions a { width: 100%; } }
+
+
+#ds-auth-screen.signup-screen .official-dupr-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+#ds-auth-screen.signup-screen .official-dupr-options > button:first-child { grid-column: 1 / -1; }
+
+
+.court-cta-photo { position: relative; margin: 0; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 18px; border: 1px solid #ffffff12; background: #10161b; }
+.court-cta-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 58%; }
+.court-cta-photo::after { content: ""; position: absolute; inset: 40% 0 0; background: linear-gradient(transparent, #0a0e14b3); pointer-events: none; }
+.court-cta-photo figcaption { position: absolute; z-index: 1; left: 16px; bottom: 14px; display: flex; align-items: center; gap: 7px; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; color: #fff; }
+.court-cta-photo figcaption .material-symbols-outlined { font-size: 17px; color: var(--lime); }
+
+
+#ds-auth-screen #switch-btn { text-decoration: none; }
+#ds-auth-screen #switch-btn:hover #switch-btn-label,
+#ds-auth-screen #switch-btn:focus-visible #switch-btn-label { text-decoration: underline; text-underline-offset: 3px; }
+#ds-auth-screen #switch-btn .auth-switch-icon { display: inline-block; font-size: 16px; line-height: 1; text-decoration: none; vertical-align: middle; }
+
+
+#ds-auth-screen.signup-screen .official-dupr-options { grid-template-columns: repeat(6,minmax(0,1fr)); }
+#ds-auth-screen.signup-screen .official-dupr-options > button,
+#ds-auth-screen.signup-screen .official-dupr-options > button:first-child { grid-column: span 2; min-width: 0; padding: 11px 10px; }
+#ds-auth-screen.signup-screen .official-dupr-options > button:nth-child(n+4) { grid-column: span 3; }
+#ds-auth-screen.signup-screen .official-dupr-options .font-label-sm { font-size: 9px; white-space: nowrap; }
+#ds-auth-screen.signup-screen .signup-password-divider { border: 0; border-top: 1px solid #ffffff12; margin: 2px 0; width: 100%; }
+#ds-auth-screen.signup-screen .signup-consent { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid #ffffff0c; border-radius: 12px; background: #ffffff02; }
+#ds-auth-screen.signup-screen .signup-consent label { margin: 0; font: 400 12px/19px "Plus Jakarta Sans",sans-serif; color: var(--muted); cursor: pointer; }
+#ds-auth-screen.signup-screen .signup-consent #terms { appearance: none; -webkit-appearance: none; flex: none; width: 18px; height: 18px; margin: 1px 0 0; border: 1px solid #68736a; border-radius: 5px; background: #10161b; cursor: pointer; }
+#ds-auth-screen.signup-screen .signup-consent #terms:checked { border-color: var(--lime); background-color: var(--lime); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='m4 9 3 3 7-7' fill='none' stroke='%23213600' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+#ds-auth-screen.signup-screen .signup-consent #terms:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+#ds-auth-screen.signup-screen .signup-consent a { text-underline-offset: 3px; }
+
+
+/* Keep the strength meter independent of listing-grid padding. */
+#ds-auth-screen.signup-screen .signup-strength-meter { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+#ds-auth-screen.signup-screen .signup-strength-bars { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; height: 4px; padding: 0; margin: 0; }
+#ds-auth-screen.signup-screen .signup-strength-bars > div { height: 4px; min-height: 4px; border-radius: 4px; }
+#ds-auth-screen.signup-screen .signup-strength-meter > div:last-child { font-size: 10px; line-height: 16px; }
+#ds-auth-screen.signup-screen #l-dn { margin-top: 0; }
+
+
+/* One checkbox style across sign-in, signup, user, tenant, and admin forms. */
+body input[type="checkbox"] {
+  appearance: none !important; -webkit-appearance: none !important;
+  display: inline-block !important; position: static !important;
+  width: 20px !important; height: 20px !important; min-width: 20px !important;
+  padding: 0 !important; margin: 0 !important; flex: 0 0 20px !important;
+  border: 1.5px solid #728065 !important; border-radius: 6px !important;
+  background: #10161b !important; box-shadow: none;
+  clip: auto !important; clip-path: none !important; overflow: visible !important;
+  vertical-align: middle; cursor: pointer;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+body input[type="checkbox"]:checked {
+  border-color: var(--lime) !important; background-color: var(--lime) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='m5 10 3 3 7-7' fill='none' stroke='%23213600' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-position: center !important; background-repeat: no-repeat !important; background-size: 18px 18px !important;
+  box-shadow: none;
+}
+body input[type="checkbox"]:focus-visible { outline: 2px solid var(--lime) !important; outline-offset: 5px !important; }
+body input[type="checkbox"]:disabled { opacity: .45; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { body input[type="checkbox"] { transition: none; } }
+/* club books for a customer */
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line-strong);border-radius:999px;padding:3px;margin-bottom:.6rem}
+.segbtn{border:0;background:none;color:var(--muted);padding:.4rem 1rem;border-radius:999px;cursor:pointer;font:inherit;font-size:.85rem;font-weight:600}
+.segbtn.on{background:var(--lime);color:var(--ink-dark)}
