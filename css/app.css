@@ -3122,3 +3122,7 @@ html:not(.boot-dashboard) .boot-subtitle { margin: 0 auto 36px; }
 .booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(3) { grid-column: 2; grid-row: 1; }
 .booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
 .booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(4) { grid-column: 1 / -1; grid-row: 3; justify-self: start; }
+
+/* Give the booking reference breathing room above the action divider. */
+.booking-record-grid > .bcard > div:nth-child(2) { margin-bottom: 12px; }
+.booking-record-grid > .bcard > div:nth-child(2) > div:nth-child(4) { margin-top: 3px; }
