@@ -442,7 +442,7 @@
       var bs = (await sb.from("bookings").select("*").eq("tenant_id", t.id).in("status", ["pending", "approved"])
         .gte("ends_at", new Date().toISOString()).order("starts_at")).data || [];
       var players = (await sb.from("club_players").select("id,display_name,phone").eq("tenant_id", t.id)).data || [];
-      var courts = (await sb.from("courts").select("id,name").eq("tenant_id", t.id)).data || [];
+      var courts = (await sb.from("courts").select("id,name,is_indoor").eq("tenant_id", t.id)).data || [];
       var pays = bs.length ? (await sb.from("booking_payments").select("*").eq("tenant_id", t.id).in("booking_id", bs.map(function (b) { return b.id; }))).data || [] : [];
       var pm = {}, cm = {}, pay = {};
       players.forEach(function (p) { pm[p.id] = p; }); courts.forEach(function (c) { cm[c.id] = c; }); pays.forEach(function (p) { pay[p.booking_id] = p; });
@@ -529,7 +529,7 @@
               court = cm[booking.court_id] || {};
           var playerName = player.display_name || booking.guest_name || 'Guest';
           var courtName = court.name || 'Court';
-          var courtSurface = court.surface_type || 'Indoor Cushion Pro';
+          var courtSurface = court.is_indoor === true ? 'Indoor' : court.is_indoor === false ? 'Outdoor' : 'Court type unavailable';
           var clubName = t.name || 'DINKSLOT Club';
           var refCode = booking.reference_code || '';
           var sDate = new Date(booking.starts_at), eDate = new Date(booking.ends_at);
