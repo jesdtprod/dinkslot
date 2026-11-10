@@ -422,6 +422,21 @@
     var m;
     window.scrollTo(0, 0);
     stopLive();
+    // Supabase Auth returns here with #error=... (expired/used link) or #access_token=... (signed in).
+    // These are not page routes.
+    if (/^(error|access_token|error_code|error_description)=/.test(raw)) {
+      var ap = new URLSearchParams(raw);
+      history.replaceState(null, "", location.pathname + location.search);
+      if (ap.get("error")) {
+        var expired = ap.get("error_code") === "otp_expired";
+        app.innerHTML = '<section class="panel"><h1>' + (expired ? "Link already used or expired" : "Sign-in link problem") + "</h1>" +
+          "<p>" + (expired
+            ? "This confirmation link was already used or has expired. If you already clicked it, your email is confirmed: just sign in. Otherwise create the account again to get a fresh link."
+            : esc((ap.get("error_description") || "Something went wrong.").replace(/\+/g, " "))) + '</p><p><a class="btn" href="#/auth">Sign in</a></p></section>';
+        return;
+      }
+      return go(state.user ? "/me" : "/auth");
+    }
     try {
       // Super admin never uses tenant/player screens.
       if (state.isPlatform && (path === "/me" || path === "/register-club" || path === "/auth")) return go("/platform");
