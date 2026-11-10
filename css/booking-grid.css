@@ -289,3 +289,7 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 /* Give club cover photos more vertical space on both member pages. */
 .home-clubs-grid .home-club-cover { height:250px; }
 @media(max-width:600px) { .home-clubs-grid .home-club-cover { height:220px; } }
+
+/* Larger club avatars retain the circular cover overlap. */
+.home-clubs-grid .home-club-avatar { width:68px; height:68px; border-width:3px; font-size:26px; }
+.home-clubs-grid .home-club-identity { margin-top:-32px; }
