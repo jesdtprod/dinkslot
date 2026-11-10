@@ -60,9 +60,9 @@
   function clubRow(c, joined) {
     var logo = c.logo_path ? '<img src="' + esc(D.mediaUrl(c.logo_path)) + '" alt="">' : esc(c.name.charAt(0).toUpperCase());
     return '<div class="clubrow"><span class="avatar ph">' + logo + '</span><div class="clubrow-text"><b>' + esc(c.name) + "</b>" +
-      (joined ? ' <span class="badge approved">Joined</span>' : "") + '<p class="muted small">' + esc(c.city || "") + "</p></div>" +
+      (joined ? ' <span class="badge approved">Joined</span>' : "") + '<p class="muted small">' + esc(c.city || "Location not provided") + "</p></div>" +
       '<div class="clubrow-actions"><a class="btn sm ghost" href="#/c/' + esc(c.slug) + '">View</a> ' +
-      '<a class="btn sm" href="#/c/' + esc(c.slug) + (joined ? "/book" : "/join") + '">' + (joined ? "Book a court" : "Join and book") + "</a></div></div>";
+      '<a class="btn sm" href="#/c/' + esc(c.slug) + (joined ? "/book" : "/join") + '">' + (joined ? "Book a Court" : "Join and Book") + "</a></div></div>";
   }
 
   async function overviewView(sec) {
@@ -102,10 +102,11 @@
     var mc = await myClubs(), joined = {};
     mc.players.forEach(function (p) { joined[p.tenant_id] = true; });
     var all = (await sb.from("public_clubs").select("id,slug,name,city,logo_path").order("name")).data || [];
-    sec.innerHTML = '<div class="searchrow"><span class="mi" aria-hidden="true">search</span><input id="fq" type="search" placeholder="Search clubs or cities" aria-label="Search clubs"></div><div class="panel wide" id="flist"></div>';
+    sec.innerHTML = '<section class="club-discovery"><div class="club-discovery-toolbar"><div class="searchrow"><span class="mi" aria-hidden="true">search</span><input id="fq" type="search" placeholder="Search by club name or city" aria-label="Search clubs"></div><span id="club-result-count" role="status"></span></div><div class="club-discovery-grid" id="flist"></div></section>';
     function draw() {
       var term = q("#fq", sec).value.trim().toLowerCase();
       var list = all.filter(function (c) { return !term || (c.name + " " + (c.city || "")).toLowerCase().indexOf(term) !== -1; });
+      q("#club-result-count", sec).textContent = list.length + (list.length === 1 ? " club available" : " clubs available");
       q("#flist", sec).innerHTML = list.length ? list.map(function (c) { return clubRow(c, !!joined[c.id]); }).join("") : D.ui.emptyState('No clubs found', 'Try a different search or adjust your filters.', 'search_off');
     }
     q("#fq", sec).oninput = draw; draw();

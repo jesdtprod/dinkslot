@@ -53,3 +53,19 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 .ds-toast-title { color: #e1e9e3; font: 600 13px/18px "Plus Jakarta Sans",sans-serif; }
 .ds-toast-description { color: #a9b9ae; font: 400 12px/19px "Plus Jakarta Sans",sans-serif; }
 .ds-toast.is-error .ds-toast-description { color: #c4b2aa; }
+
+/* Club discovery shares the dashboard card system. */
+.club-discovery { display:flex; flex-direction:column; gap:18px; }
+.club-discovery-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 16px; border:1px solid #ffffff0d; border-radius:12px; background:#171f25; }
+.member-dashboard .club-discovery .searchrow { flex:1; max-width:520px; margin:0; border-color:#ffffff10; background:#20282e; }
+#club-result-count { flex-shrink:0; color:#8fa395; font:400 11px/18px "Plus Jakarta Sans",sans-serif; }
+.club-discovery-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.member-dashboard .club-discovery-grid .clubrow { display:grid; grid-template-columns:44px minmax(0,1fr); align-items:center; gap:12px; padding:18px; border:1px solid #ffffff10; border-radius:12px; background:linear-gradient(135deg,#1b242a,#151c22); }
+.member-dashboard .club-discovery-grid .clubrow:last-child { border-bottom:1px solid #ffffff10; }
+.member-dashboard .club-discovery-grid .clubrow-text b { display:block; margin-bottom:5px; font-size:14px; line-height:21px; }
+.member-dashboard .club-discovery-grid .clubrow-text .badge { display:inline-block; margin-bottom:3px; }
+.member-dashboard .club-discovery-grid .clubrow-text p { margin-top:4px; font-size:11px; }
+.member-dashboard .club-discovery-grid .clubrow-actions { grid-column:1 / -1; width:100%; display:flex; justify-content:flex-end; flex-wrap:wrap; gap:8px; margin-top:4px; padding-top:14px; border-top:1px solid #ffffff09; }
+.club-discovery-grid > .app-empty-state { grid-column:1 / -1; }
+@media(max-width:1200px) { .club-discovery-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:640px) { .club-discovery-grid { grid-template-columns:minmax(0,1fr); } .club-discovery-toolbar { align-items:stretch; flex-direction:column; gap:10px; } }
