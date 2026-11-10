@@ -596,17 +596,44 @@
     };
   }
 
+  function mediaSelection(card, input, button) {
+    var drop = card.querySelector('.media-drop'), filename = card.querySelector('.media-file');
+    function preview() {
+      var file = input.files[0];
+      button.disabled = true;
+      try { checkImage(file); } catch (err) { filename.textContent = err.message; return; }
+      filename.textContent = file.name + ' - ' + (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      var reader = new FileReader();
+      reader.onload = function () {
+        if (input.files[0] !== file) return;
+        var image = document.createElement('img'); image.src = reader.result; image.alt = 'Selected image preview';
+        card.querySelector('.media-preview').replaceChildren(image);
+        button.disabled = false;
+      };
+      reader.onerror = function () { filename.textContent = 'Could not preview this image. Choose another file.'; };
+      reader.readAsDataURL(file);
+    }
+    input.onchange = preview;
+    ['dragenter', 'dragover'].forEach(function (event) { drop.addEventListener(event, function (e) { e.preventDefault(); drop.classList.add('is-dragging'); }); });
+    drop.addEventListener('dragleave', function (e) { if (!drop.contains(e.relatedTarget)) drop.classList.remove('is-dragging'); });
+    drop.addEventListener('drop', function (e) {
+      e.preventDefault(); drop.classList.remove('is-dragging');
+      if (!e.dataTransfer.files.length) return;
+      var transfer = new DataTransfer(); transfer.items.add(e.dataTransfer.files[0]); input.files = transfer.files; preview();
+    });
+  }
+
   // -------------------------------------------------------------- settings
   async function settingsView(sec, part) {
     var t = ctx.t;
     var st = (await sb.from("tenant_settings").select("*").eq("tenant_id", t.id).maybeSingle()).data || {};
     var qrUrl = part === "payments" ? await signedUrl(st.qr_path) : "";
-    function mediaCard(key, title, path, hint) {
+    function mediaCard(key, title, path, hint, url) {
       return '<article class="media-upload ' + (key === 'cover' ? 'is-cover' : '') + '"><header><h3>' + title + '</h3><span>' + (path ? 'Uploaded' : 'Not uploaded') + '</span></header>' +
         '<label class="media-drop" for="' + key + 'f"><input id="' + key + 'f" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose ' + title.toLowerCase() + '">' +
-          '<span class="media-preview">' + (path ? '<img src="' + esc(D.mediaUrl(path)) + '" alt="Current ' + title.toLowerCase() + '">' : '<span class="material-symbols-outlined" aria-hidden="true">' + (key === 'cover' ? 'panorama' : 'add_photo_alternate') + '</span>') + '</span>' +
-          '<span class="media-drop-title">Drop an image here, or <span>browse files</span></span><span class="media-hint">' + hint + '</span><span class="media-file" aria-live="polite">JPG, PNG or WebP ? Up to 5 MB</span>' +
-        '</label><footer><span>Preview before uploading</span><button id="' + key + 'b" class="media-upload-button" type="button" disabled><span class="material-symbols-outlined" aria-hidden="true">upload</span>Upload ' + (key === 'logo' ? 'logo' : 'cover') + '</button></footer></article>';
+          '<span class="media-preview">' + (path ? '<img src="' + esc(url || D.mediaUrl(path)) + '" alt="Current ' + title.toLowerCase() + '">' : '<span class="material-symbols-outlined" aria-hidden="true">' + (key === 'cover' ? 'panorama' : 'add_photo_alternate') + '</span>') + '</span>' +
+          '<span class="media-drop-title">Drop an image here, or <span>browse files</span></span><span class="media-hint">' + hint + '</span><span class="media-file" aria-live="polite">JPG, PNG or WebP - Up to 5 MB</span>' +
+        '</label><footer><span>Preview before uploading</span><button id="' + key + 'b" class="media-upload-button" type="button" disabled><span class="material-symbols-outlined" aria-hidden="true">upload</span>Upload ' + (key === 'logo' ? 'logo' : key === 'qr' ? 'QR' : 'cover') + '</button></footer></article>';
     }
 
     var PANELS = {};
@@ -616,8 +643,7 @@
         '<form id="pf" class="flex flex-col gap-space-md">' +
           '<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">' +
             '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Club Name<input id="pn" maxlength="80" required value="' + esc(t.name) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">City<input id="pc" value="' + esc(t.city || "") + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Street Address<input id="pa" value="' + esc(t.address || "") + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
+            '<div id="phbox" class="sm:col-span-2"></div>' +
             '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Contact Phone<input id="pp" value="' + esc(t.contact_phone || "") + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
             '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase sm:col-span-2">Contact Email (Reply-To)<input id="pe" type="email" value="' + esc(t.contact_email || "") + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
           '</div>' +
@@ -640,14 +666,7 @@
             '<input id="spe" type="checkbox"' + (st.payment_enabled ? " checked" : "") + ' class="w-4 h-4 accent-primary"> Players pay by scanning QR code at reservation checkout' +
           '</label>' +
           '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Payment Instructions &amp; Bank Details<textarea id="spi" rows="3" placeholder="e.g. GCash 0917 000 0000, please input your booking reference code in the remarks field" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(st.payment_instructions || "") + '</textarea></label>' +
-          '<div class="p-space-md dashboard-rounded bg-surface-container border border-outline-variant/20 flex flex-col sm:flex-row items-center gap-space-md">' +
-            (qrUrl ? '<img class="w-32 h-32 object-contain bg-surface-container-lowest p-2 dashboard-rounded border border-outline-variant/40" src="' + esc(qrUrl) + '" alt="Payment QR">' : '<div class="w-32 h-32 dashboard-rounded bg-surface-container-lowest flex items-center justify-center text-outline"><span class="material-symbols-outlined text-4xl">qr_code_2</span></div>') +
-            '<div class="flex flex-col gap-2 flex-1">' +
-              '<span class="font-body-md font-semibold text-on-surface">Payment QR Code (GCash, Maya or Bank)</span>' +
-              '<input id="qrf" type="file" accept="image/jpeg,image/png,image/webp" class="font-label-sm">' +
-              '<button class="px-space-md py-2 rounded-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary font-label-md font-semibold transition-all border-0 cursor-pointer self-start" id="qrb" type="button">Upload New QR</button>' +
-            '</div>' +
-          '</div>' +
+          '<div class="payment-qr-card">' + mediaCard('qr', 'Payment QR code', st.qr_path, 'GCash, Maya or bank QR ? Keep the full code visible', qrUrl) + '</div>' +
           '<label class="flex items-center gap-2 font-body-md text-on-surface cursor-pointer p-space-sm dashboard-rounded bg-surface-container border border-outline-variant/20">' +
             '<input id="sar" type="checkbox"' + (st.approval_required ? " checked" : "") + ' class="w-4 h-4 accent-primary"> Manual approval required for every booking slip' +
           '</label>' +
@@ -674,43 +693,29 @@
         '<p class="msg" role="alert" id="stmsg"></p>' +
       '</div>';
 
-    sec.innerHTML = part === "profile" ? '<div class="club-profile">' + PANELS[part] + '</div>' : PANELS[part];
+    sec.innerHTML = '<div class="settings-page ' + (part === "profile" ? "club-profile" : "settings-" + esc(part)) + '">' + PANELS[part] + '</div>';
 
     if (part === "profile") {
+      // Philippine address from the PSGC API (js/ph-address.js): manager, street/purok/sitio, province, city, barangay, ZIP
+      var phc = D.ph.mount(q("#phbox", sec), { values: t, manager: true, required: true, cls: {
+        label: "font-label-sm text-on-surface-variant",
+        input: "bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30" } });
       q("#pf", sec).onsubmit = async function (e) {
         e.preventDefault();
         var f = this;
-        var r = await sb.from("tenants").update({ name: val("#pn", f).trim(), city: val("#pc", f).trim() || null, address: val("#pa", f).trim() || null,
+        var perr = phc.validate();
+        if (perr) return setMsg(f, perr, "err");
+        var ad = phc.get();
+        var r = await sb.from("tenants").update({ name: val("#pn", f).trim(), city: ad.city, address: ad.address,
+          manager_name: ad.manager_name, street: ad.street, barangay: ad.barangay, province: ad.province, zip_code: ad.zip_code,
+          psgc_province: ad.psgc_province, psgc_city: ad.psgc_city, psgc_barangay: ad.psgc_barangay,
           contact_phone: val("#pp", f).trim() || null, contact_email: val("#pe", f).trim() || null, description: val("#pd", f).trim() || null }).eq("id", t.id);
         if (r.error) return setMsg(f, friendly(r.error), "err");
         setMsg(f, "Profile saved.", "ok");
       };
       function photoUpload(btnSel, fileSel, col, name) {
         var input = q(fileSel, sec), button = q(btnSel, sec), card = input.closest('.media-upload');
-        var drop = card.querySelector('.media-drop'), filename = card.querySelector('.media-file');
-        function preview() {
-          var file = input.files[0];
-          button.disabled = true;
-          try { checkImage(file); } catch (err) { filename.textContent = err.message; return; }
-          filename.textContent = file.name + ' ? ' + (file.size / 1024 / 1024).toFixed(2) + ' MB';
-          var reader = new FileReader();
-          reader.onload = function () {
-            if (input.files[0] !== file) return;
-            var image = document.createElement('img'); image.src = reader.result; image.alt = 'Selected image preview';
-            card.querySelector('.media-preview').replaceChildren(image);
-            button.disabled = false;
-          };
-          reader.onerror = function () { filename.textContent = 'Could not preview this image. Choose another file.'; };
-          reader.readAsDataURL(file);
-        }
-        input.onchange = preview;
-        ['dragenter', 'dragover'].forEach(function (event) { drop.addEventListener(event, function (e) { e.preventDefault(); drop.classList.add('is-dragging'); }); });
-        drop.addEventListener('dragleave', function (e) { if (!drop.contains(e.relatedTarget)) drop.classList.remove('is-dragging'); });
-        drop.addEventListener('drop', function (e) {
-          e.preventDefault(); drop.classList.remove('is-dragging');
-          if (!e.dataTransfer.files.length) return;
-          var transfer = new DataTransfer(); transfer.items.add(e.dataTransfer.files[0]); input.files = transfer.files; preview();
-        });
+        mediaSelection(card, input, button);
         q(btnSel, sec).onclick = async function () {
           var msg = q("#phmsg", sec), file = q(fileSel, sec).files[0];
           msg.className = "msg"; msg.textContent = "Uploading...";
@@ -731,6 +736,7 @@
     }
 
     if (part === "payments") {
+      mediaSelection(q("#qrf", sec).closest(".media-upload"), q("#qrf", sec), q("#qrb", sec));
       q("#qrb", sec).onclick = async function () {
         var file = q("#qrf", sec).files[0];
         try {
@@ -759,10 +765,10 @@
     if (part === "staff") {
       async function loadStaff() {
         var box = q("#stafflist", sec);
-        var r = await sb.rpc("list_club_staff", { p_tenant_id: t.id });
+        var r = await sb.rpc("list_tenant_staff", { p_tenant_id: t.id });
         if (r.error) { box.innerHTML = '<p class="text-error">' + esc(friendly(r.error)) + "</p>"; return; }
         box.innerHTML = '<div class="overflow-x-auto"><table class="w-full text-left font-body-sm text-body-sm"><thead class="text-on-surface-variant font-label-sm uppercase tracking-wider bg-surface-container/60"><tr><th class="py-space-sm px-space-md rounded-l-DEFAULT">Team Member</th><th class="py-space-sm px-space-md">Role</th><th class="py-space-sm px-space-md rounded-r-DEFAULT text-right">Actions</th></tr></thead><tbody class="divide-y divide-surface-container-high">' + (r.data || []).map(function (m) {
-          return '<tr class="hover:bg-surface-container transition-colors"><td class="py-space-sm px-space-md"><strong>' + esc(m.full_name || "Staff Member") + '</strong><br><span class="font-label-sm text-on-surface-variant">' + esc(m.email) + '</span></td><td class="py-space-sm px-space-md"><span class="px-space-xs py-0.5 rounded-full font-label-sm uppercase ' + (m.role === "owner" ? "bg-primary/10 text-primary font-bold" : "bg-surface-container-highest text-on-surface") + '">' + esc(m.role) + "</span></td><td class=\"py-space-sm px-space-md text-right\">" +
+          return '<tr class="hover:bg-surface-container transition-colors"><td class="py-space-sm px-space-md"><strong>' + esc(m.full_name || "Staff Member") + '</strong><br><span class="font-label-sm text-on-surface-variant">' + esc(m.email) + '</span></td><td class="py-space-sm px-space-md"><span class="px-space-xs py-0.5 rounded-full font-label-sm ' + (m.role === "owner" ? "bg-primary/10 text-primary font-bold" : "bg-surface-container-highest text-on-surface") + '">' + esc(m.role.charAt(0).toUpperCase() + m.role.slice(1)) + "</span></td><td class=\"py-space-sm px-space-md text-right\">" +
             (m.role === "staff" ? '<button class="px-3 py-1 rounded-full bg-error/10 hover:bg-error text-error hover:text-on-error font-label-sm border border-error/30 cursor-pointer" data-rm="' + esc(m.member_id) + '" type="button">Remove</button>' : '<span class="font-label-sm text-outline">Owner Account</span>') + "</td></tr>";
         }).join("") + "</tbody></table></div>";
         Array.prototype.forEach.call(box.querySelectorAll("[data-rm]"), function (b) {
@@ -794,7 +800,7 @@
   // ------------------------------------------------------------ my profile
   // Personal details (own row only) and the user's own bookings as a player.
   async function accountView(sec) {
-    sec.innerHTML =
+    sec.innerHTML = '<div class="settings-page settings-account">' +
       '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">My Account</h1><p class="font-body-md text-on-surface-variant">Your personal staff credentials and private match history.</p></div>' +
       '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
         '<form id="myprofile" class="flex flex-col gap-space-md">' +
@@ -810,7 +816,7 @@
       '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
         '<div><h3 class="font-headline-sm text-on-surface">Personal Court Bookings</h3><p class="font-body-sm text-on-surface-variant">Courts you personally reserved across DINKSLOT.</p></div>' +
         '<div id="mybookings" class="space-y-3"><div class="h-16 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-16 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div>' +
-      '</div>';
+      '</div></div>';
 
     var r = await sb.from("profiles").select("full_name,phone").eq("auth_user_id", D.state.user.id).maybeSingle();
     if (q("#mp-name", sec)) {
