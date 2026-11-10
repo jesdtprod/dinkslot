@@ -158,14 +158,18 @@
       if (!v) return null;
       localStorage.removeItem(PENDING_KEY);
       var o = JSON.parse(v);
-      return o && o.join && /^[a-z0-9-]+$/.test(o.join) && Date.now() - o.at < 86400000 ? o : null;
+      return o && Date.now() - o.at < 86400000 && (!o.join || /^[a-z0-9-]+$/.test(o.join)) ? o : null;
     } catch (e) { return null; }
   }
   async function resumePending() {
     var o = takePending();
-    if (!o || !state.user || state.isPlatform) return;
-    var j = await sb.rpc("join_club", { p_slug: o.join, p_display_name: (o.dn || (state.user.email || "").split("@")[0] || "Player").slice(0, 60) });
-    if (!j.error && o.next && o.next.charAt(0) === "/") go(o.next);
+    if (!o || !state.user) return;
+    if (state.isPlatform) return go("/platform");
+    if (o.join) {
+      var j = await sb.rpc("join_club", { p_slug: o.join, p_display_name: (o.dn || (state.user.email || "").split("@")[0] || "Player").slice(0, 60) });
+      if (j.error) return;
+    }
+    if (o.next && o.next.charAt(0) === "/") go(o.next);
   }
 
   async function refreshSession() {
@@ -627,7 +631,20 @@
     opts = opts || {};
     var next = opts.next || "/me";
     var mode = opts.mode === "up" ? "up" : "in";
-    function rememberIntent(dn) { if (opts.join) setPending({ join: opts.join, next: next, dn: dn || "" }); }
+    function rememberIntent(dn) { setPending({ join: opts.join || null, next: next, dn: dn || "" }); }
+    // Google sign-in / sign-up. Works only once the Google provider is enabled in Supabase
+    // (docs/google-signin.md); until then people get a clear message instead of an error page.
+    async function googleAuth() {
+      try {
+        var st = await fetch(cfg.SUPABASE_URL + "/auth/v1/settings", { headers: { apikey: cfg.SUPABASE_ANON_KEY } }).then(function (r) { return r.json(); });
+        if (!st || !st.external || !st.external.google) {
+          return setMsg(app, "Google sign-in is not available yet. Please use your email and password for now.", "err");
+        }
+      } catch (e) { return setMsg(app, friendly(e), "err"); }
+      rememberIntent();
+      var r = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: "select_account" } } });
+      if (r.error) setMsg(app, friendly(r.error), "err");
+    }
     var selectedSkill = "unrated";
     function duprCategory(skill) {
       if (/^(beginner|novice)_/.test(skill)) return "novice";
@@ -707,6 +724,16 @@
         '<h2 id="auth-title" class="font-headline-lg text-headline-lg text-on-surface">' + defaultTitleIn + '</h2>' +
         '<p id="auth-sub" class="font-body-sm text-body-sm text-on-surface-variant">' + defaultIntroIn + '</p>' +
         '</div>' +
+        '<!-- Quick Social Auth -->' +
+        '<button id="oauth-google-in" class="group flex w-full items-center justify-center gap-space-sm py-3 px-space-md rounded-full bg-surface-container-high hover:bg-surface-bright transition-all text-on-surface font-label-lg text-label-lg shadow-sm" type="button">' +
+        '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">' +
+        '<path d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z" fill="#EA4335"></path>' +
+        '<path d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z" fill="#4285F4"></path>' +
+        '<path d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z" fill="#FBBC05"></path>' +
+        '<path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z" fill="#34A853"></path>' +
+        '</svg><span>Sign in with Google</span></button>' +
+        '<div class="relative flex items-center justify-center"><div class="w-full h-px bg-surface-container-highest"></div>' +
+        '<span class="absolute px-3 bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest">or with email</span></div>' +
         '<!-- Interactive Form -->' +
         '<form class="space-y-4" id="f" novalidate>' +
         '<!-- Email Field -->' +
@@ -803,6 +830,7 @@
           eyeIcon.textContent = "visibility";
         }
       };
+      $("#oauth-google-in").onclick = googleAuth;
       $("#forgot-pw").onclick = async function (e) {
         e.preventDefault();
         var email = $("#email").value.trim();
@@ -1118,11 +1146,7 @@
         renderSignIn();
       };
 
-      $("#oauth-google-up").onclick = async function () {
-        rememberIntent();
-        var r = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
-        if (r.error) setMsg(app, friendly(r.error), "err");
-      };
+      $("#oauth-google-up").onclick = googleAuth;
 
 
       $("#f").onsubmit = async function (e) {
