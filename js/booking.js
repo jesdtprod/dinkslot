@@ -681,64 +681,28 @@
             };
           }
 
-          // Download = the same pass as on screen (status, name, court chips, QR, ref, date) as a PNG, without buttons or footer.
-          function passPng() {
+          // Render the actual ticket face so the JPEG matches the on-screen design.
+          async function passJpeg() {
+            await document.fonts.ready;
+            var face = ticket.firstElementChild;
+            var footer = face.querySelector('footer');
+            var height = footer ? footer.offsetTop : face.scrollHeight;
+            var canvas = await window.html2canvas(face, {
+              scale: 2, backgroundColor: '#101720', height: height,
+              logging: false, useCORS: true,
+              ignoreElements: function (element) { return element.tagName === 'FOOTER' || element.id === 'pass-toast'; }
+            });
             return new Promise(function (resolve, reject) {
-              var W = 720, H = 1010, k = 2, pad = 40;
-              var cv = document.createElement('canvas'); cv.width = W * k; cv.height = H * k;
-              var c = cv.getContext('2d'); c.scale(k, k);
-              function rr(x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
-              var sans = '"Segoe UI", Inter, Arial, sans-serif', mono = 'Consolas, "Courier New", monospace', LIME = '#a3e635';
-              function pill(parts, cy, fill, stroke, h) { // centred row of coloured text parts
-                c.font = parts.map(function (p) { return p.f; })[0];
-                var w = 0; parts.forEach(function (p) { c.font = p.f; p.w = c.measureText(p.t).width; w += p.w; });
-                var bw = w + 44, bx = (W - bw) / 2;
-                rr(bx, cy - h / 2, bw, h, 18); c.fillStyle = fill; c.fill(); c.strokeStyle = stroke; c.lineWidth = 1.5; c.stroke();
-                var x = bx + 22; c.textBaseline = 'middle'; c.textAlign = 'left';
-                parts.forEach(function (p) { c.font = p.f; c.fillStyle = p.c; c.fillText(p.t, x, cy + 1); x += p.w; });
-              }
-              var img = new Image();
-              img.onload = function () {
-                var bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#151c28'); bg.addColorStop(1, '#0d121b');
-                rr(0, 0, W, H, 40); c.fillStyle = bg; c.fill();
-                var bar = c.createLinearGradient(0, 0, W, 0); bar.addColorStop(0, LIME); bar.addColorStop(0.5, '#34d399'); bar.addColorStop(1, '#22d3ee');
-                c.save(); rr(0, 0, W, H, 40); c.clip(); c.fillStyle = bar; c.fillRect(0, 0, W, 8); c.restore();
-                c.textAlign = 'center'; c.textBaseline = 'middle';
-                // status pill
-                pill([{ t: '●  ', f: '700 20px ' + sans, c: LIME }, { t: 'CONFIRMED PASS', f: '700 20px ' + sans, c: LIME }], 62, 'rgba(163,230,53,.10)', 'rgba(163,230,53,.35)', 44);
-                c.font = '500 17px ' + mono; c.fillStyle = '#94a3b8'; c.fillText('SINGLE COURT RESERVATION', W / 2, 124);
-                var nm = playerName, size = 48; c.font = '700 ' + size + 'px ' + sans;
-                while (c.measureText(nm).width > W - pad * 2 && size > 24) { size -= 2; c.font = '700 ' + size + 'px ' + sans; }
-                c.fillStyle = '#fff'; c.fillText(nm, W / 2, 178);
-                pill([{ t: courtName, f: '700 22px ' + sans, c: LIME }, { t: '   |   ', f: '400 22px ' + sans, c: '#475569' }, { t: courtSurface, f: '500 22px ' + sans, c: '#e2e8f0' }, { t: '   •   ', f: '400 22px ' + sans, c: '#475569' }, { t: clubName, f: '500 22px ' + sans, c: '#94a3b8' }], 236, 'rgba(255,255,255,.05)', 'rgba(255,255,255,.12)', 52);
-                // white QR frame
-                var fx = pad + 20, fw = W - fx * 2, fy = 290;
-                rr(fx, fy, fw, fw, 32); c.fillStyle = '#fff'; c.fill();
-                c.drawImage(img, fx + 24, fy + 24, fw - 48, fw - 48);
-                // ref
-                var ry = fy + fw + 64;
-                pill([{ t: 'REF:  ', f: '500 20px ' + mono, c: '#94a3b8' }, { t: refCode, f: '700 32px ' + mono, c: LIME }], ry, 'rgba(15,23,42,.9)', 'rgba(163,230,53,.35)', 60);
-                // date and time
-                c.font = '700 28px ' + sans;
-                var d1 = dateLabel, d2 = timeRange, sep = '   •   ';
-                var w1 = c.measureText(d1).width, ws = c.measureText(sep).width, w2 = c.measureText(d2).width;
-                var x0 = (W - (w1 + ws + w2)) / 2; c.textAlign = 'left';
-                c.fillStyle = '#fff'; c.fillText(d1, x0, ry + 78);
-                c.fillStyle = '#64748b'; c.fillText(sep, x0 + w1, ry + 78);
-                c.fillStyle = LIME; c.fillText(d2, x0 + w1 + ws, ry + 78);
-                cv.toBlob(function (b) { b ? resolve(b) : reject(new Error('png')); }, 'image/png');
-              };
-              img.onerror = function () { reject(new Error('qr image')); };
-              img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.indexOf('xmlns') < 0 ? svg.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"') : svg);
+              canvas.toBlob(function (blob) { if (blob) resolve(blob); else reject(new Error('Ticket export failed.')); }, 'image/jpeg', 0.96);
             });
           }
           ticket.querySelector('[data-download]').onclick = async function () {
             try {
-              var blob = await passPng(), url = URL.createObjectURL(blob), link = document.createElement('a');
-              link.href = url; link.download = 'booking-' + (refCode || 'pass') + '.png'; link.click();
+              var blob = await passJpeg(), url = URL.createObjectURL(blob), link = document.createElement('a');
+              link.href = url; link.download = 'booking-' + (refCode || 'pass') + '.jpg'; link.click();
               setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-              showToast('Pass saved to downloads!');
-            } catch (e) { showToast('Could not save the pass'); }
+              D.ui.toast('Your booking ticket has been downloaded as a JPEG.', 'ok');
+            } catch (e) { D.ui.toast('Unable to download the booking ticket. Please try again.', 'err'); }
           };
 
           ticket.addEventListener('close', function () { ticket.remove(); if (button.isConnected) button.focus(); }, { once: true });
