@@ -1834,6 +1834,7 @@ body:has(.booking-modal[open]) { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .datetime-picker { transition: none; } }
 .court-matrix { display: flex; flex-direction: column; gap: 20px; color-scheme: dark; }
 .court-matrix .msg:empty, .court-matrix #cform:empty { display: none; }
+.court-matrix #cform { display: contents; }
 .court-panel { display: flex; flex-direction: column; gap: 12px; padding: 16px 20px; border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); }
 #ds-tenant-dashboard #sec .court-matrix h1 { font-size: 28px; line-height: 34px; }
 #ds-tenant-dashboard #sec .court-matrix h3 { margin: 0 0 4px; color: #e0e8e2; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; }
