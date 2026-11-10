@@ -8,7 +8,7 @@
   });
   var app = document.getElementById("app");
   var nav = document.getElementById("nav");
-  var state = { user: null, isPlatform: false };
+  var state = { user: null, isPlatform: false, managedSlug: null };
   var liveChannel = null, livePoll = null;
   var cleanupAuthPattern = function () {};
   function stopLive() {
@@ -138,15 +138,23 @@
     var r = await sb.auth.getSession();
     state.user = r.data.session ? r.data.session.user : null;
     state.isPlatform = false;
+    state.managedSlug = null;
     if (state.user) {
       // Filter to our own row: a platform admin can read every profile, so maybeSingle() alone would fail.
       var p = await sb.from("profiles").select("is_platform_admin").eq("auth_user_id", state.user.id).maybeSingle();
       state.isPlatform = !!(p.data && p.data.is_platform_admin);
+      if (!state.isPlatform) {
+        // Club owners and staff go straight to their dashboard instead of a separate account page.
+        var m = await sb.from("tenant_members").select("tenants(slug)").eq("user_id", state.user.id).order("created_at").limit(1);
+        var row = m.data && m.data[0];
+        state.managedSlug = row && row.tenants ? row.tenants.slug : null;
+      }
     }
     renderNav();
   }
   function renderNav() {
     var h = "";
+    nav.classList.toggle("member-nav", !!state.user && !state.isPlatform);
     document.body.classList.toggle("sa", !!state.isPlatform);
     if (state.isPlatform) {
       // Super admin has its own chrome: no tenant items (register club, my account).
@@ -158,8 +166,15 @@
       return;
     }
     if (state.user) {
-      h += '<span id="bellslot"></span><a href="#/me">My account</a><a href="#/register-club" class="pill">Register your club</a>' +
-           '<button id="signout" class="linkbtn">Sign out</button>';
+      var profileName = (state.user.user_metadata && state.user.user_metadata.full_name) || state.user.email || "Player";
+      var initial = profileName.trim().charAt(0).toUpperCase() || "P";
+      // Club owners and staff go straight to their dashboard; everyone else keeps My account.
+      var acctHref = state.managedSlug ? "#/admin/" + esc(state.managedSlug) : "#/me";
+      var acctLabel = state.managedSlug ? "Dashboard" : "My account";
+      h += '<span id="bellslot"></span>' +
+        '<a href="' + acctHref + '" class="nav-account" aria-label="' + acctLabel + '"><span class="nav-avatar" aria-hidden="true">' + esc(initial) + '</span><span class="nav-account-label">' + acctLabel + '</span><span class="material-symbols-outlined nav-account-arrow" aria-hidden="true">chevron_right</span></a>' +
+        '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>' +
+        '<span class="nav-divider" aria-hidden="true"></span><button id="signout" type="button" class="linkbtn nav-signout" aria-label="Sign out" title="Sign out"><span class="material-symbols-outlined" aria-hidden="true">logout</span></button>';
     } else {
       h += '<a href="#/auth">Sign in</a><a href="#/register-club" class="pill">Register your club</a>';
     }
@@ -1030,13 +1045,16 @@
       });
       cap.reset(); $("#go").disabled = false;
       if (r.error) return setMsg(app, friendly(r.error), "err");
+      await refreshSession();
       app.innerHTML = '<section class="panel"><h1>Thanks!</h1><p><strong>' + esc(r.data.name) +
-        '</strong> was submitted. It stays hidden until the platform admin approves it.</p><p><a class="btn" href="#/me">Go to my account</a></p></section>';
+        '</strong> was submitted. It stays hidden until the platform admin approves it. You can set it up in the meantime.</p>' +
+        '<p><a class="btn" href="#/admin/' + esc(r.data.slug) + '">Open my dashboard</a></p></section>';
     };
   }
 
   async function viewMe() {
     if (!requireUser("/me")) return;
+    if (state.managedSlug) return go("/admin/" + state.managedSlug); // owners and staff use the dashboard
     var initial = (state.user.email || "?").charAt(0).toUpperCase();
     app.innerHTML =
       '<div class="pubwrap narrow"><div class="acchead"><span class="avatar big ph">' + esc(initial) + "</span>" +
@@ -1211,7 +1229,7 @@
       if ((m = path.match(/^\/c\/([a-z0-9-]+)$/))) return await viewClub(m[1]);
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/join$/))) return await viewJoin(m[1]);
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/book$/))) return await window.DS.booking.renderBook(m[1]);
-      if ((m = path.match(/^\/admin\/([a-z0-9-]+)(?:\/(courts|settings|bookings|profile|payments|staff))?$/))) {
+      if ((m = path.match(/^\/admin\/([a-z0-9-]+)(?:\/(courts|settings|bookings|profile|payments|staff|account))?$/))) {
         if (!requireUser(path)) return;
         return await window.DS.admin.render(m[1], m[2] || "dashboard");
       }

@@ -888,3 +888,31 @@ a.tile:hover{border-color:var(--lime)}
 .toast{position:fixed;right:1rem;bottom:1rem;z-index:120;display:flex;gap:.6rem;align-items:center;max-width:min(380px,92vw);padding:.8rem 1rem;border-radius:14px;background:var(--card);border:1px solid var(--ok-border);color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.55);font-size:.88rem;transition:opacity .35s,transform .35s}
 .toast .mi{color:var(--lime)}
 .toast.out{opacity:0;transform:translateY(8px)}
+
+
+/* Member navigation: aligned utility controls, personal avatar, and primary action. */
+#nav.member-nav { gap: 10px; }
+#nav.member-nav #bellslot { display: flex; align-items: center; }
+#nav.member-nav .bellbtn, #nav.member-nav .nav-signout { width: 40px; height: 40px; border: 1px solid #ffffff0d; border-radius: 12px; background: #ffffff03; color: #aeb7b1; display: inline-flex; align-items: center; justify-content: center; padding: 0; transition: background .18s, border-color .18s, color .18s; }
+#nav.member-nav .bellbtn:hover { background: #ffffff09; border-color: #ffffff24; color: var(--lime-bright); }
+#nav.member-nav a.nav-account { display: inline-flex; align-items: center; gap: 9px; height: 40px; padding: 4px 10px 4px 5px; border: 1px solid #ffffff12; border-radius: 12px; background: #ffffff04; color: var(--ink); font-size: 12px; font-weight: 600; white-space: nowrap; }
+#nav.member-nav a.nav-account:hover { background: #ffffff09; border-color: #a3e63540; }
+.nav-avatar { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 9px; background: linear-gradient(135deg, #ccff8026, #a3e63510); border: 1px solid #a3e63526; color: var(--lime-bright); font: 700 12px "Space Grotesk", sans-serif; }
+.nav-account-arrow { font-size: 16px; color: #7d897e; }
+#nav.member-nav a.nav-register { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 0 15px; border: 1px solid #ccff8066; border-radius: 12px; font-size: 12px; font-weight: 700; letter-spacing: 0; background: linear-gradient(135deg, #ccff80, #a3e635); color: #203600; box-shadow: 0 3px 12px #a3e63514; white-space: nowrap; }
+#nav.member-nav a.nav-register:hover { background: var(--lime-bright); box-shadow: 0 3px 16px #a3e63526; }
+#nav.member-nav .nav-register .material-symbols-outlined { font-size: 18px; }
+.nav-divider { width: 1px; height: 20px; background: #ffffff12; margin: 0 2px; }
+#nav.member-nav .nav-signout:hover { color: var(--err); background: #ffb4ab0a; border-color: #ffb4ab33; }
+#nav.member-nav .nav-signout .material-symbols-outlined { font-size: 19px; }
+#nav.member-nav :is(a, button):focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+@media (max-width: 640px) {
+  #nav.member-nav { gap: 6px; }
+  #nav.member-nav .nav-account-label, #nav.member-nav .nav-account-arrow, #nav.member-nav .nav-divider { display: none; }
+  #nav.member-nav a.nav-account { width: 36px; height: 36px; padding: 3px; justify-content: center; }
+  #nav.member-nav .bellbtn, #nav.member-nav .nav-signout { width: 34px; height: 36px; }
+  #nav.member-nav a.nav-register { min-height: 36px; padding: 0 10px; font-size: 11px; }
+  #nav.member-nav .nav-register .material-symbols-outlined { display: none; }
+  body:has(#nav.member-nav) .site-brand > div:last-child { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { #nav.member-nav * { transition: none !important; } }

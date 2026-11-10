@@ -31,3 +31,6 @@ Secrets live in Supabase only: Edge secrets (`WEBHOOK_SECRET`, `GMAIL_*`, option
 - `isolation_test.sql`: 167 checks, 0 failures (adds super admin new-club notice, no cross-club notifications, mark-read own rows only, no forging or editing notifications).
 - `deno test supabase/functions/send-booking-email/lib_test.ts`: 10 tests, 0 failures (recipients per event, one mail per admin, reason included, HTML escaping, club timezone, MIME encoding and header-injection safety, secret comparison).
 - Not yet verified end to end: a real email arriving once and a replayed webhook sending nothing. That needs the setup script run once (dry run is enough to check `email_log` and replay behaviour).
+
+## Account page removed for club owners and staff
+Anyone who manages a club is sent straight to their dashboard: `/#/me` redirects to `/#/admin/<slug>`, the top bar says **Dashboard**, and the new-club confirmation links to the dashboard. The personal profile (name, phone) and the user's own player bookings live in the dashboard sidebar under **My profile** (`/#/admin/<slug>/account`). Players who manage no club still use `/#/me`. A club owner waiting for approval sees the status update on the dashboard by itself (Realtime on the club row).

@@ -5,6 +5,7 @@
   "use strict";
   var D = window.DS, sb = D.sb, esc = D.esc, setMsg = D.setMsg, friendly = D.friendly;
   var ctx = null; // { t: tenant row, role: 'owner'|'staff', slug }
+  var statusChan = null; // live club-status subscription for the open dashboard
   var TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
   var MAX_BYTES = 5 * 1024 * 1024;
 
@@ -60,7 +61,8 @@
     courts: ["Courts", "Courts, rates, opening hours and blocked times."],
     profile: ["Club profile", "Your public page: details and photos."],
     payments: ["Payments and rules", "Payment QR, approvals and booking rules."],
-    staff: ["Staff", "People who help you run the club."]
+    staff: ["Staff", "People who help you run the club."],
+    account: ["My profile", "Your personal details and your own bookings."]
   };
 
   // ----------------------------------------------------------------- shell
@@ -96,9 +98,11 @@
         { key: "payments", label: "Payments and rules", icon: "qr_code_2", href: base + "/payments" },
         { key: "staff", label: "Staff", icon: "group", href: base + "/staff" });
     }
+    items.push({ type: "label", label: "Account" },
+      { key: "account", label: "My profile", icon: "person", href: base + "/account" });
     var foot = [];
     if (t.status === "approved") foot.push({ label: "View public page", icon: "open_in_new", href: "#/c/" + slug });
-    foot.push({ label: "My account", icon: "arrow_back", href: "#/me" });
+    foot.push({ label: "Back to site", icon: "home", href: "#/" });
     var ui = D.ui.dash(root, {
       head: { title: t.name, sub: role === "owner" ? "Owner" : "Staff", status: t.status, img: t.logo_path ? D.mediaUrl(t.logo_path) : "" },
       items: items, foot: foot, active: section
@@ -110,7 +114,15 @@
       sec.insertAdjacentHTML("beforebegin", '<p class="notice">This club is <b>' + esc(t.status) +
         "</b>. It is hidden from the public until the platform admin approves it. You can set it up meanwhile.</p>");
     }
+    // Live status: when the platform admin approves or suspends this club, the dashboard updates itself.
+    if (statusChan) { sb.removeChannel(statusChan); statusChan = null; } // one subscription at a time
+    statusChan = sb.channel("tenant-" + t.id + "-" + Date.now())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tenants", filter: "id=eq." + t.id }, function (pl) {
+        if (!document.body.contains(sec)) { sb.removeChannel(statusChan); statusChan = null; return; }
+        if (pl.new && pl.new.status !== ctx.t.status) { render(slug, section); }
+      }).subscribe();
     if (section === "bookings") return D.booking ? D.booking.queue(sec, t) : undefined;
+    if (section === "account") return accountView(sec);
     if (section === "courts") return courtsView(sec);
     if (!owner && (section === "profile" || section === "payments" || section === "staff")) {
       sec.innerHTML = "<p>Only the club owner can change this.</p>"; return;
@@ -393,6 +405,32 @@
       loadStaff();
     };
     }
+  }
+
+  // ------------------------------------------------------------ my profile
+  // Personal details (own row only) and the user's own bookings as a player.
+  async function accountView(sec) {
+    sec.innerHTML = '<div class="panel wide"><h2>My profile</h2><form id="myprofile"><div class="grid2">' +
+      '<label>Full name<input id="mp-name" maxlength="80" autocomplete="name"></label>' +
+      '<label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label></div>' +
+      '<p class="muted small">Email: ' + esc(D.state.user.email) + '</p><p class="msg" role="alert"></p>' +
+      '<button class="btn sm" type="submit">Save profile</button></form></div>' +
+      '<div class="panel wide"><h2>My bookings</h2><p class="muted small">Courts you booked as a player, at any club.</p><div id="mybookings">Loading...</div></div>';
+    var r = await sb.from("profiles").select("full_name,phone").eq("auth_user_id", D.state.user.id).maybeSingle();
+    if (q("#mp-name", sec)) {
+      q("#mp-name", sec).value = (r.data && r.data.full_name) || "";
+      q("#mp-phone", sec).value = (r.data && r.data.phone) || "";
+    }
+    q("#myprofile", sec).onsubmit = async function (e) {
+      e.preventDefault();
+      var f = this, btn = q("button", f);
+      btn.disabled = true;
+      var x = await sb.from("profiles").update({ full_name: val("#mp-name", f).trim() || null, phone: val("#mp-phone", f).trim() || null })
+        .eq("auth_user_id", D.state.user.id);
+      btn.disabled = false;
+      setMsg(f, x.error ? friendly(x.error) : "Profile saved.", x.error ? "err" : "ok");
+    };
+    if (D.booking) D.booking.myBookings(q("#mybookings", sec));
   }
 
   D.admin = { render: render };
