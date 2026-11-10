@@ -484,13 +484,13 @@
     var courts = cr.data || [], blocks = br.data || [];
     var byId = {}; courts.forEach(function (c) { byId[c.id] = c; });
 
-    sec.innerHTML =
+    sec.innerHTML = '<div class="court-matrix">' +
       '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs pb-space-sm border-b border-outline-variant/20">' +
         '<div><h1 class="font-headline-lg text-on-surface">Court Matrix</h1><p class="font-body-md text-on-surface-variant">Configure courts, pricing, operating windows, and maintenance blocks.</p></div>' +
         '<button class="px-space-md py-space-xs rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold transition-all shadow-[0_0_16px_rgba(163,230,53,0.25)] border-0 cursor-pointer flex items-center gap-1.5" id="addc" type="button"><span class="material-symbols-outlined text-base">add</span>Add Court</button>' +
       '</div>' +
       '<p class="msg" role="alert" id="cmsg"></p><div id="cform"></div>' +
-      '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
+      '<div class="court-panel">' +
         '<div class="flex items-center justify-between"><div><h3 class="font-headline-sm text-on-surface">Active Courts (' + courts.length + ')</h3><p class="font-body-sm text-on-surface-variant">Courts visible to players for booking slots.</p></div></div>' +
         (courts.length ? '<div class="overflow-x-auto"><table class="w-full text-left font-body-sm text-body-sm"><thead class="text-on-surface-variant font-label-sm uppercase tracking-wider bg-surface-container/60"><tr><th class="py-space-sm px-space-md rounded-l-DEFAULT">Court Details</th><th class="py-space-sm px-space-md">Hourly Rate</th><th class="py-space-sm px-space-md">Hours</th><th class="py-space-sm px-space-md">Slot Duration</th><th class="py-space-sm px-space-md">Status</th><th class="py-space-sm px-space-md rounded-r-DEFAULT text-right">Actions</th></tr></thead><tbody class="divide-y divide-surface-container-high">' +
           courts.map(function (c) {
@@ -502,8 +502,8 @@
           }).join("") + "</tbody></table></div>" : '<p class="text-on-surface-variant font-body-md">No courts listed yet. Add your first court above.</p>') +
       '</div>' +
 
-      '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
-        '<div><h3 class="font-headline-sm text-on-surface">Maintenance &amp; Blocked Windows</h3><p class="font-body-sm text-on-surface-variant">Block courts for coaching clinics, tournaments, or repairs. Times in ' + esc(t.timezone) + '.</p></div>' +
+      '<div class="court-panel">' +
+        '<div><h3 class="font-headline-sm text-on-surface">Maintenance &amp; Blocked Windows</h3><p class="font-body-sm text-on-surface-variant">Block courts for coaching clinics, tournaments, or repairs. Times in ' + esc(t.timezone || "Asia/Manila") + '.</p></div>' +
         '<p class="msg" role="alert" id="bmsg"></p>' +
         (courts.length ? '<form id="bform" class="flex flex-wrap items-end gap-space-sm bg-surface-container p-space-md dashboard-rounded border border-outline-variant/20"><label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Court<select id="bc" class="bg-surface-container-high px-3 py-2 dashboard-rounded text-on-surface border border-outline-variant/30">' + courts.map(function (c) {
           return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>"; }).join("") + '</select></label>' +
@@ -516,7 +516,7 @@
             return '<tr class="hover:bg-surface-container transition-colors"><td class="py-space-sm px-space-md font-semibold">' + esc((byId[b.court_id] || {}).name || "Court") + "</td><td class=\"py-space-sm px-space-md font-label-md\">" + esc(when(b.starts_at)) + "</td><td class=\"py-space-sm px-space-md font-label-md\">" + esc(when(b.ends_at)) +
               "</td><td class=\"py-space-sm px-space-md text-on-surface-variant\">" + esc(b.reason || "Maintenance") + '</td><td class="py-space-sm px-space-md text-right"><button class="px-3 py-1 rounded-full bg-error/10 hover:bg-error text-error hover:text-on-error font-label-sm border border-error/30 cursor-pointer" data-delb="' + esc(b.id) + '" type="button">Remove</button></td></tr>';
           }).join("") + "</tbody></table></div>" : '<p class="text-on-surface-variant font-body-md">No upcoming blocked windows.</p>') +
-      '</div>';
+      '</div></div>';
 
     q("#addc", sec).onclick = function () { courtForm(null, byId); };
     Array.prototype.forEach.call(sec.querySelectorAll("[data-edit]"), function (b) {

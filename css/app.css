@@ -1647,6 +1647,40 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard #sec .font-label-sm { font-family: "JetBrains Mono",monospace; font-size: 10px; line-height: 16px; font-weight: 500; }
 #ds-tenant-dashboard #sec :is(button,a):is(.font-label-md,.font-label-lg) { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; font-weight: 600; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 10px; }
 #ds-tenant-dashboard #sec .text-headline-display { font-family: "Space Grotesk",sans-serif; font-size: 40px; line-height: 1.1; font-weight: 600; letter-spacing: -.035em; }
+.court-matrix { display: flex; flex-direction: column; gap: 20px; color-scheme: dark; }
+.court-matrix .msg:empty, .court-matrix #cform:empty { display: none; }
+.court-panel { display: flex; flex-direction: column; gap: 16px; padding: 18px 20px; border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); }
+#ds-tenant-dashboard #sec .court-matrix h1 { font-size: 28px; line-height: 34px; }
+#ds-tenant-dashboard #sec .court-matrix h3 { margin: 0 0 4px; color: #e0e8e2; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; }
+#ds-tenant-dashboard #sec .court-matrix p { margin: 0; color: #94a39a; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; }
+.court-matrix table { width: 100%; min-width: 680px; border-collapse: collapse; }
+.court-matrix th { padding: 9px 12px; background: #0c121633; border-bottom: 1px solid #ffffff09; color: #8f9f94; font: 600 9px/14px "Plus Jakarta Sans",sans-serif; letter-spacing: .08em; }
+.court-matrix td { padding: 12px; font-size: 12px; color: #c4cfc8; }
+.court-matrix td > .font-label-sm { font-family: "Plus Jakarta Sans",sans-serif; font-size: 10px; color: #95a59b; }
+.court-matrix #bform { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(210px, 1fr) minmax(210px, 1fr) minmax(160px, 1.5fr) auto; gap: 12px; padding: 14px; border: 1px solid #ffffff0a; border-radius: 10px; background: #0c12162b; }
+.court-matrix label { min-width: 0; gap: 7px; color: #a1b0a6; font: 500 11px/16px "Plus Jakarta Sans",sans-serif; text-transform: none; letter-spacing: 0; }
+#ds-tenant-dashboard #sec .court-matrix :is(select,input:not([type="checkbox"])) { width: 100%; min-width: 0; height: 38px; padding: 8px 10px; border: 1px solid #ffffff12; border-radius: 8px; background-color: #20282e; color: #d9e3dc; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; transition: border-color .15s, background-color .15s, box-shadow .15s; }
+#ds-tenant-dashboard #sec .court-matrix :is(select,input):hover { border-color: #ffffff25; background-color: #242d32; }
+#ds-tenant-dashboard #sec .court-matrix :is(select,input):focus-visible { border-color: #a9d77b70; outline: none; box-shadow: 0 0 0 3px #a3e6350d; }
+.court-matrix select { cursor: pointer; }
+.court-matrix select option { background: #20282e; color: #d9e3dc; padding: 10px; }
+.court-matrix input::-webkit-calendar-picker-indicator { opacity: .65; cursor: pointer; padding: 2px; }
+.court-matrix input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+.court-matrix #bform > label { min-width: 0; }
+#ds-tenant-dashboard #sec .court-matrix #bform > button { min-height: 38px; padding: 8px 14px; }
+#ds-tenant-dashboard #sec .court-matrix #cf { border-radius: 12px; background: #192127; padding: 20px; box-shadow: none; animation: court-form-enter .18s ease-out; }
+@keyframes court-form-enter { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+@supports (appearance: base-select) {
+  .court-matrix select, .court-matrix select::picker(select) { appearance: base-select; }
+  .court-matrix select::picker(select) { margin-top: 6px; padding: 5px; border: 1px solid #ffffff18; border-radius: 10px; background: #20282e; color: #d9e3dc; box-shadow: 0 12px 30px #0006; opacity: 0; transform: translateY(-4px); transition: opacity .15s, transform .15s, display .15s allow-discrete, overlay .15s allow-discrete; }
+  .court-matrix select:open::picker(select) { opacity: 1; transform: translateY(0); }
+  @starting-style { .court-matrix select:open::picker(select) { opacity: 0; transform: translateY(-4px); } }
+  .court-matrix select option { border-radius: 6px; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; }
+  .court-matrix select option:hover, .court-matrix select option:checked { background: #a3e63512; color: #cfdfa9; }
+}
+@media (max-width:1200px) { .court-matrix #bform { grid-template-columns: repeat(2, minmax(0,1fr)); } .court-matrix #bform > button { justify-self: start; } }
+@media (max-width:640px) { .court-panel { padding: 16px; } .court-matrix #bform { grid-template-columns: minmax(0,1fr); } }
+@media (prefers-reduced-motion: reduce) { #ds-tenant-dashboard #sec .court-matrix #cf { animation: none; } #ds-tenant-dashboard #sec .court-matrix :is(select,input), .court-matrix select::picker(select) { transition: none; } }
 .transactions-card { border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); overflow: hidden; }
 .transactions-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; }
 #ds-tenant-dashboard #sec .transactions-header h3 { margin: 0 0 4px; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; color: #e0e8e2; }
