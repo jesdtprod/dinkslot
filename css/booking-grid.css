@@ -394,3 +394,11 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 .member-clubs-chips button[aria-selected="true"] { border-color:#a3e63535; background:#a3e63512; color:#bbd99a; font-weight:500; }
 .member-clubs-toolbar > label { padding-left:7px; font-size:9px; }
 #ds-tenant-dashboard #sec .member-clubs-toolbar select { height:28px; min-width:115px; padding:4px 8px; border-color:#ffffff0b; background:#151e24; font-size:10px; }
+
+/* Put compact filter badges beneath the full-width membership search. */
+.member-clubs-toolbar { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px 10px; }
+.member-clubs-search { grid-column:1/-1; min-width:0; width:100%; box-sizing:border-box; }
+.member-clubs-chips { grid-column:1; display:flex; flex-wrap:wrap; gap:5px; }
+.member-clubs-chips button { min-height:24px; padding:2px 7px; font-size:10px; line-height:18px; }
+.member-clubs-toolbar > label { grid-column:2; margin:0; padding:0; border:0; width:auto; }
+@media(max-width:600px) { .member-clubs-toolbar { grid-template-columns:minmax(0,1fr); } .member-clubs-toolbar > label { grid-column:1; justify-content:flex-start; padding-top:3px; } }
