@@ -1647,6 +1647,34 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard #sec .font-label-sm { font-family: "JetBrains Mono",monospace; font-size: 10px; line-height: 16px; font-weight: 500; }
 #ds-tenant-dashboard #sec :is(button,a):is(.font-label-md,.font-label-lg) { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; font-weight: 600; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 10px; }
 #ds-tenant-dashboard #sec .text-headline-display { font-family: "Space Grotesk",sans-serif; font-size: 40px; line-height: 1.1; font-weight: 600; letter-spacing: -.035em; }
+.booking-new-card, .booking-queue { border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); padding: 18px 20px; color-scheme: dark; }
+.booking-new-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+#ds-tenant-dashboard #sec .booking-new-heading h2, #ds-tenant-dashboard #sec .booking-queue h3 { margin: 0; color: #e0e8e2; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; letter-spacing: 0; }
+.booking-new-heading p { margin: 4px 0 0; color: #94a39a; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; }
+.booking-new-heading #nbtoggle { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; min-height: 34px; padding: 7px 12px; background: #a3e63512; border: 1px solid #a3e63530; color: #c6e2a8; text-transform: none; box-shadow: none; }
+.booking-new-heading #nbtoggle:hover { background: #a3e63520; }
+.booking-new-heading #nbtoggle .material-symbols-outlined { font-size: 17px; }
+.booking-queues { display: flex; flex-direction: column; gap: 12px; }
+.booking-queue-heading { display: flex; align-items: center; gap: 10px; }
+.booking-queue-heading > .material-symbols-outlined { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #ffffff0a; border-radius: 8px; background: #ffffff03; font-size: 17px; color: #9fba8f; }
+.booking-count { margin-left: auto; min-width: 25px; padding: 2px 7px; border: 1px solid #ffffff0c; border-radius: 6px; background: #ffffff04; text-align: center; color: #9ead9f; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; font-variant-numeric: tabular-nums; }
+.booking-count.needs-attention { border-color: #e6a18d25; background: #e6a18d0c; color: #e6b29f; }
+.booking-queue-empty { margin: 12px 0 0 40px; color: #8f9f94; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; }
+.booking-queue .bcard { margin: 12px 0 0; padding: 14px; border: 1px solid #ffffff0b; border-radius: 10px; background: #ffffff02; }
+.booking-queue .bcard .font-mono { font-family: "Plus Jakarta Sans",sans-serif; font-size: 11px; }
+.booking-new-card #nbform:not([hidden]) { margin-top: 18px; border-top: 1px solid #ffffff09; padding-top: 16px; animation: court-form-enter .18s ease-out; }
+.booking-new-card #nbf { display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 0; border: 0; background: transparent; }
+.booking-new-card label { display: flex; flex-direction: column; gap: 7px; min-width: 0; color: #a1b0a6; font: 500 11px/16px "Plus Jakarta Sans",sans-serif; }
+.booking-new-card .seg { align-self: flex-start; padding: 3px; border: 1px solid #ffffff0d; border-radius: 9px; background: #0c121640; }
+.booking-new-card .segbtn { padding: 7px 12px; color: #8f9f94; background: transparent; }
+.booking-new-card .segbtn.on { background: #ffffff09; color: #d5e4cc; box-shadow: none; }
+.booking-new-card .slots { display: grid; grid-template-columns: repeat(auto-fill,minmax(90px,1fr)); gap: 8px; }
+.booking-new-card .slot { padding: 8px; min-height: 34px; border: 1px solid #ffffff12; border-radius: 8px; background: #ffffff03; color: #bccbc0; }
+.booking-new-card .slot.sel, .booking-new-card .slot.in { border-color: #a3e63555; background: #a3e63514; color: #d0e7b5; }
+.booking-new-card .slot:disabled { opacity: .35; cursor: not-allowed; }
+.booking-new-card .summary:empty, .booking-new-card .msg:empty { display: none; }
+@media (max-width:640px) { .booking-new-card, .booking-queue { padding: 16px; } .booking-new-heading { flex-direction: column; align-items: flex-start; } }
+@media (prefers-reduced-motion: reduce) { .booking-new-card #nbform:not([hidden]) { animation: none; } }
 .court-matrix { display: flex; flex-direction: column; gap: 20px; color-scheme: dark; }
 .court-matrix .msg:empty, .court-matrix #cform:empty { display: none; }
 .court-panel { display: flex; flex-direction: column; gap: 16px; padding: 18px 20px; border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); }
@@ -1659,28 +1687,28 @@ body.tenant-dashboard-mode #app {
 .court-matrix td > .font-label-sm { font-family: "Plus Jakarta Sans",sans-serif; font-size: 10px; color: #95a59b; }
 .court-matrix #bform { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(210px, 1fr) minmax(210px, 1fr) minmax(160px, 1.5fr) auto; gap: 12px; padding: 14px; border: 1px solid #ffffff0a; border-radius: 10px; background: #0c12162b; }
 .court-matrix label { min-width: 0; gap: 7px; color: #a1b0a6; font: 500 11px/16px "Plus Jakarta Sans",sans-serif; text-transform: none; letter-spacing: 0; }
-#ds-tenant-dashboard #sec .court-matrix :is(select,input:not([type="checkbox"])) { width: 100%; min-width: 0; height: 38px; padding: 8px 10px; border: 1px solid #ffffff12; border-radius: 8px; background-color: #20282e; color: #d9e3dc; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; transition: border-color .15s, background-color .15s, box-shadow .15s; }
-#ds-tenant-dashboard #sec .court-matrix :is(select,input):hover { border-color: #ffffff25; background-color: #242d32; }
-#ds-tenant-dashboard #sec .court-matrix :is(select,input):focus-visible { border-color: #a9d77b70; outline: none; box-shadow: 0 0 0 3px #a3e6350d; }
-.court-matrix select { cursor: pointer; }
-.court-matrix select option { background: #20282e; color: #d9e3dc; padding: 10px; }
-.court-matrix input::-webkit-calendar-picker-indicator { opacity: .65; cursor: pointer; padding: 2px; }
-.court-matrix input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+#ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input:not([type="checkbox"])) { width: 100%; min-width: 0; height: 38px; padding: 8px 10px; border: 1px solid #ffffff12; border-radius: 8px; background-color: #20282e; color: #d9e3dc; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; transition: border-color .15s, background-color .15s, box-shadow .15s; }
+#ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input):hover { border-color: #ffffff25; background-color: #242d32; }
+#ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input):focus-visible { border-color: #a9d77b70; outline: none; box-shadow: 0 0 0 3px #a3e6350d; }
+:is(.court-matrix,.booking-new-card) select { cursor: pointer; }
+:is(.court-matrix,.booking-new-card) select option { background: #20282e; color: #d9e3dc; padding: 10px; }
+:is(.court-matrix,.booking-new-card) input::-webkit-calendar-picker-indicator { opacity: .65; cursor: pointer; padding: 2px; }
+:is(.court-matrix,.booking-new-card) input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 .court-matrix #bform > label { min-width: 0; }
 #ds-tenant-dashboard #sec .court-matrix #bform > button { min-height: 38px; padding: 8px 14px; }
 #ds-tenant-dashboard #sec .court-matrix #cf { border-radius: 12px; background: #192127; padding: 20px; box-shadow: none; animation: court-form-enter .18s ease-out; }
 @keyframes court-form-enter { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 @supports (appearance: base-select) {
-  .court-matrix select, .court-matrix select::picker(select) { appearance: base-select; }
-  .court-matrix select::picker(select) { margin-top: 6px; padding: 5px; border: 1px solid #ffffff18; border-radius: 10px; background: #20282e; color: #d9e3dc; box-shadow: 0 12px 30px #0006; opacity: 0; transform: translateY(-4px); transition: opacity .15s, transform .15s, display .15s allow-discrete, overlay .15s allow-discrete; }
-  .court-matrix select:open::picker(select) { opacity: 1; transform: translateY(0); }
-  @starting-style { .court-matrix select:open::picker(select) { opacity: 0; transform: translateY(-4px); } }
-  .court-matrix select option { border-radius: 6px; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; }
-  .court-matrix select option:hover, .court-matrix select option:checked { background: #a3e63512; color: #cfdfa9; }
+  :is(.court-matrix,.booking-new-card) select, :is(.court-matrix,.booking-new-card) select::picker(select) { appearance: base-select; }
+  :is(.court-matrix,.booking-new-card) select::picker(select) { margin-top: 6px; padding: 5px; border: 1px solid #ffffff18; border-radius: 10px; background: #20282e; color: #d9e3dc; box-shadow: 0 12px 30px #0006; opacity: 0; transform: translateY(-4px); transition: opacity .15s, transform .15s, display .15s allow-discrete, overlay .15s allow-discrete; }
+  :is(.court-matrix,.booking-new-card) select:open::picker(select) { opacity: 1; transform: translateY(0); }
+  @starting-style { :is(.court-matrix,.booking-new-card) select:open::picker(select) { opacity: 0; transform: translateY(-4px); } }
+  :is(.court-matrix,.booking-new-card) select option { border-radius: 6px; font: 400 12px/20px "Plus Jakarta Sans",sans-serif; }
+  :is(.court-matrix,.booking-new-card) select option:hover, :is(.court-matrix,.booking-new-card) select option:checked { background: #a3e63512; color: #cfdfa9; }
 }
 @media (max-width:1200px) { .court-matrix #bform { grid-template-columns: repeat(2, minmax(0,1fr)); } .court-matrix #bform > button { justify-self: start; } }
 @media (max-width:640px) { .court-panel { padding: 16px; } .court-matrix #bform { grid-template-columns: minmax(0,1fr); } }
-@media (prefers-reduced-motion: reduce) { #ds-tenant-dashboard #sec .court-matrix #cf { animation: none; } #ds-tenant-dashboard #sec .court-matrix :is(select,input), .court-matrix select::picker(select) { transition: none; } }
+@media (prefers-reduced-motion: reduce) { #ds-tenant-dashboard #sec .court-matrix #cf { animation: none; } #ds-tenant-dashboard #sec :is(.court-matrix,.booking-new-card) :is(select,input), :is(.court-matrix,.booking-new-card) select::picker(select) { transition: none; } }
 .transactions-card { border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); overflow: hidden; }
 .transactions-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; }
 #ds-tenant-dashboard #sec .transactions-header h3 { margin: 0 0 4px; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; color: #e0e8e2; }

@@ -396,9 +396,14 @@
           '<div class="flex items-center gap-2 pt-1">' + (withDecide ? '<button class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-sm font-bold border-0 cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button> <button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
             : '<button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-cx="' + esc(b.id) + '" type="button">Cancel booking</button>') + '</div><p class="msg" role="alert"></p></div>';
       }
-      box.innerHTML = '<div class="bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT p-space-lg mb-space-md"><h3 class="font-headline-sm text-on-surface mb-space-md flex items-center justify-between">Needs Approval <span class="px-2.5 py-0.5 rounded-full bg-error-container/20 text-error font-mono text-xs font-bold">' + pending.length + '</span></h3>' + (pending.length ? pending.map(function (b) { return row(b, true); }).join("") : '<p class="text-on-surface-variant font-body-sm">Nothing waiting in the queue.</p>') + '</div>' +
-        '<div class="bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT p-space-lg mb-space-md"><h3 class="font-headline-sm text-on-surface mb-space-md flex items-center justify-between">Today\'s Confirmed Bookings <span class="px-2.5 py-0.5 rounded-full bg-secondary-container/20 text-secondary font-mono text-xs font-bold">' + todayList.length + '</span></h3>' + (todayList.length ? todayList.map(function (b) { return row(b, false); }).join("") : '<p class="text-on-surface-variant font-body-sm">No confirmed bookings today.</p>') + '</div>' +
-        '<div class="bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT p-space-lg mb-space-md"><h3 class="font-headline-sm text-on-surface mb-space-md flex items-center justify-between">Upcoming Confirmed Bookings <span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-mono text-xs font-bold">' + later.length + '</span></h3>' + (later.length ? later.map(function (b) { return row(b, false); }).join("") : '<p class="text-on-surface-variant font-body-sm">No other confirmed bookings.</p>') + '</div>';
+      box.innerHTML = '<div class="booking-queues">' + [
+        { title: 'Needs approval', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
+        { title: "Today's confirmed bookings", icon: 'today', items: todayList, empty: 'No confirmed bookings today.' },
+        { title: 'Upcoming confirmed bookings', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
+      ].map(function (group) {
+        return '<section class="booking-queue"><header class="booking-queue-heading"><span class="material-symbols-outlined" aria-hidden="true">' + group.icon + '</span><h3>' + group.title + '</h3><span class="booking-count' + (group.decide && group.items.length ? ' needs-attention' : '') + '">' + group.items.length + '</span></header>' +
+          (group.items.length ? group.items.map(function (b) { return row(b, !!group.decide); }).join('') : '<p class="booking-queue-empty">' + group.empty + '</p>') + '</section>';
+      }).join('') + '</div>';
       startTicker();
       var byId = {}; bs.forEach(function (b) { byId[b.id] = b; });
       function card(el) { return el.closest(".bcard"); }
@@ -452,12 +457,13 @@
 
   async function adminNew(box, t) {
     var tz = t.timezone || "Asia/Manila", built = false;
-    box.innerHTML = '<div class="panel wide"><div class="row"><div><h2>Book for a customer</h2>' +
+    box.innerHTML = '<section class="booking-new-card"><div class="booking-new-heading"><div><h2>Book for a customer</h2>' +
       '<p class="muted small">For walk-in guests or registered players. The booking is confirmed right away.</p></div>' +
-      '<button class="btn sm" id="nbtoggle" type="button">New booking</button></div><div id="nbform" hidden></div></div>';
+      '<button class="btn sm" id="nbtoggle" type="button" aria-expanded="false" aria-controls="nbform"><span class="material-symbols-outlined" aria-hidden="true">add</span>New booking</button></div><div id="nbform" hidden></div></section>';
     var formBox = q("#nbform", box);
     q("#nbtoggle", box).onclick = function () {
       formBox.hidden = !formBox.hidden;
+      this.setAttribute("aria-expanded", String(!formBox.hidden));
       if (!formBox.hidden && !built) { built = true; build(); }
     };
 
