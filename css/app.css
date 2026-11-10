@@ -100,8 +100,8 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Non-Auth & Non-Landing Views Layout Wrapper */
-#app > :not(#ds-auth-screen):not(#ds-home-screen):not(#ds-landing) {
+/* Non-Auth, Non-Landing & Non-Tenant Views Layout Wrapper */
+#app > :not(#ds-auth-screen):not(#ds-home-screen):not(#ds-landing):not(#ds-tenant-dashboard) {
   width: 100%;
   max-width: 960px;
   margin-left: auto;
@@ -646,7 +646,7 @@ body.sa header {
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
 
 
-/* Fade a single background and blur layer, avoiding a seam at header height. */
+/* One continuous fade; no clipped blur layer at the navigation edge. */
 body > .site-header {
   isolation: isolate;
   background: transparent;
@@ -658,15 +658,21 @@ body > .site-header {
 .site-header::after {
   content: "";
   position: absolute;
-  inset: 0 0 -64px;
+  inset: 0 0 -96px;
   z-index: -1;
-  background: rgba(16, 20, 26, .92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 22%, rgba(0,0,0,.95) 35%, rgba(0,0,0,.78) 48%, rgba(0,0,0,.5) 62%, rgba(0,0,0,.22) 76%, rgba(0,0,0,.05) 90%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 22%, rgba(0,0,0,.95) 35%, rgba(0,0,0,.78) 48%, rgba(0,0,0,.5) 62%, rgba(0,0,0,.22) 76%, rgba(0,0,0,.05) 90%, transparent 100%);
+  background: linear-gradient(to bottom,
+    rgba(10,14,20,.97) 0%,
+    rgba(10,14,20,.92) 18%,
+    rgba(10,14,20,.78) 34%,
+    rgba(10,14,20,.53) 50%,
+    rgba(10,14,20,.28) 66%,
+    rgba(10,14,20,.10) 81%,
+    rgba(10,14,20,.02) 93%,
+    rgba(10,14,20,0) 100%);
   pointer-events: none;
 }
+/* Match the space behind navigation to the landing hero, removing its color seam. */
+body.landing-page, .landing-page #app { background-color: #0a0e14; }
 
 /* =====================================================================
    Redesign: typography base, public pages, sidebar dashboard
@@ -823,10 +829,27 @@ a.tile:hover{border-color:var(--lime)}
 @media (max-width:560px){.dashmain .panel.wide{padding:1.1rem}.panel.wide .row{flex-wrap:wrap}}
 
 
+/* Tenant Facility OS Dashboard Mode */
+body.tenant-dashboard-mode > .site-header,
+body.tenant-dashboard-mode > footer {
+  display: none !important;
+}
+body.tenant-dashboard-mode #app {
+  padding-top: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+#app > #ds-tenant-dashboard {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 /* Supplied landing-page layout, scoped away from dashboard and auth styles. */
 .landing-page #app { width: 100%; max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
 #app > #ds-landing { width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
-#ds-landing { overflow-x: hidden; width: 100% !important; max-width: none !important; }
+#ds-landing { overflow-x: clip; width: 100% !important; max-width: none !important; }
 #ds-landing section { scroll-margin-top: 96px; width: 100%; }
 #ds-landing .grid { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-bottom: 0; }
 #ds-landing .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -917,3 +940,109 @@ a.tile:hover{border-color:var(--lime)}
   body:has(#nav.member-nav) .site-brand > div:last-child { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { #nav.member-nav * { transition: none !important; } }
+
+
+/* Borderless search fields and a custom city picker populated from approved clubs. */
+#app #ds-landing #q { border: 0; outline: none; box-shadow: none; background: transparent; padding: 0; border-radius: 0; height: auto; }
+#app #ds-landing #q:focus-visible { outline: none; box-shadow: none; }
+#ds-landing .landing-search-field, #ds-landing .landing-city-field { border: 0; box-shadow: none; min-width: 0; transition: background-color .18s ease; }
+#ds-landing .landing-search-field:focus-within, #ds-landing .landing-city-field:focus-within { background: #30363b; box-shadow: inset 0 -2px 0 #a3e63580; }
+#ds-landing > section:first-child { overflow: visible; }
+#ds-landing .landing-city-field { position: relative; z-index: 30; }
+#ds-landing .landing-city-field > div { overflow: visible; }
+#ds-landing .city-menu { width: 100%; text-align: left; }
+#ds-landing .city-menu summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; list-style: none; font-size: 14px; line-height: 24px; border: 0; outline: none; }
+#ds-landing .city-menu summary::-webkit-details-marker { display: none; }
+#ds-landing .city-selected { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#ds-landing .city-menu summary .material-symbols-outlined { color: var(--muted-dim); font-size: 18px; transition: transform .18s ease; }
+#ds-landing .city-menu[open] summary .material-symbols-outlined { transform: rotate(180deg); }
+#ds-landing .city-options { position: absolute; top: calc(100% + 10px); left: 0; right: 0; max-height: 260px; overflow-y: auto; padding: 8px; border: 0; border-radius: 16px; background: #262c31; box-shadow: 0 16px 40px #0006; animation: city-menu-in .16s ease-out; }
+#ds-landing .city-options button { display: block; width: 100%; border: 0; border-radius: 10px; background: transparent; padding: 11px 12px; text-align: left; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; }
+#ds-landing .city-options button:hover, #ds-landing .city-options button:focus-visible { background: #ffffff0a; outline: none; }
+#ds-landing .city-options button[aria-pressed="true"] { background: #a3e63514; color: var(--lime-bright); }
+@keyframes city-menu-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { #ds-landing .city-options { animation: none; } }
+
+
+/* Keep search controls in normal document flow when scrolling to results. */
+#ds-landing .landing-search-panel { position: relative; isolation: isolate; overflow: visible; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#ds-landing #find-courts-btn { display: flex; min-height: 52px; height: auto; width: 100%; flex-shrink: 0; background: var(--lime-bright); color: var(--ink-dark); }
+#ds-landing .surf-pill[aria-pressed="true"], #ds-landing .club-tab[aria-pressed="true"] { background: var(--lime-subtle); color: var(--lime-bright); }
+#ds-landing .surf-pill[aria-pressed="false"], #ds-landing .club-tab[aria-pressed="false"] { background: var(--card); color: var(--muted); box-shadow: none; }
+
+
+/* A single, consistent segmented control for the club listing filters. */
+#ds-landing .club-filters { display: inline-flex; align-items: center; gap: 4px; padding: 5px; max-width: 100%; background: #171d22; border: 1px solid #ffffff09; border-radius: 16px; }
+#ds-landing .club-filters .club-tab { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 9px 17px; border: 0; border-radius: 11px; background: transparent; color: #9da8a2; font: 600 12px/20px "Plus Jakarta Sans", sans-serif; white-space: nowrap; box-shadow: none; transition: background-color .18s ease, color .18s ease; }
+#ds-landing .club-filters .club-tab:hover { background: #ffffff06; color: var(--ink); }
+#ds-landing .club-filters .club-tab[aria-pressed="true"] { background: #ccff80; color: #213600; box-shadow: 0 2px 6px #0002; }
+#ds-landing .club-filters .club-tab:focus-visible { outline: 2px solid var(--lime-bright); outline-offset: 2px; }
+@media (max-width: 480px) {
+  #ds-landing .club-filters { display: flex; width: 100%; gap: 2px; }
+  #ds-landing .club-filters .club-tab { flex: 1; min-width: 0; padding: 8px; font-size: 11px; }
+}
+
+
+#ds-landing .landing-feature-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: stretch; }
+#ds-landing .landing-feature-grid > div { min-width: 0; display: flex; flex-direction: column; }
+#ds-landing .landing-feature-grid > div > a:last-child { margin-top: auto; padding-top: 24px; }
+@media (min-width: 768px) {
+  #ds-landing .landing-feature-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+
+/* Keep all four stat values on a shared baseline, including DUPR Ready. */
+#ds-landing .landing-stats > div { min-width: 0; gap: 2px; }
+#ds-landing .landing-stats > div > span:first-child { font-size: clamp(24px, 2.7vw, 36px); line-height: 44px; letter-spacing: -.035em; white-space: nowrap; }
+#ds-landing .landing-stats > div > span:last-child { font-size: 10px; line-height: 16px; letter-spacing: .08em; margin-top: 2px; }
+/* Stage 8: error pages, offline banner */
+.errpage{text-align:center;padding-top:4rem !important}
+.errpage .mi.big{font-size:64px;width:1em;height:1em;color:var(--lime)}
+.errpage h1{margin:.8rem 0 .4rem}
+.errpage p{max-width:46ch;margin:0 auto 1.4rem !important}
+.errbtns{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
+#netbar{position:fixed;left:0;right:0;top:0;z-index:200;display:flex;gap:.6rem;align-items:center;justify-content:center;padding:.55rem 1rem;background:#4a3a00;color:#fde047;font-size:.85rem;text-align:center}
+#netbar[hidden]{display:none}
+.toast.err{border-color:var(--err-border)}.toast.err .mi{color:var(--err)}
+
+
+/* Registration shares the sign-in form's compact spacing and corner radii. */
+#ds-auth-screen.signup-screen .signup-wrap { max-width: 560px; gap: 24px; }
+#ds-auth-screen.signup-screen .signup-card { padding: 32px; border-radius: 24px; gap: 24px; background: var(--bg-elevated); }
+#ds-auth-screen.signup-screen .signup-card > div:first-child { border-radius: 12px; }
+#ds-auth-screen.signup-screen .signup-card > div:first-child p { white-space: normal; font-size: 12px; }
+#ds-auth-screen.signup-screen .signup-social { display: block; }
+#ds-auth-screen.signup-screen #oauth-google-up { width: 100%; min-height: 46px; border-radius: 12px; font-size: 13px; }
+#ds-auth-screen.signup-screen #f { display: flex; flex-direction: column; gap: 20px; }
+#ds-auth-screen.signup-screen .signup-name-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+#ds-auth-screen.signup-screen :is(#first_name,#last_name) { padding: 10px 14px; }
+#ds-auth-screen.signup-screen label { font-size: 12px; line-height: 16px; text-transform: none; letter-spacing: .02em; color: var(--ink); }
+#ds-auth-screen.signup-screen .signup-skills { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+#ds-auth-screen.signup-screen .skill-pill { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; border: 1px solid #ffffff10; border-radius: 12px; background: #ffffff03; color: var(--ink); text-align: left; cursor: pointer; }
+#ds-auth-screen.signup-screen .skill-pill > span:first-child { font-size: 12px; font-weight: 600; }
+#ds-auth-screen.signup-screen .skill-pill > span:last-child { font-size: 10px; color: var(--muted-dim); }
+#ds-auth-screen.signup-screen .skill-pill:hover { border-color: #a3e63555; }
+#ds-auth-screen.signup-screen .skill-pill[aria-pressed="true"] { border-color: var(--lime); background: #a3e63512; color: var(--lime-bright); }
+#ds-auth-screen.signup-screen .skill-pill[aria-pressed="true"] > span:last-child { color: var(--lime-bright); }
+#ds-auth-screen.signup-screen .signup-skill-help { font-size: 11px; line-height: 1.6; color: var(--muted-dim); }
+#ds-auth-screen.signup-screen #terms { position: static; width: 18px; height: 18px; clip: auto; margin: 0; accent-color: var(--lime); }
+#ds-auth-screen.signup-screen #terms + div { display: none; }
+#ds-auth-screen.signup-screen .signup-card > div:has(> .h-px) { min-height: 20px; }
+#ds-auth-screen.signup-screen .signup-card > div:has(> .h-px) > span { background: var(--bg-elevated); }
+#ds-auth-screen.signup-screen #pw + button { right: 12px; }
+#ds-auth-screen.signup-screen #auth-title { font-size: 32px; }
+@media (max-width: 480px) {
+  #ds-auth-screen.signup-screen .signup-card { padding: 24px; }
+  #ds-auth-screen.signup-screen .signup-name-grid { gap: 12px; }
+}
+
+
+/* All feedback floats above the page; legacy toast rules cannot pin it below. */
+.toast-region { position: fixed; top: 80px; left: 50%; right: auto; bottom: auto; transform: translateX(-50%); width: min(520px, calc(100vw - 32px)); z-index: 300; }
+.toast-region > .toast { position: relative; inset: auto; width: 100%; max-width: none; align-items: flex-start; border-radius: 14px; }
+.toast-region .toast-action { flex: none; border: 0; border-radius: 8px; padding: 5px 8px; background: #ffffff0a; color: var(--lime-bright); cursor: pointer; font: 600 12px/20px "Plus Jakarta Sans",sans-serif; }
+.toast-region .toast-action:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+/* Fade the pattern in beneath the navigation instead of starting at a hard edge. */
+#ds-auth-screen .auth-stage::before { content: ""; position: absolute; inset: 0 0 auto; height: 100px; background: linear-gradient(to bottom, var(--bg), transparent); z-index: 1; pointer-events: none; }
+#ds-auth-screen .auth-pattern { mask-image: linear-gradient(to bottom, transparent, #000 100px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 100px); }
+.auth-page .site-header::after { background: linear-gradient(to bottom, rgba(16,20,26,.98), rgba(16,20,26,.85) 25%, rgba(16,20,26,.45) 52%, rgba(16,20,26,.1) 80%, transparent); }

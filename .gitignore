@@ -3,3 +3,5 @@
 supabase/.temp/
 supabase/.branches/
 node_modules/
+backups/
+.playwright-mcp/

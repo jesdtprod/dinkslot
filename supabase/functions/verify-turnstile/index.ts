@@ -43,6 +43,12 @@ Deno.serve(async (req) => {
   const purpose = body.purpose ?? "";
   if (!token || token.length > 2048 || !PURPOSES.has(purpose)) return json({ error: "bad_request" }, 400);
 
+  // Rate limit: at most 5 CAPTCHA passes per user per hour (stops pass farming and table flooding).
+  const since = new Date(Date.now() - 3600_000).toISOString();
+  const { count } = await admin.from("captcha_passes").select("id", { count: "exact", head: true })
+    .eq("user_id", userData.user.id).gte("created_at", since);
+  if ((count ?? 0) >= 5) return json({ error: "rate_limited" }, 429);
+
   const form = new URLSearchParams({ secret, response: token });
   const ip = req.headers.get("CF-Connecting-IP") ?? req.headers.get("X-Forwarded-For")?.split(",")[0]?.trim();
   if (ip) form.set("remoteip", ip);

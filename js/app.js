@@ -37,6 +37,10 @@
     player_blocked: "You are blocked from this club.",
     already_has_club: "Your account already manages a club. One account can manage one club.",
     user_in_other_club: "That person already manages another club. One account can manage one club only.",
+    rate_limited: "You are doing that too often. Please wait a few minutes and try again.",
+    "Failed to fetch": "Cannot reach the server. Check your internet connection and try again.",
+    "NetworkError": "Cannot reach the server. Check your internet connection and try again.",
+    "Load failed": "Cannot reach the server. Check your internet connection and try again.",
     forbidden: "You do not have permission to do that."
   };
   function friendly(err) {
@@ -45,7 +49,7 @@
     return m || "Something went wrong.";
   }
   var toastTimer = null, toastRegion = null;
-  function setMsg(root, text, kind) {
+  function setMsg(root, text, kind, action) {
     clearTimeout(toastTimer);
     if (toastRegion) toastRegion.replaceChildren();
     if (!text) return;
@@ -70,19 +74,27 @@
     close.className = "toast-close";
     close.setAttribute("aria-label", "Dismiss notification");
     close.textContent = "\u00d7";
-    function dismiss() { clearTimeout(toastTimer); toast.remove(); }
+    function dismiss() { if (toast.parentNode) { toast.remove(); if (!toastRegion.children.length) clearTimeout(toastTimer); } }
     function scheduleDismiss() {
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(dismiss, kind === "err" ? 10000 : 7000);
+      if (!action) toastTimer = setTimeout(dismiss, kind === "err" ? 10000 : 7000);
     }
     close.onclick = dismiss;
     toast.onpointerenter = function () { clearTimeout(toastTimer); };
     toast.onpointerleave = function () { if (!toast.contains(document.activeElement)) scheduleDismiss(); };
     toast.onfocusin = function () { clearTimeout(toastTimer); };
     toast.onfocusout = scheduleDismiss;
-    toast.append(icon, message, close);
+    toast.append(icon, message);
+    if (action) {
+      var retry = document.createElement("button");
+      retry.type = "button"; retry.className = "toast-action"; retry.textContent = action.label;
+      retry.onclick = function () { dismiss(); action.run(); };
+      toast.appendChild(retry);
+    }
+    toast.appendChild(close);
     toastRegion.appendChild(toast);
-    scheduleDismiss();
+    if (!action) scheduleDismiss();
+    return dismiss;
   }
   function mediaUrl(path) {
     return path ? sb.storage.from("club-media").getPublicUrl(path).data.publicUrl : "";
@@ -92,35 +104,33 @@
   function mountCaptcha(container) {
     var h = { token: null, id: null };
     var tries = 0;
-    var note = document.createElement("p");
-    note.className = "msg err small";
-    container.parentNode.insertBefore(note, container.nextSibling);
-    function retryLink() {
-      note.appendChild(document.createTextNode(" "));
-      var retry = document.createElement("a");
-      retry.href = "#"; retry.className = "retry"; retry.textContent = "Retry the check";
-      note.appendChild(retry);
-      note.querySelector(".retry").onclick = function (e) { e.preventDefault(); note.textContent = ""; h.reset(); arm(); };
+    var dismissCaptchaToast = function () {};
+    function showCaptchaError(text) {
+      if (!container.isConnected) return;
+      dismissCaptchaToast = setMsg(app, text, "err", {
+        label: "Retry check",
+        run: function () { h.reset(); arm(); }
+      }) || function () {};
     }
     var slow;
     function arm() {
       clearTimeout(slow);
       slow = setTimeout(function () {
-        if (!h.token) { note.textContent = "The human check is taking long. "; retryLink(); }
+        if (!h.token) showCaptchaError("The human check is taking longer than expected.");
       }, 20000);
     }
     (function wait() {
+      if (!container.isConnected) return;
       if (window.turnstile) {
         h.id = window.turnstile.render(container, {
           sitekey: cfg.TURNSTILE_SITE_KEY,
           theme: "dark",
           size: "flexible",
-          callback: function (t) { h.token = t; note.textContent = ""; clearTimeout(slow); },
+          callback: function (t) { h.token = t; dismissCaptchaToast(); clearTimeout(slow); },
           "expired-callback": function () { h.token = null; },
           "error-callback": function (code) {
             h.token = null; clearTimeout(slow);
-            note.textContent = "Human check error" + (code ? " (" + code + ")" : "") + ". Disable ad blockers for this site, check your connection, then ";
-            retryLink();
+            showCaptchaError("Human check error" + (code ? " (" + code + ")" : "") + ". Check your connection or disable ad blockers for this site, then retry.");
             return true;
           }
         });
@@ -128,10 +138,10 @@
       } else if (tries++ < 100) {
         setTimeout(wait, 100);
       } else {
-        container.textContent = "Human check could not load. Check your connection and reload.";
+        showCaptchaError("The human check could not load. Check your connection and try again.");
       }
     })();
-    h.reset = function () { h.token = null; if (window.turnstile && h.id != null) window.turnstile.reset(h.id); };
+    h.reset = function () { h.token = null; if (window.turnstile && h.id != null) window.turnstile.reset(h.id); else location.reload(); };
     return h;
   }
 
@@ -245,17 +255,42 @@
         var i = info[c.slug];
         var coverSrc = c.cover_path ? mediaUrl(c.cover_path) : fallbackImages[idx % fallbackImages.length];
         var courtLabel = i
-          ? i.n + (i.n === 1 ? " Court" : " Courts") + " (" + (i.indoor > 0 ? "Indoor" : "Outdoor") + (i.surfaces.length ? " â€¢ " + i.surfaces[0] : "") + ")"
+          ? i.n + (i.n === 1 ? " Court" : " Courts") + " (" + (i.indoor > 0 ? "Indoor" : "Outdoor") + (i.surfaces.length ? " • " + i.surfaces[0] : "") + ")"
           : "Court schedule open";
         var priceHtml = i && isFinite(i.min)
           ? '<span class="font-headline-sm text-on-surface">PHP ' + esc(i.min.toFixed(0)) + '</span><span class="font-label-sm text-outline">/hr</span>'
           : '<span class="font-label-sm text-outline">View rates</span>';
 
-        return '<article class="landing-club">' +
-          '<a href="#/c/' + esc(c.slug) + '" class="landing-club-cover"><img src="' + esc(coverSrc) + '" alt="' + esc(c.name) + '" loading="lazy"><span class="landing-court-count">' + esc(i ? i.n + (i.n === 1 ? " Court" : " Courts") : "Explore club") + '</span></a>' +
-          '<div class="landing-club-body"><p class="landing-club-location">' + esc(c.city || c.address || "View club location") + '</p><h3><a href="#/c/' + esc(c.slug) + '">' + esc(c.name) + '</a></h3>' +
-          '<p class="landing-club-detail">' + esc(i ? (i.indoor ? "Indoor courts" : "Outdoor courts") + (i.surfaces.length ? " / " + i.surfaces[0] : "") : "View court details and availability") + '</p>' +
-          '<div class="landing-club-action"><div>' + priceHtml + '</div><a class="landing-book" href="#/c/' + esc(c.slug) + '">View &amp; Book</a></div></div></article>';
+        return '<article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg hover:shadow-[0_0_24px_rgba(163,230,53,0.15)] transition-all duration-300">' +
+          '<a href="#/c/' + esc(c.slug) + '" class="relative h-48 w-full overflow-hidden bg-surface-container block no-underline">' +
+            '<img src="' + esc(coverSrc) + '" alt="' + esc(c.name) + '" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>' +
+            '<div class="absolute top-3 left-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> ' + esc(i ? i.n + (i.n === 1 ? " Pro Court" : " Pro Courts") : "12 Pro Courts") +
+            '</div>' +
+            '<div class="absolute top-3 right-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-on-surface flex items-center gap-1">' +
+              '<span class="material-symbols-outlined text-primary text-label-sm" style="font-variation-settings: \'FILL\' 1;">star</span> 4.9' +
+            '</div>' +
+          '</a>' +
+          '<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">' +
+            '<div>' +
+              '<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">' +
+                '<span class="material-symbols-outlined text-label-md">pin_drop</span> ' + esc(c.city || c.address || "Metro Manila") +
+              '</div>' +
+              '<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mt-1 group-hover:text-primary transition-colors">' +
+                '<a href="#/c/' + esc(c.slug) + '" class="text-inherit no-underline">' + esc(c.name) + '</a>' +
+              '</h3>' +
+              '<div class="mt-space-sm flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">' +
+                '<span class="material-symbols-outlined text-primary text-label-md">schedule</span> ' + esc(courtLabel) +
+              '</div>' +
+            '</div>' +
+            '<div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">' +
+              '<div>' + priceHtml + '</div>' +
+              '<a href="#/c/' + esc(c.slug) + '" class="px-space-md py-2 rounded-full bg-primary hover:bg-secondary-fixed text-on-primary font-label-md text-label-md font-bold transition-all shadow-[0_0_12px_rgba(163,230,53,0.25)] no-underline">' +
+                'Instant Book' +
+              '</a>' +
+            '</div>' +
+          '</div>' +
+        '</article>';
       }).join("") : '<p class="text-on-surface-variant font-body-md col-span-full">No clubs match your search. Try another city or check back as clubs join.</p>';
     }
 
@@ -438,7 +473,7 @@
     opts = opts || {};
     var next = opts.next || "/me";
     var mode = opts.mode === "up" ? "up" : "in";
-    var selectedSkill = "intermediate";
+    var selectedSkill = "unrated";
     var defaultTitleIn = opts.title || "Welcome back to the court";
     var defaultTitleUp = opts.title || 'Join the premier <span class="text-primary tracking-normal">pickleball</span> network';
     var defaultIntroIn = opts.intro || "Enter your credentials to access your bookings and club schedule.";
@@ -523,7 +558,7 @@
         '</div>' +
         '<div class="relative flex items-center">' +
         '<span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px] pointer-events-none">lock</span>' +
-        '<input id="pw" type="password" autocomplete="current-password" minlength="6" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required class="w-full pl-11 pr-12 py-3 rounded-full bg-surface-container text-on-surface font-body-md text-body-md placeholder-on-surface-variant/40 focus:outline-none focus:bg-surface-container-high transition-all" />' +
+        '<input id="pw" type="password" autocomplete="current-password" minlength="6" placeholder="Enter your password" required class="w-full pl-11 pr-12 py-3 rounded-full bg-surface-container text-on-surface font-body-md text-body-md placeholder-on-surface-variant/40 focus:outline-none focus:bg-surface-container-high transition-all" />' +
         '<button aria-label="Toggle password visibility" class="absolute right-3.5 text-on-surface-variant hover:text-primary transition-colors focus:outline-none p-1" id="toggle-password-btn" type="button">' +
         '<span class="material-symbols-outlined text-[20px]" id="eye-icon">visibility</span>' +
         '</button>' +
@@ -651,7 +686,7 @@
       mode = "up";
       if (cleanupAuthPattern) { cleanupAuthPattern(); cleanupAuthPattern = null; }
       app.innerHTML =
-        '<div id="ds-auth-screen" class="flex flex-col w-full">' +
+        '<div id="ds-auth-screen" class="signup-screen flex flex-col w-full">' +
         '<div class="auth-stage flex flex-col w-full relative overflow-hidden py-space-xl px-gutter lg:px-gutter-desktop items-center justify-center min-h-[calc(100vh-8rem)]">' +
         '<!-- Ambient Stadium Glow Effects -->' +
         '<div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-primary-container/10 blur-[130px] rounded-full pointer-events-none -z-10"></div>' +
@@ -662,7 +697,7 @@
         '<div class="w-px h-full bg-gradient-to-b from-transparent via-primary/20 to-transparent"></div>' +
         '<div class="w-px h-full bg-gradient-to-b from-transparent via-outline-variant to-transparent"></div>' +
         '</div>' +
-        '<div class="w-full max-w-2xl flex flex-col gap-space-lg relative z-10">' +
+        '<div class="signup-wrap w-full max-w-2xl flex flex-col gap-space-lg relative z-10">' +
         '<!-- Header Badge & Headline Group -->' +
         '<div class="flex flex-col items-center text-center gap-space-xs">' +
         '<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-container-high text-primary font-label-md text-label-md tracking-wider uppercase mb-space-xs shadow-sm">' +
@@ -677,7 +712,7 @@
         '</p>' +
         '</div>' +
         '<!-- Main Card Container -->' +
-        '<div class="w-full bg-surface-container/85 backdrop-blur-2xl rounded-lg p-space-lg md:p-space-xl shadow-xl flex flex-col gap-space-lg border border-white/5">' +
+        '<div class="signup-card w-full bg-surface-container/85 backdrop-blur-2xl rounded-lg p-space-lg md:p-space-xl shadow-xl flex flex-col gap-space-lg border border-white/5">' +
         '<!-- Perks Micro-Banner -->' +
         '<div class="w-full rounded-DEFAULT bg-surface-container-highest/60 px-space-md py-space-sm flex items-center justify-between gap-space-sm">' +
         '<div class="flex items-center gap-space-sm min-w-0">' +
@@ -685,7 +720,7 @@
         '<span class="material-symbols-outlined text-primary text-[18px]">verified</span>' +
         '</div>' +
         '<p class="font-body-sm text-body-sm text-on-surface font-medium truncate">' +
-        'Includes <span class="text-primary font-semibold">14 days free</span> priority booking &amp; DUPR rating tracking' +
+        'Includes <span class="text-primary font-semibold">14 days free</span> priority booking &amp; DUPR Ready play' +
         '</p>' +
         '</div>' +
         '<span class="hidden sm:inline-block font-label-sm text-label-sm text-primary uppercase tracking-widest shrink-0 font-semibold px-2 py-0.5 rounded bg-surface-container-low">' +
@@ -693,7 +728,7 @@
         '</span>' +
         '</div>' +
         '<!-- Quick Social Auth -->' +
-        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">' +
+        '<div class="signup-social">' +
         '<button id="oauth-google-up" class="group flex items-center justify-center gap-space-sm py-3 px-space-md rounded-full bg-surface-container-high hover:bg-surface-bright transition-all text-on-surface font-label-lg text-label-lg shadow-sm" type="button">' +
         '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">' +
         '<path d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z" fill="#EA4335"></path>' +
@@ -702,12 +737,6 @@
         '<path d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z" fill="#34A853"></path>' +
         '</svg>' +
         '<span>Sign up with Google</span>' +
-        '</button>' +
-        '<button id="oauth-apple-up" class="group flex items-center justify-center gap-space-sm py-3 px-space-md rounded-full bg-surface-container-high hover:bg-surface-bright transition-all text-on-surface font-label-lg text-label-lg shadow-sm" type="button">' +
-        '<svg class="w-4 h-4 fill-current shrink-0 text-on-surface" viewBox="0 0 24 24">' +
-        '<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.87c.66-.82 1.11-1.96.99-3.11-.96.04-2.12.64-2.8 1.44-.6.69-1.12 1.83-1 2.97 1.08.08 2.16-.54 2.81-1.3"></path>' +
-        '</svg>' +
-        '<span>Sign up with Apple</span>' +
         '</button>' +
         '</div>' +
         '<!-- Divider -->' +
@@ -720,7 +749,7 @@
         '<!-- Form Inputs Group -->' +
         '<form class="flex flex-col gap-space-md" id="f" novalidate>' +
         '<!-- First & Last Name Dual Column -->' +
-        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">' +
+        '<div class="signup-name-grid">' +
         '<div class="flex flex-col gap-1.5">' +
         '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="first_name">First Name</label>' +
         '<div class="relative">' +
@@ -745,36 +774,27 @@
         '<!-- Skill Level Selector (Dynamic Pills) -->' +
         '<div class="flex flex-col gap-2 mt-1">' +
         '<div class="flex items-center justify-between">' +
-        '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Official Skill Level / DUPR</label>' +
-        '<a class="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1" href="#/">' +
+        '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">DUPR Skill Level</label>' +
+        '<a class="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1" href="https://www.dupr.com/" target="_blank" rel="noopener noreferrer">' +
         '<span>Find my rating</span>' +
         '<span class="material-symbols-outlined text-[14px]">arrow_outward</span>' +
         '</a>' +
         '</div>' +
-        '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="skill-selector">' +
-        '<button class="skill-pill flex flex-col items-start p-space-sm rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high transition-all text-left group" data-skill="beginner" type="button">' +
-        '<span class="font-label-md text-label-md text-on-surface font-semibold group-hover:text-primary transition-colors">Beginner</span>' +
-        '<span class="font-label-sm text-label-sm text-on-surface-variant">1.0 â€“ 2.5 DUPR</span>' +
-        '</button>' +
-        '<button class="skill-pill active-skill flex flex-col items-start p-space-sm rounded-DEFAULT bg-primary-container text-on-primary-container transition-all text-left shadow-[0_0_16px_rgba(163,230,53,0.25)]" data-skill="intermediate" type="button">' +
-        '<div class="flex items-center justify-between w-full">' +
-        '<span class="font-label-md text-label-md font-bold">Intermediate</span>' +
-        '<span class="material-symbols-outlined text-[16px] font-bold">check_circle</span>' +
+        '<div id="skill-selector" class="signup-skills" role="group" aria-label="Self-reported DUPR skill level">' +
+        '<button type="button" class="skill-pill" data-skill="unrated" aria-pressed="true"><span class="font-label-md">Not rated</span><span class="font-label-sm">NR</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="novice" aria-pressed="false"><span class="font-label-md">Novice</span><span class="font-label-sm">2.000 - 2.999</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="intermediate" aria-pressed="false"><span class="font-label-md">Intermediate</span><span class="font-label-sm">3.000 - 3.999</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="advanced" aria-pressed="false"><span class="font-label-md">Advanced</span><span class="font-label-sm">4.000 - 4.999</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="professional" aria-pressed="false"><span class="font-label-md">Professional</span><span class="font-label-sm">5.000 - 8.000</span></button>' +
         '</div>' +
-        '<span class="font-label-sm text-label-sm font-medium opacity-90">3.0 â€“ 4.0 DUPR</span>' +
-        '</button>' +
-        '<button class="skill-pill flex flex-col items-start p-space-sm rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high transition-all text-left group" data-skill="advanced" type="button">' +
-        '<span class="font-label-md text-label-md text-on-surface font-semibold group-hover:text-primary transition-colors">Advanced / Pro</span>' +
-        '<span class="font-label-sm text-label-sm text-on-surface-variant">4.5+ DUPR</span>' +
-        '</button>' +
-        '</div>' +
+        '<p class="signup-skill-help">Select your current DUPR range, or Not rated. This is self-reported.</p>' +
         '</div>' +
         '<!-- Password Field with Interactive Strength Meter -->' +
         '<div class="flex flex-col gap-1.5 mt-1">' +
         '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider" for="pw">Password</label>' +
         '<div class="relative flex items-center">' +
         '<span class="material-symbols-outlined text-outline absolute left-3.5 pointer-events-none text-[20px]">lock</span>' +
-        '<input class="w-full bg-surface-container-low rounded-DEFAULT pl-11 pr-11 py-3 text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-high transition-colors" id="pw" autocomplete="new-password" minlength="6" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required type="password" />' +
+        '<input class="w-full bg-surface-container-low rounded-DEFAULT pl-11 pr-11 py-3 text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-high transition-colors" id="pw" autocomplete="new-password" minlength="6" placeholder="Create a password" required type="password" />' +
         '<button aria-label="Toggle password visibility" class="absolute right-3.5 text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center" id="toggle-password-btn" type="button">' +
         '<span class="material-symbols-outlined text-[20px]" id="eye-icon">visibility</span>' +
         '</button>' +
@@ -788,7 +808,7 @@
         '</div>' +
         '<div class="flex justify-between items-center text-label-sm font-label-sm">' +
         '<span class="text-on-surface-variant">Strength rating:</span>' +
-        '<span class="text-primary font-semibold tracking-wide" id="strength-label">GOOD â€¢ MATCH READY</span>' +
+        '<span class="text-primary font-semibold tracking-wide" id="strength-label">Enter a password</span>' +
         '</div>' +
         '</div>' +
         '</div>' +
@@ -803,7 +823,7 @@
         '<!-- Terms and Conditions Checkbox -->' +
         '<div class="flex items-start gap-space-sm pt-2">' +
         '<label class="relative flex items-center cursor-pointer pt-0.5">' +
-        '<input checked class="sr-only peer" id="terms" type="checkbox" />' +
+        '<input checked class="sr-only peer" id="terms" aria-label="Agree to Terms of Service and Privacy Policy" type="checkbox" />' +
         '<div class="w-5 h-5 rounded bg-surface-container-low peer-checked:bg-primary-container flex items-center justify-center transition-colors">' +
         '<span class="material-symbols-outlined text-[16px] text-on-primary-container scale-0 peer-checked:scale-100 transition-transform font-bold">check</span>' +
         '</div>' +
@@ -876,53 +896,30 @@
             b1.className = "h-full rounded-full bg-error transition-all duration-300";
             b2.className = "h-full rounded-full bg-surface-container-highest transition-all duration-300";
             b3.className = "h-full rounded-full bg-surface-container-highest transition-all duration-300";
-            strengthLabel.textContent = "WEAK â€¢ NEEDS 6+ CHARS";
+            strengthLabel.textContent = "WEAK - NEEDS 6+ CHARS";
             strengthLabel.className = "text-error font-semibold tracking-wide";
           } else if (val.length < 10) {
             b1.className = "h-full rounded-full bg-primary-container transition-all duration-300";
             b2.className = "h-full rounded-full bg-primary-container transition-all duration-300";
             b3.className = "h-full rounded-full bg-surface-container-highest transition-all duration-300";
-            strengthLabel.textContent = "GOOD â€¢ MATCH READY";
+            strengthLabel.textContent = "GOOD - MATCH READY";
             strengthLabel.className = "text-primary font-semibold tracking-wide";
           } else {
             b1.className = "h-full rounded-full bg-primary-container transition-all duration-300";
             b2.className = "h-full rounded-full bg-primary-container transition-all duration-300";
             b3.className = "h-full rounded-full bg-primary-container transition-all duration-300 shadow-[0_0_8px_rgba(163,230,53,0.5)]";
-            strengthLabel.textContent = "EXCELLENT â€¢ PRO SECURED";
+            strengthLabel.textContent = "EXCELLENT - PRO SECURED";
             strengthLabel.className = "text-primary font-bold tracking-wide";
           }
         };
       }
 
       var pills = app.querySelectorAll(".skill-pill");
-      Array.prototype.forEach.call(pills, function (pill) {
+      pills.forEach(function (pill) {
+        pill.setAttribute("aria-pressed", String(pill.getAttribute("data-skill") === selectedSkill));
         pill.onclick = function () {
-          selectedSkill = pill.getAttribute("data-skill") || "intermediate";
-          Array.prototype.forEach.call(pills, function (p) {
-            p.className = "skill-pill flex flex-col items-start p-space-sm rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high transition-all text-left group";
-            var icon = p.querySelector(".material-symbols-outlined");
-            if (icon) icon.remove();
-            var title = p.querySelector(".font-label-md");
-            if (title) title.className = "font-label-md text-label-md text-on-surface font-semibold group-hover:text-primary transition-colors";
-            var sub = p.querySelector(".font-label-sm");
-            if (sub) sub.className = "font-label-sm text-label-sm text-on-surface-variant";
-          });
-
-          pill.className = "skill-pill active-skill flex flex-col items-start p-space-sm rounded-DEFAULT bg-primary-container text-on-primary-container transition-all text-left shadow-[0_0_16px_rgba(163,230,53,0.25)]";
-          var title = pill.querySelector(".font-label-md");
-          if (title) {
-            title.className = "font-label-md text-label-md font-bold text-on-primary-container";
-            var wrap = document.createElement("div");
-            wrap.className = "flex items-center justify-between w-full";
-            title.parentNode.insertBefore(wrap, title);
-            wrap.appendChild(title);
-            var icon = document.createElement("span");
-            icon.className = "material-symbols-outlined text-[16px] font-bold text-on-primary-container";
-            icon.textContent = "check_circle";
-            wrap.appendChild(icon);
-          }
-          var sub = pill.querySelector(".font-label-sm");
-          if (sub) sub.className = "font-label-sm text-label-sm font-medium opacity-90 text-on-primary-container";
+          selectedSkill = pill.getAttribute("data-skill");
+          pills.forEach(function (item) { item.setAttribute("aria-pressed", String(item === pill)); });
         };
       });
 
@@ -936,10 +933,7 @@
         var r = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
         if (r.error) setMsg(app, friendly(r.error), "err");
       };
-      $("#oauth-apple-up").onclick = async function () {
-        var r = await sb.auth.signInWithOAuth({ provider: "apple", options: { redirectTo: location.origin + location.pathname } });
-        if (r.error) setMsg(app, friendly(r.error), "err");
-      };
+
 
       $("#f").onsubmit = async function (e) {
         e.preventDefault();
@@ -1210,7 +1204,7 @@
     window.scrollTo(0, 0);
     stopLive();
     cleanupAuthPattern();
-    document.body.classList.remove("auth-page", "landing-page");
+    document.body.classList.remove("auth-page", "landing-page", "tenant-dashboard-mode");
     // Supabase Auth returns here with #error=... (expired/used link) or #access_token=... (signed in).
     // These are not page routes.
     if (/^(error|access_token|error_code|error_description)=/.test(raw)) {
@@ -1241,12 +1235,16 @@
         if (!requireUser(path)) return;
         return await window.DS.admin.render(m[1], m[2] || "dashboard");
       }
-      app.innerHTML = "<h2>Page not found</h2><p><a href=\"#/\">Back to home</a></p>";
+      window.DS.ui.errorPage(app, { icon: "search_off", title: "Page not found", text: "That page does not exist or has moved.", home: true });
     } catch (err) {
-      app.innerHTML = '<h2>Something went wrong</h2><p class="muted">' + esc(friendly(err)) + "</p>";
+      window.DS.ui.errorPage(app, { icon: "error", title: "Something went wrong", text: friendly(err), retry: render, home: true });
     }
   }
 
+  // Last line of defence: a failed request or script error should never be silent.
+  window.addEventListener("unhandledrejection", function (e) {
+    if (window.DS && window.DS.ui) window.DS.ui.toast(friendly(e.reason), "err");
+  });
   window.addEventListener("hashchange", render);
   sb.auth.onAuthStateChange(function (ev) { if (ev === "SIGNED_OUT") refreshSession(); });
   refreshSession().then(render);

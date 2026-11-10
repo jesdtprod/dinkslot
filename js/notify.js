@@ -38,11 +38,7 @@
   }
 
   function toast(text) {
-    var t = document.createElement("div");
-    t.className = "toast"; t.setAttribute("role", "status");
-    t.innerHTML = '<span class="mi">notifications_active</span><span>' + esc(text) + "</span>";
-    document.body.appendChild(t);
-    setTimeout(function () { t.classList.add("out"); setTimeout(function () { t.remove(); }, 400); }, 6000);
+    D.setMsg(document.body, text, "");
   }
 
   function slotEl() { return document.getElementById("bellslot"); }

@@ -279,7 +279,19 @@ begin
       ('Setup: give P1 a CAPTCHA pass',           'pg', $q$with i as (insert into public.captcha_passes (user_id,purpose) values ('{P1}','register_club') returning 1) select count(*) from i$q$, 'pos'),
       ('A1 re-adds P1 as staff',                  'a1', $q$select role from public.add_staff('{T1}','player1@test.local')$q$, 'eq:staff'),
       ('Staff P1 cannot register a club even with a pass', 'p1', $q$select * from public.register_club('Staff Club','staff-club')$q$, 'deny'),
-      ('Club three owner cannot see club one data', 'a3', $q$select count(*) from public.bookings where tenant_id='{T1}'$q$, 'zero')
+      ('Club three owner cannot see club one data', 'a3', $q$select count(*) from public.bookings where tenant_id='{T1}'$q$, 'zero'),
+      -- Stage 8: rate limits
+      ('rate limit: 1st call allowed',            'pg', $q$select 'ok' from (select public._rate_limit('t:test', 2, 3600)) s$q$, 'eq:ok'),
+      ('rate limit: 2nd call allowed',            'pg', $q$select 'ok' from (select public._rate_limit('t:test', 2, 3600)) s$q$, 'eq:ok'),
+      ('rate limit: 3rd call is refused',         'pg', $q$select public._rate_limit('t:test', 2, 3600)$q$, 'deny'),
+      ('Clients cannot call the limiter',         'p1', $q$select public._rate_limit('t:x', 1, 60)$q$, 'deny'),
+      ('Clients cannot read or reset counters',   'p1', $q$select count(*) from public.rate_limits$q$, 'zero'),
+      ('Clients cannot delete counters',          'p1', $q$delete from public.rate_limits$q$, 'deny'),
+      ('Creating many clubs in a day is limited (6th is refused)', 'pg', $q$do $d$ declare i int; begin
+          perform set_config('request.jwt.claims', json_build_object('sub','{P2}','role','authenticated')::text, true);
+          for i in 1..11 loop
+            insert into public.tenants (slug, name, status) values ('rl-club-' || i, 'RL Club ' || i, 'approved');
+          end loop; end $d$$q$, 'deny')
     ) as x(name, who, sql, expect)
   loop
     sql := t.sql;
