@@ -47,6 +47,19 @@
     if (r.error) throw r.error;
     return path;
   }
+  async function saveClubPhoto(tenant, col, name, file) {
+    var old = tenant[col];
+    var path = await upload("club-media", tenant.id + "/" + name + "-" + Date.now() + "." + (TYPES[(file || {}).type] || "x"), file);
+    var payload = {}; payload[col] = path;
+    var result = await sb.from("tenants").update(payload).eq("id", tenant.id).select("id," + col).single();
+    if (result.error || !result.data || result.data[col] !== path) {
+      await removeQuiet("club-media", path);
+      throw result.error || new Error("The image could not be saved to your club. Please try again.");
+    }
+    tenant[col] = path;
+    await removeQuiet("club-media", old);
+    return path;
+  }
   async function removeQuiet(bucket, path) {
     if (path) { try { await sb.storage.from(bucket).remove([path]); } catch (e) { /* best effort */ } }
   }
@@ -654,6 +667,7 @@
     drop.addEventListener('dragleave', function (e) { if (!drop.contains(e.relatedTarget)) drop.classList.remove('is-dragging'); });
     drop.addEventListener('drop', function (e) {
       e.preventDefault(); drop.classList.remove('is-dragging');
+      if (input.disabled) return;
       if (!e.dataTransfer.files.length) return;
       var transfer = new DataTransfer(); transfer.items.add(e.dataTransfer.files[0]); input.files = transfer.files; preview();
     });
@@ -851,17 +865,20 @@
         mediaSelection(card, input, button);
         q(btnSel, sec).onclick = async function () {
           var msg = q("#phmsg", sec), file = q(fileSel, sec).files[0];
-          msg.className = "msg"; msg.textContent = "Uploading...";
+          if (!file || button.disabled) return;
+          input.disabled = true;
           button.disabled = true; button.setAttribute("aria-busy", "true");
           try {
-            var old = ctx.t[col];
-            var path = await upload("club-media", t.id + "/" + name + "-" + Date.now() + "." + (TYPES[(file || {}).type] || "x"), file);
-            var r = await sb.from("tenants").update((function () { var o = {}; o[col] = path; return o; })()).eq("id", t.id);
-            if (r.error) { await removeQuiet("club-media", path); throw r.error; }
-            await removeQuiet("club-media", old);
-            render(ctx.slug, "profile");
+            var path = await saveClubPhoto(t, col, name, file);
+            var image = document.createElement('img'); image.src = D.mediaUrl(path); image.alt = 'Current ' + (name === 'logo' ? 'profile logo' : 'cover banner');
+            card.querySelector('.media-preview').replaceChildren(image);
+            card.querySelector('header > span').textContent = 'Uploaded';
+            card.querySelector('.media-file').textContent = file.name;
+            card.querySelector('footer > span').textContent = 'Image uploaded successfully';
+            input.value = '';
+            setMsg(sec, name === 'logo' ? 'Your club logo has been updated successfully.' : 'Your club cover has been updated successfully.', 'ok');
           } catch (err) { msg.className = "msg err"; msg.textContent = friendly(err); }
-          finally { button.disabled = false; button.removeAttribute("aria-busy"); }
+          finally { input.disabled = false; button.disabled = !input.files.length; button.removeAttribute("aria-busy"); }
         };
       }
       photoUpload("#logob", "#logof", "logo_path", "logo");

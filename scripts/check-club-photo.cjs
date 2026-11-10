@@ -1,0 +1,22 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+let failure=false,empty=false,stored={},removed=[],uploadFailure=false;
+const D={sb:{storage:{from(){return {async upload(path){if(uploadFailure)return {error:new Error('Upload failed')};return {data:{path}};},async remove(paths){removed.push(...paths);return {};}};}},from(){return {update(payload){return {eq(key,id){return {select(){return {async single(){if(failure)return {error:new Error('Save failed')};if(empty)return {data:null};stored={id,...payload};return {data:stored};}};}};}};}};}}};
+const source=fs.readFileSync('js/admin.js','utf8').replace('D.admin = { render: render, scanQr: scanQr };','D.admin = { saveClubPhoto };');
+vm.runInNewContext(source,{window:{DS:D},Date,Intl,console});
+(async()=>{
+ const file={type:'image/png',size:1024};
+ const tenant={id:'club-1',logo_path:'old-logo.png'};
+ const path=await D.admin.saveClubPhoto(tenant,'logo_path','logo',file);
+ assert.equal(tenant.logo_path,path);assert.equal(stored.logo_path,path);assert.ok(removed.includes('old-logo.png'));
+ failure=true;removed=[];const old=tenant.logo_path;
+ await assert.rejects(D.admin.saveClubPhoto(tenant,'logo_path','logo',file),/Save failed/);
+ assert.equal(tenant.logo_path,old);assert.ok(!removed.includes('old-logo.png'));assert.equal(removed.length,1);
+ failure=false;empty=true;removed=[];
+ await assert.rejects(D.admin.saveClubPhoto(tenant,'cover_path','cover',file),/could not be saved/);
+ assert.equal(tenant.cover_path,undefined);assert.equal(removed.length,1);
+ empty=false;uploadFailure=true;removed=[];
+ await assert.rejects(D.admin.saveClubPhoto(tenant,'cover_path','cover',file),/Upload failed/);assert.equal(removed.length,0);
+ console.log('Club photo persistence, cached path update and failure cleanup passed.');
+})().catch(err=>{console.error(err);process.exitCode=1;});
