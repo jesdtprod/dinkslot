@@ -123,31 +123,97 @@
     if (D.booking) await D.booking.myBookings(q("#mybookings", sec));
   }
 
+  var CIVIL = { single: "Single", married: "Married", widowed: "Widowed", separated: "Separated", divorced: "Divorced" };
+  var IMG = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+  function avatarUrl(path) { return path ? sb.storage.from("avatars").getPublicUrl(path).data.publicUrl : ""; }
+  function niceDate(d) {
+    if (!d) return "";
+    var p = String(d).split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
+  }
+
   async function profileView(sec) {
-    sec.innerHTML = '<section class="panel wide member-profile-summary"><div><h2>Personal details</h2><p id="member-display-name"></p><p>' + esc(D.state.user.email) + '</p></div><button type="button" class="btn ghost" id="edit-member-profile">Edit Profile</button></section>' +
-      '<dialog class="member-profile-modal" aria-labelledby="member-profile-title"><form id="myprofile"><header><div><span>Account settings</span><h2 id="member-profile-title">Edit Profile</h2></div><button type="button" class="member-profile-close" aria-label="Close profile editor"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="grid2">' +
-      '<label>Full Name<input id="mp-name" maxlength="80" autocomplete="name"></label><label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label></div>' +
+    var COLS = "full_name,phone,birth_date,civil_status,avatar_path,street,barangay,city,province,zip_code,address,psgc_province,psgc_city,psgc_barangay";
+    var r = await sb.from("profiles").select(COLS).eq("auth_user_id", D.state.user.id).maybeSingle();
+    var p = r.data || {};
+    var chosen = null, removeFlag = false; // new photo picked in the form (not saved until Save Profile)
+
+    sec.innerHTML = '<section class="panel wide member-profile-summary"><div class="member-id"><span class="member-avatar" id="member-avatar"></span><div class="member-facts"><h2>Personal details</h2><p id="member-display-name"></p><p>' + esc(D.state.user.email) + '</p><dl id="member-facts"></dl></div></div><button type="button" class="btn ghost" id="edit-member-profile">Edit Profile</button></section>' +
+      '<dialog class="member-profile-modal" aria-labelledby="member-profile-title"><form id="myprofile"><header><div><span>Account settings</span><h2 id="member-profile-title">Edit Profile</h2></div><button type="button" class="member-profile-close" aria-label="Close profile editor"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header>' +
+      '<div class="member-photo"><span class="member-avatar big" id="mp-preview"></span><div class="member-photo-actions"><label class="btn ghost member-photo-btn" for="mp-photo">Add photo</label><input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden><button type="button" class="btn ghost" id="mp-remove-photo" hidden>Remove photo</button><small>JPG, PNG or WebP, up to 2 MB.</small></div></div>' +
+      '<div class="grid2">' +
+      '<label>Full Name<input id="mp-name" maxlength="80" autocomplete="name"></label><label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label>' +
+      '<label>Birthdate<input id="mp-birth" type="date" min="1900-01-01" autocomplete="bday"></label>' +
+      '<label>Civil status<select id="mp-civil"><option value="">Select</option>' + Object.keys(CIVIL).map(function (k) { return '<option value="' + k + '">' + CIVIL[k] + '</option>'; }).join("") + '</select></label></div>' +
+      '<div id="mp-address" class="member-address"></div>' +
       '<p class="msg" role="alert"></p><footer><button type="button" id="cancel-member-profile" class="btn ghost">Cancel</button><button class="btn" type="submit">Save Profile</button></footer></form></dialog>';
+
     var modal = q('.member-profile-modal', sec), opener = q('#edit-member-profile', sec);
-    opener.onclick = function () { modal.showModal(); };
+    var ph = D.ph.mount(q("#mp-address", sec), { values: p, manager: false, required: false });
+
+    function initial() { return ((p.full_name || D.state.user.email || "?").charAt(0) || "?").toUpperCase(); }
+    function paintAvatar(el, url) { el.innerHTML = url ? '<img src="' + esc(url) + '" alt="">' : esc(initial()); }
+    function paintSummary() {
+      q("#member-display-name", sec).textContent = p.full_name || "Your profile";
+      paintAvatar(q("#member-avatar", sec), avatarUrl(p.avatar_path));
+      var rows = [["Phone", p.phone], ["Birthdate", niceDate(p.birth_date)], ["Civil status", CIVIL[p.civil_status]],
+        ["Address", [p.street, p.barangay && "Brgy. " + p.barangay, p.city, p.province, p.zip_code].filter(Boolean).join(", ")]]
+        .filter(function (x) { return x[1]; });
+      q("#member-facts", sec).innerHTML = rows.map(function (x) { return "<div><dt>" + x[0] + "</dt><dd>" + esc(x[1]) + "</dd></div>"; }).join("");
+    }
+    function fill() {
+      q("#mp-name", sec).value = p.full_name || ""; q("#mp-phone", sec).value = p.phone || "";
+      q("#mp-birth", sec).value = p.birth_date || ""; q("#mp-civil", sec).value = p.civil_status || "";
+      chosen = null; removeFlag = false; q("#mp-photo", sec).value = "";
+      paintAvatar(q("#mp-preview", sec), avatarUrl(p.avatar_path));
+      q("#mp-remove-photo", sec).hidden = !p.avatar_path;
+    }
+    paintSummary(); fill();
+
+    opener.onclick = function () { fill(); setMsg(q("#myprofile", sec), "", ""); modal.showModal(); };
     q('.member-profile-close', sec).onclick = function () { modal.close(); };
     q('#cancel-member-profile', sec).onclick = function () { modal.close(); };
     modal.addEventListener('close', function () { opener.focus(); });
-    var r = await sb.from("profiles").select("full_name,phone").eq("auth_user_id", D.state.user.id).maybeSingle();
-    if (q("#mp-name", sec)) {
-      q("#mp-name", sec).value = (r.data && r.data.full_name) || "";
-      q("#mp-phone", sec).value = (r.data && r.data.phone) || "";
-      q("#member-display-name", sec).textContent = (r.data && r.data.full_name) || "Your profile";
-    }
+
+    q("#mp-photo", sec).onchange = function () {
+      var file = this.files[0], form = q("#myprofile", sec); if (!file) return;
+      if (!IMG[file.type]) { this.value = ""; return setMsg(form, "Only JPG, PNG or WebP images are allowed.", "err"); }
+      if (file.size > 2 * 1024 * 1024) { this.value = ""; return setMsg(form, "The photo must be 2 MB or smaller.", "err"); }
+      setMsg(form, "", ""); chosen = file; removeFlag = false;
+      paintAvatar(q("#mp-preview", sec), URL.createObjectURL(file)); q("#mp-remove-photo", sec).hidden = false;
+    };
+    q("#mp-remove-photo", sec).onclick = function () {
+      chosen = null; removeFlag = true; q("#mp-photo", sec).value = "";
+      paintAvatar(q("#mp-preview", sec), ""); this.hidden = true;
+    };
+
     q("#myprofile", sec).onsubmit = async function (e) {
       e.preventDefault();
-      var f = this, btn = q('button[type="submit"]', f);
+      var f = this, btn = q('button[type="submit"]', f), uid = D.state.user.id;
+      var birth = q("#mp-birth", f).value;
+      if (birth && (birth > new Date().toISOString().slice(0, 10) || birth < "1900-01-01")) return setMsg(f, "Enter a valid birthdate.", "err");
+      var perr = ph.validate(); if (perr) return setMsg(f, perr, "err");
+      var ad = ph.get();
       btn.disabled = true;
-      var x = await sb.from("profiles").update({ full_name: q("#mp-name", f).value.trim() || null, phone: q("#mp-phone", f).value.trim() || null })
-        .eq("auth_user_id", D.state.user.id);
+      try {
+        var avatar = p.avatar_path || null, oldAvatar = p.avatar_path;
+        if (chosen) {
+          avatar = uid + "/avatar-" + Date.now() + "." + IMG[chosen.type];
+          var up = await sb.storage.from("avatars").upload(avatar, chosen, { contentType: chosen.type, upsert: false });
+          if (up.error) throw up.error;
+        } else if (removeFlag) avatar = null;
+        var row = {
+          full_name: q("#mp-name", f).value.trim() || null, phone: q("#mp-phone", f).value.trim() || null,
+          birth_date: birth || null, civil_status: q("#mp-civil", f).value || null, avatar_path: avatar,
+          street: ad.street, barangay: ad.barangay, city: ad.city, province: ad.province, zip_code: ad.zip_code, address: ad.address,
+          psgc_province: ad.psgc_province, psgc_city: ad.psgc_city, psgc_barangay: ad.psgc_barangay
+        };
+        var x = await sb.from("profiles").update(row).eq("auth_user_id", uid);
+        if (x.error) { if (chosen) sb.storage.from("avatars").remove([avatar]).catch(function () {}); throw x.error; }
+        if (oldAvatar && oldAvatar !== avatar) sb.storage.from("avatars").remove([oldAvatar]).catch(function () {});
+        for (var k in row) p[k] = row[k];
+        paintSummary(); modal.close();
+      } catch (err) { setMsg(f, friendly(err), "err"); }
       btn.disabled = false;
-      setMsg(f, x.error ? friendly(x.error) : "Profile saved.", x.error ? "err" : "ok");
-      if (!x.error) { q("#member-display-name", sec).textContent = q("#mp-name", sec).value.trim() || "Your profile"; modal.close(); }
     };
   }
 

@@ -39,3 +39,6 @@ There is no "Clubs you manage" or "Register your club" for players. Club registr
 
 ## Signed-in people skip the entry pages
 When signed in, `/auth` (sign in and sign up) always redirects to the person's own home: super admin `/platform`, club owner or staff their dashboard, a club account that has not added its club yet `/register-club`, a player `/me`. A player who opens `/register-club` is sent to their dashboard with a notice that a separate club account is needed; a club owner is sent to their dashboard. The top bar already hides Sign in, Sign up and Register your club once signed in.
+
+## Member profile fields
+`My profile` (player dashboard) keeps: full name, phone, **photo**, **birthdate**, **civil status** (single, married, widowed, separated, divorced) and a **Philippine address** (street/purok/sitio, province, city/municipality, barangay, ZIP, from the PSGC picker, same as the club profile). Columns are on `profiles` (migration `20261110000022_member_profile.sql`). The photo is stored in the public `avatars` bucket under `<auth uid>/avatar-<time>.<ext>` (JPG/PNG/WebP, 2 MB); only the owner can write to their own folder.
