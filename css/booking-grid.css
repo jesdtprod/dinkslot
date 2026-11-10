@@ -187,3 +187,13 @@ body .club-directory-view button[aria-pressed="true"] { background:#a3e63513 !im
 .directory-club-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
 .directory-club-info .badge { font-size:9px; vertical-align:middle; }
 @media(max-width:600px) { .club-directory-results { width:100%; justify-content:space-between; margin:0; } }
+
+/* Restore the earlier compact, single-row directory toolbar. */
+#ds-tenant-dashboard #sec .club-directory-tools { padding:16px 20px; }
+.club-directory-filters { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.club-directory-filters > label:not(.club-directory-open) { display:block; flex:0 1 auto; min-width:0; gap:0; font-size:0; line-height:0; }
+#ds-tenant-dashboard #sec .club-directory-filters select { width:auto; min-width:155px; max-width:240px; height:36px; padding:7px 30px 7px 12px; border:1px solid #ffffff10; border-radius:10px; background-color:#242c31; color:#c6d3ca; font:500 11px/20px "Plus Jakarta Sans",sans-serif; }
+.club-directory-open { border-color:#a3e63530; border-radius:10px; background:#a3e63509; color:#bfdc9c; }
+.club-directory-results { margin-left:auto; gap:12px; }
+.club-directory-view { border-radius:20px; }
+@media(max-width:700px) { .club-directory-filters > label:not(.club-directory-open) { flex:1 1 140px; } #ds-tenant-dashboard #sec .club-directory-filters select { width:100%; min-width:0; max-width:none; } .club-directory-results { margin-left:auto; width:auto; } }
