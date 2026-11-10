@@ -53,13 +53,17 @@ Deno.serve(async (req) => {
   });
   const result = await cf.json().catch(() => ({ success: false }));
   if (!result.success) {
+    console.error("turnstile rejected", JSON.stringify(result["error-codes"] ?? []), "host", result.hostname ?? "");
     return json({ success: false, error: "captcha_failed", codes: result["error-codes"] ?? [] }, 400);
   }
 
   const { error: insErr } = await admin
     .from("captcha_passes")
     .insert({ user_id: userData.user.id, purpose });
-  if (insErr) return json({ error: "server_error" }, 500);
+  if (insErr) {
+    console.error("captcha_passes insert failed", insErr.message);
+    return json({ error: "server_error", detail: insErr.message }, 500);
+  }
 
   return json({ success: true });
 });

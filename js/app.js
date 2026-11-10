@@ -258,7 +258,14 @@
       $("#go").disabled = true; setMsg(app, "Submitting...", "");
       var v = await sb.functions.invoke("verify-turnstile", { body: { token: cap.token, purpose: "register_club" } });
       if (v.error || !v.data || !v.data.success) {
-        cap.reset(); $("#go").disabled = false; return setMsg(app, MESSAGES.captcha_failed, "err");
+        var why = "";
+        try {
+          var body = v.error && v.error.context && v.error.context.json ? await v.error.context.json() : v.data;
+          why = body ? (body.error || "") + (body.codes && body.codes.length ? " [" + body.codes.join(", ") + "]" : "") +
+            (body.detail ? ": " + body.detail : "") + (body.message ? ": " + body.message : "") : "";
+        } catch (_) { why = (v.error && v.error.message) || ""; }
+        cap.reset(); $("#go").disabled = false;
+        return setMsg(app, MESSAGES.captcha_failed + (why ? " (" + why + ")" : ""), "err");
       }
       var r = await sb.rpc("register_club", {
         p_name: $("#name").value.trim(), p_slug: $("#slug").value, p_description: $("#desc").value.trim() || null,
