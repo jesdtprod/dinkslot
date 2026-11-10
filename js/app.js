@@ -1718,7 +1718,6 @@
       // Signed-in people never see sign-in / sign-up / club sign-up again: send them to their own home.
       if (state.user && path === "/auth") return go(homePath());
       if (state.user && path === "/register-club" && (state.managedSlug || state.accountType === "player")) {
-        if (state.accountType === "player" && window.DS.ui) window.DS.ui.toast("Registering a club needs a separate club account. Sign out and use another email.", "err");
         return go(homePath());
       }
       if (path === "/") return await viewHome();
