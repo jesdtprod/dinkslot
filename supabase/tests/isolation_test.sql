@@ -17,12 +17,12 @@ declare
   t record; sql text; who uuid; v text; ok boolean; detail text; st text;
 begin
   -- ------------------------------------------------------------------ setup
-  insert into auth.users (id, aud, role, email, raw_user_meta_data) values
-    (a1,'authenticated','authenticated','admin1@test.local','{"full_name":"Admin One"}'),
-    (a2,'authenticated','authenticated','admin2@test.local','{"full_name":"Admin Two"}'),
-    (p1,'authenticated','authenticated','player1@test.local','{"full_name":"Player One"}'),
-    (p2,'authenticated','authenticated','player2@test.local','{"full_name":"Player Two"}'),
-    (pa,'authenticated','authenticated','platform@test.local','{"full_name":"Platform"}');
+  insert into auth.users (id, aud, role, email, email_confirmed_at, raw_user_meta_data) values
+    (a1,'authenticated','authenticated','admin1@test.local',now(),'{"full_name":"Admin One"}'),
+    (a2,'authenticated','authenticated','admin2@test.local',now(),'{"full_name":"Admin Two"}'),
+    (p1,'authenticated','authenticated','player1@test.local',now(),'{"full_name":"Player One"}'),
+    (p2,'authenticated','authenticated','player2@test.local',now(),'{"full_name":"Player Two"}'),
+    (pa,'authenticated','authenticated','platform@test.local',now(),'{"full_name":"Platform"}');
   update public.profiles set is_platform_admin = true where auth_user_id = pa;
 
   -- CAPTCHA passes (normally written by the verify-turnstile Edge Function)
@@ -186,9 +186,9 @@ begin
       ('ANON select bookings',                    'anon', $q$select count(*) from public.bookings$q$, 'zero'),
       ('ANON select profiles',                    'anon', $q$select count(*) from public.profiles$q$, 'zero'),
       ('ANON select notifications',               'anon', $q$select count(*) from public.notifications$q$, 'zero'),
-      ('ANON sees exactly the 2 approved clubs',  'anon', $q$select count(*) from public.public_clubs$q$, 'eq:2'),
+      ('ANON sees exactly the 2 approved clubs',  'anon', $q$select count(*) from public.public_clubs where slug like 'club-%'$q$, 'eq:2'),
       ('ANON never sees pending club',            'anon', $q$select count(*) from public.public_clubs where slug='club-three'$q$, 'zero'),
-      ('ANON sees only active courts of approved clubs', 'anon', $q$select count(*) from public.public_courts$q$, 'eq:2'),
+      ('ANON sees only active courts of approved clubs', 'anon', $q$select count(*) from public.public_courts where club_slug like 'club-%'$q$, 'eq:2'),
       ('ANON cannot see maintenance court',       'anon', $q$select count(*) from public.public_courts where id='{C1M}'$q$, 'zero'),
       ('ANON cannot see pending club court',      'anon', $q$select count(*) from public.public_courts where id='{C3}'$q$, 'zero'),
       ('ANON availability returns rows',          'anon', $q$select count(*) from public.court_availability('{C1}', now(), now()+interval '10 days')$q$, 'pos'),
@@ -203,14 +203,44 @@ begin
       ('P1 forge a CAPTCHA pass',                 'p1', $q$insert into public.captcha_passes (user_id,purpose) values ('{P1}','register_club')$q$, 'deny'),
       ('A1 platform_list_clubs (not admin)',      'a1', $q$select count(*) from public.platform_list_clubs()$q$, 'deny'),
       ('ANON platform_list_clubs',                'anon', $q$select count(*) from public.platform_list_clubs()$q$, 'deny'),
-      ('Platform admin lists all 3 clubs',        'pa', $q$select count(*) from public.platform_list_clubs()$q$, 'eq:3'),
-      ('Platform admin only: pending filter',     'pa', $q$select count(*) from public.platform_list_clubs('pending')$q$, 'eq:1'),
+      ('Platform admin lists all 3 clubs',        'pa', $q$select count(*) from public.platform_list_clubs() where slug like 'club-%'$q$, 'eq:3'),
+      ('Platform admin only: pending filter',     'pa', $q$select count(*) from public.platform_list_clubs('pending') where slug like 'club-%'$q$, 'eq:1'),
       -- happy path last (mutates state)
       ('A1 approves own booking with proof',      'a1', $q$select status from public.decide_booking('{B1}','approved',null,'dk-1')$q$, 'eq:approved'),
       ('A1 retried decision returns same result', 'a1', $q$select status from public.decide_booking('{B1}','approved',null,'dk-1')$q$, 'eq:approved'),
       ('A1 reject needs a reason',                'a1', $q$select * from public.decide_booking('{B1P2}','rejected','')$q$, 'deny'),
       ('A1 rejects with a reason',                'a1', $q$select status from public.decide_booking('{B1P2}','rejected','Wrong amount')$q$, 'eq:rejected'),
-      ('Rejected booking releases the slot',      'p2', $q$select status from public.create_booking('{C1}','{D2}'::timestamptz+interval '12 hours','{D2}'::timestamptz+interval '13 hours','k-p2-again')$q$, 'eq:pending')
+      ('Rejected booking releases the slot',      'p2', $q$select status from public.create_booking('{C1}','{D2}'::timestamptz+interval '12 hours','{D2}'::timestamptz+interval '13 hours','k-p2-again')$q$, 'eq:pending'),
+      -- Stage 4/5: club admin edits own club; staff rules; owner-only actions
+      ('A1 edits own club profile',               'a1', $q$with u as (update public.tenants set description='Updated' where id='{T1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('A1 edits own settings',                   'a1', $q$with u as (update public.tenant_settings set booking_window_days=14 where tenant_id='{T1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('A1 edits own court',                      'a1', $q$with u as (update public.courts set hourly_rate=350 where id='{C1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('A1 adds a block to own court',            'a1', $q$with i as (insert into public.court_blocks (tenant_id,court_id,starts_at,ends_at,reason) values ('{T1}','{C1}',now()+interval '30 days',now()+interval '30 days 1 hour','x') returning 1) select count(*) from i$q$, 'pos'),
+      ('A1 cannot set deleted_at directly',       'a1', $q$update public.courts set deleted_at=now() where id='{C1M}'$q$, 'deny'),
+      ('A1 deletes own court via function',       'a1', $q$select 'ok' from (select public.delete_court('{C1M}')) s$q$, 'eq:ok'),
+      ('A1 delete_court of club 2',               'a1', $q$select public.delete_court('{C2}')$q$, 'deny'),
+      ('A1 delete_court with upcoming bookings',  'a1', $q$select public.delete_court('{C1}')$q$, 'deny'),
+      ('A1 delete_court_block of club 2',         'a1', $q$select public.delete_court_block((select id from public.court_blocks where tenant_id='{T2}' limit 1))$q$, 'deny'),
+      ('A1 uploads own club media',               'a1', $q$with i as (insert into storage.objects (bucket_id,name,owner) values ('club-media','{T1}/cover.png','{A1}') returning 1) select count(*) from i$q$, 'pos'),
+      ('A1 uploads own QR',                       'a1', $q$with i as (insert into storage.objects (bucket_id,name,owner) values ('payment','{T1}/qr/club.png','{A1}') returning 1) select count(*) from i$q$, 'pos'),
+      ('A1 add_staff to club 2',                  'a1', $q$select * from public.add_staff('{T2}','player1@test.local')$q$, 'deny'),
+      ('P1 add_staff (not owner)',                'p1', $q$select * from public.add_staff('{T1}','player2@test.local')$q$, 'deny'),
+      ('A1 add_staff unknown email',              'a1', $q$select * from public.add_staff('{T1}','nobody@nowhere.test')$q$, 'deny'),
+      ('A1 adds P1 as staff of club 1',           'a1', $q$select role from public.add_staff('{T1}','player1@test.local')$q$, 'eq:staff'),
+      ('A1 add_staff twice is idempotent',        'a1', $q$select role from public.add_staff('{T1}','player1@test.local')$q$, 'eq:staff'),
+      ('Staff P1 now sees club 1 courts',         'p1', $q$select count(*) from public.courts where tenant_id='{T1}'$q$, 'pos'),
+      ('Staff P1 still blind to club 2 courts',   'p1', $q$select count(*) from public.courts where tenant_id='{T2}'$q$, 'zero'),
+      ('Staff P1 cannot edit club settings',      'p1', $q$with u as (update public.tenant_settings set payment_enabled=false where tenant_id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
+      ('Staff P1 cannot edit club profile',       'p1', $q$with u as (update public.tenants set name='x' where id='{T1}' returning 1) select count(*) from u$q$, 'zero'),
+      ('Staff P1 cannot add staff',               'p1', $q$select * from public.add_staff('{T1}','player2@test.local')$q$, 'deny'),
+      ('Staff P1 cannot list staff',              'p1', $q$select * from public.list_tenant_staff('{T1}')$q$, 'deny'),
+      ('Staff P1 edits a court (allowed)',        'p1', $q$with u as (update public.courts set surface='Hard' where id='{C1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('A1 lists staff (owner + staff = 2)',      'a1', $q$select count(*) from public.list_tenant_staff('{T1}')$q$, 'eq:2'),
+      ('A2 list staff of club 1',                 'a2', $q$select count(*) from public.list_tenant_staff('{T1}')$q$, 'deny'),
+      ('A1 cannot remove the owner',              'a1', $q$select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='owner' and deleted_at is null))$q$, 'deny'),
+      ('A2 cannot remove club 1 staff',           'a2', $q$select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='staff' and deleted_at is null))$q$, 'deny'),
+      ('A1 removes staff',                        'a1', $q$select 'ok' from (select public.remove_staff((select id from public.tenant_members where tenant_id='{T1}' and role='staff' and deleted_at is null))) s$q$, 'eq:ok'),
+      ('Removed staff P1 loses access',           'p1', $q$select count(*) from public.courts where tenant_id='{T1}'$q$, 'zero')
     ) as x(name, who, sql, expect)
   loop
     sql := t.sql;

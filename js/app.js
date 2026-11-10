@@ -73,6 +73,7 @@
       if (window.turnstile) {
         h.id = window.turnstile.render(container, {
           sitekey: cfg.TURNSTILE_SITE_KEY,
+          theme: "dark",
           callback: function (t) { h.token = t; note.textContent = ""; clearTimeout(slow); },
           "expired-callback": function () { h.token = null; },
           "error-callback": function (code) {
@@ -180,25 +181,56 @@
   function viewAuth(opts) {
     opts = opts || {};
     var next = opts.next || "/me";
+    var defaultTitleIn = opts.title || "Sign in";
+    var defaultTitleUp = opts.title || "Create an account";
+    var defaultIntroIn = opts.intro || "Enter your email and password to access your account.";
+    var defaultIntroUp = opts.intro || "Enter your details below to get started with DINKSLOT.";
     app.innerHTML =
-      '<section class="panel"><h1>' + (opts.title || "Sign in") + "</h1>" +
-      (opts.intro ? "<p>" + opts.intro + "</p>" : "") +
-      '<div class="tabs"><button type="button" id="tab-in" class="tab on">Sign in</button>' +
-      '<button type="button" id="tab-up" class="tab">Create account</button></div>' +
-      '<form id="f" novalidate><label id="l-name" hidden>Full name<input id="name" autocomplete="name"></label>' +
-      '<label>Email<input id="email" type="email" autocomplete="email" required></label>' +
-      '<label>Password<input id="pw" type="password" autocomplete="current-password" minlength="6" required></label>' +
-      (opts.join ? '<label id="l-dn">Display name at this club<input id="dn" maxlength="60"></label>' : "") +
+      '<div class="auth-wrap"><section class="panel auth-panel">' +
+      '<div class="auth-header"><h1 id="auth-title">' + defaultTitleIn + '</h1>' +
+      '<p id="auth-sub">' + defaultIntroIn + '</p></div>' +
+      '<div class="tabs" role="tablist"><button type="button" id="tab-in" class="tab on" role="tab" aria-selected="true">Sign in</button>' +
+      '<button type="button" id="tab-up" class="tab" role="tab" aria-selected="false">Create account</button></div>' +
+      '<form id="f" novalidate>' +
+      '<label id="l-name" hidden>Full name<input id="name" autocomplete="name" placeholder="Alex Rivera"></label>' +
+      '<label>Email address<input id="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>' +
+      '<label>Password<div class="pw-wrap"><input id="pw" type="password" autocomplete="current-password" minlength="6" placeholder="••••••••" required>' +
+      '<button type="button" id="pw-toggle" class="pw-toggle" aria-label="Show password">Show</button></div>' +
+      '<span id="pw-hint" class="field-hint" hidden>Must be at least 6 characters.</span></label>' +
+      (opts.join ? '<label id="l-dn">Display name at this club<input id="dn" maxlength="60" placeholder="How other players see you"></label>' : "") +
       '<div id="cap" class="cap"></div><p class="msg" role="alert"></p>' +
-      '<button class="btn" id="go" type="submit">Sign in</button></form></section>';
+      '<button class="btn" id="go" type="submit">Sign in</button></form>' +
+      '<p class="auth-switch"><span id="switch-text">Don\'t have an account?</span>' +
+      '<button type="button" id="switch-btn">Create account</button></p>' +
+      '</section></div>';
     var mode = "in", cap = mountCaptcha($("#cap"));
     function setMode(m) {
       mode = m;
-      $("#tab-in").classList.toggle("on", m === "in"); $("#tab-up").classList.toggle("on", m === "up");
-      $("#l-name").hidden = m !== "up"; $("#go").textContent = m === "up" ? "Create account" : "Sign in";
-      $("#pw").autocomplete = m === "up" ? "new-password" : "current-password";
+      var isUp = m === "up";
+      $("#tab-in").classList.toggle("on", !isUp);
+      $("#tab-up").classList.toggle("on", isUp);
+      $("#tab-in").setAttribute("aria-selected", String(!isUp));
+      $("#tab-up").setAttribute("aria-selected", String(isUp));
+      $("#l-name").hidden = !isUp;
+      $("#pw-hint").hidden = !isUp;
+      $("#auth-title").textContent = isUp ? defaultTitleUp : defaultTitleIn;
+      $("#auth-sub").textContent = isUp ? defaultIntroUp : defaultIntroIn;
+      $("#go").textContent = isUp ? "Create account" : "Sign in";
+      $("#pw").autocomplete = isUp ? "new-password" : "current-password";
+      $("#switch-text").textContent = isUp ? "Already have an account?" : "Don't have an account?";
+      $("#switch-btn").textContent = isUp ? "Sign in" : "Create account";
+      setMsg(app, "", "");
     }
-    $("#tab-in").onclick = function () { setMode("in"); }; $("#tab-up").onclick = function () { setMode("up"); };
+    $("#tab-in").onclick = function () { setMode("in"); };
+    $("#tab-up").onclick = function () { setMode("up"); };
+    $("#switch-btn").onclick = function () { setMode(mode === "in" ? "up" : "in"); };
+    $("#pw-toggle").onclick = function () {
+      var pwInput = $("#pw");
+      var show = pwInput.type === "password";
+      pwInput.type = show ? "text" : "password";
+      this.textContent = show ? "Hide" : "Show";
+      this.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    };
     $("#f").onsubmit = async function (e) {
       e.preventDefault();
       var email = $("#email").value.trim(), pw = $("#pw").value;
@@ -371,10 +403,11 @@
     load();
   }
 
-  function viewAdminStub(slug) {
-    if (!requireUser("/admin/" + slug)) return;
-    app.innerHTML = "<h1>Club dashboard</h1><p>" + esc(slug) + " - courts, settings and the approval queue arrive in the next stages.</p>";
-  }
+  // Shared helpers for the club dashboard module (js/admin.js).
+  window.DS = {
+    sb: sb, state: state, esc: esc, $: $, go: go, setMsg: setMsg, friendly: friendly,
+    requireUser: requireUser, mediaUrl: mediaUrl, root: function () { return app; }
+  };
 
   // ----------------------------------------------------------------- router
   async function render() {
@@ -394,7 +427,10 @@
       if (path === "/platform") return await viewPlatform();
       if ((m = path.match(/^\/c\/([a-z0-9-]+)$/))) return await viewClub(m[1]);
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/join$/))) return await viewJoin(m[1]);
-      if ((m = path.match(/^\/admin\/([a-z0-9-]+)$/))) return viewAdminStub(m[1]);
+      if ((m = path.match(/^\/admin\/([a-z0-9-]+)(?:\/(courts|settings))?$/))) {
+        if (!requireUser(path)) return;
+        return await window.DS.admin.render(m[1], m[2] || "dashboard");
+      }
       app.innerHTML = "<h2>Page not found</h2><p><a href=\"#/\">Back to home</a></p>";
     } catch (err) {
       app.innerHTML = '<h2>Something went wrong</h2><p class="muted">' + esc(friendly(err)) + "</p>";
