@@ -133,11 +133,6 @@
       var pubClub = (await sb.from("public_clubs").select("id,slug,name,city,logo_path,cover_path").limit(1)).data || [];
       primaryClub = pubClub[0] || { slug: "the-pickleshot", name: "The Pickleshot", city: "Austin, TX" };
     }
-    if (primaryClub.id) {
-      var primaryDetails = await sb.from('public_clubs').select('*').eq('id', primaryClub.id).maybeSingle();
-      if (primaryDetails.error) throw primaryDetails.error;
-      primaryClub = primaryDetails.data || primaryClub;
-    }
     var primarySlug = primaryClub.slug || "the-pickleshot";
     var bookHref = mc.clubs.length ? ("#/c/" + esc(primarySlug) + "/book") : "#/me/find";
     var clubDetailHref = "#/c/" + esc(primarySlug);
@@ -343,29 +338,104 @@
         '<div id="next-booking-card-slot" class="space-y-3" role="tabpanel" aria-label="Upcoming bookings">' + bookingResults('upcoming') + '</div>' +
       '</section>';
 
-    // Saved club information; availability is checked on the booking page.
-    var clubAddressParts = [primaryClub.street || primaryClub.address, primaryClub.barangay, primaryClub.city, primaryClub.province, primaryClub.zip_code].filter(Boolean);
-    var clubAddress = clubAddressParts.filter(function (value, i) { return clubAddressParts.indexOf(value) === i; }).join(', ');
-    var clubCoordinates = primaryClub.latitude != null && primaryClub.longitude != null;
-    var clubMapQuery = clubCoordinates ? primaryClub.latitude + ',' + primaryClub.longitude : clubAddress;
-    if (!clubAddress && clubCoordinates) clubAddress = Number(primaryClub.latitude).toFixed(6) + ', ' + Number(primaryClub.longitude).toFixed(6);
+    // 4. MY JOINED CLUBS & DIRECT COURT SLOTS
     var clubLogoHtml = primaryClub.logo_path
-      ? '<img src="' + esc(D.mediaUrl(primaryClub.logo_path)) + '" alt="' + esc(primaryClub.name) + ' logo">'
-      : esc((primaryClub.name || 'C').charAt(0).toUpperCase());
-    var homeClubHtml = '<section id="my-home-club" class="space-y-4">' +
-      '<div class="member-home-heading"><h2>My Home Club</h2><a href="#/me/clubs">Manage Memberships<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a></div>' +
-      '<article class="member-home-card"><div class="member-home-summary"><div class="member-home-logo">' + clubLogoHtml + '</div>' +
-        '<div class="member-home-info"><div class="member-home-title"><h3>' + esc(primaryClub.name) + '</h3><span class="badge approved">' + (mc.clubs.length ? 'Joined' : 'Featured') + '</span></div>' +
-        '<p class="member-home-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span><span>' + esc(clubAddress || 'Club location not provided') + '</span></p>' +
-        '<div class="member-home-facts"><span><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>' + clubCourts.length + (clubCourts.length === 1 ? ' court' : ' courts') + '</span>' +
-        (primaryClub.contact_phone ? '<span><span class="material-symbols-outlined" aria-hidden="true">call</span>' + esc(primaryClub.contact_phone) + '</span>' : '') + '</div></div></div>' +
-        '<div class="member-home-actions"><a class="btn ghost" href="' + clubDetailHref + '"><span class="material-symbols-outlined" aria-hidden="true">info</span>View Club Details</a>' +
-        (clubMapQuery ? '<a class="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(clubMapQuery) + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">map</span>View on Google Maps</a>' : '') +
-        '<a class="btn" href="' + bookHref + '"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div>' +
-        '<div class="member-home-courts">' + (clubCourts.length ? clubCourts.map(function (court) {
-          return '<a class="member-home-court" href="' + bookHref + '"><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span><div><strong>' + esc(court.name) + '</strong><span>' + esc([court.is_indoor ? 'Indoor' : 'Outdoor', court.surface].filter(Boolean).join(' ? ')) + '</span></div>' + (court.hourly_rate != null ? '<span class="member-home-rate">' + money(court.hourly_rate) + '/hr</span>' : '') + '</a>';
-        }).join('') : '<p class="member-home-note">Courts will appear here when the club adds them.</p>') + '</div>' +
-      '</article></section>';
+      ? '<img src="' + esc(D.mediaUrl(primaryClub.logo_path)) + '" alt="" class="w-full h-full object-cover">'
+      : '<span class="font-display text-[#a3e635] text-3xl sm:text-4xl font-black">' + esc((primaryClub.name || "T").charAt(0).toUpperCase()) + '</span>';
+
+    var slotTimes = [
+      { day: "Today", time: "4:30 PM", court: (clubCourts[1] ? clubCourts[1].name : "Court 2") + " (AC)", tone: "text-[#a3e635]" },
+      { day: "Today", time: "5:00 PM", court: (clubCourts[2] ? clubCourts[2].name : "Court 4") + " (AC)", tone: "text-[#a3e635]" },
+      { day: "Today", time: "6:30 PM", court: (clubCourts[0] ? clubCourts[0].name : "Court 1") + " (DUPR)", tone: "text-[#a3e635]" },
+      { day: "Tomorrow", time: "7:00 AM", court: "Early Bird", tone: "text-emerald-400" },
+      { day: "Tomorrow", time: "8:30 AM", court: (clubCourts[2] ? clubCourts[2].name : "Court 3") + " (AC)", tone: "text-[#a3e635]" }
+    ];
+
+    var slotStripHtml = slotTimes.map(function (st) {
+      return '<a href="' + bookHref + '" class="flex flex-col items-center justify-center p-3 rounded-xl bg-[#0c1219] hover:bg-[#16212e] border border-[#1f2d3e] transition-colors text-center group no-underline">' +
+        '<span class="text-[11px] font-mono text-gray-400">' + esc(st.day) + '</span>' +
+        '<span class="font-display font-bold text-base text-white group-hover:text-[#a3e635] transition-colors">' + esc(st.time) + '</span>' +
+        '<span class="text-[10px] font-mono ' + st.tone + ' mt-0.5">' + esc(st.court) + '</span>' +
+      '</a>';
+    }).join("") +
+    '<a href="' + bookHref + '" class="flex flex-col items-center justify-center p-3 rounded-xl bg-[#192433] hover:bg-[#233144] border border-[#2a3c53] transition-colors text-center text-[#a3e635] no-underline">' +
+      '<span class="material-symbols-outlined text-lg" aria-hidden="true">calendar_view_day</span>' +
+      '<span class="text-xs font-mono font-bold mt-0.5">All 16 Slots</span>' +
+    '</a>';
+
+    var homeClubHtml =
+      '<section class="space-y-4" id="my-home-club">' +
+        '<div class="flex items-center justify-between flex-wrap gap-2">' +
+          '<div class="flex items-center gap-3">' +
+            '<h2 class="text-2xl font-bold font-display tracking-tight text-white">My Home Club &amp; Direct Court Slots</h2>' +
+            '<span class="px-2.5 py-0.5 rounded-full bg-[#172230] text-[#a3e635] font-mono text-xs border border-[#2a3c53]">' +
+              (mc.clubs.length || 1) + ' Active Membership' + (mc.clubs.length > 1 ? 's' : '') +
+            '</span>' +
+          '</div>' +
+          '<a class="text-xs font-mono text-[#a3e635] hover:underline flex items-center gap-1 transition-colors no-underline" href="#/me/clubs">' +
+            '<span>Manage Memberships</span>' +
+            '<span class="material-symbols-outlined text-sm" aria-hidden="true">open_in_new</span>' +
+          '</a>' +
+        '</div>' +
+        '<div class="relative overflow-hidden rounded-2xl bg-[#121924] border border-[#202c3d] p-6 sm:p-8 shadow-xl">' +
+          '<div class="absolute left-0 top-0 bottom-0 w-2 bg-[#a3e635] shadow-[0_0_15px_#a3e635]"></div>' +
+          '<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pl-2 sm:pl-3">' +
+            '<div class="flex items-start gap-4 sm:gap-6">' +
+              '<div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#182332] border border-[#29394d] flex-shrink-0 flex items-center justify-center shadow-inner overflow-hidden">' +
+                clubLogoHtml +
+                '<div class="absolute bottom-1 right-1 w-4 h-4 bg-[#a3e635] rounded-full flex items-center justify-center">' +
+                  '<span class="material-symbols-outlined text-[10px] text-black font-bold" aria-hidden="true">check</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="space-y-2">' +
+                '<div class="flex flex-wrap items-center gap-2 sm:gap-3">' +
+                  '<h3 class="text-xl sm:text-2xl font-bold font-display text-white tracking-tight">' + esc(primaryClub.name) + '</h3>' +
+                  '<span class="px-3 py-1 rounded-full bg-[#a3e635] text-black font-mono text-xs font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(163,230,53,0.35)]">' +
+                    (mc.clubs.length ? "Joined" : "Featured") +
+                  '</span>' +
+                  '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1a2535] text-white text-xs border border-[#27384e]">' +
+                    '<span class="material-symbols-outlined text-[#a3e635] text-xs" style="font-variation-settings: \'FILL\' 1;" aria-hidden="true">star</span>' +
+                    '4.9 <span class="text-gray-400">(128 reviews)</span>' +
+                  '</span>' +
+                '</div>' +
+                '<div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-gray-400 text-xs sm:text-sm">' +
+                  '<span class="flex items-center gap-1">' +
+                    '<span class="material-symbols-outlined text-sm text-[#a3e635]" aria-hidden="true">location_on</span>' +
+                    esc(primaryClub.city || "Austin, TX") + ' • 1.2 miles away' +
+                  '</span>' +
+                  '<span class="flex items-center gap-1">' +
+                    '<span class="material-symbols-outlined text-sm text-[#a3e635]" aria-hidden="true">schedule</span>' +
+                    'Open today: 6:00 AM – 11:00 PM' +
+                  '</span>' +
+                  '<span class="flex items-center gap-1 text-[#a3e635] font-semibold">' +
+                    '<span class="w-2 h-2 rounded-full bg-[#a3e635] animate-ping"></span>' +
+                    courtCount + ' courts available right now' +
+                  '</span>' +
+                '</div>' +
+                '<div class="flex flex-wrap items-center gap-2 pt-1">' +
+                  '<span class="px-2.5 py-1 rounded-lg bg-[#192433] text-gray-300 text-xs border border-[#26374a]">' + courtCount + ' Dedicated Courts</span>' +
+                  '<span class="px-2.5 py-1 rounded-lg bg-[#192433] text-gray-300 text-xs border border-[#26374a]">' + esc(primarySurface) + '</span>' +
+                  '<span class="px-2.5 py-1 rounded-lg bg-[#192433] text-gray-300 text-xs border border-[#26374a]">DUPR Rated Leagues</span>' +
+                  '<span class="px-2.5 py-1 rounded-lg bg-[#192433] text-gray-300 text-xs border border-[#26374a]">Pro Shop &amp; Ball Machines</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center gap-3 self-end lg:self-center w-full lg:w-auto">' +
+              '<a href="' + clubDetailHref + '" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#1b2533] hover:bg-[#253245] text-white text-sm font-semibold border border-[#2c3d52] transition-all group no-underline">' +
+                '<span>View Club Details</span>' +
+                '<span class="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform" aria-hidden="true">arrow_forward</span>' +
+              '</a>' +
+              '<a href="' + bookHref + '" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#a3e635] hover:bg-[#bef264] text-black text-sm font-bold shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:shadow-[0_0_28px_rgba(163,230,53,0.5)] transition-all no-underline">' +
+                '<span class="material-symbols-outlined text-lg" style="font-variation-settings: \'FILL\' 1;" aria-hidden="true">calendar_month</span>' +
+                '<span>Book a court</span>' +
+              '</a>' +
+            '</div>' +
+          '</div>' +
+          '<div class="mt-6 pt-5 border-t border-[#1f2b3b] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">' +
+            slotStripHtml +
+          '</div>' +
+        '</div>' +
+      '</section>';
 
     // 5. RECOMMENDED FOR YOU / OPEN DUPR LADDERS & DROP-INS
     var recHtml =

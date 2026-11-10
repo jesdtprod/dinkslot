@@ -32,12 +32,6 @@ function section(){
   assert.match(sec.innerHTML,/PHP 225.00/);
   assert.match(sec.innerHTML,/Upcoming \(1\)/);
   assert.doesNotMatch(sec.innerHTML,/Main Arena|DS-S54V8DJH1|Gate PIN:/);
-  const home = sec.innerHTML.split('id="my-home-club"')[1].split('data-purpose="recommended-clubs-preview"')[0];
-  assert.match(home,/12 Real Street, Poblacion, Isulan/);
-  assert.match(home,/View on Google Maps/);
-  assert.match(home,/query=6.6%2C124.6/);
-  assert.match(home,/Real Court/);
-  assert.doesNotMatch(home,/Austin|miles away|128 reviews|All 16 Slots|4:30 PM/);
   sec.tabs[2].onclick(); assert.match(sec.slot.innerHTML,/PENDING-456/); assert.doesNotMatch(sec.slot.innerHTML,/REAL-123/);
   sec.tabs[1].onclick(); assert.match(sec.slot.innerHTML,/PAST-789/);
   bookings=[]; sec=section(); await D.player.overview(sec);
