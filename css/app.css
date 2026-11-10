@@ -2520,4 +2520,11 @@ select::picker(select)::-webkit-scrollbar { display: none; width: 0; height: 0; 
 .qrtab{padding:.35rem .8rem;border-radius:999px;border:1px solid var(--line-strong);background:var(--card);color:var(--muted);cursor:pointer;font:inherit;font-size:.82rem;font-weight:600}
 .qrtab.on{background:var(--lime);color:var(--ink-dark);border-color:var(--lime)}
 @media (max-width:560px){.qrcard{flex-direction:column}.qrthumb{width:100%;height:160px}}
-.qr-manager{grid-column:1 / -1}
+.settings-payments #sf > .qr-manager { grid-column: 2; align-self: stretch; min-width: 0; }
+.settings-payments .qr-manager .grid2 { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.settings-payments .qr-manager .qr-list { grid-template-columns: minmax(0,1fr); }
+.settings-payments .qr-manager .qr-list:empty { display: none; }
+.settings-payments .qr-manager label { min-width: 0; }
+.settings-payments .qr-manager input { max-width: 100%; }
+@media (max-width:760px) { .settings-payments #sf > .qr-manager { grid-column: 1; } }
+@media (max-width:480px) { .settings-payments .qr-manager .grid2 { grid-template-columns: minmax(0,1fr); } }
