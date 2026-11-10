@@ -139,3 +139,10 @@
 .member-overview-stats > div:nth-child(2) .member-overview-stat-value { border-color:#b191e038; background:#a27ad611; font-size:15px; }
 .member-overview-stats > div:nth-child(3) .member-overview-stat-value { border-color:#65bfda38; background:#42a8c811; }
 @media(max-width:540px) { .member-overview-stats .member-overview-stat-value { padding:3px 7px; font-size:16px; } .member-overview-stats > div:nth-child(2) .member-overview-stat-value { font-size:13px; } }
+
+/* Size the summary to its content instead of equal expanding columns. */
+#ds-tenant-dashboard #sec .member-overview-header { grid-template-columns:minmax(0,1fr) auto; }
+.member-overview-stats { grid-template-columns:repeat(3,max-content); justify-self:end; width:max-content; max-width:100%; padding:14px 0; }
+.member-overview-stats > div { padding:0 18px; }
+@media(max-width:1100px) { #ds-tenant-dashboard #sec .member-overview-header { grid-template-columns:minmax(0,1fr); } .member-overview-stats { justify-self:start; } }
+@media(max-width:540px) { .member-overview-stats { grid-template-columns:repeat(3,minmax(0,max-content)); width:fit-content; } .member-overview-stats > div { padding:0 10px; } }
