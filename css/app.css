@@ -2813,6 +2813,8 @@ dialog#booking-modal #padd { flex-shrink: 0; min-height: 38px; }
 /* Court configuration uses the dashboard modal surface. */
 .court-config-modal { width: min(720px,calc(100vw - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 0; overflow-y: auto; border: 1px solid #ffffff18; border-radius: 14px; background: #192127; color: #dce6de; box-shadow: 0 24px 80px #0009; color-scheme: dark; }
 .court-config-modal::backdrop { background: #060b10b8; backdrop-filter: blur(5px); }
+.court-config-modal:not([open]) { display: none; }
+.court-config-modal[open] { position: fixed; inset: 0; }
 body:has(.court-config-modal[open]) { overflow: hidden; }
 #ds-tenant-dashboard #sec .court-matrix .court-config-modal #cf { margin: 0; padding: 20px; border: 0; border-radius: 0; background: transparent; gap: 18px; }
 .court-config-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #ffffff0b; }
