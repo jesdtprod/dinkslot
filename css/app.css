@@ -2907,3 +2907,11 @@ body .ds-action:disabled, body .ds-action[aria-disabled="true"] { opacity: .45 !
 /* Tighter label-to-control spacing in court forms. */
 #ds-tenant-dashboard #sec .court-matrix label { gap: 3px; }
 #ds-tenant-dashboard #sec .court-matrix label > :is(input,select,.datetime-control) { margin-top: 0; }
+
+/* Shared compact label-to-control spacing on pages and in modals. */
+body #app label:has(> input):not(:has(> input[type="checkbox"])):not(:has(> input[type="radio"])),
+body #app label:has(> select),
+body #app label:has(> textarea),
+body #app label:has(> .datetime-control) { gap: 3px; }
+body #app label > :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea,.datetime-control) { margin-top: 0; }
+body #app label[for]:not(.sr-only):not(.media-drop):not(.court-qr-drop) { margin-bottom: 3px; }
