@@ -613,21 +613,6 @@
                 '<div class="w-full border-t border-dashed border-white/15 mx-4"></div>' +
               '</div>' +
 
-              '<section class="px-5 sm:px-6 grid grid-cols-3 gap-2 text-center">' +
-                '<div class="bg-white/5 border border-white/5 rounded-xl p-2.5">' +
-                  '<span class="block text-[10px] uppercase font-mono tracking-wider text-slate-400">Duration</span>' +
-                  '<span class="text-xs sm:text-sm font-bold text-white mt-0.5 block">' + esc(durationMins) + ' Mins</span>' +
-                '</div>' +
-                '<div class="bg-white/5 border border-white/5 rounded-xl p-2.5">' +
-                  '<span class="block text-[10px] uppercase font-mono tracking-wider text-slate-400">Gate PIN</span>' +
-                  '<span class="text-xs sm:text-sm font-mono font-bold text-brand-lime mt-0.5 block">' + esc(gatePin) + '</span>' +
-                '</div>' +
-                '<div class="bg-white/5 border border-white/5 rounded-xl p-2.5">' +
-                  '<span class="block text-[10px] uppercase font-mono tracking-wider text-slate-400">Smart Lights</span>' +
-                  '<span class="text-xs sm:text-sm font-bold text-emerald-400 mt-0.5 block">' + esc(lightsLabel) + '</span>' +
-                '</div>' +
-              '</section>' +
-
               '<div class="px-6 py-3 text-center">' +
                 '<p class="text-[11px] leading-relaxed text-slate-400">Scan at court scanner or reception totem to check in and initialize smart net cams. Hold QR 10cm from optical glass.</p>' +
               '</div>' +
