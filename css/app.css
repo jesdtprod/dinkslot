@@ -2797,3 +2797,8 @@ dialog#booking-modal [data-purpose="customer-selection-card"] > [role="tablist"]
 dialog#booking-modal [data-purpose="booking-parameters"] > .grid { padding-top: 22px; }
 dialog#booking-modal [data-purpose="booking-parameters"] > .grid > div:first-child { position: relative; }
 dialog#booking-modal label.booking-court-label { position: absolute; top: -22px; left: 0; margin: 0; color: #a1b0a6; font: 500 11px/16px "Plus Jakarta Sans",sans-serif; }
+
+/* Align the player email action with the final booking field. */
+dialog#booking-modal #view-registered:not(.hidden) { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+dialog#booking-modal #view-registered > div:last-child { margin-top: auto; padding-top: 16px; align-items: center; }
+dialog#booking-modal #padd { flex-shrink: 0; min-height: 38px; }
