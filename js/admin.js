@@ -684,6 +684,10 @@
             '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase sm:col-span-2">Contact Email (Reply-To)<input id="pe" type="email" value="' + esc(t.contact_email || "") + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
           '</div>' +
           '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Description<textarea id="pd" rows="3" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(t.description || "") + '</textarea></label>' +
+          '<section class="club-map-settings"><header><span class="material-symbols-outlined" aria-hidden="true">location_on</span><div><h3>Google Maps Location</h3><p>Save your court?s exact location so players can find your club.</p></div></header><div class="club-map-fields">' +
+            '<label>Latitude<input id="plat" type="number" min="-90" max="90" step="any" placeholder="e.g. 14.5995" value="' + esc(t.latitude == null ? '' : t.latitude) + '"></label>' +
+            '<label>Longitude<input id="plng" type="number" min="-180" max="180" step="any" placeholder="e.g. 120.9842" value="' + esc(t.longitude == null ? '' : t.longitude) + '"></label></div>' +
+            '<p class="club-map-help">In Google Maps, right-click your venue and copy its coordinates. Paste the latitude and longitude below.</p><label>Paste coordinates<input id="pcoords" type="text" placeholder="14.5995, 120.9842" autocomplete="off"></label><div class="club-map-actions"><button id="use-club-location" type="button">Use Current Location</button><a id="open-club-map" class="btn ghost" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">View on Google Maps</a></div><p id="club-map-status"></p></section>' +
           '<p class="msg" role="alert"></p>' +
           '<button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer self-start" type="submit">Save Profile</button>' +
         '</form>' +
@@ -741,8 +745,31 @@
       var phc = D.ph.mount(q("#phbox", sec), { values: t, manager: true, required: true, cls: {
         label: "font-label-sm text-on-surface-variant",
         input: "bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30" } });
+      function updateMapLink() {
+        var lat = val('#plat', sec), lng = val('#plng', sec);
+        var valid = lat !== '' && lng !== '' && Number.isFinite(Number(lat)) && Number.isFinite(Number(lng)) && Math.abs(Number(lat)) <= 90 && Math.abs(Number(lng)) <= 180;
+        q('#open-club-map', sec).href = valid ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(lat + ',' + lng) : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([t.name,t.address,t.city,'Philippines'].filter(Boolean).join(', '));
+        q('#club-map-status', sec).textContent = valid ? 'Location selected. Save Profile to keep these coordinates.' : 'No exact location selected.';
+      }
+      q('#plat', sec).oninput = updateMapLink; q('#plng', sec).oninput = updateMapLink;
+      q('#pcoords', sec).onchange = function () {
+        var parts = this.value.trim().split(/\s*,\s*/);
+        if (parts.length !== 2 || parts.some(function (part) { return !part || !Number.isFinite(Number(part)); }) || Math.abs(Number(parts[0])) > 90 || Math.abs(Number(parts[1])) > 180) return D.ui.toast('Enter valid latitude and longitude separated by a comma.', 'err');
+        q('#plat', sec).value = parts[0]; q('#plng', sec).value = parts[1]; updateMapLink();
+      };
+      q('#use-club-location', sec).onclick = function () {
+        var button = this;
+        if (!navigator.geolocation) return D.ui.toast('Location services are not available in this browser.', 'err');
+        button.disabled = true;
+        navigator.geolocation.getCurrentPosition(function (position) {
+          if (!sec.isConnected) return;
+          q('#plat', sec).value = position.coords.latitude.toFixed(6); q('#plng', sec).value = position.coords.longitude.toFixed(6); updateMapLink(); button.disabled = false;
+        }, function () { button.disabled = false; D.ui.toast('Unable to access your location. Enter your venue coordinates manually.', 'err'); }, { enableHighAccuracy: true, timeout: 12000 });
+      };
+      updateMapLink();
       q("#pf", sec).onsubmit = async function (e) {
         e.preventDefault();
+        if ((val("#plat", this) === "") !== (val("#plng", this) === "")) return D.ui.toast("Enter both latitude and longitude, or leave both fields empty.", "err");
         var f = this;
         var perr = phc.validate();
         if (perr) return setMsg(f, perr, "err");
@@ -750,6 +777,7 @@
         var r = await sb.from("tenants").update({ name: val("#pn", f).trim(), city: ad.city, address: ad.address,
           manager_name: ad.manager_name, street: ad.street, barangay: ad.barangay, province: ad.province, zip_code: ad.zip_code,
           psgc_province: ad.psgc_province, psgc_city: ad.psgc_city, psgc_barangay: ad.psgc_barangay,
+          latitude: val("#plat", f) === "" ? null : num("#plat", f), longitude: val("#plng", f) === "" ? null : num("#plng", f),
           contact_phone: val("#pp", f).trim() || null, contact_email: val("#pe", f).trim() || null, description: val("#pd", f).trim() || null }).eq("id", t.id);
         if (r.error) return setMsg(f, friendly(r.error), "err");
         setMsg(f, "Profile saved.", "ok");

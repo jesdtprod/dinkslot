@@ -78,3 +78,11 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 .member-profile-editor .member-photo { display:flex; align-items:center; gap:16px; }
 .member-profile-editor .member-photo-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
 .member-profile-editor .member-photo-actions small { width:100%; color:#8fa395; font-size:11px; }
+
+.club-map-settings { display:flex; flex-direction:column; gap:12px; padding:16px; border:1px solid #ffffff0c; border-radius:10px; background:#ffffff02; }
+.club-map-settings header { display:flex; align-items:center; gap:10px; }
+.club-map-settings header > .material-symbols-outlined { color:#a4c68b; font-size:22px; }
+.club-map-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.club-map-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+#ds-tenant-dashboard #sec .club-map-settings p { font-size:11px; color:#8fa395; }
+@media(max-width:540px) { .club-map-fields { grid-template-columns:minmax(0,1fr); } }
