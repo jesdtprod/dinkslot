@@ -3121,3 +3121,6 @@ article.group > a.relative:first-child > img { position: absolute; inset: 0; wid
 
 /* Public club cards have no gray perimeter border. */
 #ds-landing #grid > article { border:0; }
+
+/* The cover link must not draw its own gray frame inside public cards. */
+#ds-landing #grid > article > a.relative:first-child { border:0; box-shadow:none; }
