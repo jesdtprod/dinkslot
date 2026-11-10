@@ -105,8 +105,8 @@
         : "flex items-center gap-space-sm px-space-md py-space-sm dashboard-rounded font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all no-underline";
       var inner = icon(it.icon) + '<span class="flex-1 min-w-0 truncate">' + esc(it.label) + "</span>" + badge;
       return it.href
-        ? '<a class="' + cls + '" data-key="' + esc(it.key) + '" href="' + esc(it.href) + '">' + inner + "</a>"
-        : '<button type="button" class="' + cls + ' w-full text-left border-0 bg-transparent cursor-pointer" data-key="' + esc(it.key) + '">' + inner + "</button>";
+        ? '<a class="' + cls + '" data-key="' + esc(it.key) + '"' + (on ? ' aria-current="page"' : '') + ' href="' + esc(it.href) + '">' + inner + "</a>"
+        : '<button type="button" class="' + cls + ' w-full text-left border-0 bg-transparent cursor-pointer" data-key="' + esc(it.key) + '"' + (on ? ' aria-current="page"' : '') + '>' + inner + "</button>";
     }).join("");
 
     var foot = (o.foot || []).map(function (f) {
@@ -240,6 +240,8 @@
       setActive: function (key) {
         Array.prototype.forEach.call(root.querySelectorAll("#ds-side nav a[data-key], #ds-side nav button[data-key]"), function (e) {
           var on = e.getAttribute("data-key") === key;
+          if (on) e.setAttribute("aria-current", "page");
+          else e.removeAttribute("aria-current");
           e.className = on
             ? "flex items-center gap-space-sm px-space-md py-space-sm dashboard-rounded transition-all bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(163,230,53,0.25)] no-underline"
             : "flex items-center gap-space-sm px-space-md py-space-sm dashboard-rounded font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all no-underline";
