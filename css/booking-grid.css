@@ -1,0 +1,8 @@
+/* Four fixed card tracks on desktop, even when fewer bookings exist. */
+.booking-record-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.booking-record-grid > .bcard { min-width: 0; }
+.booking-record-grid > .bcard > div:first-child { flex-wrap: wrap; }
+.booking-record-grid > .bcard h4 { font-size: 13px; line-height: 20px; }
+.booking-record-grid > .bcard .ds-action { padding: 7px 9px !important; font-size: 11px !important; }
+@media (max-width: 1000px) { .booking-record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .booking-record-grid { grid-template-columns: minmax(0, 1fr); } }
