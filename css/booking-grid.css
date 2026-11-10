@@ -87,3 +87,9 @@
 .member-reservation-meta > strong { border-color:#a3e63525; background:#a3e6350a; color:#b4d68e; font-weight:600; }
 .member-reservation-meta .material-symbols-outlined { font-size:14px; }
 .member-reservation-ref { display:inline-flex; align-items:center; padding:3px 7px; border:1px solid #ffffff0d; border-radius:6px; background:#111821; color:#96aaa0; font-size:10px; line-height:16px; }
+
+/* Membership aligns with court badges; surface and contact share a row. */
+.home-club-details { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px 10px; }
+.home-club-details .home-club-facilities { grid-column:1/-1; }
+.home-club-facilities .home-club-joined { margin:0 0 0 auto; }
+.home-club-detail-row { min-width:0; }
