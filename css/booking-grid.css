@@ -99,3 +99,12 @@
 .home-club-details .home-club-detail-row > .material-symbols-outlined { align-self:start; margin-top:2px; }
 .home-club-details .home-club-detail-row > span:last-child { display:block; line-height:17px; }
 .home-club-details .home-club-detail-row small { margin:0 0 2px; line-height:13px; }
+
+/* Semantic badge colors retain text and icons for identification. */
+.member-reservation-meta > span:first-child { color:#a8d9ee; border-color:#5db6df30; background:#2498c30c; }
+.member-reservation-meta > span:nth-child(2) { color:#c9b8eb; border-color:#aa85df30; background:#9c6cdb0c; }
+.member-reservation-meta > strong { color:#c1dc96; border-color:#9bc85138; background:#83b73512; }
+.home-club-facilities .home-club-fact { color:#a8d9ee; border-color:#5db6df30; background:#2498c30c; }
+.home-club-facilities .home-club-fact .material-symbols-outlined { color:inherit; }
+.home-club-facilities .home-club-format { color:#e3c18d; border-color:#d5a45530; background:#c78d300d; }
+.home-club-facilities .home-club-joined { color:#9ed3b1; border-color:#63bc8735; background:#35a56810; }
