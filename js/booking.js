@@ -475,10 +475,55 @@
 
   async function adminNew(box, t) {
     var tz = t.timezone || "Asia/Manila", built = false;
-    box.innerHTML = '<section class="booking-new-card"><div class="booking-new-heading"><div><h2>Book for a customer</h2>' +
-      '<p class="muted small">For walk-in guests or registered players. The booking is confirmed right away.</p></div>' +
-      '<button class="btn sm" id="nbtoggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="booking-modal"><span class="material-symbols-outlined" aria-hidden="true">add</span>New booking</button></div>' +
-      '<dialog id="booking-modal" class="booking-modal" aria-labelledby="booking-modal-title"><header class="booking-modal-heading"><div><h2 id="booking-modal-title">Book for a customer</h2><p>Choose a customer, court, and available time.</p></div><button type="button" class="booking-modal-close" aria-label="Close booking form"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div id="nbform"></div></dialog></section>';
+    var deskResId = "RES-" + Math.floor(1000 + Math.random() * 9000);
+
+    box.innerHTML =
+      '<section class="relative p-5 rounded-2xl bg-gradient-to-r from-brand-card to-brand-elevated border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 shadow-lg shadow-black/20 overflow-hidden">' +
+        '<div class="absolute -right-8 -top-8 w-28 h-28 bg-brand-lime/5 rounded-full blur-2xl pointer-events-none"></div>' +
+        '<div class="flex items-center gap-3.5 relative z-10">' +
+          '<div class="w-11 h-11 rounded-xl bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime shadow-inner">' +
+            '<span class="material-symbols-outlined text-2xl">person_add</span>' +
+          '</div>' +
+          '<div>' +
+            '<div class="flex items-center gap-2">' +
+              '<h2 class="text-base font-bold font-display text-white tracking-tight">Book for a customer</h2>' +
+              '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-brand-lime/10 text-brand-lime border border-brand-lime/20 uppercase tracking-wider">' +
+                '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime animate-pulse"></span>Staff Desk' +
+              '</span>' +
+            '</div>' +
+            '<p class="text-xs text-slate-400 mt-0.5">Quickly reserve courts for walk-in guests or registered players with immediate confirmation.</p>' +
+          '</div>' +
+        '</div>' +
+        '<button id="nbtoggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="booking-modal" class="relative z-10 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold font-display tracking-wide bg-brand-lime hover:bg-brand-limeHover text-black shadow-neon-lime transition duration-200 cursor-pointer shrink-0">' +
+          '<span class="material-symbols-outlined text-base">add</span>' +
+          '<span>New booking</span>' +
+        '</button>' +
+
+        '<dialog id="booking-modal" class="booking-modal relative w-full max-w-3xl bg-brand-surface border border-brand-border rounded-2xl shadow-modal backdrop-blur-xl overflow-hidden p-0 m-auto text-slate-100" aria-labelledby="booking-modal-title">' +
+          '<!-- Top Accent Bar: Kinetic Sport Stripe -->' +
+          '<div class="h-1 w-full bg-gradient-to-r from-brand-lime via-emerald-400 to-cyan-400"></div>' +
+          '<!-- Modal Header -->' +
+          '<header class="px-6 pt-6 pb-5 border-b border-brand-border/60 flex items-start justify-between gap-4 relative">' +
+            '<div>' +
+              '<div class="flex items-center gap-2.5 mb-1.5">' +
+                '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-lime/10 text-brand-lime border border-brand-lime/25 uppercase tracking-wider font-display">' +
+                  '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime animate-pulse"></span>Staff Desk Mode' +
+                '</span>' +
+                '<span class="text-xs text-brand-subtle font-mono">ID: #' + deskResId + '</span>' +
+              '</div>' +
+              '<h2 id="booking-modal-title" class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-2">' +
+                'Book for a customer' +
+              '</h2>' +
+              '<p class="text-sm text-slate-400 mt-0.5">Select customer profile, court asset, date and assign an open slot.</p>' +
+            '</div>' +
+            '<button aria-label="Close dialog" class="booking-modal-close text-slate-400 hover:text-white bg-brand-card hover:bg-brand-elevated border border-brand-border rounded-xl p-2.5 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-lime cursor-pointer" type="button">' +
+              '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</button>' +
+          '</header>' +
+          '<div id="nbform"></div>' +
+        '</dialog>' +
+      '</section>';
+
     var formBox = q("#nbform", box);
     var dialog = q("#booking-modal", box), toggle = q("#nbtoggle", box);
     q(".booking-modal-close", dialog).onclick = function () { dialog.close(); };
@@ -488,134 +533,474 @@
       var rect = dialog.getBoundingClientRect();
       if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
     });
-    q("#nbtoggle", box).onclick = function () {
+    toggle.onclick = function () {
       dialog.showModal();
       this.setAttribute("aria-expanded", "true");
       if (!built) { built = true; build(); }
     };
 
+    if (location.hash.indexOf("new=1") !== -1 || location.hash.indexOf("quick") !== -1) {
+      setTimeout(function () {
+        if (toggle) toggle.click();
+      }, 150);
+    }
+
     async function build() {
-      formBox.innerHTML = '<p class="muted">Loading...</p>';
-      var courts = (await sb.from("courts").select("id,name,slot_minutes,open_time,close_time,hourly_rate")
+      formBox.innerHTML = '<div class="p-8 text-center text-slate-400 font-mono text-xs flex items-center justify-center gap-2"><span class="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>Loading court availability...</div>';
+      var courts = (await sb.from("courts").select("id,name,slot_minutes,open_time,close_time,hourly_rate,surface,is_indoor")
         .eq("tenant_id", t.id).eq("status", "active").order("name")).data || [];
       var players = (await sb.from("club_players").select("id,display_name,phone")
         .eq("tenant_id", t.id).eq("status", "active").order("display_name")).data || [];
-      if (!courts.length) { formBox.innerHTML = '<p class="muted">Add a court first, on the Courts page.</p>'; return; }
+      if (!courts.length) {
+        formBox.innerHTML = '<div class="p-8 text-center text-slate-400 font-mono text-sm">No active courts configured. Please add a court first on the Courts tab.</div>';
+        return;
+      }
       var S = { court: courts[0], date: dayStr(tz), slots: [], start: null, count: 1, who: "guest" };
       var playerOpts = function () {
-        return '<option value="">Choose a player...</option>' + players.map(function (p) {
-          return '<option value="' + esc(p.id) + '">' + esc(p.display_name) + (p.phone ? " (" + esc(p.phone) + ")" : "") + "</option>";
-        }).join("");
+        return '<option value="">Choose a registered player...</option>' + players.map(function (p) {
+          return '<option value="' + esc(p.id) + '">' + esc(p.display_name) + (p.phone ? " (" + esc(p.phone) + ")" : "") + '</option>';
+        }).join('');
       };
+
       formBox.innerHTML =
-        '<form id="nbf" class="subpanel" novalidate>' +
-        '<fieldset class="booking-section"><legend>Customer details</legend><div class="seg"><button type="button" class="segbtn on" data-who="guest" aria-pressed="true">Walk-in guest</button>' +
-        '<button type="button" class="segbtn" data-who="player" aria-pressed="false">Registered player</button></div>' +
-        '<div id="whoGuest" class="grid2"><label>Guest name<input id="gname" maxlength="60" autocomplete="off"></label>' +
-        '<label>Phone (optional)<input id="gphone" maxlength="30" autocomplete="off"></label></div>' +
-        '<div id="whoPlayer" hidden><label>Player<select id="pplayer">' + playerOpts() + "</select></label>" +
-        '<div class="inline"><label>Not listed? Add by email<input id="pemail" type="email" placeholder="player@email.com" autocomplete="off"></label>' +
-        '<button class="btn sm ghost" id="padd" type="button">Add player</button></div></div>' +
-        '</fieldset><fieldset class="booking-section"><legend>Booking details</legend><div class="booking-details-grid"><label>Court<select id="ncourt">' + courts.map(function (c) {
-          return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>"; }).join("") + "</select></label>" +
-        '<label>Date<input id="ndate" type="date"></label><label>Length<select id="nlen"></select></label></div>' +
-        '<div class="booking-slot-heading"><span>Start time</span><span class="booking-slot-legend">Choose an available slot</span></div><div id="nslots" class="slots"></div></fieldset><p class="msg" role="alert"></p><div class="booking-confirm"><div id="nsum" class="summary" aria-live="polite"></div>' +
-        '<button class="btn" id="nreserve" type="submit" disabled><span class="material-symbols-outlined" aria-hidden="true">check</span>Confirm booking</button></div></form>';
+        '<form id="nbf" class="p-6 space-y-6 max-h-[calc(88dvh-120px)] overflow-y-auto custom-modal-scrollbar" novalidate>' +
+        '<!-- BEGIN: CustomerDetailsSection -->' +
+        '<section class="border border-brand-border/80 bg-brand-card/50 rounded-xl p-5 relative" data-purpose="customer-selection-card">' +
+          '<div class="flex items-center justify-between mb-4">' +
+            '<div class="flex items-center gap-2">' +
+              '<div class="w-2 h-2 rounded-full bg-brand-lime"></div>' +
+              '<h3 class="text-xs font-semibold font-display tracking-wider uppercase text-slate-300">Customer Details</h3>' +
+            '</div>' +
+            '<span class="text-[11px] text-brand-subtle font-medium font-mono">Step 1 of 3</span>' +
+          '</div>' +
+
+          '<!-- Segmented Toggle Pill -->' +
+          '<div class="inline-flex p-1 bg-brand-dark/90 rounded-xl border border-brand-border mb-4 w-full sm:w-auto" role="tablist">' +
+            '<button aria-selected="true" class="customer-toggle-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium font-display tracking-wide transition-all duration-150 flex items-center justify-center gap-2 bg-brand-elevated text-white shadow-sm border border-slate-700/60 cursor-pointer" id="tab-walkin" type="button" role="tab">' +
+              '<svg class="w-3.5 h-3.5 text-brand-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+              'Walk-in guest' +
+            '</button>' +
+            '<button aria-selected="false" class="customer-toggle-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium font-display tracking-wide transition-all duration-150 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 border border-transparent bg-transparent cursor-pointer" id="tab-registered" type="button" role="tab">' +
+              '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+              'Registered player' +
+            '</button>' +
+          '</div>' +
+
+          '<!-- Mode A: Walk-in Inputs View -->' +
+          '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="view-walkin">' +
+            '<div>' +
+              '<label class="block text-xs font-medium text-slate-300 mb-1.5" for="gname">Guest Name <span class="text-brand-lime">*</span></label>' +
+              '<div class="relative">' +
+                '<input class="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime transition" id="gname" placeholder="e.g. Jason Brooks" required type="text" autocomplete="off"/>' +
+              '</div>' +
+            '</div>' +
+            '<div>' +
+              '<label class="block text-xs font-medium text-slate-300 mb-1.5 flex justify-between" for="gphone">' +
+                '<span>Phone</span>' +
+                '<span class="text-brand-subtle text-[11px]">Optional for SMS receipts</span>' +
+              '</label>' +
+              '<div class="relative">' +
+                '<input class="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime transition" id="gphone" placeholder="+63 917 123 4567" type="tel" autocomplete="off"/>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<!-- Mode B: Registered Player View -->' +
+          '<div class="hidden space-y-3" id="view-registered">' +
+            '<div>' +
+              '<label class="block text-xs font-medium text-slate-300 mb-1.5" for="pplayer">Search Player Directory <span class="text-brand-lime">*</span></label>' +
+              '<div class="relative">' +
+                '<select id="pplayer" class="w-full appearance-none bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime cursor-pointer pr-9">' +
+                  playerOpts() +
+                '</select>' +
+                '<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">' +
+                  '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div id="player-preview" class="hidden w-full bg-brand-surface border border-brand-border rounded-xl p-2.5 flex items-center justify-between">' +
+              '<div class="flex items-center gap-2.5">' +
+                '<div class="w-7 h-7 rounded-full bg-gradient-to-tr from-brand-lime to-emerald-400 flex items-center justify-center text-xs font-bold text-black font-display" id="player-avatar-init">PL</div>' +
+                '<div class="text-left">' +
+                  '<p class="text-xs font-semibold text-white leading-tight" id="player-preview-name">Player Name</p>' +
+                  '<p class="text-[11px] text-slate-400" id="player-preview-sub">Contact</p>' +
+                '</div>' +
+              '</div>' +
+              '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-lime/10 text-brand-lime border border-brand-lime/30 font-mono">DUPR Ready</span>' +
+            '</div>' +
+            '<div class="pt-2 border-t border-brand-border/40 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">' +
+              '<input id="pemail" class="flex-1 bg-brand-dark/70 border border-brand-border rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-lime" placeholder="Or invite new player by email..." type="email"/>' +
+              '<button id="padd" class="px-3.5 py-1.5 rounded-lg text-xs font-medium font-display bg-brand-elevated hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer" type="button">Add Player</button>' +
+            '</div>' +
+          '</div>' +
+        '</section>' +
+
+        '<!-- BEGIN: BookingDetailsSection -->' +
+        '<section class="border border-brand-border/80 bg-brand-card/50 rounded-xl p-5" data-purpose="booking-parameters">' +
+          '<div class="flex items-center justify-between mb-4">' +
+            '<div class="flex items-center gap-2">' +
+              '<div class="w-2 h-2 rounded-full bg-cyan-400"></div>' +
+              '<h3 class="text-xs font-semibold font-display tracking-wider uppercase text-slate-300">Booking Details</h3>' +
+            '</div>' +
+            '<span class="text-[11px] text-brand-subtle font-medium font-mono">Step 2 of 3</span>' +
+          '</div>' +
+          '<div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">' +
+            '<div>' +
+              '<label class="block text-xs font-medium text-slate-300 mb-1.5" for="ncourt">Court</label>' +
+              '<div class="relative">' +
+                '<select id="ncourt" class="w-full appearance-none bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime cursor-pointer pr-9">' +
+                  courts.map(function (c) {
+                    return '<option value="' + esc(c.id) + '">' + esc(c.name) + ' (' + (c.surface || 'Acrylic') + ' • ' + (c.is_indoor ? 'Indoor' : 'Outdoor') + ')</option>';
+                  }).join('') +
+                '</select>' +
+                '<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">' +
+                  '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div>' +
+              '<label class="block text-xs font-medium text-slate-300 mb-1.5 flex justify-between" for="ndate">' +
+                '<span>Date</span>' +
+                '<button id="btn-date-today" class="text-[11px] text-brand-lime hover:underline cursor-pointer" type="button">Today</button>' +
+              '</label>' +
+              '<div class="relative">' +
+                '<input id="ndate" class="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime cursor-pointer [color-scheme:dark]" type="date" value="' + S.date + '"/>' +
+              '</div>' +
+            '</div>' +
+            '<div>' +
+              '<label class="block text-xs font-medium text-slate-300 mb-1.5 flex justify-between" for="nlen">' +
+                '<span>Length</span>' +
+                '<span id="rate-badge" class="text-[11px] text-slate-400 font-mono">' + money(S.court.hourly_rate) + '/hr</span>' +
+              '</label>' +
+              '<div class="relative">' +
+                '<select id="nlen" class="w-full appearance-none bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime cursor-pointer pr-9"></select>' +
+                '<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">' +
+                  '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</section>' +
+
+        '<!-- BEGIN: StartTimeSection -->' +
+        '<section class="border border-brand-border/80 bg-brand-card/50 rounded-xl p-5" data-purpose="time-slot-matrix">' +
+          '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4">' +
+            '<div>' +
+              '<div class="flex items-center gap-2">' +
+                '<div class="w-2 h-2 rounded-full bg-purple-400"></div>' +
+                '<h3 class="text-xs font-semibold font-display tracking-wider uppercase text-slate-300">Start Time</h3>' +
+              '</div>' +
+              '<p id="slot-subtitle" class="text-xs text-brand-subtle mt-0.5">' + esc(S.court.name) + ' schedule</p>' +
+            '</div>' +
+            '<div class="flex items-center gap-3 text-[11px]">' +
+              '<div class="flex items-center gap-1.5">' +
+                '<span class="w-2.5 h-2.5 rounded-sm bg-brand-card border border-brand-border"></span>' +
+                '<span class="text-slate-400">Open</span>' +
+              '</div>' +
+              '<div class="flex items-center gap-1.5">' +
+                '<span class="w-2.5 h-2.5 rounded-sm bg-brand-lime"></span>' +
+                '<span class="text-brand-lime font-medium">Selected</span>' +
+              '</div>' +
+              '<div class="flex items-center gap-1.5">' +
+                '<span class="w-2.5 h-2.5 rounded-sm bg-brand-surface/40 border border-brand-border/40 opacity-40 line-through"></span>' +
+                '<span class="text-slate-500">Booked</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div id="nslots" class="space-y-3.5"></div>' +
+        '</section>' +
+
+        '<!-- BEGIN: PaymentOptionToggle -->' +
+        '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1" data-purpose="payment-mode-selector">' +
+          '<label class="text-xs font-medium text-slate-300 flex items-center gap-2">' +
+            '<span>Billing Collection Method:</span>' +
+          '</label>' +
+          '<div class="flex items-center gap-1.5 bg-brand-dark/90 p-1 rounded-xl border border-brand-border text-xs">' +
+            '<label class="cursor-pointer">' +
+              '<input checked class="sr-only peer" name="payment_pref" type="radio" value="desk"/>' +
+              '<span class="block px-3 py-1.5 rounded-lg text-slate-400 peer-checked:bg-brand-elevated peer-checked:text-white font-medium transition text-center">' +
+                'Collect at desk' +
+              '</span>' +
+            '</label>' +
+            '<label class="cursor-pointer">' +
+              '<input class="sr-only peer" name="payment_pref" type="radio" value="charge"/>' +
+              '<span class="block px-3 py-1.5 rounded-lg text-slate-400 peer-checked:bg-brand-elevated peer-checked:text-white font-medium transition text-center">' +
+                'Card on file' +
+              '</span>' +
+            '</label>' +
+            '<label class="cursor-pointer">' +
+              '<input class="sr-only peer" name="payment_pref" type="radio" value="hold"/>' +
+              '<span class="block px-3 py-1.5 rounded-lg text-slate-400 peer-checked:bg-brand-elevated peer-checked:text-white font-medium transition text-center">' +
+                'Hold unpaid' +
+              '</span>' +
+            '</label>' +
+          '</div>' +
+        '</div>' +
+
+        '<p class="msg text-xs" role="alert"></p>' +
+
+        '<!-- BEGIN: ModalFooterActionSummary -->' +
+        '<footer class="pt-5 border-t border-brand-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4" data-purpose="bottom-bar">' +
+          '<div class="flex items-center gap-3">' +
+            '<div class="w-10 h-10 rounded-xl bg-brand-lime/10 border border-brand-lime/25 flex items-center justify-center text-brand-lime shrink-0">' +
+              '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '</div>' +
+            '<div id="nsum" aria-live="polite">' +
+              '<div class="flex items-center gap-2">' +
+                '<span class="text-base font-bold font-display text-white tracking-tight" id="sum-price">' + money(0) + '</span>' +
+                '<span class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-brand-elevated text-slate-300 border border-brand-border">Total</span>' +
+              '</div>' +
+              '<p class="text-xs text-brand-subtle" id="sum-desc">Select court and open slot</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex items-center justify-end gap-3 w-full sm:w-auto">' +
+            '<button id="cancel-booking-btn" class="w-1/2 sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold font-display text-slate-300 hover:text-white hover:bg-brand-elevated border border-transparent hover:border-brand-border transition duration-150 text-center cursor-pointer" type="button">' +
+              'Cancel' +
+            '</button>' +
+            '<button id="nreserve" class="w-1/2 sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold font-display tracking-wide bg-brand-lime hover:bg-brand-limeHover text-black shadow-neon-lime transition duration-200 ease-in-out flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer" type="submit" disabled>' +
+              '<svg class="w-4 h-4 stroke-[2.5] text-black transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>' +
+              '<span>Confirm booking</span>' +
+            '</button>' +
+          '</div>' +
+        '</footer>' +
+        '</form>';
 
       var f = q("#nbf", formBox);
+
+      function switchTab(who) {
+        S.who = who;
+        var tabWalkin = q("#tab-walkin", f), tabRegistered = q("#tab-registered", f);
+        var viewWalkin = q("#view-walkin", f), viewRegistered = q("#view-registered", f);
+        if (who === "guest") {
+          viewWalkin.classList.remove("hidden");
+          viewRegistered.classList.add("hidden");
+          tabWalkin.className = "customer-toggle-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium font-display tracking-wide transition-all duration-150 flex items-center justify-center gap-2 bg-brand-elevated text-white shadow-sm border border-slate-700/60 cursor-pointer";
+          tabWalkin.setAttribute("aria-selected", "true");
+          tabRegistered.className = "customer-toggle-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium font-display tracking-wide transition-all duration-150 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 border border-transparent bg-transparent cursor-pointer";
+          tabRegistered.setAttribute("aria-selected", "false");
+        } else {
+          viewWalkin.classList.add("hidden");
+          viewRegistered.classList.remove("hidden");
+          tabRegistered.className = "customer-toggle-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium font-display tracking-wide transition-all duration-150 flex items-center justify-center gap-2 bg-brand-elevated text-white shadow-sm border border-slate-700/60 cursor-pointer";
+          tabRegistered.setAttribute("aria-selected", "true");
+          tabWalkin.className = "customer-toggle-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium font-display tracking-wide transition-all duration-150 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 border border-transparent bg-transparent cursor-pointer";
+          tabWalkin.setAttribute("aria-selected", "false");
+        }
+        msg(f, "", "");
+      }
+      q("#tab-walkin", f).onclick = function () { switchTab("guest"); };
+      q("#tab-registered", f).onclick = function () { switchTab("player"); };
+
+      var pSelect = q("#pplayer", f);
+      var pPrev = q("#player-preview", f);
+      pSelect.onchange = function () {
+        var pid = this.value;
+        var pObj = players.filter(function (x) { return x.id === pid; })[0];
+        if (pObj && pPrev) {
+          pPrev.classList.remove("hidden");
+          q("#player-avatar-init", pPrev).textContent = (pObj.display_name || "PL").slice(0, 2).toUpperCase();
+          q("#player-preview-name", pPrev).textContent = pObj.display_name || "Registered Player";
+          q("#player-preview-sub", pPrev).textContent = pObj.phone || "Member ID: #" + pObj.id.slice(0, 8);
+        } else if (pPrev) {
+          pPrev.classList.add("hidden");
+        }
+      };
+
       function lengths() {
         var step = S.court.slot_minutes, opts = "";
-        for (var n = 1; n <= 8; n++) opts += '<option value="' + n + '"' + (n === S.count ? " selected" : "") + ">" + (n * step / 60) + " hour" + (n * step === 60 ? "" : "s") + "</option>";
+        for (var n = 1; n <= 8; n++) {
+          var hrs = (n * step) / 60;
+          var label = hrs + (hrs === 1 ? " hour" : " hours");
+          if (n === 1) label += " (Standard match)";
+          else if (n === 2) label += " (Full session)";
+          else if (n === 3) label += " (Tournament slot)";
+          opts += '<option value="' + n + '"' + (n === S.count ? " selected" : "") + ">" + label + "</option>";
+        }
         q("#nlen", f).innerHTML = opts;
+        var rateBadge = q("#rate-badge", f);
+        if (rateBadge) rateBadge.textContent = money(S.court.hourly_rate) + "/hr";
       }
+
       function rangeOk(i) {
         if (i == null || i + S.count > S.slots.length) return false;
         for (var k = i; k < i + S.count; k++) if (S.slots[k].off) return false;
         return true;
       }
+
       function summary() {
-        var el = q("#nsum", f), btn = q("#nreserve", f);
-        if (S.start == null || !rangeOk(S.start)) { el.innerHTML = ""; btn.disabled = true; return; }
-        var a = S.slots[S.start], z = S.slots[S.start + S.count - 1], hrs = S.count * S.court.slot_minutes / 60;
-        el.innerHTML = "<b>" + esc(range(a.s, z.e, tz)) + "</b> - " + hrs + " h - <b>" + money(S.court.hourly_rate * hrs) + "</b>";
-        btn.disabled = false;
+        var priceEl = q("#sum-price", f), descEl = q("#sum-desc", f), btn = q("#nreserve", f);
+        if (S.start == null || !rangeOk(S.start)) {
+          if (priceEl) priceEl.textContent = money(0);
+          if (descEl) descEl.textContent = "Select court and open slot";
+          if (btn) btn.disabled = true;
+          return;
+        }
+        var a = S.slots[S.start], z = S.slots[S.start + S.count - 1], hrs = (S.count * S.court.slot_minutes) / 60;
+        var total = S.court.hourly_rate * hrs;
+        if (priceEl) priceEl.textContent = money(total);
+        if (descEl) descEl.textContent = S.court.name + " • " + range(a.s, z.e, tz) + " (" + hrs + " hr" + (hrs > 1 ? "s" : "") + ")";
+        if (btn) btn.disabled = false;
       }
+
       function paint() {
         var grid = q("#nslots", f);
-        grid.innerHTML = S.slots.map(function (x, i) {
-          var inRange = S.start != null && i >= S.start && i < S.start + S.count;
-          return '<button type="button" class="slot' + (inRange ? (i === S.start ? " sel" : " in") : "") + '" data-i="' + i + '"' + (x.off ? " disabled" : "") + ">" + esc(timeOf(x.s, tz)) + "</button>";
-        }).join("");
-        Array.prototype.forEach.call(grid.querySelectorAll(".slot"), function (b) {
+        var morning = [], afternoon = [], evening = [];
+        S.slots.forEach(function (x, i) {
+          var hr = parseInt(new Date(x.s).toLocaleTimeString("en-US", { timeZone: tz, hour: "numeric", hour12: false }), 10);
+          var item = { x: x, i: i };
+          if (hr < 12) morning.push(item);
+          else if (hr < 17) afternoon.push(item);
+          else evening.push(item);
+        });
+
+        function renderGroup(title, items, isPrime) {
+          if (!items.length) return "";
+          return '<div>' +
+            '<div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-2">' +
+              '<span class="' + (isPrime ? 'text-brand-lime font-bold' : '') + '">' + title + '</span>' +
+              '<div class="h-px flex-1 bg-brand-border/40"></div>' +
+            '</div>' +
+            '<div class="grid grid-cols-3 sm:grid-cols-6 gap-2">' +
+              items.map(function (item) {
+                var x = item.x, i = item.i;
+                var inRange = S.start != null && i >= S.start && i < S.start + S.count;
+                var isFirst = S.start != null && i === S.start;
+                var timeLabel = esc(timeOf(x.s, tz));
+                if (x.off) {
+                  return '<button type="button" class="py-2.5 px-2 rounded-lg text-xs font-mono font-medium bg-brand-surface/40 text-slate-600 border border-brand-border/30 cursor-not-allowed text-center line-through" disabled>' + timeLabel + '</button>';
+                }
+                if (inRange) {
+                  return '<button type="button" class="slot-btn relative py-2.5 px-2 rounded-lg text-xs font-mono font-bold bg-brand-lime text-black border border-brand-lime shadow-neon-lime-sm flex items-center justify-center gap-1 ring-2 ring-brand-lime ring-offset-2 ring-offset-brand-surface cursor-pointer" data-i="' + i + '">' +
+                    '<span>' + timeLabel + '</span>' +
+                    (isFirst ? '<svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>' : '') +
+                  '</button>';
+                }
+                return '<button type="button" class="slot-btn py-2.5 px-2 rounded-lg text-xs font-mono font-medium bg-brand-elevated hover:bg-slate-700/80 text-white border border-brand-border hover:border-brand-lime/40 text-center transition cursor-pointer" data-i="' + i + '">' + timeLabel + '</button>';
+              }).join('') +
+            '</div>' +
+          '</div>';
+        }
+
+        grid.innerHTML = renderGroup("Morning", morning, false) +
+                         renderGroup("Afternoon", afternoon, false) +
+                         renderGroup("Evening (Prime Time)", evening, true);
+
+        Array.prototype.forEach.call(grid.querySelectorAll(".slot-btn"), function (b) {
           b.onclick = function () {
-            S.start = +b.getAttribute("data-i"); paint(); summary();
+            S.start = +b.getAttribute("data-i");
+            paint();
+            summary();
             msg(f, rangeOk(S.start) ? "" : "Not enough free time from here for that length. Try a shorter length or another start.", rangeOk(S.start) ? "" : "err");
           };
         });
       }
+
       async function draw() {
         var c = S.court, step = c.slot_minutes, grid = q("#nslots", f);
-        grid.innerHTML = '<p class="muted">Loading times...</p>'; S.start = null; summary();
+        var sub = q("#slot-subtitle", f);
+        if (sub) {
+          var dObj = new Date(S.date + "T00:00:00");
+          var dFormatted = isNaN(dObj.getTime()) ? S.date : dObj.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+          sub.textContent = c.name + " schedule • " + dFormatted;
+        }
+        grid.innerHTML = '<div class="py-6 text-center text-slate-400 font-mono text-xs flex items-center justify-center gap-2"><span class="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>Refreshing available slots...</div>';
+        S.start = null;
+        summary();
         var a = toMin(hhmm(c.open_time)), z = toMin(hhmm(c.close_time)), slots = [];
         for (var m = a; m + step <= z; m += step) {
           var s0 = zonedToUtc(S.date + "T" + pad(Math.floor(m / 60)) + ":" + pad(m % 60), tz);
           slots.push({ s: s0, e: new Date(s0.getTime() + step * 60000) });
         }
-        if (!slots.length) { grid.innerHTML = '<p class="muted">No times.</p>'; return; }
+        if (!slots.length) {
+          grid.innerHTML = '<p class="text-xs text-slate-500 font-mono py-4 text-center">No schedule slots configured for this court on this date.</p>';
+          return;
+        }
         var av = await sb.rpc("court_availability", { p_court_id: c.id, p_from: slots[0].s.toISOString(), p_to: slots[slots.length - 1].e.toISOString() });
         var taken = (av.data || []).map(function (r) { return [new Date(r.starts_at), new Date(r.ends_at)]; }), now = Date.now();
         slots.forEach(function (x) { x.off = x.e.getTime() <= now || taken.some(function (k) { return k[0] < x.e && k[1] > x.s; }); });
-        S.slots = slots; paint();
+        S.slots = slots;
+        paint();
       }
 
-      q("#ndate", f).value = S.date; q("#ndate", f).min = S.date; lengths();
-      Array.prototype.forEach.call(f.querySelectorAll(".segbtn"), function (b) {
-        b.onclick = function () {
-          S.who = b.getAttribute("data-who");
-          Array.prototype.forEach.call(f.querySelectorAll(".segbtn"), function (x) { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", String(x === b)); });
-          q("#whoGuest", f).hidden = S.who !== "guest"; q("#whoPlayer", f).hidden = S.who !== "player";
-          msg(f, "", "");
-        };
-      });
-      q("#ncourt", f).onchange = function () { S.court = courts.filter(function (c) { return c.id === this.value; }, this)[0]; lengths(); draw(); };
-      q("#ndate", f).onchange = function () { if (this.value) { S.date = this.value; draw(); } };
-      q("#nlen", f).onchange = function () { S.count = +this.value; paint(); summary(); };
+      q("#ndate", f).value = S.date;
+      q("#ndate", f).min = S.date;
+      lengths();
+
+      var todayBtn = q("#btn-date-today", f);
+      if (todayBtn) todayBtn.onclick = function () {
+        var today = dayStr(tz);
+        q("#ndate", f).value = today;
+        S.date = today;
+        draw();
+      };
+
+      var cancelBtn = q("#cancel-booking-btn", f);
+      if (cancelBtn) cancelBtn.onclick = function () { dialog.close(); };
+
+      q("#ncourt", f).onchange = function () {
+        S.court = courts.filter(function (c) { return c.id === this.value; }, this)[0] || courts[0];
+        lengths();
+        draw();
+      };
+      q("#ndate", f).onchange = function () {
+        if (this.value) { S.date = this.value; draw(); }
+      };
+      q("#nlen", f).onchange = function () {
+        S.count = +this.value;
+        paint();
+        summary();
+      };
       q("#padd", f).onclick = async function () {
         var email = q("#pemail", f).value.trim();
         if (!email) return msg(f, "Enter the player's email.", "err");
         var r = await sb.rpc("admin_add_player", { p_tenant_id: t.id, p_email: email });
         if (r.error) return msg(f, nice(r.error), "err");
         if (!players.some(function (p) { return p.id === r.data.id; })) players.push({ id: r.data.id, display_name: r.data.display_name, phone: r.data.phone });
-        q("#pplayer", f).innerHTML = playerOpts(); q("#pplayer", f).value = r.data.id; q("#pemail", f).value = "";
-        msg(f, r.data.display_name + " was added to your players.", "ok");
+        q("#pplayer", f).innerHTML = playerOpts();
+        q("#pplayer", f).value = r.data.id;
+        q("#pplayer", f).dispatchEvent(new Event("change"));
+        q("#pemail", f).value = "";
+        msg(f, r.data.display_name + " was added to your registered players.", "ok");
       };
+
       f.onsubmit = async function (e) {
         e.preventDefault();
         if (S.start == null || !rangeOk(S.start)) return;
         var guest = q("#gname", f).value.trim(), pid = q("#pplayer", f).value;
         if (S.who === "guest" && !guest) return msg(f, "Enter the guest's name.", "err");
-        if (S.who === "player" && !pid) return msg(f, "Choose a registered player.", "err");
+        if (S.who === "player" && !pid) return msg(f, "Choose a registered player from the directory.", "err");
         var a = S.slots[S.start], z = S.slots[S.start + S.count - 1], btn = q("#nreserve", f);
         var sig = "admin|" + S.court.id + "|" + a.s.toISOString() + "|" + z.e.toISOString() + "|" + (S.who === "guest" ? guest : pid);
         keys[sig] = keys[sig] || uuid();
-        btn.disabled = true; msg(f, "Booking...", "");
+        btn.disabled = true;
+        msg(f, "Confirming reservation on court...", "");
         var r = await sb.rpc("create_admin_booking", {
-          p_court_id: S.court.id, p_starts_at: a.s.toISOString(), p_ends_at: z.e.toISOString(), p_idempotency_key: keys[sig],
-          p_player_id: S.who === "player" ? pid : null, p_guest_name: S.who === "guest" ? guest : null,
+          p_court_id: S.court.id,
+          p_starts_at: a.s.toISOString(),
+          p_ends_at: z.e.toISOString(),
+          p_idempotency_key: keys[sig],
+          p_player_id: S.who === "player" ? pid : null,
+          p_guest_name: S.who === "guest" ? guest : null,
           p_guest_phone: S.who === "guest" ? (q("#gphone", f).value.trim() || null) : null
         });
         if (r.error) {
           msg(f, nice(r.error), "err");
-          if (/slot_taken|slot_blocked/.test(r.error.message || "")) draw(); else btn.disabled = false;
+          if (/slot_taken|slot_blocked/.test(r.error.message || "")) draw();
+          else btn.disabled = false;
           return;
         }
-        msg(f, "Booked " + (S.who === "guest" ? guest : "the player") + ": " + range(r.data.starts_at, r.data.ends_at, tz) + " (code " + r.data.reference_code + ").", "ok");
-        q("#gname", f).value = ""; q("#gphone", f).value = "";
-        draw(); // the new booking shows below and greys out its slot
+        msg(f, "Successfully booked " + (S.who === "guest" ? guest : "player") + ": " + range(r.data.starts_at, r.data.ends_at, tz) + " (Ref #" + r.data.reference_code + ").", "ok");
+        if (q("#gname", f)) q("#gname", f).value = "";
+        if (q("#gphone", f)) q("#gphone", f).value = "";
+        draw();
+        setTimeout(function () {
+          dialog.close();
+        }, 1200);
       };
+
       draw();
     }
   }
 
-  D.booking = { renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew };
+    D.booking = { renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew };
 })();

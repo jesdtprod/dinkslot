@@ -352,7 +352,7 @@
             '<span class="material-symbols-outlined text-base">person_add</span>' +
             '<span>Add Staff</span>' +
           '</a>' +
-          '<a class="inline-flex items-center gap-space-xs bg-primary hover:bg-primary-fixed text-on-primary font-bold px-space-lg py-space-sm rounded-full font-label-md text-label-md shadow-[0_0_20px_rgba(163,230,53,0.35)] transition-all no-underline" href="#/admin/' + esc(ctx.slug) + '/bookings">' +
+          '<a class="inline-flex items-center gap-space-xs bg-primary hover:bg-primary-fixed text-on-primary font-bold px-space-lg py-space-sm rounded-full font-label-md text-label-md shadow-[0_0_20px_rgba(163,230,53,0.35)] transition-all no-underline" href="#/admin/' + esc(ctx.slug) + '/bookings?new=1">' +
             '<span class="material-symbols-outlined text-base">calendar_today</span>' +
             '<span>Quick Book Slot</span>' +
           '</a>' +
@@ -660,27 +660,34 @@
 
 
     PANELS.payments =
-      '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">Payments &amp; Booking Rules</h1><p class="font-body-md text-on-surface-variant">Configure payment QR, auto-approval workflows, and cancellation cutoff windows.</p></div>' +
-      '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
-        '<form id="sf" class="flex flex-col gap-space-md">' +
-          '<label class="flex items-center gap-2 font-body-md text-on-surface cursor-pointer p-space-sm dashboard-rounded bg-surface-container border border-outline-variant/20">' +
-            '<input id="spe" type="checkbox"' + (st.payment_enabled ? " checked" : "") + ' class="w-4 h-4 accent-primary"> Players pay by scanning QR code at reservation checkout' +
-          '</label>' +
-          '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Payment Instructions &amp; Bank Details<textarea id="spi" rows="3" placeholder="e.g. GCash 0917 000 0000, please input your booking reference code in the remarks field" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(st.payment_instructions || "") + '</textarea></label>' +
-          '<div id="qrmgr" class="qr-manager"></div>' +
-          '<label class="flex items-center gap-2 font-body-md text-on-surface cursor-pointer p-space-sm dashboard-rounded bg-surface-container border border-outline-variant/20">' +
-            '<input id="sar" type="checkbox"' + (st.approval_required ? " checked" : "") + ' class="w-4 h-4 accent-primary"> Manual approval required for every booking slip' +
-          '</label>' +
-          '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-md">' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Booking Horizon (Days ahead)<input id="sbw" type="number" min="1" max="365" required value="' + esc(st.booking_window_days || 14) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Min Hours Per Booking<input id="smn" type="number" min="0.5" step="0.5" required value="' + esc(st.min_hours || 1) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Max Hours Per Booking<input id="smx" type="number" min="0.5" step="0.5" required value="' + esc(st.max_hours || 4) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Cancellation Cutoff (Hours prior)<input id="scc" type="number" min="0" required value="' + esc(st.cancel_cutoff_hours || 4) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Hold Unpaid Booking (Minutes)<input id="sph" type="number" min="5" max="1440" required value="' + esc(st.pending_hold_minutes || 30) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-          '</div>' +
-          '<p class="msg" role="alert"></p>' +
-          '<button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer self-start" type="submit">Save Settings</button>' +
-        '</form>' +
+      '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">Payments &amp; Booking Rules</h1><p class="font-body-md text-on-surface-variant">Set how players pay, which QR codes they can use, and your booking rules.</p></div>' +
+      // The settings form is empty on purpose: fields in the sections below belong to it through the form="paycfg"
+      // attribute, so the QR cards (which sit between them) are NOT inside a form and Enter never saves settings by accident.
+      '<form id="paycfg"></form>' +
+      '<div class="pay-sections">' +
+
+      // ---- 1. checkout -------------------------------------------------------------------------------------------
+      '<section class="pay-card"><header><h2>1. Checkout</h2><p>What players see when they pay for a booking.</p></header>' +
+        '<label class="pay-toggle"><input id="spe" form="paycfg" type="checkbox"' + (st.payment_enabled ? " checked" : "") + '><span><b>Players pay by scanning a QR code</b><small>Turn off if you collect payment another way. Players then only send a booking request.</small></span></label>' +
+        '<label class="pay-toggle"><input id="sar" form="paycfg" type="checkbox"' + (st.approval_required ? " checked" : "") + '><span><b>I approve every booking myself</b><small>Recommended. You check the payment proof, then approve or reject.</small></span></label>' +
+        '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Payment instructions shown to players<textarea id="spi" form="paycfg" rows="3" placeholder="e.g. Send the exact amount and type your booking code in the message" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(st.payment_instructions || "") + '</textarea></label>' +
+      '</section>' +
+
+      // ---- 2. payment methods (cards live here, outside the form) -------------------------------------------------------
+      '<section class="pay-card"><div id="qrmgr" class="qr-manager"></div></section>' +
+
+      // ---- 3. booking rules ---------------------------------------------------------------------------------------------
+      '<section class="pay-card"><header><h2>3. Booking rules</h2><p>Limits players must follow when they book.</p></header>' +
+        '<div class="pay-rules">' +
+          '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Book up to (days ahead)<input id="sbw" form="paycfg" type="number" min="1" max="365" required value="' + esc(st.booking_window_days || 14) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
+          '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Minimum hours<input id="smn" form="paycfg" type="number" min="0.5" step="0.5" required value="' + esc(st.min_hours || 1) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
+          '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Maximum hours<input id="smx" form="paycfg" type="number" min="0.5" step="0.5" required value="' + esc(st.max_hours || 4) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
+          '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Cancel allowed until (hours before)<input id="scc" form="paycfg" type="number" min="0" required value="' + esc(st.cancel_cutoff_hours || 4) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
+          '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Hold an unpaid booking (minutes)<input id="sph" form="paycfg" type="number" min="5" max="1440" required value="' + esc(st.pending_hold_minutes || 30) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
+        '</div>' +
+      '</section>' +
+
+      '<div class="pay-actions"><p class="msg" role="alert"></p><button form="paycfg" class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer" type="submit">Save settings</button><span class="muted small">Saves the Checkout and Booking rules sections. QR cards save on their own.</span></div>' +
       '</div>';
 
     PANELS.staff =
@@ -738,17 +745,18 @@
 
     if (part === "payments") {
       qrManager(q("#qrmgr", sec));
-      q("#sf", sec).onsubmit = async function (e) {
+      q("#paycfg", sec).onsubmit = async function (e) {
         e.preventDefault();
-        var f = this;
+        var box = q(".pay-actions", sec);
+        if (num("#smx", sec) < num("#smn", sec)) return setMsg(box, "Maximum hours must be at least the minimum hours.", "err");
         var r = await sb.from("tenant_settings").update({
-          payment_enabled: q("#spe", f).checked, payment_instructions: val("#spi", f).trim() || null,
-          approval_required: q("#sar", f).checked, booking_window_days: num("#sbw", f),
-          min_hours: num("#smn", f), max_hours: num("#smx", f), cancel_cutoff_hours: num("#scc", f),
-          pending_hold_minutes: num("#sph", f)
+          payment_enabled: q("#spe", sec).checked, payment_instructions: val("#spi", sec).trim() || null,
+          approval_required: q("#sar", sec).checked, booking_window_days: num("#sbw", sec),
+          min_hours: num("#smn", sec), max_hours: num("#smx", sec), cancel_cutoff_hours: num("#scc", sec),
+          pending_hold_minutes: num("#sph", sec)
         }).eq("tenant_id", t.id);
-        if (r.error) return setMsg(f, friendly(r.error), "err");
-        setMsg(f, "Payment and booking settings saved.", "ok");
+        if (r.error) return setMsg(box, friendly(r.error), "err");
+        setMsg(box, "Settings saved.", "ok");
       };
     }
 
@@ -894,17 +902,24 @@
         '<button type="button" class="btn sm danger" data-act="clear">Clear card</button></div><p class="msg" role="alert"></p></div></div>';
     }
 
+    var curKind = "gcash", lastRows = [], lastUrls = {};
     function draw(rows, urls) {
+      lastRows = rows; lastUrls = urls;
       var active = rows.filter(function (x) { return x.is_active; }).length;
+      var count = function (k) { return rows.filter(function (x) { return x.kind === k && x.is_active; }).length; };
+      var list = rows.filter(function (x) { return x.kind === curKind; }).sort(function (p, q2) { return p.slot - q2.slot; });
       box.innerHTML =
-        '<div class="qr-head"><h3>Payment methods (QR codes)</h3><p class="muted small">Nine cards are ready: 3 GCash, 3 Maya and 3 bank accounts. Each card is one account. Fill in a card, upload its QR and switch it on. Players see only the active cards (' + active + " active now).</p></div>" +
+        '<header class="qr-head"><h2>2. Payment methods (QR codes)</h2><p>Three cards each for GCash, Maya and bank accounts. One card is one account. Fill in a card, upload its QR and switch it on. Players see only the active cards.</p>' +
+        '<span class="qr-count' + (active ? " has" : "") + '">' + active + " of 9 active</span></header>" +
+        '<div class="qr-tabs" role="tablist">' + KINDS.map(function (k) {
+          return '<button type="button" role="tab" class="qr-tab' + (k[0] === curKind ? " on" : "") + '" data-kind="' + k[0] + '" aria-selected="' + (k[0] === curKind) + '">' + esc(k[1]) +
+            '<small>' + count(k[0]) + " / 3 active</small></button>"; }).join("") + "</div>" +
         (flash ? '<p class="msg ok">' + esc(flash) + "</p>" : "") +
-        KINDS.map(function (k) {
-          var list = rows.filter(function (x) { return x.kind === k[0]; }).sort(function (a, b) { return a.slot - b.slot; });
-          return '<section class="qrgroup"><h4>' + esc(k[1]) + ' <span class="muted small">' + list.filter(function (x) { return x.is_active; }).length + " of 3 active</span></h4>" +
-            '<div class="qr-list">' + list.map(function (x) { return cardHtml(x, urls); }).join("") + "</div></section>";
-        }).join("");
+        '<div class="qr-list">' + list.map(function (x) { return cardHtml(x, urls); }).join("") + "</div>";
       flash = "";
+      Array.prototype.forEach.call(box.querySelectorAll(".qr-tab"), function (b) {
+        b.onclick = function () { curKind = b.getAttribute("data-kind"); draw(lastRows, lastUrls); };
+      });
 
       var byId = {}; rows.forEach(function (x) { byId[x.id] = x; });
       Array.prototype.forEach.call(box.querySelectorAll(".qrcard"), function (card) {
