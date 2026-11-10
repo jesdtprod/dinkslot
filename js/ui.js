@@ -496,10 +496,22 @@
     if (typeof stack.showPopover === 'function' && !stack.matches(':popover-open')) stack.showPopover();
     var item = document.createElement('div'); item.className = 'ds-toast' + (kind === 'err' ? ' is-error' : ''); item.setAttribute('role', kind === 'err' ? 'alert' : 'status');
     item.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">' + (kind === 'err' ? 'error' : kind === 'ok' ? 'check_circle' : 'info') + '</span><span class="ds-toast-text"></span><button type="button" class="ds-toast-dismiss" aria-label="Dismiss notification"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>';
-    item.querySelector('.ds-toast-text').textContent = message;
+    var title = kind === 'err' ? 'Action Required' : kind === 'ok' ? 'Update Successful' : 'Notification';
+    if (/invalid login credentials/i.test(message)) { title = 'Unable to Sign In'; message = 'The email address or password is incorrect. Please check your details and try again.'; }
+    else if (/saved|updated successfully/i.test(message)) title = 'Changes Saved';
+    else if (/booked|booking.*confirmed/i.test(message)) title = 'Booking Confirmed';
+    else if (/uploading/i.test(message)) title = 'Upload in Progress';
+    else if (/uploaded/i.test(message)) title = 'Upload Complete';
+    else if (/copied/i.test(message)) title = 'Copied to Clipboard';
+    else if (/downloaded/i.test(message)) title = 'Download Complete';
+    var copy = item.querySelector('.ds-toast-text'), heading = document.createElement('strong'), description = document.createElement('span');
+    heading.className = 'ds-toast-title'; heading.textContent = title;
+    description.className = 'ds-toast-description'; description.textContent = message;
+    copy.append(heading, description);
+    item.setAttribute('aria-atomic', 'true');
     var timer;
     function dismiss() { clearTimeout(timer); item.remove(); }
-    function schedule() { clearTimeout(timer); if (!action) timer = setTimeout(dismiss, kind === 'err' ? 10000 : 6500); }
+    function schedule() { clearTimeout(timer); timer = setTimeout(dismiss, 3000); }
     item.querySelector('.ds-toast-dismiss').onclick = dismiss;
     if (action) {
       var retry = document.createElement('button'); retry.type = 'button'; retry.className = 'ds-toast-action'; retry.textContent = action.label;

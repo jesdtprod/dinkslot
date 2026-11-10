@@ -46,3 +46,10 @@
 body:has(.member-profile-modal[open]) { overflow:hidden; }
 /* Keep member account status visible immediately above Browse All Clubs. */
 .member-dashboard #ds-side #side-status-box { display:flex; align-items:center; justify-content:space-between; min-height:40px; margin:0 0 4px; padding:10px 12px; border:1px solid #ffffff0c; border-radius:12px; background:#ffffff04; }
+/* Notifications share a clear title and supporting description. */
+#ds-toast-stack .ds-toast { padding: 14px 16px; border-radius: 12px; gap: 12px; background: #1c2822; border-color: #9fc78630; }
+#ds-toast-stack .ds-toast.is-error { background: #2b2322; border-color: #d3a18d35; }
+.ds-toast-text { display: flex; flex-direction: column; gap: 4px; }
+.ds-toast-title { color: #e1e9e3; font: 600 13px/18px "Plus Jakarta Sans",sans-serif; }
+.ds-toast-description { color: #a9b9ae; font: 400 12px/19px "Plus Jakarta Sans",sans-serif; }
+.ds-toast.is-error .ds-toast-description { color: #c4b2aa; }
