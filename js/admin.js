@@ -758,7 +758,7 @@
         q('#open-club-map', sec).href = valid ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(lat + ',' + lng) : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([t.name,t.address,t.city,'Philippines'].filter(Boolean).join(', '));
         q('#club-map-status', sec).textContent = valid ? 'Location selected.' : 'Click the map to select your club location.';
       }
-      var locationMap, locationPin, saveTimer, saving = false, pendingLocation = null;
+      var locationMap, locationPin, googleLocationMap, googleLocationPin, saveTimer, saving = false, pendingLocation = null;
       async function persistLocation() {
         if (saving || !pendingLocation) return;
         saving = true;
@@ -778,6 +778,13 @@
         updateMapLink();
         var lat = Number(val('#plat', sec)), lng = Number(val('#plng', sec));
         if (val('#plat', sec) === '' || val('#plng', sec) === '' || !Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return;
+        if (googleLocationMap) {
+          if (!googleLocationPin) {
+            googleLocationPin = new google.maps.Marker({position:{lat:lat,lng:lng},map:googleLocationMap,draggable:true});
+            googleLocationPin.addListener('dragend', function(event){choosePoint({lat:event.latLng.lat(),lng:event.latLng.lng()});});
+          }
+          googleLocationPin.setPosition({lat:lat,lng:lng});
+        }
         if (locationMap) {
           if (!locationPin) { locationPin = L.marker([lat,lng], {draggable:true, icon:L.divIcon({className:'club-map-pin',html:'<span></span>',iconSize:[26,26],iconAnchor:[13,13]})}).addTo(locationMap); locationPin.on('dragend', function () { choosePoint(locationPin.getLatLng()); }); }
           locationPin.setLatLng([lat,lng]);
@@ -785,6 +792,32 @@
         pendingLocation = {latitude:lat, longitude:lng}; clearTimeout(saveTimer); saveTimer = setTimeout(persistLocation, 400);
       }
       function choosePoint(point) { q('#plat', sec).value = point.lat.toFixed(6); q('#plng', sec).value = point.lng.toFixed(6); locationChanged(); }
+      function centerLocation(lat,lng) {
+        if (googleLocationMap) { googleLocationMap.setCenter({lat:lat,lng:lng}); googleLocationMap.setZoom(16); }
+        if (locationMap) locationMap.setView([lat,lng],16);
+      }
+      var mapsKey = (window.DINKSLOT_CONFIG || {}).GOOGLE_MAPS_API_KEY;
+      if (mapsKey) {
+        if (!window.__dsGoogleMapsReady) {
+          window.__dsGoogleMapsReady = new Promise(function(resolve,reject){
+            if (window.google && google.maps) return resolve();
+            window.__dsGoogleMapsLoaded = resolve;
+            var script = document.createElement('script'); script.async = true;
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(mapsKey) + '&loading=async&callback=__dsGoogleMapsLoaded';
+            script.onerror = function(){reject(new Error('Google Maps could not be loaded.'));}; document.head.appendChild(script);
+          });
+        }
+        window.__dsGoogleMapsReady.then(function(){
+          if (!sec.isConnected) return;
+          if (locationMap) { locationMap.remove(); locationMap = null; locationPin = null; }
+          var has = val('#plat',sec) !== '' && val('#plng',sec) !== '';
+          var center = has ? {lat:Number(val('#plat',sec)),lng:Number(val('#plng',sec))} : {lat:12.8797,lng:121.774};
+          googleLocationMap = new google.maps.Map(q('#club-location-map',sec),{center:center,zoom:has?15:6,mapTypeId:'terrain',streetViewControl:false,fullscreenControl:true,mapTypeControl:true,gestureHandling:'cooperative'});
+          googleLocationMap.addListener('click',function(event){choosePoint({lat:event.latLng.lat(),lng:event.latLng.lng()});});
+          if(has){ googleLocationPin = new google.maps.Marker({position:center,map:googleLocationMap,draggable:true});googleLocationPin.addListener('dragend',function(event){choosePoint({lat:event.latLng.lat(),lng:event.latLng.lng()});}); }
+          q('.club-map-settings h3',sec).textContent = 'Google Maps Location';
+        }).catch(function(){ D.ui.toast('Google Maps could not be loaded. Please check the map configuration.', 'err'); });
+      }
       q('#plat', sec).onchange = locationChanged; q('#plng', sec).onchange = locationChanged;
       if (window.L) {
         var hasLocation = t.latitude != null && t.longitude != null;
@@ -797,7 +830,7 @@
       q('#pcoords', sec).onchange = function () {
         var parts = this.value.trim().split(/\s*,\s*/);
         if (parts.length !== 2 || parts.some(function (part) { return !part || !Number.isFinite(Number(part)); }) || Math.abs(Number(parts[0])) > 90 || Math.abs(Number(parts[1])) > 180) return D.ui.toast('Enter valid latitude and longitude separated by a comma.', 'err');
-        q('#plat', sec).value = parts[0]; q('#plng', sec).value = parts[1]; locationChanged(); if(locationMap) locationMap.setView([Number(parts[0]),Number(parts[1])],16);
+        q('#plat', sec).value = parts[0]; q('#plng', sec).value = parts[1]; locationChanged(); centerLocation(Number(parts[0]),Number(parts[1]));
       };
       q('#use-club-location', sec).onclick = function () {
         var button = this;
@@ -805,7 +838,7 @@
         button.disabled = true;
         navigator.geolocation.getCurrentPosition(function (position) {
           if (!sec.isConnected) return;
-          q('#plat', sec).value = position.coords.latitude.toFixed(6); q('#plng', sec).value = position.coords.longitude.toFixed(6); locationChanged(); if(locationMap) locationMap.setView([position.coords.latitude,position.coords.longitude],16); button.disabled = false;
+          q('#plat', sec).value = position.coords.latitude.toFixed(6); q('#plng', sec).value = position.coords.longitude.toFixed(6); locationChanged(); centerLocation(position.coords.latitude,position.coords.longitude); button.disabled = false;
         }, function () { button.disabled = false; D.ui.toast('Unable to access your location. Enter your venue coordinates manually.', 'err'); }, { enableHighAccuracy: true, timeout: 12000 });
       };
       updateMapLink();

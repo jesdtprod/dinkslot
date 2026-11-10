@@ -3,6 +3,8 @@
 window.DINKSLOT_CONFIG = {
   SUPABASE_URL: "https://achwxeisrakxdtzmfbrc.supabase.co",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjaHd4ZWlzcmFreGR0em1mYnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyNzgyMDcsImV4cCI6MjEwOTg1NDIwN30.iu6SML-AJyW-CgUyaVJ21TbHQxPb5vvOcvgdtEocBiw",
+  // Browser-restricted Google Maps JavaScript API key (enable Maps JavaScript API).
+  GOOGLE_MAPS_API_KEY: "",
   TURNSTILE_SITE_KEY: "0x4AAAAAAF6200XbhgtldHY8"
 };
 
