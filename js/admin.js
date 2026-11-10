@@ -685,7 +685,7 @@
             '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase sm:col-span-2">Contact Email (Reply-To)<input id="pe" type="email" value="' + esc(t.contact_email || "") + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
           '</div>' +
           '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Description<textarea id="pd" rows="3" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(t.description || "") + '</textarea></label>' +
-          '<section class="club-map-settings"><header><span class="material-symbols-outlined" aria-hidden="true">location_on</span><div><h3>Google Maps Location</h3><p>Preview your club location. Enter coordinates below to update the saved location.</p></div></header><div id="club-location-map" aria-label="Choose club location on map"></div><div class="club-map-fields">' +
+          '<section class="club-map-settings"><header><span class="material-symbols-outlined" aria-hidden="true">location_on</span><div><h3>Satellite Map Location</h3><p>Click the map or drag the pin. Location changes save automatically.</p></div></header><div id="club-location-map" aria-label="Choose club location on map"></div><div class="club-map-fields">' +
             '<label>Latitude<input id="plat" type="number" min="-90" max="90" step="any" placeholder="e.g. 14.5995" value="' + esc(t.latitude == null ? '' : t.latitude) + '"></label>' +
             '<label>Longitude<input id="plng" type="number" min="-180" max="180" step="any" placeholder="e.g. 120.9842" value="' + esc(t.longitude == null ? '' : t.longitude) + '"></label></div>' +
             '<p class="club-map-help">In Google Maps, right-click your venue and copy its coordinates. Paste the latitude and longitude below.</p><label>Paste coordinates<input id="pcoords" type="text" placeholder="14.5995, 120.9842" autocomplete="off"></label><div class="club-map-actions"><button id="use-club-location" type="button">Use Current Location</button><a id="open-club-map" class="btn ghost" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">View on Google Maps</a></div><p id="club-map-status"></p></section>' +
@@ -758,7 +758,7 @@
         q('#open-club-map', sec).href = valid ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(lat + ',' + lng) : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([t.name,t.address,t.city,'Philippines'].filter(Boolean).join(', '));
         q('#club-map-status', sec).textContent = valid ? 'Location selected.' : 'Enter coordinates to set your exact club location.';
       }
-      var saveTimer, saving = false, pendingLocation = null;
+      var locationMap, locationPin, saveTimer, saving = false, pendingLocation = null;
       async function persistLocation() {
         if (saving || !pendingLocation) return;
         saving = true;
@@ -781,15 +781,30 @@
         renderMap();
         pendingLocation = {latitude:lat, longitude:lng}; clearTimeout(saveTimer); saveTimer = setTimeout(persistLocation, 400);
       }
-      function renderMap() {
-        var lat = val('#plat',sec), lng = val('#plng',sec);
-        var query = lat !== '' && lng !== '' ? lat + ',' + lng : [t.name,t.address,t.city,'Philippines'].filter(Boolean).join(', ');
-        var container = q('#club-location-map',sec), frame = container.querySelector('iframe');
-        if (!frame) { frame = document.createElement('iframe'); frame.title = 'Google Maps club location'; frame.loading = 'lazy'; frame.allowFullscreen = true; frame.style.cssText = 'width:100%;height:100%;border:0;display:block'; container.replaceChildren(frame); }
-        var source = 'https://maps.google.com/maps?q=' + encodeURIComponent(query) + '&t=k&z=17&output=embed';
-        if (frame.getAttribute('src') !== source) frame.src = source;
+      function chooseMapPoint(point) {
+        if (!sec.isConnected) return;
+        q('#plat',sec).value = point.lat.toFixed(6); q('#plng',sec).value = point.lng.toFixed(6); locationChanged();
       }
-      function centerLocation() { renderMap(); }
+      function renderMap() {
+        if (!window.L) return;
+        var lat = val('#plat',sec), lng = val('#plng',sec), has = lat !== '' && lng !== '';
+        if (!locationMap) {
+          locationMap = L.map(q('#club-location-map',sec), {scrollWheelZoom:false}).setView(has ? [Number(lat),Number(lng)] : [12.8797,121.774], has ? 17 : 6);
+          L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom:19, attribution:'Source: <a href="https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9" target="_blank" rel="noopener">Esri</a>, Vantor, Earthstar Geographics, and the GIS User Community'
+          }).addTo(locationMap);
+          locationMap.on('click', function(event) { chooseMapPoint(event.latlng); });
+          requestAnimationFrame(function() { locationMap.invalidateSize(); });
+        }
+        if (has) {
+          if (!locationPin) {
+            locationPin = L.marker([Number(lat),Number(lng)], {draggable:true, title:'Drag to set club location',icon:L.divIcon({className:'club-map-pin',html:'<span></span>',iconSize:[26,26],iconAnchor:[13,13]})}).addTo(locationMap);
+            locationPin.on('dragend',function(){ chooseMapPoint(locationPin.getLatLng()); });
+          }
+          locationPin.setLatLng([Number(lat),Number(lng)]);
+        }
+      }
+      function centerLocation(lat,lng) { if(locationMap) locationMap.setView([lat,lng],17); }
       q('#plat', sec).onchange = locationChanged; q('#plng', sec).onchange = locationChanged;
       renderMap();
       q('#pcoords', sec).onchange = function () {
