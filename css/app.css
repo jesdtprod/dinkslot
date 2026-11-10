@@ -3061,3 +3061,21 @@ html:not(.boot-dashboard) .boot-subtitle { margin: 0 auto 36px; }
 @keyframes boot-shimmer { to { transform: translateX(100%); } }
 @media (max-width:767px) { .boot-dashboard .boot-skeleton aside { display: none; } .boot-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .boot-panels { grid-template-columns: minmax(0,1fr); } .boot-skeleton-page main { padding: 20px 16px; } }
 @media (prefers-reduced-motion: reduce) { .boot-skeleton :is(i,b)::after { animation: none; } }
+
+/* Clean reservation records with distinct identity, details and actions. */
+.booking-queues .bcard.booking-record { display: flex; flex-direction: column; gap: 0; margin-top: 14px; padding: 0; border: 1px solid #ffffff0c; border-radius: 10px; background: #ffffff02; overflow: hidden; }
+.booking-record-heading { display: flex; align-items: center; gap: 10px; padding: 16px; }
+.booking-record-avatar { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border: 1px solid #a3e63520; border-radius: 10px; background: #a3e63509; color: #b9d89d; font: 600 14px/20px "Plus Jakarta Sans",sans-serif; }
+.booking-record-person { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.booking-record-person strong { color: #dce6df; font: 600 13px/20px "Plus Jakarta Sans",sans-serif; }
+.booking-record-person > span { color: #8fa396; font-size: 11px; }
+.booking-record-badge { margin-left: auto; color: #a6b89e; font-size: 10px; }
+.booking-record-details { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr) auto; gap: 20px; padding: 0 16px 16px; }
+.booking-record-details > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.booking-detail-label { color: #7f9686; font: 400 10px/16px "Plus Jakarta Sans",sans-serif; }
+.booking-record-details strong { color: #bfcdc3; font: 500 12px/18px "Plus Jakarta Sans",sans-serif; overflow-wrap: anywhere; }
+.booking-record-details > div > span:not(.booking-detail-label) { color: #9caea0; font-size: 11px; line-height: 18px; }
+.booking-record-amount { text-align: right; }
+.booking-record-details .booking-record-amount strong { color: #c5dfa9; font-size: 15px; font-weight: 600; }
+.booking-record .booking-card-actions { padding: 12px 16px; background: #0000000c; gap: 8px; }
+@media (max-width:640px) { .booking-record-details { grid-template-columns: minmax(0,1fr); gap: 12px; } .booking-record-amount { text-align: left; } .booking-record .booking-card-actions { justify-content: flex-start; } }
