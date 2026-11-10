@@ -1367,7 +1367,7 @@
       '<!-- Full Name Input -->' +
       '<div class="space-y-1.5">' +
       '<label class="block font-mono text-xs uppercase font-medium text-slate-300 tracking-wider" for="oname">' +
-      'Your name' +
+      'Your Name' +
       '</label>' +
       '<div class="relative rounded-xl shadow-sm">' +
       '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
