@@ -1703,7 +1703,8 @@ body.tenant-dashboard-mode #app {
 .club-profile #pf .msg:empty, .profile-media .msg:empty { display: none; }
 .profile-media { padding: 20px; border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); }
 #ds-tenant-dashboard #sec .profile-media h3 { margin: 0; color: #e0e8e2; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; }
-.profile-media > header p { margin: 4px 0 18px; color: #94a39a; font-size: 12px; }
+.profile-media > header { margin-bottom: 18px; }
+.profile-media > header p { margin: 4px 0 0; color: #94a39a; font-size: 12px; }
 .media-upload-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; }
 .media-upload { min-width: 0; border: 1px solid #ffffff0c; border-radius: 10px; background: #0c12162b; overflow: hidden; }
 .media-upload > header, .media-upload > footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; }

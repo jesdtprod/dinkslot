@@ -652,7 +652,7 @@
           '<button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer self-start" type="submit">Save Profile</button>' +
         '</form>' +
       '</div>' +
-      '<section class="profile-media"><header><h3>Club media</h3><p>Give players a clear first impression of your club.</p></header><div class="media-upload-grid">' +
+      '<section class="profile-media"><header><h3>Club Media</h3><p>Give players a clear first impression of your club.</p></header><div class="media-upload-grid">' +
         mediaCard('logo', 'Profile logo', t.logo_path, 'Square image recommended ? 400 ? 400 px') +
         mediaCard('cover', 'Cover banner', t.cover_path, 'Wide landscape image recommended') +
       '</div><p class="msg" role="alert" id="phmsg"></p></section>';
