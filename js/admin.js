@@ -285,7 +285,6 @@
       count(function (b) { return b.eq("status", "approved").gte("starts_at", dayEnd.toISOString()).lt("starts_at", seventyTwoHours.toISOString()); }),
       sb.from("courts").select("*").eq("tenant_id", t.id).order("name"),
       sb.from("tenant_settings").select("*").eq("tenant_id", t.id).maybeSingle(),
-      sb.from("bookings").select("id,starts_at,ends_at,amount,reference_code,status,player_id,court_id,created_at").eq("tenant_id", t.id).gte("starts_at", dayStart.toISOString()).lt("starts_at", dayEnd.toISOString()).order("starts_at"),
       sb.from("bookings").select("id,starts_at,ends_at,amount,reference_code,status,player_id,court_id,created_at").eq("tenant_id", t.id).order("created_at", { ascending: false }).limit(8)
     ]);
 
@@ -294,8 +293,7 @@
     var upcoming = res[2];
     var courtsList = (res[3] && res[3].data) || [];
     var st = (res[4] && res[4].data) || {};
-    var todayBookings = (res[5] && res[5].data) || [];
-    var recentBookings = (res[6] && res[6].data) || [];
+    var recentBookings = (res[5] && res[5].data) || [];
     var courtsCount = courtsList.length;
     var firstCourt = courtsList[0] || { name: "Stadium Court 01", is_indoor: true, surface: "Acrylic Pro" };
 
@@ -304,7 +302,7 @@
     }
 
     // Lookup players for display names
-    var playerIds = Array.from(new Set(todayBookings.concat(recentBookings).map(function (b) { return b.player_id; }).filter(Boolean)));
+    var playerIds = Array.from(new Set(recentBookings.map(function (b) { return b.player_id; }).filter(Boolean)));
     var playersMap = {};
     if (playerIds.length) {
       var plRes = await sb.from("club_players").select("id,display_name,phone").in("id", playerIds);
@@ -325,8 +323,6 @@
     var done = checklist.filter(function (i) { return i.ok; }).length;
     var pct = Math.round((done / checklist.length) * 100);
 
-    var courtCover = t.cover_path ? D.mediaUrl(t.cover_path) : "assets/landing-court.jpg";
-    var publicUrl = location.origin + "/#/c/" + t.slug;
 
     sec.innerHTML =
       '<!-- Top Action Bar & Club Greeting -->' +
@@ -456,9 +452,9 @@
       '</section>' +
 
       '<!-- Main Bento Grid: Setup Checklist & Active Operations Hub -->' +
-      '<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">' +
+      '<div class="flex flex-col gap-space-lg">' +
         '<!-- LEFT COLUMN: Redesigned Setup Checklist (7 Columns) -->' +
-        '<section class="xl:col-span-7 flex flex-col gap-space-md">' +
+        '<section class="flex flex-col gap-space-md">' +
           '<!-- Checklist Master Card -->' +
           '<div class="bg-surface-container-low dashboard-rounded p-space-lg flex flex-col gap-space-md shadow-md border border-outline-variant/20">' +
             '<!-- Header with Progress -->' +
@@ -548,96 +544,6 @@
           '</div>' +
         '</section>' +
 
-        '<!-- RIGHT COLUMN: Live Court Monitor & Today\'s Schedule Feed (5 Columns) -->' +
-        '<section class="xl:col-span-5 flex flex-col gap-space-md">' +
-          '<!-- Live Court Showcase Card -->' +
-          '<div class="bg-surface-container-low dashboard-rounded overflow-hidden shadow-md flex flex-col border border-outline-variant/20">' +
-            '<div class="relative h-48 w-full bg-cover bg-center overflow-hidden" style="background-image: url(\'' + esc(courtCover) + '\')">' +
-              '<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-surface-container-low/40 to-transparent"></div>' +
-              '<div class="absolute top-space-md left-space-md flex items-center gap-space-xs">' +
-                '<span class="px-space-sm py-1 bg-surface-container-lowest/90 backdrop-blur-md rounded-full font-label-sm text-label-sm text-primary font-bold flex items-center gap-1.5">' +
-                  '<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>' +
-                  esc((firstCourt.name || "COURT 01").toUpperCase()) + ' • LIVE' +
-                '</span>' +
-                '<span class="px-space-sm py-1 bg-surface-container-lowest/90 backdrop-blur-md rounded-full font-label-sm text-label-sm text-on-surface font-medium">' +
-                  'DUPR 4.5+ Verified' +
-                '</span>' +
-              '</div>' +
-              '<div class="absolute bottom-space-md left-space-md right-space-md flex items-end justify-between">' +
-                '<div>' +
-                  '<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-widest">Active Facility</span>' +
-                  '<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">' + esc(t.name) + '</h3>' +
-                  '<span class="font-body-sm text-body-sm text-on-surface-variant">' + (todayBookings.length ? todayBookings.length + ' matches scheduled today' : 'Courts ready for booking') + '</span>' +
-                '</div>' +
-                '<div class="bg-surface-container-high/90 backdrop-blur-md px-space-sm py-1 dashboard-rounded text-center border border-outline-variant/30">' +
-                  '<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase">Status</span>' +
-                  '<span class="font-label-lg text-label-lg text-primary font-bold tracking-widest">READY</span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-            '<!-- Schedule Timeline Today -->' +
-            '<div class="p-space-lg flex flex-col gap-space-md">' +
-              '<div class="flex items-center justify-between">' +
-                '<div class="flex items-center gap-space-xs">' +
-                  '<span class="material-symbols-outlined text-primary text-xl">schedule</span>' +
-                  '<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Today\'s Lineup</h3>' +
-                '</div>' +
-                '<a class="font-label-sm text-label-sm text-primary hover:underline no-underline" href="#/admin/' + esc(ctx.slug) + '/bookings">Full Grid →</a>' +
-              '</div>' +
-              '<!-- Timeline Entries -->' +
-              '<div class="flex flex-col gap-space-sm">' +
-                (todayBookings.length ? todayBookings.map(function (b) {
-                  var p = playersMap[b.player_id] || {};
-                  var c = courtsMap[b.court_id] || {};
-                  var timeStr = new Date(b.starts_at).toLocaleTimeString("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
-                  return '<div class="flex items-center justify-between p-space-sm dashboard-rounded bg-surface-container border border-outline-variant/20">' +
-                    '<div class="flex items-center gap-space-md">' +
-                      '<div class="flex flex-col items-center justify-center w-12 text-center">' +
-                        '<span class="font-label-md text-label-md text-primary font-bold">' + esc(timeStr.slice(0, 5)) + '</span>' +
-                        '<span class="font-label-sm text-label-sm text-on-surface-variant">' + esc(timeStr.slice(-2)) + '</span>' +
-                      '</div>' +
-                      '<div class="h-8 w-1 bg-primary rounded-full"></div>' +
-                      '<div class="flex flex-col min-w-0">' +
-                        '<span class="font-body-md text-body-md text-on-surface font-semibold truncate">' + esc(c.name || "Court") + ' • ' + esc(p.display_name || "Reserved Slot") + '</span>' +
-                        '<span class="font-body-sm text-body-sm text-on-surface-variant">Code ' + esc(b.reference_code) + ' • ' + money(b.amount) + '</span>' +
-                      '</div>' +
-                    '</div>' +
-                    '<span class="px-space-xs py-0.5 rounded-full ' + (b.status === "approved" ? "bg-primary/20 text-primary font-bold" : "bg-error/20 text-error") + ' font-label-sm text-label-sm uppercase">' + esc(b.status) + '</span>' +
-                  '</div>';
-                }).join("") :
-                '<div class="flex items-center justify-between p-space-sm dashboard-rounded bg-surface-container border border-outline-variant/20">' +
-                  '<div class="flex items-center gap-space-md">' +
-                    '<div class="flex flex-col items-center justify-center w-12 text-center">' +
-                      '<span class="font-label-md text-label-md text-primary font-bold">08:00</span>' +
-                      '<span class="font-label-sm text-label-sm text-on-surface-variant">AM</span>' +
-                    '</div>' +
-                    '<div class="h-8 w-1 bg-primary/40 rounded-full"></div>' +
-                    '<div class="flex flex-col min-w-0">' +
-                      '<span class="font-body-md text-body-md text-primary font-semibold">Available for Member Booking</span>' +
-                      '<span class="font-body-sm text-body-sm text-on-surface-variant">Standard Rate: ' + (firstCourt.hourly_rate ? money(firstCourt.hourly_rate) + ' / hr' : 'Open Slots') + '</span>' +
-                    '</div>' +
-                  '</div>' +
-                  '<a class="px-space-sm py-1 rounded-full bg-primary/10 hover:bg-primary hover:text-on-primary text-primary font-label-sm text-label-sm font-semibold transition-all no-underline" href="#/admin/' + esc(ctx.slug) + '/bookings">Reserve</a>' +
-                '</div>') +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-          '<!-- Mini Public Page Card Preview -->' +
-          '<div class="bg-surface-container-low dashboard-rounded p-space-md flex items-center justify-between shadow-sm border border-outline-variant/20">' +
-            '<div class="flex items-center gap-space-sm min-w-0">' +
-              '<div class="w-12 h-12 dashboard-rounded bg-primary flex items-center justify-center text-on-primary font-headline-sm font-bold shrink-0">' +
-                esc(t.name.slice(0, 2).toUpperCase()) +
-              '</div>' +
-              '<div class="flex flex-col min-w-0">' +
-                '<span class="font-label-md text-label-md text-on-surface font-semibold truncate">dinkslot.com/#/c/' + esc(t.slug) + '</span>' +
-                '<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Public URL is currently active with verified booking engine</span>' +
-              '</div>' +
-            '</div>' +
-            '<button id="copy-public-link" class="p-space-xs rounded-full bg-surface-container-high hover:bg-surface-bright text-on-surface transition-colors border-0 cursor-pointer shrink-0 ml-2" title="Copy Link">' +
-              '<span class="material-symbols-outlined text-lg">content_copy</span>' +
-            '</button>' +
-          '</div>' +
-        '</section>' +
       '</div>' +
 
       '<!-- Live Transaction & Member Activity Strip -->' +
@@ -695,17 +601,6 @@
           '</table>' +
         '</div>' +
       '</section>';
-
-    var copyBtn = q("#copy-public-link", sec);
-    if (copyBtn) {
-      copyBtn.onclick = function () {
-        navigator.clipboard.writeText(publicUrl);
-        copyBtn.innerHTML = '<span class="material-symbols-outlined text-lg text-primary">check</span>';
-        setTimeout(function () {
-          copyBtn.innerHTML = '<span class="material-symbols-outlined text-lg">content_copy</span>';
-        }, 2000);
-      };
-    }
 
     var csvBtn = q("#export-csv-btn", sec);
     if (csvBtn) {
