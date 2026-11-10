@@ -478,26 +478,12 @@
     var deskResId = "RES-" + Math.floor(1000 + Math.random() * 9000);
 
     box.innerHTML =
-      '<section class="relative p-5 rounded-2xl bg-gradient-to-r from-brand-card to-brand-elevated border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 shadow-lg shadow-black/20 overflow-hidden">' +
-        '<div class="absolute -right-8 -top-8 w-28 h-28 bg-brand-lime/5 rounded-full blur-2xl pointer-events-none"></div>' +
-        '<div class="flex items-center gap-3.5 relative z-10">' +
-          '<div class="w-11 h-11 rounded-xl bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime shadow-inner">' +
-            '<span class="material-symbols-outlined text-2xl">person_add</span>' +
-          '</div>' +
-          '<div>' +
-            '<div class="flex items-center gap-2">' +
-              '<h2 class="text-base font-bold font-display text-white tracking-tight">Book for a customer</h2>' +
-              '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-brand-lime/10 text-brand-lime border border-brand-lime/20 uppercase tracking-wider">' +
-                '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime animate-pulse"></span>Staff Desk' +
-              '</span>' +
-            '</div>' +
-            '<p class="text-xs text-slate-400 mt-0.5">Quickly reserve courts for walk-in guests or registered players with immediate confirmation.</p>' +
-          '</div>' +
-        '</div>' +
-        '<button id="nbtoggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="booking-modal" class="relative z-10 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold font-display tracking-wide bg-brand-lime hover:bg-brand-limeHover text-black shadow-neon-lime transition duration-200 cursor-pointer shrink-0">' +
-          '<span class="material-symbols-outlined text-base">add</span>' +
-          '<span>New booking</span>' +
-        '</button>' +
+      '<section class="booking-launch">' +
+        '<div class="booking-launch-copy"><span class="booking-launch-icon material-symbols-outlined" aria-hidden="true">person_add</span><div>' +
+          '<div class="booking-launch-title"><h2>Book for a customer</h2><span class="booking-launch-badge">Staff Desk</span></div>' +
+          '<p>Reserve a court for a walk-in guest or registered player.</p>' +
+        '</div></div>' +
+        '<button id="nbtoggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="booking-modal" class="booking-launch-action"><span class="material-symbols-outlined" aria-hidden="true">add</span>New booking</button>' +
 
         '<dialog id="booking-modal" class="booking-modal relative w-full max-w-3xl bg-brand-surface border border-brand-border rounded-2xl shadow-modal backdrop-blur-xl overflow-hidden p-0 m-auto text-slate-100" aria-labelledby="booking-modal-title">' +
           '<!-- Top Accent Bar: Kinetic Sport Stripe -->' +

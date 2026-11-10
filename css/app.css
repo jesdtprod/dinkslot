@@ -1737,7 +1737,22 @@ body.tenant-dashboard-mode #app {
 .booking-new-heading #nbtoggle { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; min-height: 34px; padding: 7px 12px; background: #a3e63512; border: 1px solid #a3e63530; color: #c6e2a8; text-transform: none; box-shadow: none; }
 .booking-new-heading #nbtoggle:hover { background: #a3e63520; }
 .booking-new-heading #nbtoggle .material-symbols-outlined { font-size: 17px; }
+.booking-launch { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); }
+.booking-launch-copy { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.booking-launch-icon { display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0; border: 1px solid #ffffff0c; border-radius: 8px; background: #ffffff04; color: #afd784; font-size: 19px; }
+.booking-launch-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+#ds-tenant-dashboard #sec .booking-launch h2 { margin: 0; color: #e0e8e2; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; letter-spacing: 0; }
+.booking-launch-badge { padding: 2px 6px; border: 1px solid #ffffff0a; border-radius: 5px; background: #ffffff03; color: #a4b2a9; font: 500 9px/14px "Plus Jakarta Sans",sans-serif; }
+.booking-launch-copy p { margin: 4px 0 0; color: #94a39a; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; }
+.booking-launch-action { display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex-shrink: 0; min-height: 34px; padding: 7px 12px; border: 1px solid #a3e63528; background: #a3e6350a; color: #c6e2a8; box-shadow: none; cursor: pointer; }
+.booking-launch-action .material-symbols-outlined { font-size: 17px; }
+.booking-launch-action:hover { background: #a3e63518; border-color: #a3e63548; }
+.booking-launch-action:focus-visible { outline: 2px solid #b1df74; outline-offset: 2px; }
 .booking-queues { display: flex; flex-direction: column; gap: 12px; }
+.booking-queues .booking-queue { padding: 14px 20px; }
+#ds-tenant-dashboard #sec .booking-queues .booking-queue h3 { font-size: 13px; line-height: 20px; }
+.booking-queues .booking-queue-empty { margin-top: 8px; font-size: 11px; }
+@media (max-width:640px) { .booking-launch { flex-wrap: wrap; padding: 16px; } .booking-launch-action { margin-left: 46px; } }
 .booking-queue-heading { display: flex; align-items: center; gap: 10px; }
 .booking-queue-heading > .material-symbols-outlined { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #ffffff0a; border-radius: 8px; background: #ffffff03; font-size: 17px; color: #9fba8f; }
 .booking-count { margin-left: auto; min-width: 25px; padding: 2px 7px; border: 1px solid #ffffff0c; border-radius: 6px; background: #ffffff04; text-align: center; color: #9ead9f; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; font-variant-numeric: tabular-nums; }
