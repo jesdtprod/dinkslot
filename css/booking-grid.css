@@ -240,3 +240,19 @@ body .club-directory-view button[aria-pressed="true"] { background:#a3e63515 !im
   .club-directory-filters select option::checkmark { color:#a3e635; }
 }
 @media(prefers-reduced-motion:reduce) { .club-directory-filters select::picker(select),.club-directory-filters select::picker-icon { transition:none; } }
+
+/* Compact three-column membership cards. */
+#ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.find-membership-grid .home-club-cover { height:125px; }
+.find-membership-grid .home-club-body { padding:0 14px 14px; }
+.find-membership-grid .home-club-avatar { width:48px; height:48px; }
+.find-membership-grid .home-club-identity { margin-top:-22px; }
+.find-membership-grid .home-club-body h3 { margin:8px 0 5px; font-size:15px; line-height:21px; }
+.find-membership-grid .home-club-address { margin-bottom:9px; font-size:10px; line-height:16px; }
+.find-membership-grid .home-club-details { gap:9px 8px; padding:10px 0; margin:0; }
+.find-membership-grid .home-club-detail-row > span:last-child { font-size:10px; line-height:15px; }
+.find-membership-grid .home-club-detail-row small { font-size:9px; line-height:12px; }
+.find-membership-grid .find-membership-map { margin:3px 0 10px; font-size:10px; }
+.find-membership-grid .home-club-actions { padding-top:10px; }
+@media(max-width:1000px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:minmax(0,1fr); } }
