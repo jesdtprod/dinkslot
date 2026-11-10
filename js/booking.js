@@ -757,12 +757,12 @@
   // The database (create_admin_booking) checks membership, opening hours, slot grid, blocks and overlaps.
   function srcBadge(b) {
     if (b.source === "walk_in") {
-      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Walk-in guest</span>';
+      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Walk-in Guest</span>';
     }
     if (b.source === "admin") {
-      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>Booked by club</span>';
+      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>Booked by Club</span>';
     }
-    return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-lime/10 border border-brand-lime/25 text-brand-lime text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-brand-lime"></span>Registered player</span>';
+    return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-lime/10 border border-brand-lime/25 text-brand-lime text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-brand-lime"></span>Registered Player</span>';
   }
 
   async function adminNew(box, t) {
@@ -856,11 +856,11 @@
           '<div class="inline-flex p-1 bg-brand-dark/90 rounded-xl border border-brand-border mb-4 w-full sm:w-auto" role="tablist">' +
             '<button aria-selected="true" class="customer-toggle-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium font-display tracking-wide transition-all duration-150 flex items-center justify-center gap-2 bg-brand-elevated text-white shadow-sm border border-slate-700/60 cursor-pointer" id="tab-walkin" type="button" role="tab">' +
               '<svg class="w-3.5 h-3.5 text-brand-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-              'Walk-in guest' +
+              'Walk-in Guest' +
             '</button>' +
             '<button aria-selected="false" class="customer-toggle-btn flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium font-display tracking-wide transition-all duration-150 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 border border-transparent bg-transparent cursor-pointer" id="tab-registered" type="button" role="tab">' +
               '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-              'Registered player' +
+              'Registered Player' +
             '</button>' +
           '</div>' +
 
