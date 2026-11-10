@@ -146,6 +146,28 @@
   }
 
   // ---------------------------------------------------------------- session
+  // "I wanted to book at club X": remembered across the email-confirmation / Google redirect so the
+  // person lands on the booking page afterwards instead of an empty home page. Expires after a day.
+  var PENDING_KEY = "ds_pending_intent";
+  function setPending(o) {
+    try { o.at = Date.now(); localStorage.setItem(PENDING_KEY, JSON.stringify(o)); } catch (e) { /* storage blocked */ }
+  }
+  function takePending() {
+    try {
+      var v = localStorage.getItem(PENDING_KEY);
+      if (!v) return null;
+      localStorage.removeItem(PENDING_KEY);
+      var o = JSON.parse(v);
+      return o && o.join && /^[a-z0-9-]+$/.test(o.join) && Date.now() - o.at < 86400000 ? o : null;
+    } catch (e) { return null; }
+  }
+  async function resumePending() {
+    var o = takePending();
+    if (!o || !state.user || state.isPlatform) return;
+    var j = await sb.rpc("join_club", { p_slug: o.join, p_display_name: (o.dn || (state.user.email || "").split("@")[0] || "Player").slice(0, 60) });
+    if (!j.error && o.next && o.next.charAt(0) === "/") go(o.next);
+  }
+
   async function refreshSession() {
     var r = await sb.auth.getSession();
     state.user = r.data.session ? r.data.session.user : null;
@@ -163,6 +185,7 @@
       }
     }
     renderNav();
+    if (state.user) resumePending(); // finish a booking intent started before sign-up / confirmation
   }
   function renderNav() {
     var h = "";
@@ -183,14 +206,27 @@
       // Club owners and staff go straight to their dashboard; everyone else keeps My account.
       var acctHref = state.managedSlug ? "#/admin/" + esc(state.managedSlug) : "#/me";
       var acctLabel = state.managedSlug ? "Dashboard" : "My account";
-      h += '<span id="bellslot"></span>' +
-        '<a href="' + acctHref + '" class="nav-account" aria-label="' + acctLabel + '"><span class="nav-avatar" aria-hidden="true">' + esc(initial) + '</span><span class="nav-account-label">' + acctLabel + '</span><span class="material-symbols-outlined nav-account-arrow" aria-hidden="true">chevron_right</span></a>' +
-        (state.managedSlug ? "" : '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>') +
-        '<span class="nav-divider" aria-hidden="true"></span><button id="signout" type="button" class="linkbtn nav-signout" aria-label="Sign out" title="Sign out"><span class="material-symbols-outlined" aria-hidden="true">logout</span></button>';
+      h += '<span id="bellslot" class="dashboard-bellslot"></span>' +
+        '<details class="facility-account"><summary aria-label="Account menu"><span class="facility-avatar">' + esc(initial) + '</span>' +
+        '<span class="facility-account-text"><strong>' + esc(profileName) + '</strong><small>' + acctLabel + '</small></span>' +
+        '<span class="material-symbols-outlined facility-chevron" aria-hidden="true">expand_more</span></summary>' +
+        '<div class="facility-account-menu public-account-menu"><div class="public-account-heading"><span class="public-account-caption">Signed in as</span><strong>' + esc(profileName) + '</strong><span class="facility-account-email">' + esc(state.user.email || "") + '</span></div>' +
+        '<a href="' + acctHref + '"><span class="material-symbols-outlined" aria-hidden="true">dashboard</span><span>' + acctLabel + '</span></a>' +
+        '<a href="#/me"><span class="material-symbols-outlined" aria-hidden="true">account_circle</span><span>My Profile</span></a>' +
+        '<button id="signout" type="button"><span class="material-symbols-outlined" aria-hidden="true">logout</span><span>Sign out</span></button></div></details>' +
+        (state.managedSlug ? "" : '<a href="#/register-club" class="pill nav-register"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register club</span></a>');
     } else {
       h += '<a href="#/auth">Sign in</a><a href="#/register-club" class="pill">Register your club</a>';
     }
     nav.innerHTML = h;
+    var accountMenu = nav.querySelector(".facility-account");
+    if (accountMenu) {
+      accountMenu.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") { accountMenu.open = false; accountMenu.querySelector("summary").focus(); }
+      });
+      accountMenu.addEventListener("focusout", function (event) { if (!accountMenu.contains(event.relatedTarget)) accountMenu.open = false; });
+      accountMenu.querySelectorAll("a").forEach(function (link) { link.onclick = function () { accountMenu.open = false; }; });
+    }
     var so = document.getElementById("signout");
     if (so) so.onclick = async function () { await sb.auth.signOut(); await refreshSession(); go("/"); };
     if (window.DS && window.DS.notify) window.DS.notify.mount(); // bell (or clean up when signed out)
@@ -206,6 +242,8 @@
     var fallbackImages = ["assets/landing-court.jpg", "https://lh3.googleusercontent.com/aida-public/AB6AXuDa-S4ZZLLHmDYjKc8jdOeivM48hq2Qj2IqFuRxX2hADLZf5dpoz_DzwkjANk85daWcgZKSX1cffRITeTLxzyjSsjNlO1Bqz_tgV4j4U6poyMx0TQPg8_yyefZEeoJTy72ReeAY9qFY1iO-YZi4GFAuAxUlxggfu_u3G1iXveA0waHB6wpajCG39pvud6Emlh1fLyERceM6GY6GWbYQkiHSA9iPFl9a2VFe05ZWoBM", "https://lh3.googleusercontent.com/aida-public/AB6AXuBGSaPhy8orPp4MmLU3UD1NAkEuv79MCKLmSqux31YkuqHjdJDO2Siblof4trUQnf9-Q5xI2ZUm6A55A3VlOclA1NJQVbPOs0ZEwbKHu92YIqANJlYhfpj9dszyZVYixENabP05CJAkqj4CK8meuL-94T-WvSTZiAdf_k7jg1U2tnkt5lwRCTuKBOYnKPZQnpe7SHAZmoRGtDrJMogZM7Uu9X3ORmH_aD3-r5w_pf4", "https://lh3.googleusercontent.com/aida-public/AB6AXuATvYY4K5iAfE5lS_suDm_W8wbLn-XYQRWEKVNVsajW4P1gcSGGc6DkVSbltkjSd3eOy6R8Pfbgqtbam8L2-lL97ZZq8jIm0RY8nOlK8wPokMfv4Uu3l8fNc3f0ikHRcFcr1qP7R6rFo7L4efLsPVkl6WeGh3ZJNAJoZXSK_WqcZ27qwuRAYMnc2HWUiZOCCfp3s7dzU3KKaXgpUC81F__IMMJSKPGUsDO_WcXD7dc"];
     document.body.classList.add("landing-page");
     app.innerHTML = window.DINKSLOT_LANDING;
+    if (cleanupAuthPattern) cleanupAuthPattern();
+    cleanupAuthPattern = mountAuthPattern($("#ds-landing"));
     app.querySelectorAll('a[href="#clubs-section"]').forEach(function (link) {
       link.onclick = function (event) { event.preventDefault(); $("#clubs-section").scrollIntoView({ behavior: "smooth" }); };
     });
@@ -223,12 +261,37 @@
       if (c.surface && i.surfaces.indexOf(c.surface) === -1) i.surfaces.push(c.surface);
     });
     if (!$("#ds-landing")) return;
-    var cities = Array.from(new Set(clubs.map(function (c) { return c.city; }).filter(Boolean))).sort();
-    var cityEl = $("#city");
-    if (cityEl) {
-      cityEl.innerHTML += cities.map(function (c) {
-        return '<option value="' + esc(c) + '" class="bg-surface-container-lowest text-on-surface">' + esc(c) + '</option>';
+    function cityKey(value) { return String(value || "").trim().replace(/\s+/g, " ").toLowerCase(); }
+    var cityNames = new Map();
+    clubs.forEach(function (club) {
+      var name = String(club.city || "").trim().replace(/\s+/g, " ");
+      if (name && !cityNames.has(cityKey(name))) cityNames.set(cityKey(name), name);
+    });
+    var cities = Array.from(cityNames.values()).sort(function (a,b) { return a.localeCompare(b); });
+    var cityEl = $("#city"), cityMenu = $(".city-menu");
+    if (cityMenu) {
+      cityMenu.querySelector(".city-options").innerHTML = [''].concat(cities).map(function (city) {
+        return '<button type="button" data-city="' + esc(cityKey(city)) + '" aria-pressed="' + String(!city) + '">' + esc(city || "All Cities") + '</button>';
       }).join("");
+      cityMenu.querySelectorAll("[data-city]").forEach(function (option) {
+        option.onclick = function () {
+          cityEl.value = option.getAttribute("data-city");
+          cityMenu.querySelector(".city-selected").textContent = option.textContent;
+          cityMenu.querySelectorAll("[data-city]").forEach(function (item) { item.setAttribute("aria-pressed", String(item === option)); });
+          cityMenu.open = false; cityMenu.querySelector("summary").focus();
+          if (cityEl.onchange) cityEl.onchange();
+        };
+      });
+      cityMenu.onkeydown = function (event) {
+        if (event.key === "Escape") { cityMenu.open = false; cityMenu.querySelector("summary").focus(); }
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault(); cityMenu.open = true;
+          var options = Array.from(cityMenu.querySelectorAll("[data-city]"));
+          var index = options.indexOf(document.activeElement);
+          options[(index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length].focus();
+        }
+      };
+      cityMenu.onfocusout = function (event) { if (!cityMenu.contains(event.relatedTarget)) cityMenu.open = false; };
     }
 
     var surfaceFilter = "all";
@@ -239,7 +302,7 @@
       var city = cityEl ? cityEl.value : "";
       var list = clubs.filter(function (c) {
         var i = info[c.slug];
-        var matchText = (!city || c.city === city) && (!q || (c.name + " " + (c.city || "") + " " + (c.address || "")).toLowerCase().indexOf(q) !== -1);
+        var matchText = (!city || cityKey(c.city) === city) && (!q || (c.name + " " + (c.city || "") + " " + (c.address || "")).toLowerCase().indexOf(q) !== -1);
         if (!matchText) return false;
         if (surfaceFilter === "indoor") return !!(i && i.indoor > 0);
         if (surfaceFilter === "outdoor") return !!(i && i.outdoor > 0);
@@ -335,13 +398,29 @@
   }
 
   async function viewClub(slug) {
-    app.innerHTML = '<div class="pubwrap"><p class="muted">Loading...</p></div>';
+    app.innerHTML = '<div class="pubwrap">' +
+      '<div class="h-44 sm:h-64 w-full rounded-2xl bg-surface-container-high/60 ds-skeleton mb-6"></div>' +
+      '<div class="flex items-center gap-4 mb-8">' +
+        '<div class="w-16 h-16 rounded-2xl bg-surface-container-high/60 ds-skeleton shrink-0"></div>' +
+        '<div class="flex flex-col gap-2 flex-1">' +
+          '<div class="h-6 w-48 bg-surface-container-high/70 rounded-lg ds-skeleton"></div>' +
+          '<div class="h-4 w-72 bg-surface-container-high/40 rounded ds-skeleton"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' +
+        '<div class="h-40 rounded-xl bg-surface-container-low border border-outline-variant/20 ds-skeleton"></div>' +
+        '<div class="h-40 rounded-xl bg-surface-container-low border border-outline-variant/20 ds-skeleton"></div>' +
+        '<div class="h-40 rounded-xl bg-surface-container-low border border-outline-variant/20 ds-skeleton"></div>' +
+      '</div></div>';
     var r = await sb.from("public_clubs").select("*").eq("slug", slug).maybeSingle();
     var c = r.data;
     if (!c) { app.innerHTML = '<div class="pubwrap"><h2>Club not found</h2><p>This club does not exist or is not approved yet.</p><a class="btn" href="#/">Back to clubs</a></div>'; return; }
     var courts = (await sb.from("public_courts").select("*").eq("club_slug", slug).order("name")).data || [];
     var hrs = courts.length ? String(courts.map(function (k) { return String(k.open_time).slice(0, 5); }).sort()[0]) + " - " +
       String(courts.map(function (k) { return String(k.close_time).slice(0, 5); }).sort().slice(-1)[0]) : "";
+    var nextPath = encodeURIComponent("/c/" + slug + "/book");
+    var bookHref = state.user ? "#/c/" + esc(slug) + "/book" : "#/auth?mode=up&join=" + esc(slug) + "&next=" + nextPath;
+    var signInHref = "#/auth?mode=in&join=" + esc(slug) + "&next=" + nextPath;
     var chip = function (icon, text) { return text ? '<span class="chip"><span class="mi">' + icon + "</span>" + esc(text) + "</span>" : ""; };
     app.innerHTML =
       '<div class="pubwrap"><a class="back" href="#/">&larr; All clubs</a>' +
@@ -350,7 +429,8 @@
       '<div class="clubid-text"><h1>' + esc(c.name) + '</h1><div class="chips">' +
       chip("location_on", [c.address, c.city].filter(Boolean).join(", ")) + chip("call", c.contact_phone) + chip("schedule", hrs) +
       chip("sports_tennis", courts.length + (courts.length === 1 ? " court" : " courts")) + "</div></div>" +
-      '<a class="btn" href="#/c/' + esc(slug) + '/book">Book a court</a></section>' +
+      '<div class="bookcta"><a class="btn" href="' + bookHref + '">' + (state.user ? "Book a court" : "Sign up to book") + "</a>" +
+      (state.user ? "" : '<span class="muted small">Free account needed. Already registered? <a href="' + signInHref + '">Sign in</a></span>') + "</div></section>" +
       (c.description ? '<section class="about"><h2>About</h2><p>' + esc(c.description) + "</p></section>" : "") +
       '<div class="sectionhead"><h2>Courts</h2></div>' +
       (courts.length ? '<div class="courtgrid">' + courts.map(function (k) {
@@ -358,7 +438,7 @@
           '<p class="cc-rate"><b>PHP ' + esc(Number(k.hourly_rate).toFixed(2)) + "</b><span>/hr</span></p>" +
           '<p class="muted small"><span class="mi">schedule</span>' + esc(String(k.open_time).slice(0, 5)) + " - " + esc(String(k.close_time).slice(0, 5)) +
           " &middot; " + esc(String(k.slot_minutes)) + " min slots" + (k.surface ? " &middot; " + esc(k.surface) : "") + "</p>" +
-          '<a class="btn sm" href="#/c/' + esc(slug) + '/book">Book</a></div>';
+          '<a class="btn sm" href="' + bookHref + '">' + (state.user ? "Book" : "Sign up to book") + "</a></div>";
       }).join("") + "</div>" : '<p class="muted">This club has not listed its courts yet.</p>') + "</div>";
   }
 
@@ -473,7 +553,20 @@
     opts = opts || {};
     var next = opts.next || "/me";
     var mode = opts.mode === "up" ? "up" : "in";
+    function rememberIntent(dn) { if (opts.join) setPending({ join: opts.join, next: next, dn: dn || "" }); }
     var selectedSkill = "unrated";
+    function duprCategory(skill) {
+      if (/^(beginner|novice)_/.test(skill)) return "novice";
+      if (/^intermediate_/.test(skill)) return "intermediate";
+      if (/^advanced_/.test(skill)) return "advanced";
+      if (/^pro_/.test(skill)) return "professional";
+      return "unrated";
+    }
+    function updateDuprCategory() {
+      var categories = { unrated: "NR - Not Rated", novice: "Novice / 2.000 - 2.999", intermediate: "Intermediate / 3.000 - 3.999", advanced: "Advanced / 4.000 - 4.999", professional: "Professional / 5.000 - 8.000" };
+      var output = $("#dupr-category");
+      if (output) output.textContent = categories[duprCategory(selectedSkill)];
+    }
     var defaultTitleIn = opts.title || "Welcome back to the court";
     var defaultTitleUp = opts.title || 'Join the premier <span class="text-primary tracking-normal">pickleball</span> network';
     var defaultIntroIn = opts.intro || "Enter your credentials to access your bookings and club schedule.";
@@ -506,7 +599,7 @@
         '</div>' +
         '<div>' +
         '<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">DINKSLOT</h2>' +
-        '<p class="font-label-sm text-label-sm text-primary tracking-wider uppercase font-semibold">Pro Match Engine â€¢ Club Sync</p>' +
+        '<p class="font-label-sm text-label-sm text-primary tracking-wider uppercase font-semibold">Pro Match Engine &bull; Club Sync</p>' +
         '</div>' +
         '</div>' +
         '<div class="space-y-2 pt-2">' +
@@ -527,7 +620,7 @@
         '<span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>' +
         '<span class="font-label-md text-label-md text-on-surface font-semibold">Center Court #4</span>' +
         '</div>' +
-        '<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary font-bold">GAME POINT â€¢ 10-9</span>' +
+        '<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-primary-container text-on-primary font-bold">GAME POINT &bull; 10-9</span>' +
         '</div>' +
         '</div>' +
         '</div>' +
@@ -671,6 +764,7 @@
         if (state.isPlatform) return go("/platform");
         if (opts.join) {
           var dn = ($("#dn") && $("#dn").value.trim()) || email.split("@")[0];
+          takePending();
           var j = await sb.rpc("join_club", { p_slug: opts.join, p_display_name: dn });
           if (j.error) {
             btn.disabled = false;
@@ -702,7 +796,7 @@
         '<div class="flex flex-col items-center text-center gap-space-xs">' +
         '<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-container-high text-primary font-label-md text-label-md tracking-wider uppercase mb-space-xs shadow-sm">' +
         '<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>' +
-        'DS League Entry â€¢ Season 2025' +
+        'DS League Entry &bull; Season 2025' +
         '</div>' +
         '<h1 id="auth-title" class="font-headline-lg text-headline-lg md:text-headline-display tracking-tight text-on-surface">' +
         defaultTitleUp +
@@ -774,20 +868,39 @@
         '<!-- Skill Level Selector (Dynamic Pills) -->' +
         '<div class="flex flex-col gap-2 mt-1">' +
         '<div class="flex items-center justify-between">' +
-        '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">DUPR Skill Level</label>' +
-        '<a class="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1" href="https://www.dupr.com/" target="_blank" rel="noopener noreferrer">' +
+        '<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Official DUPR Classification</label>' +
+        '<a class="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1" href="https://www.dupr.com/how-it-works" target="_blank" rel="noopener noreferrer">' +
         '<span>Find my rating</span>' +
         '<span class="material-symbols-outlined text-[14px]">arrow_outward</span>' +
         '</a>' +
         '</div>' +
-        '<div id="skill-selector" class="signup-skills" role="group" aria-label="Self-reported DUPR skill level">' +
-        '<button type="button" class="skill-pill" data-skill="unrated" aria-pressed="true"><span class="font-label-md">Not rated</span><span class="font-label-sm">NR</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="novice" aria-pressed="false"><span class="font-label-md">Novice</span><span class="font-label-sm">2.000 - 2.999</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="intermediate" aria-pressed="false"><span class="font-label-md">Intermediate</span><span class="font-label-sm">3.000 - 3.999</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="advanced" aria-pressed="false"><span class="font-label-md">Advanced</span><span class="font-label-sm">4.000 - 4.999</span></button>' +
-        '<button type="button" class="skill-pill" data-skill="professional" aria-pressed="false"><span class="font-label-md">Professional</span><span class="font-label-sm">5.000 - 8.000</span></button>' +
+        '<output id="dupr-category" class="dupr-category" aria-live="polite">NR - Not Rated</output>' +
+        '<p class="signup-skill-help">Based on your selected range. Self-reported; not verified with DUPR.</p>' +
+        '<h3 class="club-level-heading">Custom Club Level</h3>' +
+        '<div id="skill-selector" class="signup-skills" role="group" aria-label="Custom club skill level">' +
+        '<button type="button" class="skill-pill skill-unrated" data-skill="unrated" aria-pressed="true"><span class="font-label-md">Not rated</span><span class="font-label-sm">NR</span></button>' +
+        '<fieldset class="skill-group"><legend>Beginner</legend><div class="skill-group-options">' +
+        '<button type="button" class="skill-pill" data-skill="beginner_low" aria-label="Beginner Low (2.000 - 2.249)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">2.000 - 2.249</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="beginner_high" aria-label="Beginner High (2.250 - 2.499)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">2.250 - 2.499</span></button>' +
+        '</div></fieldset>' +
+        '<fieldset class="skill-group"><legend>Novice</legend><div class="skill-group-options">' +
+        '<button type="button" class="skill-pill" data-skill="novice_low" aria-label="Novice Low (2.500 - 2.749)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">2.500 - 2.749</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="novice_high" aria-label="Novice High (2.750 - 2.999)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">2.750 - 2.999</span></button>' +
+        '</div></fieldset>' +
+        '<fieldset class="skill-group"><legend>Intermediate</legend><div class="skill-group-options">' +
+        '<button type="button" class="skill-pill" data-skill="intermediate_low" aria-label="Intermediate Low (3.000 - 3.499)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">3.000 - 3.499</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="intermediate_high" aria-label="Intermediate High (3.500 - 3.999)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">3.500 - 3.999</span></button>' +
+        '</div></fieldset>' +
+        '<fieldset class="skill-group"><legend>Advanced</legend><div class="skill-group-options">' +
+        '<button type="button" class="skill-pill" data-skill="advanced_low" aria-label="Advanced Low (4.000 - 4.499)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">4.000 - 4.499</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="advanced_high" aria-label="Advanced High (4.500 - 4.999)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">4.500 - 4.999</span></button>' +
+        '</div></fieldset>' +
+        '<fieldset class="skill-group"><legend>Pro</legend><div class="skill-group-options">' +
+        '<button type="button" class="skill-pill" data-skill="pro_low" aria-label="Pro Low (5.000 - 5.999)" aria-pressed="false"><span class="font-label-md">Low</span><span class="font-label-sm">5.000 - 5.999</span></button>' +
+        '<button type="button" class="skill-pill" data-skill="pro_high" aria-label="Pro High (6.000 - 8.000)" aria-pressed="false"><span class="font-label-md">High</span><span class="font-label-sm">6.000 - 8.000</span></button>' +
+        '</div></fieldset>' +
         '</div>' +
-        '<p class="signup-skill-help">Select your current DUPR range, or Not rated. This is self-reported.</p>' +
+        '<p class="signup-skill-help">Low and High are custom club groupings, not official DUPR categories. Your DUPR rating remains unchanged.</p>' +
         '</div>' +
         '<!-- Password Field with Interactive Strength Meter -->' +
         '<div class="flex flex-col gap-1.5 mt-1">' +
@@ -914,11 +1027,13 @@
         };
       }
 
+      updateDuprCategory();
       var pills = app.querySelectorAll(".skill-pill");
       pills.forEach(function (pill) {
         pill.setAttribute("aria-pressed", String(pill.getAttribute("data-skill") === selectedSkill));
         pill.onclick = function () {
           selectedSkill = pill.getAttribute("data-skill");
+          updateDuprCategory();
           pills.forEach(function (item) { item.setAttribute("aria-pressed", String(item === pill)); });
         };
       });
@@ -930,6 +1045,7 @@
       };
 
       $("#oauth-google-up").onclick = async function () {
+        rememberIntent();
         var r = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
         if (r.error) setMsg(app, friendly(r.error), "err");
       };
@@ -954,7 +1070,7 @@
           options: {
             captchaToken: cap.token,
             emailRedirectTo: location.origin + location.pathname,
-            data: { full_name: fullName, skill_level: selectedSkill }
+            data: { full_name: fullName, skill_level: selectedSkill, club_skill_level: selectedSkill, dupr_classification: duprCategory(selectedSkill) }
           }
         });
         cap.reset();
@@ -966,12 +1082,15 @@
         if (!res.data.session) {
           btn.disabled = false;
           setBtnIdle();
-          return setMsg(app, "Account created. Check your email to confirm, then sign in.", "ok");
+          rememberIntent(fullName);
+          return setMsg(app, "Account created. Check your email and click the confirmation link" +
+            (opts.join ? ", and you will come straight back to book your court." : ", then sign in."), "ok");
         }
         await refreshSession();
         if (state.isPlatform) return go("/platform");
         if (opts.join) {
           var dn = ($("#dn") && $("#dn").value.trim()) || fullName || email.split("@")[0];
+          takePending();
           var j = await sb.rpc("join_club", { p_slug: opts.join, p_display_name: dn });
           if (j.error) {
             btn.disabled = false;
@@ -1062,13 +1181,13 @@
       '<div class="pubwrap narrow"><div class="acchead"><span class="avatar big ph">' + esc(initial) + "</span>" +
       '<div><h1>My account</h1><p class="muted">' + esc(state.user.email) + "</p></div></div>" +
       '<p class="msg ok" role="status"></p>' +
-      '<section class="card2"><h2>My profile</h2><form id="myprofile"><div class="grid2">' +
+      '<section class="card2"><h2>My Profile</h2><form id="myprofile"><div class="grid2">' +
       '<label>Full name<input id="mp-name" maxlength="80" autocomplete="name"></label>' +
       '<label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label></div>' +
       '<p class="muted small">Email: ' + esc(state.user.email) + '</p><p class="msg" role="alert"></p>' +
       '<button class="btn sm" type="submit">Save profile</button></form></section>' +
-      '<section class="card2"><h2>Clubs you manage</h2><div id="mine">Loading...</div></section>' +
-      '<section class="card2"><h2>My bookings</h2><div id="mybookings">Loading...</div></section></div>';
+      '<section class="card2"><h2>Clubs you manage</h2><div id="mine"><div class="space-y-3"><div class="h-14 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-14 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div></div></section>' +
+      '<section class="card2"><h2>My bookings</h2><div id="mybookings"><div class="space-y-3"><div class="h-16 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-16 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div></div></section></div>';
     var known = {};
     async function loadMine(announce) {
       var m = await sb.from("tenant_members").select("role, tenants(id, slug, name, status, logo_path)").eq("user_id", state.user.id);
@@ -1141,7 +1260,7 @@
     });
     ui.main.innerHTML = '<div class="tiles" id="stats"></div>' +
       '<div class="searchrow"><span class="mi" aria-hidden="true">search</span><input id="sq" type="search" placeholder="Search clubs, owners, cities" aria-label="Search"></div>' +
-      '<p class="msg" role="alert"></p><div id="list">Loading...</div>';
+      '<p class="msg" role="alert"></p><div id="list" class="space-y-3"><div class="h-16 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-16 rounded-xl bg-surface-container-high/40 ds-skeleton"></div><div class="h-16 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div>';
     function draw() {
       var q = $("#sq").value.trim().toLowerCase();
       var rows = all.filter(function (c) {
@@ -1224,13 +1343,30 @@
       // Super admin never uses tenant/player screens.
       if (state.isPlatform && (path === "/me" || path === "/register-club" || path === "/auth")) return go("/platform");
       if (path === "/") return await viewHome();
-      if (path === "/auth") { var n = q.get("next"), mMode = q.get("mode"); return viewAuth({ next: n && n.charAt(0) === "/" ? n : "/me", mode: mMode }); }
+      if (path === "/auth") {
+        var n = q.get("next"), mMode = q.get("mode"), jn = q.get("join");
+        var ao = { next: n && n.charAt(0) === "/" ? n : "/me", mode: mMode };
+        if (jn && /^[a-z0-9-]+$/.test(jn)) { // coming from a club page: "register to book at <club>"
+          var jc = (await sb.from("public_clubs").select("name").eq("slug", jn).maybeSingle()).data;
+          if (jc) {
+            ao.join = jn;
+            if (!ao.mode) ao.mode = "up";
+            ao.title = "Register to book at " + esc(jc.name);
+            ao.intro = "Create a free account to book courts at " + esc(jc.name) + ". Already registered? Switch to sign in below.";
+          }
+        }
+        return viewAuth(ao);
+      }
       if (path === "/register-club") return viewRegisterClub();
       if (path === "/me") return await viewMe();
       if (path === "/platform") return await viewPlatform();
       if ((m = path.match(/^\/c\/([a-z0-9-]+)$/))) return await viewClub(m[1]);
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/join$/))) return await viewJoin(m[1]);
-      if ((m = path.match(/^\/c\/([a-z0-9-]+)\/book$/))) return await window.DS.booking.renderBook(m[1]);
+      if ((m = path.match(/^\/c\/([a-z0-9-]+)\/book$/))) {
+        // Booking needs an account: visitors are sent to register (or sign in) for this club first.
+        if (!state.user) return go("/auth?mode=up&join=" + m[1] + "&next=" + encodeURIComponent("/c/" + m[1] + "/book"));
+        return await window.DS.booking.renderBook(m[1]);
+      }
       if ((m = path.match(/^\/admin\/([a-z0-9-]+)(?:\/(courts|settings|bookings|profile|payments|staff|account))?$/))) {
         if (!requireUser(path)) return;
         return await window.DS.admin.render(m[1], m[2] || "dashboard");

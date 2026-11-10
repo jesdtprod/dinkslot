@@ -41,7 +41,7 @@
     D.setMsg(document.body, text, "");
   }
 
-  function slotEl() { return document.getElementById("bellslot"); }
+  function slotEl() { return document.getElementById("dashboard-bellslot") || document.getElementById("bellslot"); }
 
   function paint() {
     var slot = slotEl();

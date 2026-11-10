@@ -97,7 +97,7 @@
   // ======================================================== payment panel
   // Shows amount, QR, instructions, reference code and the proof upload for one booking.
   async function payPanel(el, b, ctx) {
-    el.innerHTML = '<p class="muted">Loading payment details...</p>';
+    el.innerHTML = '<div class="space-y-4"><div class="h-32 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-24 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div>';
     var ir = await sb.rpc("get_booking_info", { p_court_id: b.court_id });
     if (ir.error) { el.innerHTML = '<p class="msg err">' + esc(nice(ir.error)) + "</p>"; return; }
     var info = ir.data;
@@ -144,7 +144,21 @@
   async function renderBook(slug) {
     var root = D.root();
     if (!D.requireUser("/c/" + slug + "/book")) return;
-    root.innerHTML = '<p class="muted">Loading...</p>';
+    root.innerHTML = '<div class="pubwrap narrow space-y-6">' +
+      '<div class="h-8 w-48 rounded-lg bg-surface-container-high/70 ds-skeleton"></div>' +
+      '<div class="flex gap-2 overflow-x-auto pb-2">' +
+        '<div class="w-16 h-20 rounded-xl bg-surface-container-high/60 ds-skeleton shrink-0"></div>' +
+        '<div class="w-16 h-20 rounded-xl bg-surface-container-high/40 ds-skeleton shrink-0"></div>' +
+        '<div class="w-16 h-20 rounded-xl bg-surface-container-high/40 ds-skeleton shrink-0"></div>' +
+        '<div class="w-16 h-20 rounded-xl bg-surface-container-high/40 ds-skeleton shrink-0"></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">' +
+        '<div class="h-12 rounded-lg bg-surface-container-high/50 ds-skeleton"></div>' +
+        '<div class="h-12 rounded-lg bg-surface-container-high/50 ds-skeleton"></div>' +
+        '<div class="h-12 rounded-lg bg-surface-container-high/50 ds-skeleton"></div>' +
+        '<div class="h-12 rounded-lg bg-surface-container-high/50 ds-skeleton"></div>' +
+      '</div>' +
+    '</div>';
     var club = (await sb.from("public_clubs").select("*").eq("slug", slug).maybeSingle()).data;
     if (!club) { root.innerHTML = "<h2>Club not found</h2><p>This club does not exist or is not approved yet.</p>"; return; }
     var me = (await sb.from("club_players").select("id,status,display_name").eq("tenant_id", club.id)
@@ -187,7 +201,7 @@
 
     async function drawSlots() {
       var c = S.court, step = c.slot_minutes, box = q("#slots", root);
-      box.innerHTML = '<p class="muted">Loading times...</p>'; S.start = null; summary();
+      box.innerHTML = '<div class="grid grid-cols-3 sm:grid-cols-4 gap-2">' + Array(6).fill('<div class="h-10 rounded-lg bg-surface-container-high/60 ds-skeleton"></div>').join('') + '</div>'; S.start = null; summary();
       var startM = toMin(hhmm(c.open_time)), endM = toMin(hhmm(c.close_time)), slots = [];
       for (var m = startM; m + step <= endM; m += step) {
         var s = zonedToUtc(S.date + "T" + pad(Math.floor(m / 60)) + ":" + pad(m % 60), tz);
@@ -266,6 +280,12 @@
     function stop() { if (chan) { sb.removeChannel(chan); chan = null; } if (poll) { clearInterval(poll); poll = null; } }
     async function load() {
       if (!alive(box)) { stop(); return; }
+      if (!box.querySelector(".bcard")) {
+        box.innerHTML = '<div class="space-y-4">' +
+          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
+          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
+        '</div>';
+      }
       var pl = (await sb.from("club_players").select("id").eq("user_id", D.state.user.id)).data || [];
       if (!pl.length) { box.innerHTML = '<p class="muted">No bookings yet. <a href="#/">Find a club</a> to book your first court.</p>'; return; }
       var bs = (await sb.from("bookings").select("*").in("player_id", pl.map(function (p) { return p.id; })).order("starts_at", { ascending: false }).limit(60)).data || [];
@@ -332,13 +352,19 @@
     var tz = t.timezone || "Asia/Manila", chan = null, poll = null;
     function stop() { if (chan) { sb.removeChannel(chan); chan = null; } if (poll) { clearInterval(poll); poll = null; } }
     function modal(html) {
-      var m = document.createElement("div"); m.className = "modal";
-      m.innerHTML = '<div class="modalbox">' + html + '<button class="btn" type="button">Close</button></div>';
+      var m = document.createElement("div"); m.className = "fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4";
+      m.innerHTML = '<div class="bg-surface-container-low border border-outline-variant/40 rounded-DEFAULT p-space-lg max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col gap-3 text-on-surface">' + html + '<div class="pt-2"><button class="px-4 py-2 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-md border-0 cursor-pointer" type="button">Close</button></div></div>';
       m.onclick = function (e) { if (e.target === m || e.target.tagName === "BUTTON") m.remove(); };
       document.body.appendChild(m);
     }
     async function load() {
       if (!alive(box)) { stop(); return; }
+      if (!box.querySelector(".bcard")) {
+        box.innerHTML = '<div class="space-y-4">' +
+          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
+          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
+        '</div>';
+      }
       var bs = (await sb.from("bookings").select("*").eq("tenant_id", t.id).in("status", ["pending", "approved"])
         .gte("ends_at", new Date().toISOString()).order("starts_at")).data || [];
       var players = (await sb.from("club_players").select("id,display_name,phone").eq("tenant_id", t.id)).data || [];
@@ -353,17 +379,19 @@
       var later = approved.filter(function (b) { return todayList.indexOf(b) === -1; });
       function row(b, withDecide) {
         var p = pm[b.player_id] || {}, c = cm[b.court_id] || {}, py = pay[b.id];
-        return '<div class="bcard" data-b="' + esc(b.id) + '"><div class="brow"><div><b>' + esc(p.display_name || "Player") + "</b>" + (p.phone ? ' <span class="muted small">' + esc(p.phone) + "</span>" : "") +
-          "<br>" + esc(c.name || "Court") + " - " + esc(range(b.starts_at, b.ends_at, tz)) + '<br><span class="muted small">' + money(b.amount) + " - code " + esc(b.reference_code) + "</span></div>" +
-          '<div class="bstat">' + (py ? '<span class="badge approved">proof in</span>' : '<span class="badge pending">no proof</span>') + "</div></div>" +
-          (py ? '<p class="small bnote">Payer ref: <b>' + esc(py.payer_reference) + '</b> <button class="btn sm ghost" data-proof="' + esc(b.id) + '" type="button">View proof</button></p>'
-              : (b.expires_at ? '<p class="small bnote">Unpaid. Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></p>' : "")) +
-          '<div class="bact">' + (withDecide ? '<button class="btn sm" data-ok="' + esc(b.id) + '" type="button">Approve</button> <button class="btn sm danger" data-no="' + esc(b.id) + '" type="button">Reject</button>'
-            : '<button class="btn sm danger" data-cx="' + esc(b.id) + '" type="button">Cancel booking</button>') + '</div><p class="msg" role="alert"></p></div>';
+        return '<div class="bcard bg-surface-container border border-outline-variant/30 rounded-DEFAULT p-space-md mb-space-sm flex flex-col gap-2" data-b="' + esc(b.id) + '">' +
+          '<div class="flex items-start justify-between gap-4"><div><div class="font-title-md text-on-surface font-bold">' + esc(p.display_name || "Player") + '</div>' + (p.phone ? ' <span class="font-mono text-xs text-on-surface-variant">' + esc(p.phone) + "</span>" : "") +
+          '<div class="font-body-sm text-on-surface-variant mt-1"><span class="text-on-surface font-semibold">' + esc(c.name || "Court") + "</span> · " + esc(range(b.starts_at, b.ends_at, tz)) + '</div>' +
+          '<div class="font-mono text-xs text-primary mt-1 font-bold">' + money(b.amount) + " · ref #" + esc(b.reference_code) + '</div></div>' +
+          '<div>' + (py ? '<span class="px-2.5 py-1 rounded-full bg-secondary-container/30 border border-secondary/40 text-secondary font-mono text-xs font-semibold">Proof uploaded</span>' : '<span class="px-2.5 py-1 rounded-full bg-error-container/20 border border-error/30 text-error font-mono text-xs font-semibold">No proof</span>') + '</div></div>' +
+          (py ? '<div class="flex items-center justify-between text-xs font-mono text-on-surface-variant bg-surface-container-high px-3 py-2 rounded"><span>Payer ref: <strong class="text-on-surface">' + esc(py.payer_reference) + '</strong></span><button class="px-3 py-1 rounded-full bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm border border-outline-variant/30 cursor-pointer" data-proof="' + esc(b.id) + '" type="button">View proof</button></div>'
+              : (b.expires_at ? '<p class="text-xs text-on-surface-variant bg-surface-container-high px-3 py-2 rounded">Unpaid. Hold ends in <b class="timer text-primary font-mono" data-exp="' + esc(b.expires_at) + '"></b></p>' : "")) +
+          '<div class="flex items-center gap-2 pt-1">' + (withDecide ? '<button class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-sm font-bold border-0 cursor-pointer" data-ok="' + esc(b.id) + '" type="button">Approve</button> <button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-no="' + esc(b.id) + '" type="button">Reject</button>'
+            : '<button class="px-3.5 py-1.5 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error font-label-sm border border-error/40 cursor-pointer" data-cx="' + esc(b.id) + '" type="button">Cancel booking</button>') + '</div><p class="msg" role="alert"></p></div>';
       }
-      box.innerHTML = '<div class="panel wide"><h2>Needs approval (' + pending.length + ")</h2>" + (pending.length ? pending.map(function (b) { return row(b, true); }).join("") : '<p class="muted">Nothing waiting.</p>') + "</div>" +
-        '<div class="panel wide"><h2>Today (' + todayList.length + ")</h2>" + (todayList.length ? todayList.map(function (b) { return row(b, false); }).join("") : '<p class="muted">No confirmed bookings today.</p>') + "</div>" +
-        '<div class="panel wide"><h2>Upcoming (' + later.length + ")</h2>" + (later.length ? later.map(function (b) { return row(b, false); }).join("") : '<p class="muted">No other confirmed bookings.</p>') + "</div>";
+      box.innerHTML = '<div class="bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT p-space-lg mb-space-md"><h3 class="font-headline-sm text-on-surface mb-space-md flex items-center justify-between">Needs Approval <span class="px-2.5 py-0.5 rounded-full bg-error-container/20 text-error font-mono text-xs font-bold">' + pending.length + '</span></h3>' + (pending.length ? pending.map(function (b) { return row(b, true); }).join("") : '<p class="text-on-surface-variant font-body-sm">Nothing waiting in the queue.</p>') + '</div>' +
+        '<div class="bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT p-space-lg mb-space-md"><h3 class="font-headline-sm text-on-surface mb-space-md flex items-center justify-between">Today\'s Confirmed Bookings <span class="px-2.5 py-0.5 rounded-full bg-secondary-container/20 text-secondary font-mono text-xs font-bold">' + todayList.length + '</span></h3>' + (todayList.length ? todayList.map(function (b) { return row(b, false); }).join("") : '<p class="text-on-surface-variant font-body-sm">No confirmed bookings today.</p>') + '</div>' +
+        '<div class="bg-surface-container-low border border-outline-variant/30 rounded-DEFAULT p-space-lg mb-space-md"><h3 class="font-headline-sm text-on-surface mb-space-md flex items-center justify-between">Upcoming Confirmed Bookings <span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-mono text-xs font-bold">' + later.length + '</span></h3>' + (later.length ? later.map(function (b) { return row(b, false); }).join("") : '<p class="text-on-surface-variant font-body-sm">No other confirmed bookings.</p>') + '</div>';
       startTicker();
       var byId = {}; bs.forEach(function (b) { byId[b.id] = b; });
       function card(el) { return el.closest(".bcard"); }

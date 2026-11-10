@@ -1,15 +1,15 @@
 // Landing page adapted from the modern dark-mode full-bleed design.
 window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
 <!-- HERO SECTION -->
-<section class="relative w-full overflow-hidden bg-surface-container-lowest pt-10 pb-20 px-gutter md:px-margin-desktop">
+<section class="landing-search-section relative w-full overflow-hidden bg-surface-container-lowest pt-10 pb-20 px-gutter md:px-margin-desktop">
   <!-- Ambient Kinetic Glow behind hero content -->
   <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[380px] bg-primary/10 rounded-full blur-[130px] pointer-events-none"></div>
   <div class="absolute top-10 right-10 w-72 h-72 bg-tertiary-container/10 rounded-full blur-[90px] pointer-events-none"></div>
-  <div class="relative max-w-7xl mx-auto flex flex-col items-center text-center">
+  <div class="landing-hero-content relative w-full mx-auto flex flex-col items-center text-center">
     <!-- Badge Pill -->
     <div class="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-container-high text-primary font-label-md text-label-md shadow-[0_0_20px_rgba(163,230,53,0.18)] mb-space-md">
       <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
-      <span class="font-bold tracking-wide uppercase">🎾 THE #1 PICKLEBALL RESERVATION &amp; DUPR READY COMMUNITY</span>
+      <span class="font-bold tracking-wide uppercase">THE #1 PICKLEBALL RESERVATION &amp; DUPR READY COMMUNITY</span>
     </div>
     <!-- Headline -->
     <h1 class="font-headline-display text-headline-display-mobile md:text-headline-display text-on-surface tracking-tight max-w-4xl mt-space-xs">
@@ -21,7 +21,7 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
       Discover premier indoor &amp; outdoor pickleball courts, book hourly slots in seconds, and connect with a DUPR Ready pickleball community.
     </p>
     <!-- MODERN INTERACTIVE QUICK SEARCH BAR -->
-    <div class="landing-search-panel w-full max-w-5xl mt-space-xl p-space-sm md:p-space-md rounded-2xl bg-surface-container-high shadow-2xl">
+    <div class="landing-search-panel w-full max-w-none mt-space-xl p-space-sm md:p-space-md rounded-2xl bg-surface-container-high shadow-2xl">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-space-xs items-center">
         <!-- Venue / Search Input -->
         <div class="landing-search-field md:col-span-4 flex items-center gap-space-sm px-space-md py-3.5 rounded-xl bg-surface-container text-left group transition-all">
@@ -35,10 +35,9 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
         <div class="landing-city-field md:col-span-3 flex items-center gap-space-sm px-space-md py-3.5 rounded-xl bg-surface-container text-left transition-colors">
           <span class="material-symbols-outlined text-secondary text-headline-sm">location_on</span>
           <div class="flex flex-col flex-1 min-w-0">
-            <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">City / Region</span>
-            <select id="city" aria-label="City" class="bg-transparent font-body-md text-body-md text-on-surface focus:outline-none cursor-pointer w-full truncate border-0 p-0">
-              <option value="" class="bg-surface-container text-on-surface">All cities</option>
-            </select>
+            <span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider">Cities</span>
+            <input id="city" type="hidden" value="" />
+            <details class="city-menu"><summary aria-label="Cities"><span class="city-selected">All Cities</span><span class="material-symbols-outlined" aria-hidden="true">expand_more</span></summary><div class="city-options"><button type="button" data-city="" aria-pressed="true">All Cities</button></div></details>
           </div>
 
         </div>
@@ -102,7 +101,7 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
 
 <!-- FEATURED CLUBS & AVAILABILITY SECTION -->
 <section id="clubs-section" class="w-full py-space-xl px-gutter md:px-margin-desktop bg-surface">
-  <div class="max-w-7xl mx-auto flex flex-col gap-space-xl">
+  <div class="clubs-content max-w-7xl mx-auto flex flex-col gap-space-xl">
     <!-- Section Header with Filter Badges -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
       <div>

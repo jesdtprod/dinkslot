@@ -36,3 +36,10 @@ The error is `rate_limited`, shown as "You are doing that too often". A failed a
 - A real email arriving once and a replayed webhook sending nothing (needs Gmail credentials).
 - A restore into a second Supabase project (rehearsal), and file backups with real uploads.
 - The pilot walk-through with a real club: `docs/launch-checklist.md`.
+
+## Register before booking
+Players need an account, and a profile at the club, before they can book:
+- Club page and court cards show **Sign up to book** to visitors (and a small "Already registered? Sign in" link); signed-in players see **Book**.
+- Opening a booking link while signed out redirects to `/#/auth?mode=up&join=<club>&next=/c/<club>/book`, which reads "Register to book at <club>".
+- After sign-up or sign-in the player joins the club (`join_club`) and lands on the booking page. If email confirmation (or Google sign-in) interrupts the flow, the intent is remembered in the browser for 24 hours and finished as soon as they are signed in.
+- The database enforces this regardless of the screens: `create_booking` needs a signed-in user who joined the club, and anonymous callers are refused (covered by the isolation test).

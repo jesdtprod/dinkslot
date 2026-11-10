@@ -1,4 +1,4 @@
-const CACHE = "dinkslot-shell-v42";
+const CACHE = "dinkslot-shell-v72";
 const RUNTIME = "dinkslot-cdn-v1";
 
 const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/landing.js", "js/config.js", "js/ui.js", "js/notify.js", "js/admin.js", "js/booking.js", "manifest.webmanifest", "favicon.ico", "assets/dinkslot-logo.png", "assets/landing-court.jpg", "assets/pickleball-courts-hd.jpg", "assets/icons/icon-192.png", "assets/icons/icon-512.png"];

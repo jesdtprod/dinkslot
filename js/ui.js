@@ -3,6 +3,10 @@
 (function () {
   "use strict";
   var D = window.DS, esc = D.esc;
+  document.addEventListener("pointerdown", function (event) {
+    var menu = document.querySelector(".facility-account[open]");
+    if (menu && !menu.contains(event.target)) menu.open = false;
+  });
 
   function icon(name) { return '<span class="material-symbols-outlined text-xl shrink-0" aria-hidden="true">' + esc(name) + "</span>"; }
 
@@ -22,8 +26,8 @@
         ? '<span class="px-2 py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm font-bold shadow-sm" data-badge="' + esc(it.key) + '">' + esc(it.badge) + '</span>'
         : '<span class="px-2 py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm font-bold shadow-sm" data-badge="' + esc(it.key) + '" hidden></span>';
       var cls = on
-        ? "flex items-center gap-space-sm px-space-md py-space-sm rounded-DEFAULT transition-all bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(163,230,53,0.25)] no-underline"
-        : "flex items-center gap-space-sm px-space-md py-space-sm rounded-DEFAULT font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all no-underline";
+        ? "flex items-center gap-space-sm px-space-md py-space-sm dashboard-rounded transition-all bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(163,230,53,0.25)] no-underline"
+        : "flex items-center gap-space-sm px-space-md py-space-sm dashboard-rounded font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all no-underline";
       var inner = icon(it.icon) + '<span class="flex-1 min-w-0 truncate">' + esc(it.label) + "</span>" + badge;
       return it.href
         ? '<a class="' + cls + '" data-key="' + esc(it.key) + '" href="' + esc(it.href) + '">' + inner + "</a>"
@@ -31,7 +35,7 @@
     }).join("");
 
     var foot = (o.foot || []).map(function (f) {
-      return '<a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-DEFAULT font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all no-underline" href="' + esc(f.href) + '">' +
+      return '<a class="flex items-center gap-space-sm px-space-md py-space-sm dashboard-rounded font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all no-underline" href="' + esc(f.href) + '">' +
         icon(f.icon) + '<span class="flex-1 min-w-0 truncate">' + esc(f.label) + '</span>' +
         '<span class="material-symbols-outlined text-sm text-outline">chevron_right</span>' +
         '</a>';
@@ -42,19 +46,16 @@
         '<!-- Fixed Left Sidebar -->' +
         '<aside id="ds-side" class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between py-space-md border-r border-outline-variant/20 -translate-x-full md:translate-x-0 transition-transform duration-200">' +
           '<div class="flex flex-col gap-space-md overflow-y-auto">' +
-            '<div class="h-16 flex items-center px-space-md">' +
-              '<a href="#/" class="flex items-center gap-space-sm no-underline text-inherit group">' +
-                '<div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-headline-sm font-bold shadow-[0_0_16px_rgba(163,230,53,0.35)] group-hover:scale-105 transition-transform">DS</div>' +
-                '<div class="flex flex-col">' +
-                  '<span class="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface leading-none">DINKSLOT</span>' +
-                  '<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-medium mt-1">FACILITY OS</span>' +
-                '</div>' +
+            '<div class="facility-brand-row">' +
+              '<a href="#/" class="facility-brand" aria-label="DINKSLOT home">' +
+                '<img src="assets/dinkslot-logo.png" alt="" width="42" height="42" />' +
+                '<span class="facility-brand-copy"><strong>DINKSLOT</strong><span>Tenant Workspace</span></span>' +
               '</a>' +
             '</div>' +
             '<nav class="flex flex-col gap-space-xs px-space-sm" aria-label="Facility menu">' + items + '</nav>' +
           '</div>' +
           '<div class="px-space-md flex flex-col gap-space-sm pt-space-sm border-t border-outline-variant/20">' +
-            '<div class="bg-surface-container-low p-space-sm rounded-DEFAULT flex items-center justify-between border border-outline-variant/20" id="side-status-box">' +
+            '<div class="bg-surface-container-low p-space-sm dashboard-rounded flex items-center justify-between border border-outline-variant/20" id="side-status-box">' +
               '<div class="flex items-center gap-space-xs">' +
                 '<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>' +
                 '<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant" id="side-status-courts">Live Facility</span>' +
@@ -86,16 +87,88 @@
                 '<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>' +
                 '<span class="font-label-md text-label-md text-primary font-semibold">' + (h.status === "approved" ? "Approved Partner" : esc(h.status || "Active Partner")) + '</span>' +
               '</div>' +
-              '<a class="p-space-xs rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors no-underline hidden sm:inline-flex" href="#/" title="Home Site">' +
-                '<span class="material-symbols-outlined text-xl">home</span>' +
-              '</a>' +
-              '<div class="flex items-center gap-space-sm pl-space-sm">' +
-                '<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold font-headline-sm text-sm shadow-sm">' + initial + '</div>' +
-                '<div class="hidden sm:flex flex-col text-left">' +
-                  '<span class="font-label-md text-label-md text-on-surface font-semibold leading-none truncate max-w-[140px]">' + esc(h.title || "") + '</span>' +
-                  '<span class="font-label-sm text-label-sm text-on-surface-variant leading-none mt-1">' + esc(h.sub || "Team") + '</span>' +
+              '<span id="dashboard-bellslot" class="dashboard-bellslot"></span>' +
+              '<details class="facility-account"><summary aria-label="Account menu">' +
+                '<div class="facility-avatar-wrap">' +
+                  '<span class="facility-avatar">' + (h.img ? '<img src="' + esc(h.img) + '" alt="">' : initial) + '</span>' +
+                  '<span class="facility-status-dot" aria-hidden="true"></span>' +
                 '</div>' +
-              '</div>' +
+                '<span class="facility-account-text">' +
+                  '<strong>' + esc(h.title || "Facility") + '</strong>' +
+                  '<small>' + esc(h.sub || "Director") + '</small>' +
+                '</span>' +
+                '<span class="material-symbols-outlined facility-chevron" aria-hidden="true">expand_more</span>' +
+              '</summary><div class="facility-account-menu">' +
+                '<div class="facility-menu-header">' +
+                  '<div class="facility-menu-header-top">' +
+                    '<div class="facility-menu-header-avatar">' + (h.img ? '<img src="' + esc(h.img) + '" alt="">' : initial) + '</div>' +
+                    '<div class="facility-menu-header-info">' +
+                      '<span class="facility-menu-header-name">' + esc(h.title || "Facility") + '</span>' +
+                      '<span class="facility-menu-header-role">' + esc(h.sub || "Director") + '</span>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="facility-menu-header-email">' + esc((D.state.user && D.state.user.email) || "") + '</div>' +
+                  '<div class="facility-menu-header-meta">' +
+                    '<span class="facility-meta-status"><span class="facility-meta-status-dot"></span> Cloud Sync Active</span>' +
+                    (h.city ? '<span class="facility-meta-city"><span class="material-symbols-outlined">location_on</span>' + esc(h.city) + '</span>' : '') +
+                  '</div>' +
+                '</div>' +
+                (h.slug ?
+                  '<div class="facility-menu-label">Facility Management</div>' +
+                  '<a href="#/c/' + esc(h.slug) + '" target="_blank" rel="noopener" class="facility-menu-item">' +
+                    '<div class="facility-item-main">' +
+                      '<div class="facility-item-icon"><span class="material-symbols-outlined">storefront</span></div>' +
+                      '<div class="facility-item-copy">' +
+                        '<span class="facility-item-title">Public Club Page</span>' +
+                        '<span class="facility-item-sub">View live member booking page</span>' +
+                      '</div>' +
+                    '</div>' +
+                    '<span class="material-symbols-outlined facility-item-arrow">arrow_outward</span>' +
+                  '</a>' +
+                  '<a href="#/admin/' + esc(h.slug) + '/profile" class="facility-menu-item">' +
+                    '<div class="facility-item-main">' +
+                      '<div class="facility-item-icon"><span class="material-symbols-outlined">tune</span></div>' +
+                      '<div class="facility-item-copy">' +
+                        '<span class="facility-item-title">Club Configuration</span>' +
+                        '<span class="facility-item-sub">Courts, payouts & rules</span>' +
+                      '</div>' +
+                    '</div>' +
+                    '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
+                  '</a>'
+                : '') +
+                '<div class="facility-menu-label">Network & Account</div>' +
+                '<a href="#/me" class="facility-menu-item">' +
+                  '<div class="facility-item-main">' +
+                    '<div class="facility-item-icon"><span class="material-symbols-outlined">person</span></div>' +
+                    '<div class="facility-item-copy">' +
+                      '<span class="facility-item-title">Personal Profile</span>' +
+                      '<span class="facility-item-sub">Player stats & reservations</span>' +
+                    '</div>' +
+                  '</div>' +
+                  '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
+                '</a>' +
+                '<a href="#/" class="facility-menu-item">' +
+                  '<div class="facility-item-main">' +
+                    '<div class="facility-item-icon"><span class="material-symbols-outlined">sports_tennis</span></div>' +
+                    '<div class="facility-item-copy">' +
+                      '<span class="facility-item-title">Browse Courts</span>' +
+                      '<span class="facility-item-sub">Explore national venue network</span>' +
+                    '</div>' +
+                  '</div>' +
+                  '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
+                '</a>' +
+                '<div class="facility-menu-divider"></div>' +
+                '<button type="button" id="facility-signout" class="facility-menu-item signout-item">' +
+                  '<div class="facility-item-main">' +
+                    '<div class="facility-item-icon"><span class="material-symbols-outlined">logout</span></div>' +
+                    '<div class="facility-item-copy">' +
+                      '<span class="facility-item-title">Sign out</span>' +
+                      '<span class="facility-item-sub">End current active session</span>' +
+                    '</div>' +
+                  '</div>' +
+                  '<kbd class="facility-shortcut">Esc</kbd>' +
+                '</button>' +
+              '</div></details>' +
             '</div>' +
           '</header>' +
 
@@ -106,6 +179,21 @@
         '</div>' +
       '</div>';
 
+    if (D.notify) D.notify.mount();
+    var accountMenu = root.querySelector(".facility-account");
+    accountMenu.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") { accountMenu.open = false; accountMenu.querySelector("summary").focus(); }
+    });
+    accountMenu.addEventListener("focusout", function (event) { if (!accountMenu.contains(event.relatedTarget)) accountMenu.open = false; });
+    accountMenu.querySelectorAll(".facility-account-menu a").forEach(function (link) {
+      link.addEventListener("click", function () { accountMenu.open = false; });
+    });
+    root.querySelector("#facility-signout").onclick = async function () {
+      var result = await D.sb.auth.signOut();
+      if (result.error) return D.setMsg(root, D.friendly(result.error), "err");
+      location.hash = "#/auth";
+      location.reload();
+    };
     var aside = root.querySelector("#ds-side");
     var toggleBtn = root.querySelector("#side-toggle-btn");
     var backdrop = root.querySelector("#ds-backdrop");
@@ -146,8 +234,8 @@
         Array.prototype.forEach.call(root.querySelectorAll("#ds-side nav a[data-key], #ds-side nav button[data-key]"), function (e) {
           var on = e.getAttribute("data-key") === key;
           e.className = on
-            ? "flex items-center gap-space-sm px-space-md py-space-sm rounded-DEFAULT transition-all bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(163,230,53,0.25)] no-underline"
-            : "flex items-center gap-space-sm px-space-md py-space-sm rounded-DEFAULT font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all no-underline";
+            ? "flex items-center gap-space-sm px-space-md py-space-sm dashboard-rounded transition-all bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(163,230,53,0.25)] no-underline"
+            : "flex items-center gap-space-sm px-space-md py-space-sm dashboard-rounded font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all no-underline";
         });
       },
       setBadge: function (key, value) {

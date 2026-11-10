@@ -10,9 +10,9 @@
   --muted-dim: #8c947c;
   --line: #262a31;
   --line-strong: #31353c;
-  --lime: #a3e635;
-  --lime-hover: #bff365;
-  --lime-bright: #ccff80;
+  --lime: #b1e903;
+  --lime-hover: #bdf517;
+  --lime-bright: #b1e903;
   --lime-subtle: rgba(163, 230, 53, 0.16);
   --err: #ffb4ab;
   --err-bg: rgba(147, 0, 10, 0.35);
@@ -658,17 +658,11 @@ body > .site-header {
 .site-header::after {
   content: "";
   position: absolute;
-  inset: 0 0 -96px;
+  inset: 0 0 -28px;
   z-index: -1;
   background: linear-gradient(to bottom,
-    rgba(10,14,20,.97) 0%,
-    rgba(10,14,20,.92) 18%,
-    rgba(10,14,20,.78) 34%,
-    rgba(10,14,20,.53) 50%,
-    rgba(10,14,20,.28) 66%,
-    rgba(10,14,20,.10) 81%,
-    rgba(10,14,20,.02) 93%,
-    rgba(10,14,20,0) 100%);
+    rgba(10,14,20,.8) 0%, rgba(10,14,20,.6) 40%,
+    rgba(10,14,20,.24) 70%, rgba(10,14,20,0) 100%);
   pointer-events: none;
 }
 /* Match the space behind navigation to the landing hero, removing its color seam. */
@@ -1043,6 +1037,626 @@ body.tenant-dashboard-mode #app {
 .toast-region .toast-action { flex: none; border: 0; border-radius: 8px; padding: 5px 8px; background: #ffffff0a; color: var(--lime-bright); cursor: pointer; font: 600 12px/20px "Plus Jakarta Sans",sans-serif; }
 .toast-region .toast-action:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
 /* Fade the pattern in beneath the navigation instead of starting at a hard edge. */
-#ds-auth-screen .auth-stage::before { content: ""; position: absolute; inset: 0 0 auto; height: 100px; background: linear-gradient(to bottom, var(--bg), transparent); z-index: 1; pointer-events: none; }
-#ds-auth-screen .auth-pattern { mask-image: linear-gradient(to bottom, transparent, #000 100px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 100px); }
-.auth-page .site-header::after { background: linear-gradient(to bottom, rgba(16,20,26,.98), rgba(16,20,26,.85) 25%, rgba(16,20,26,.45) 52%, rgba(16,20,26,.1) 80%, transparent); }
+#ds-auth-screen .auth-stage::before { content: ""; position: absolute; inset: 0 0 auto; height: 32px; background: linear-gradient(to bottom, var(--bg), transparent); z-index: 1; pointer-events: none; }
+#ds-auth-screen .auth-pattern { mask-image: linear-gradient(to bottom, transparent, #000 32px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px); }
+.auth-page .site-header::after { background: linear-gradient(to bottom, rgba(16,20,26,.8), rgba(16,20,26,.6) 40%, rgba(16,20,26,.24) 70%, transparent); }
+
+
+#ds-auth-screen.signup-screen .signup-skills { display: flex; flex-direction: column; gap: 16px; }
+#ds-auth-screen.signup-screen .skill-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+#ds-auth-screen.signup-screen .skill-group legend { margin: 0 0 8px; padding: 0; color: var(--ink); font: 600 12px/18px "Plus Jakarta Sans",sans-serif; }
+#ds-auth-screen.signup-screen .skill-group-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+#ds-auth-screen.signup-screen .skill-unrated { width: 100%; }
+
+
+#ds-auth-screen.signup-screen .dupr-category { display: block; padding: 14px 16px; border-radius: 12px; background: #a3e6350d; border: 1px solid #a3e63526; color: var(--lime-bright); font: 600 13px/20px "Plus Jakarta Sans",sans-serif; }
+#ds-auth-screen.signup-screen .club-level-heading { margin: 12px 0 0; font: 600 13px/20px "Plus Jakarta Sans",sans-serif; color: var(--ink); }
+
+/* Universal Skeleton Loader & Shimmer */
+@keyframes ds-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.ds-skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+.ds-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  animation: ds-shimmer 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-skeleton::after { animation: none; display: none; }
+}
+
+
+/* Facility header account dropdown and notification controls. */
+.facility-account { position: relative; }
+.facility-account summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  list-style: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.facility-account summary::-webkit-details-marker { display: none; }
+.facility-account summary:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(163, 230, 53, 0.35);
+  box-shadow: 0 0 16px rgba(163, 230, 53, 0.08);
+}
+.facility-account[open] summary {
+  background: #1c2026;
+  border-color: #a3e635;
+  box-shadow: 0 0 0 2px rgba(163, 230, 53, 0.18), 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.facility-avatar-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.facility-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgba(163, 230, 53, 0.25), rgba(163, 230, 53, 0.08));
+  border: 1px solid rgba(163, 230, 53, 0.35);
+  color: #ccff80;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  font-size: 12px;
+  overflow: hidden;
+}
+.facility-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.facility-status-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a3e635;
+  border: 1.5px solid #181c22;
+  box-shadow: 0 0 4px #a3e635;
+}
+.facility-account-text { display: flex; flex-direction: column; gap: 1px; max-width: 150px; text-align: left; }
+.facility-account-text strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 15px;
+  color: #dfe2eb;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.facility-account-text small {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 12px;
+  color: #a4d64c;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.facility-chevron {
+  font-size: 18px;
+  color: #8c947c;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s;
+}
+.facility-account[open] .facility-chevron {
+  transform: rotate(180deg);
+  color: #ccff80;
+}
+
+/* Floating Menu Card */
+.facility-account-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  background: rgba(24, 28, 34, 0.96);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 1px 1px rgba(255, 255, 255, 0.08), 0 0 24px rgba(163, 230, 53, 0.05);
+  z-index: 100;
+  animation: facilityMenuIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes facilityMenuIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.facility-menu-header {
+  background: rgba(10, 14, 20, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.facility-menu-header-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.facility-menu-header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(163, 230, 53, 0.25), rgba(163, 230, 53, 0.08));
+  border: 1px solid rgba(163, 230, 53, 0.35);
+  display: grid;
+  place-items: center;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  font-size: 14px;
+  color: #ccff80;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.facility-menu-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.facility-menu-header-info { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 2px; }
+.facility-menu-header-name {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #dfe2eb;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.facility-menu-header-role {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: rgba(163, 230, 53, 0.12);
+  border: 1px solid rgba(163, 230, 53, 0.25);
+  color: #a4d64c;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.facility-menu-header-email {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: #8c947c;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  user-select: all;
+}
+.facility-menu-header-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: #8c947c;
+}
+.facility-meta-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #a4d64c;
+}
+.facility-meta-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a3e635;
+  box-shadow: 0 0 6px #a3e635;
+}
+.facility-meta-city {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #8c947c;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+.facility-meta-city .material-symbols-outlined { font-size: 13px; }
+
+.facility-menu-label {
+  padding: 7px 10px 3px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8c947c;
+}
+.facility-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #dfe2eb;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+.facility-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+.facility-item-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.facility-item-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  display: grid;
+  place-items: center;
+  color: #c2cab0;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.facility-item-icon .material-symbols-outlined { font-size: 18px; }
+.facility-menu-item:hover .facility-item-icon {
+  background: rgba(163, 230, 53, 0.15);
+  border-color: rgba(163, 230, 53, 0.3);
+  color: #ccff80;
+}
+.facility-item-copy { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.facility-item-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #dfe2eb;
+  line-height: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+.facility-menu-item:hover .facility-item-title { color: #ffffff; }
+.facility-item-sub {
+  font-size: 10px;
+  color: #8c947c;
+  line-height: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.facility-item-arrow {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.2);
+  transition: transform 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.facility-menu-item:hover .facility-item-arrow {
+  color: #ccff80;
+  transform: translateX(2px);
+}
+
+.facility-menu-divider {
+  height: 1px;
+  margin: 5px 2px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.facility-menu-item.signout-item {
+  color: #ffb4ab;
+}
+.facility-menu-item.signout-item .facility-item-title { color: #ffb4ab; }
+.facility-menu-item.signout-item .facility-item-sub { color: rgba(255, 180, 171, 0.65); }
+.facility-menu-item.signout-item .facility-item-icon {
+  background: rgba(255, 180, 171, 0.08);
+  border-color: rgba(255, 180, 171, 0.18);
+  color: #ffb4ab;
+}
+.facility-menu-item.signout-item:hover {
+  background: rgba(255, 180, 171, 0.12);
+}
+.facility-menu-item.signout-item:hover .facility-item-icon {
+  background: rgba(255, 180, 171, 0.22);
+  border-color: rgba(255, 180, 171, 0.35);
+  color: #ffdad6;
+}
+.facility-menu-item.signout-item:hover .facility-item-title { color: #ffdad6; }
+.facility-menu-item .facility-shortcut {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  color: rgba(255, 180, 171, 0.6);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 180, 171, 0.2);
+  background: rgba(255, 180, 171, 0.05);
+  flex-shrink: 0;
+}
+
+.facility-account :is(summary, .facility-menu-item):focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+.dashboard-bellslot { display: flex; align-items: center; }
+.dashboard-bellslot .bellbtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #c2cab0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.dashboard-bellslot .bellbtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(163, 230, 53, 0.35);
+  color: #ccff80;
+  box-shadow: 0 0 16px rgba(163, 230, 53, 0.08);
+}
+.dashboard-bellslot .bellbtn .mi { font-size: 20px; }
+
+@media (max-width: 640px) {
+  .facility-account-text { display: none; }
+  .facility-account summary { gap: 4px; padding: 4px; }
+  .facility-account-menu { width: calc(100vw - 24px); right: -8px; }
+}
+
+
+/* Facility workspace follows the authentication card and control geometry. */
+#ds-tenant-dashboard { --dashboard-radius: 12px; }
+#ds-tenant-dashboard .dashboard-rounded { border-radius: var(--dashboard-radius); }
+#ds-tenant-dashboard #sec { gap: 24px; padding-top: 28px; padding-bottom: 40px; }
+#ds-tenant-dashboard #sec .rounded-lg { border-radius: 24px; }
+#ds-tenant-dashboard #sec :is(.rounded-xl,.rounded-2xl) { border-radius: 16px; }
+#ds-tenant-dashboard #sec :is(section,div,article,a)[class*="border-outline-variant"] { border-color: rgba(255,255,255,.065); }
+#ds-tenant-dashboard #sec .dashboard-rounded[class*="p-space-lg"],
+#ds-tenant-dashboard #sec .dashboard-rounded[class*="p-space-xl"] { border-radius: 20px; }
+#ds-tenant-dashboard #sec :is(button,a).rounded-full { border-radius: 10px; box-shadow: none; }
+#ds-tenant-dashboard #sec :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) { border-radius: 12px; border-color: #ffffff14; background: #ffffff03; }
+#ds-tenant-dashboard #sec :is(input,select,textarea):focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+#ds-tenant-dashboard #ds-side nav :is(a,button)[data-key] { border-radius: 12px; min-height: 44px; padding: 11px 14px; font-size: 14px; box-shadow: none; }
+#ds-tenant-dashboard #ds-side nav :is(a,button).bg-primary-container { background: #a3e63516; color: var(--lime-bright); box-shadow: inset 3px 0 0 var(--lime); }
+#ds-tenant-dashboard #side-status-box { border-radius: 12px; padding: 12px; }
+#ds-tenant-dashboard #sec .grid { padding-bottom: 0; grid-template-columns: minmax(0,1fr); }
+#ds-tenant-dashboard #sec .grid-cols-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+#ds-tenant-dashboard #sec .grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+@media (min-width:640px) {
+  #ds-tenant-dashboard #sec .sm\:grid-cols-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (min-width:768px) {
+  #ds-tenant-dashboard #sec .md\:grid-cols-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #ds-tenant-dashboard #sec .md\:grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (min-width:1024px) {
+  #ds-tenant-dashboard #sec .lg\:grid-cols-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #ds-tenant-dashboard #sec .lg\:grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  #ds-tenant-dashboard #sec .lg\:grid-cols-4 { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  #ds-tenant-dashboard #sec .lg\:grid-cols-12 { grid-template-columns: repeat(12,minmax(0,1fr)); }
+}
+@media (max-width:640px) { #ds-tenant-dashboard #sec { gap: 16px; padding-top: 20px; } }
+
+
+/* The city control uses a custom menu rather than a native select popup. */
+#ds-landing .landing-city-field { border: 0; box-shadow: none; }
+#ds-landing .landing-city-field:focus-within { box-shadow: none; background: #30363b; }
+#ds-landing .city-menu summary:focus-visible { outline: none; color: var(--lime-bright); }
+#ds-landing .city-options { border: 0; border-radius: 14px; padding: 6px; background: #252b31; }
+#ds-landing .city-options button { border: 0; border-radius: 9px; transition: background-color .15s ease; }
+#ds-landing #city[type="hidden"] { display: none !important; }
+
+
+/* Primary actions use the dominant lime sampled from the DINKSLOT logo. */
+:root { --brand-button: #b1e903; --brand-button-hover: #bdf517; }
+#nav a.pill, #nav.member-nav a.nav-register,
+#ds-landing #find-courts-btn,
+#ds-landing .club-filters .club-tab[aria-pressed="true"],
+#ds-landing .landing-book,
+#ds-auth-screen #go,
+:is(button,a).bg-primary, :is(button,a).bg-primary-container {
+  background: var(--brand-button); background-image: none; color: #213600;
+}
+#nav a.pill:hover, #nav.member-nav a.nav-register:hover,
+#ds-landing #find-courts-btn:hover,
+#ds-auth-screen #go:hover,
+:is(button,a).bg-primary:hover, :is(button,a).bg-primary-container:hover {
+  background: var(--brand-button-hover); background-image: none;
+}
+
+
+/* Sidebar branding shares the content header's 64px alignment. */
+#ds-tenant-dashboard #ds-side { padding-top: 0; }
+#ds-tenant-dashboard .facility-brand-row { display: flex; align-items: center; flex-shrink: 0; height: 64px; padding: 0 16px; border-bottom: 1px solid #ffffff06; }
+#ds-tenant-dashboard .facility-brand { display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; color: var(--ink); text-decoration: none; }
+#ds-tenant-dashboard .facility-brand img { flex: none; width: 42px; height: 42px; object-fit: contain; }
+#ds-tenant-dashboard .facility-brand-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+#ds-tenant-dashboard .facility-brand-copy strong { font: 700 20px/22px "Space Grotesk",sans-serif; letter-spacing: -.04em; }
+#ds-tenant-dashboard .facility-brand-copy > span { color: var(--lime-bright); font: 600 8px/12px "JetBrains Mono",monospace; letter-spacing: -.025em; white-space: nowrap; }
+#ds-tenant-dashboard .facility-brand:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; border-radius: 8px; }
+
+
+/* Center footer columns and legal links in the same readable content width. */
+.site-footer > div { width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; }
+.site-footer > .grid { grid-template-columns: minmax(0,1fr); padding-bottom: 0; }
+.site-footer > div:last-child > div { flex-wrap: wrap; justify-content: center; }
+@media (min-width:768px) { .site-footer > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (min-width:1024px) { .site-footer > .grid { grid-template-columns: repeat(5,minmax(0,1fr)); } }
+
+
+/* Public navigation uses the same account dropdown as the facility dashboard. */
+#nav.member-nav .dashboard-bellslot .bellbtn { width: 42px; height: 42px; border-radius: 12px; background: #ffffff04; border: 1px solid #ffffff0d; }
+#nav.member-nav .facility-account-menu a { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 10px; color: var(--ink); font: 500 13px "Plus Jakarta Sans",sans-serif; }
+#nav.member-nav .facility-account-menu a:hover { background: #ffffff08; }
+#nav.member-nav .facility-account-menu #signout { color: var(--err); }
+#nav.member-nav .facility-account-menu .material-symbols-outlined { font-size: 20px; }
+
+
+/* A compact facility toolbar, with matching sidebar branding and content offset. */
+#ds-tenant-dashboard > div > header { height: 56px; }
+#ds-tenant-dashboard > div > main { padding-top: 56px; }
+#ds-tenant-dashboard .facility-brand-row { height: 56px; }
+#ds-tenant-dashboard .facility-brand img { width: 36px; height: 36px; }
+
+
+#ds-landing .landing-hero-content { width: 100%; max-width: none; }
+#ds-landing .landing-search-panel { width: 100%; max-width: none; align-self: stretch; }
+
+
+/* Equal vertical rhythm above and below the search section and its panel. */
+#ds-landing .landing-search-section { --search-spacing: 40px; padding-top: var(--search-spacing); padding-bottom: var(--search-spacing); }
+#ds-landing .landing-search-panel { margin-top: var(--search-spacing); padding-top: 16px; padding-bottom: 16px; }
+#ds-landing .landing-stats { margin-top: var(--search-spacing); padding-top: 0; }
+@media (max-width: 767px) { #ds-landing .landing-search-section { --search-spacing: 24px; } }
+
+
+/* Club inventory lines up with the full-width search panel above. */
+#ds-landing #clubs-section > .clubs-content { width: 100%; max-width: 1280px; }
+
+
+/* Search and club inventory share the same centered boxed width. */
+#ds-landing .landing-search-panel { width: 100%; max-width: 1280px; margin-left: auto; margin-right: auto; align-self: center; }
+
+
+/* Dashboard typography uses the same families and readable scale as authentication. */
+#ds-tenant-dashboard { font-family: "Plus Jakarta Sans",sans-serif; font-size: 14px; line-height: 1.6; }
+#ds-tenant-dashboard #sec h1 { font-family: "Space Grotesk",sans-serif; font-size: 32px; line-height: 1.2; font-weight: 600; letter-spacing: -.035em; }
+#ds-tenant-dashboard #sec h2 { font-family: "Space Grotesk",sans-serif; font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -.02em; }
+#ds-tenant-dashboard #sec h3 { font-family: "Space Grotesk",sans-serif; font-size: 17px; line-height: 24px; font-weight: 600; }
+#ds-tenant-dashboard #sec .text-body-md { font-size: 14px; line-height: 22px; }
+#ds-tenant-dashboard #sec .text-body-sm { font-size: 13px; line-height: 21px; }
+#ds-tenant-dashboard #sec :is(.font-label-md,.font-label-lg) { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; line-height: 18px; font-weight: 500; letter-spacing: .01em; }
+#ds-tenant-dashboard #sec .font-label-sm { font-family: "JetBrains Mono",monospace; font-size: 10px; line-height: 16px; font-weight: 500; }
+#ds-tenant-dashboard #sec :is(button,a):is(.font-label-md,.font-label-lg) { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; font-weight: 600; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 10px; }
+#ds-tenant-dashboard #sec .text-headline-display { font-family: "Space Grotesk",sans-serif; font-size: 40px; line-height: 1.1; font-weight: 600; letter-spacing: -.035em; }
+#ds-tenant-dashboard .dashboard-checklist { gap: 10px; }
+#ds-tenant-dashboard .dashboard-checklist > div { padding: 16px; gap: 16px; }
+#ds-tenant-dashboard .dashboard-checklist .font-semibold { font-weight: 600; }
+#ds-tenant-dashboard #ds-side nav :is(a,button)[data-key] { font-family: "Plus Jakarta Sans",sans-serif; font-size: 13px; font-weight: 500; }
+@media (max-width:640px) {
+  #ds-tenant-dashboard #sec h1 { font-size: 28px; }
+  #ds-tenant-dashboard .dashboard-checklist > div { flex-wrap: wrap; }
+  #ds-tenant-dashboard .dashboard-checklist > div > div { min-width: 0; }
+}
+
+
+/* Compact tenant branding without shifting the toolbar alignment. */
+#ds-tenant-dashboard .facility-brand-copy { gap: 1px; }
+#ds-tenant-dashboard .facility-brand-copy strong { font-size: 19px; line-height: 20px; }
+#ds-tenant-dashboard .facility-brand-copy > span { font-size: 10px; line-height: 12px; letter-spacing: .02em; font-weight: 500; }
+#ds-tenant-dashboard .facility-brand img { width: 32px; height: 32px; }
+#ds-tenant-dashboard #ds-side > div:first-child { gap: 8px; }
+
+
+/* One continuous mesh spans every landing section without restarting. */
+#ds-landing { position: relative; isolation: isolate; background: #0a0e14; }
+#ds-landing > .auth-pattern {
+  position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none;
+  animation: landing-pattern-breathe 8s ease-in-out infinite alternate;
+}
+#ds-landing > section { position: relative; z-index: auto; isolation: auto; }
+#ds-landing .landing-hero-content { position: relative; z-index: 1; }
+@keyframes landing-pattern-breathe { from { opacity: .4; } to { opacity: .7; } }
+@media (prefers-reduced-motion: reduce) { #ds-landing > .auth-pattern { animation: none; opacity: .5; } }
+
+/* Compact public account popover with a distinct identity header. */
+#nav.member-nav .facility-account summary { border-radius: 12px; border: 1px solid #ffffff12; box-shadow: none; padding: 5px 10px 5px 5px; background: #ffffff03; }
+#nav.member-nav .facility-account[open] summary { border-color: #b1e90340; background: #b1e90308; box-shadow: none; }
+#nav.member-nav .public-account-menu { width: 260px; max-width: calc(100vw - 32px); padding: 6px; top: calc(100% + 8px); border-radius: 14px; border: 1px solid #ffffff10; background: #1a2026; box-shadow: 0 18px 56px #0007; overflow: hidden; animation: account-menu-enter .16s ease-out; }
+#nav.member-nav .public-account-heading { display: flex; flex-direction: column; gap: 2px; margin: 0 4px 4px; padding: 8px 6px 10px; border-bottom: 1px solid #ffffff0d; }
+#nav.member-nav .public-account-caption { color: #89958c; font: 500 10px/16px "Plus Jakarta Sans",sans-serif; }
+#nav.member-nav .public-account-heading strong { color: var(--ink); font: 600 14px/20px "Plus Jakarta Sans",sans-serif; }
+#nav.member-nav .public-account-menu .facility-account-email { margin: 0; padding: 0; color: #96a29b; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; overflow-wrap: anywhere; }
+#nav.member-nav .public-account-menu :is(a,button) { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 36px; padding: 6px 10px; border: 0; border-radius: 8px; background: transparent; color: #dfe2eb; text-align: left; font: 500 13px/20px "Plus Jakarta Sans",sans-serif; cursor: pointer; text-decoration: none; }
+#nav.member-nav .public-account-menu :is(a,button) .material-symbols-outlined { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; color: #a7b3aa; background: #ffffff04; font-size: 19px; }
+#nav.member-nav .public-account-menu :is(a,button):hover { background: #ffffff06; }
+#nav.member-nav .public-account-menu #signout { margin-top: 3px; color: #ffb4ab; }
+#nav.member-nav .public-account-menu #signout:hover { background: #ffb4ab0a; }
+#nav.member-nav .public-account-menu #signout .material-symbols-outlined { color: #ffb4ab; background: #ffb4ab08; }
+@keyframes account-menu-enter { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { #nav.member-nav .public-account-menu { animation: none; } }
+
+
+#ds-landing > section > div { position: relative; z-index: 1; }
+#ds-landing > section > div.pointer-events-none { position: absolute; z-index: 0; }
+
+
+/* Shared action typography for public, user, tenant, and platform screens. */
+:root {
+  --action-font-family: "Plus Jakarta Sans", sans-serif;
+  --action-font-size: 13px;
+  --action-font-weight: 500;
+  --action-line-height: 20px;
+}
+body :is(button, a.btn, a.pill, a.linkbtn, a[role="button"], .navitem, .subnav a,
+  #nav > a, .facility-account-menu > a, .facility-menu-item,
+  #ds-side nav a, #ds-side > div:last-child a,
+  .sidenav a, .sidefoot a,
+  #ds-tenant-dashboard #sec a[class*="bg-"],
+  #ds-landing a[class*="rounded-full"], .landing-book) {
+  font-family: var(--action-font-family) !important;
+  font-size: var(--action-font-size) !important;
+  font-weight: var(--action-font-weight) !important;
+  line-height: var(--action-line-height) !important;
+  letter-spacing: normal;
+}
+body :is(button, .facility-menu-item, .navitem, #ds-side nav a) :is(.font-label-md,.font-label-lg,.navtext,.facility-item-title),
+body .facility-menu-item .facility-item-title {
+  font-family: var(--action-font-family) !important;
+  font-size: var(--action-font-size) !important;
+  font-weight: var(--action-font-weight) !important;
+  line-height: var(--action-line-height) !important;
+}
+
+
+/* Restore section surfaces beneath one continuous decorative canvas. */
+#ds-landing > .auth-pattern { z-index: 1; }
+#ds-landing > section.landing-search-section { isolation: auto; }
+#ds-landing > section.bg-surface { background-color: #10141a; }
+#ds-landing > section.bg-surface-container-low { background-color: #181c22; }
+#ds-landing > section.bg-surface-container-lowest { background-color: #0a0e14; }
+#ds-landing > section > div { z-index: 2; }
+#ds-landing > section > div.pointer-events-none { z-index: 0; }
+.bookcta{display:flex;flex-direction:column;align-items:flex-start;gap:.4rem}
+.bookcta .muted{max-width:26ch;line-height:1.35}
