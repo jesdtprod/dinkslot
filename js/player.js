@@ -749,117 +749,17 @@
         var statusClass = isApproved
           ? "bg-brand-neon/15 text-brand-neon border border-brand-neon/40 shadow-neon-glow"
           : (isPending ? "bg-amber-400/15 text-amber-300 border border-amber-400/30" : "bg-rose-500/15 text-rose-400 border border-rose-500/30");
-        var surfaceText = court.surface || (court.is_indoor ? "Indoor Cushion Pro" : "Outdoor Acrylic");
-        var addressParts = [club.street || club.address, club.barangay, club.city].filter(Boolean);
-        var addressStr = addressParts.join(", ") || "Metro Athletic Park";
-        var gateCode = (b.reference_code || "4829").slice(-4);
-        var isLive = (isApproved || isPending) && endD.getTime() > now;
-
-        return '<div class="relative bg-brand-card border border-brand-neon/30 hover:border-brand-neon/60 rounded-2xl shadow-subtle-card transition-all overflow-hidden" data-purpose="reservation-card" data-booking-id="' + esc(b.id) + '">' +
-          '<div class="h-1.5 w-full bg-gradient-to-r from-brand-neon via-emerald-400 to-brand-neon"></div>' +
-          '<div class="p-6 sm:p-8">' +
-            '<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">' +
-              '<div class="space-y-4 max-w-2xl">' +
-                '<div class="flex flex-wrap items-center gap-2.5">' +
-                  '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-mono ' + statusClass + '">' +
-                    '<span class="w-1.5 h-1.5 rounded-full mr-1.5 ' + (isApproved ? 'bg-brand-neon glow-dot' : 'bg-current') + '"></span>' +
-                    statusLabel +
-                  '</span>' +
-                  '<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-[#1d232c] text-slate-300 border border-brand-border">' +
-                    esc(surfaceText) +
-                  '</span>' +
-                  '<span class="text-xs text-slate-400 font-mono">Turnstile Access Ready</span>' +
-                '</div>' +
-                '<div>' +
-                  '<h3 class="text-2xl sm:text-3xl font-extrabold font-display text-white tracking-tight flex items-center space-x-2">' +
-                    '<span>' + esc(club.name || "Club") + ' – ' + esc(court.name || "Court") + '</span>' +
-                  '</h3>' +
-                  '<p class="text-xs text-slate-400 mt-1 flex items-center gap-1.5">' +
-                    '<svg class="w-3.5 h-3.5 text-brand-neon flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    '<span>' + esc(addressStr) + ' • Gate Entry Code: <span class="font-mono text-brand-neon font-semibold">#' + esc(gateCode) + '</span></span>' +
-                  '</p>' +
-                '</div>' +
-                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">' +
-                  '<div class="flex items-center space-x-3 bg-brand-surface/80 border border-brand-border rounded-xl p-3">' +
-                    '<div class="w-9 h-9 rounded-lg bg-brand-neon/10 text-brand-neon flex items-center justify-center flex-shrink-0">' +
-                      '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    '</div>' +
-                    '<div>' +
-                      '<div class="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Date &amp; Time</div>' +
-                      '<div class="text-sm font-bold text-white font-sans">' + esc(whenStr) + '</div>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="flex items-center space-x-3 bg-brand-surface/80 border border-brand-border rounded-xl p-3">' +
-                    '<div class="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0">' +
-                      '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    '</div>' +
-                    '<div>' +
-                      '<div class="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Payment &amp; Code</div>' +
-                      '<div class="text-sm font-semibold text-slate-100 flex items-center space-x-2">' +
-                        '<span class="text-brand-neon font-bold font-mono">' + money(b.amount) + '</span>' +
-                        '<span class="text-slate-500">•</span>' +
-                        '<span class="font-mono text-xs text-slate-300 bg-brand-card px-1.5 py-0.5 rounded border border-brand-border">code ' + esc(b.reference_code) + '</span>' +
-                      '</div>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
-                '<div class="flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-1">' +
-                  '<span class="flex items-center gap-1.5">' +
-                    '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    'Host: You (Single Court Reservation)' +
-                  '</span>' +
-                  '<span class="flex items-center gap-1.5">' +
-                    '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    'Franklin X-40 Match Balls Included' +
-                  '</span>' +
-                  '<span class="flex items-center gap-1 text-emerald-400 font-mono">' +
-                    '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    (isApproved ? 'Paid via GCash' : 'Payment Pending') +
-                  '</span>' +
-                '</div>' +
-              '</div>' +
-              '<div class="flex flex-col sm:flex-row lg:flex-col items-center lg:items-end justify-between gap-4 pt-4 lg:pt-0 lg:border-l lg:border-brand-border lg:pl-8">' +
-                '<div class="w-full sm:w-auto bg-brand-surface border border-brand-border rounded-xl p-3 text-center flex lg:flex-col items-center justify-between sm:justify-start gap-3 cursor-pointer" data-ticket="' + esc(b.id) + '">' +
-                  '<div class="bg-white p-2 rounded-lg flex items-center justify-center">' +
-                    '<svg class="w-16 h-16 text-black" fill="currentColor" viewbox="0 0 24 24"><path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 0h-4v2h2v4h2v-4h2v-2h-2v0zm2 4h2v2h-2v-2zm-6-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4-6h2v2h-2v-2zm0 4h2v2h-2v-2z"></path></svg>' +
-                  '</div>' +
-                  '<div class="text-left lg:text-center">' +
-                    '<div class="text-[10px] font-mono text-slate-400 uppercase">Turnstile QR Pass</div>' +
-                    '<div class="text-xs font-mono font-bold text-brand-neon">' + esc(b.reference_code) + '</div>' +
-                    '<span class="inline-block mt-0.5 text-[9px] bg-brand-card px-1.5 py-0.5 rounded text-slate-400">Tap to expand</span>' +
-                  '</div>' +
-                '</div>' +
-                '<div class="w-full space-y-2">' +
-                  '<button type="button" data-ticket="' + esc(b.id) + '" class="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-brand-neon text-black font-bold font-display text-sm hover:bg-[#b2f042] transition-colors shadow-neon-glow cursor-pointer">' +
-                    '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    '<span>View Digital Pass</span>' +
-                  '</button>' +
-                  '<div class="flex items-center space-x-2">' +
-                    '<button type="button" data-cal="' + esc(b.id) + '" class="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-xl bg-brand-card hover:bg-brand-border border border-brand-border text-xs text-slate-300 hover:text-white transition-colors cursor-pointer" title="Add to Calendar">' +
-                      '<svg class="w-3.5 h-3.5 mr-1.5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                      '<span>Calendar</span>' +
-                    '</button>' +
-                    (isLive ? '<button type="button" data-cancel="' + esc(b.id) + '" class="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-xl bg-[#1e232c] hover:bg-rose-950/40 border border-rose-900/40 hover:border-rose-500/60 text-xs font-semibold text-rose-300 hover:text-rose-200 transition-colors group cursor-pointer">' +
-                      '<svg class="w-3.5 h-3.5 mr-1 text-rose-400 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                      '<span>Cancel</span>' +
-                    '</button>' : '') +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-            '<div class="mt-6 pt-4 border-t border-brand-border/60 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-3">' +
-              '<div class="flex items-center space-x-4">' +
-                '<span class="inline-flex items-center text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>Court Lights Included</span>' +
-                '<span class="inline-flex items-center text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>Locker &amp; Shower Access</span>' +
-                '<span class="inline-flex items-center text-slate-400"><span class="w-2 h-2 rounded-full bg-cyan-400 mr-2"></span>Free Cancellation Available</span>' +
-              '</div>' +
-              '<button type="button" data-invite="' + esc(b.id) + '" class="text-brand-neon hover:underline font-medium inline-flex items-center cursor-pointer bg-transparent border-0 p-0">' +
-                '<span>+ Invite players to split cost</span>' +
-              '</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      }).join("");
+        var addressStr = [club.street || club.address,club.barangay,club.city,club.province,club.zip_code].filter(Boolean).join(', ');
+        var isLive = (isApproved || isPending) && endD.getTime() > Date.now();
+        var minutes = Math.round((endD - startD) / 60000);
+        return '<article class="clean-booking-card" data-purpose="reservation-card" data-booking-id="' + esc(b.id) + '"><div class="clean-booking-main"><div class="clean-booking-status"><span class="badge ' + (isApproved ? 'approved' : '') + '">' + esc(statusLabel) + '</span>' +
+          (court.surface ? '<span class="clean-booking-surface">' + esc(court.surface) + '</span>' : '') + '<span class="member-reservation-ref">Ref: ' + esc(b.reference_code || 'Not available') + '</span></div>' +
+          '<h3>' + esc(club.name || 'Club unavailable') + ' &middot; ' + esc(court.name || 'Court unavailable') + '</h3>' +
+          '<p class="clean-booking-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span>' + esc(addressStr || 'Location not provided') + '</p>' +
+          '<div class="member-reservation-meta"><span><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>' + esc(whenStr) + '</span><span><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + minutes + ' minutes</span>' + (b.amount != null ? '<strong>' + money(b.amount) + '</strong>' : '') + '</div></div>' +
+          '<div class="clean-booking-actions">' + (isApproved ? '<button type="button" data-ticket="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>View Digital Pass</button>' : '') +
+          '<div><button type="button" data-cal="' + esc(b.id) + '" class="btn ghost"><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>Calendar</button>' + (isLive ? '<button type="button" data-cancel="' + esc(b.id) + '" class="btn ghost"><span class="material-symbols-outlined" aria-hidden="true">close</span>Cancel Booking</button>' : '') + '</div></div></article>';
+      }).join('');
 
       bindActionEvents();
     }
