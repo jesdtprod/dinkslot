@@ -2993,3 +2993,7 @@ body:has(.confirmation-modal[open]) { overflow: hidden; }
 #ds-tenant-dashboard #sec .court-config-modal label { font-family: "Plus Jakarta Sans",sans-serif; font-size: 11px; line-height: 16px; text-transform: none; letter-spacing: 0; }
 .court-config-modal .court-config-actions { padding: 14px 20px; }
 @media (max-width:540px) { #ds-tenant-dashboard #sec .court-config-modal .court-details-section > .grid { grid-template-columns: minmax(0,1fr); } }
+
+/* Circular QR frame with a larger, uncropped scan area. */
+.booking-ticket-modal .ticket-qr { display: grid; place-items: center; width: min(280px,100%); aspect-ratio: 1; margin: 20px auto; padding: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px #ffffff04; }
+.booking-ticket-modal .ticket-qr svg { width: 88%; height: auto; }
