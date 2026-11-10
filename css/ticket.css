@@ -1,0 +1,16 @@
+/* Compact pass with a QR that fills its frame, retaining SVG quiet zones. */
+.booking-ticket-modal { overflow-y: auto; scrollbar-width: none; }
+.booking-ticket-modal > div { border-radius: 16px; }
+.booking-ticket-modal > div > header { padding: 14px 18px 10px; }
+.booking-ticket-modal > div > header > div:last-child { margin-top: 10px; }
+.booking-ticket-modal .ticket-player-name { margin: 0; font-size: 24px; line-height: 30px; }
+.booking-ticket-modal > div > section { padding-left: 18px; padding-right: 18px; }
+.booking-ticket-modal .ticket-white-frame { padding: 8px; border-radius: 12px; box-shadow: none; }
+.booking-ticket-modal .ticket-white-frame .ticket-qr { display: block; width: 100%; max-width: none; margin: 0; padding: 0; aspect-ratio: 1; border-radius: 0; background: white; box-shadow: none; }
+.booking-ticket-modal .ticket-white-frame .ticket-qr svg { display: block; width: 100%; height: auto; }
+.booking-ticket-modal .ticket-white-frame > div:last-child { margin-top: 0; padding-top: 6px; font-size: 9px; }
+.booking-ticket-modal > div > section:nth-of-type(2) { padding-top: 12px; padding-bottom: 0; }
+.booking-ticket-modal > div > .relative.flex.items-center { margin-top: 12px; margin-bottom: 12px; }
+.booking-ticket-modal > div > section.grid > div { padding: 7px; border-radius: 8px; }
+.booking-ticket-modal > div > .text-center { padding: 10px 18px; }
+.booking-ticket-modal > div > footer { padding: 12px 18px; gap: 8px; }

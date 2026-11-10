@@ -581,8 +581,8 @@
               '</header>' +
 
               '<section class="px-5 sm:px-6 py-2">' +
-                '<div class="bg-white rounded-2xl p-4 shadow-2xl flex flex-col items-center justify-center relative group">' +
-                  '<div class="ticket-qr relative w-full max-w-[240px] aspect-square flex items-center justify-center"></div>' +
+                '<div class="ticket-white-frame bg-white rounded-2xl p-4 shadow-2xl flex flex-col items-center justify-center relative group">' +
+                  '<div class="ticket-qr relative w-full aspect-square flex items-center justify-center"></div>' +
                   '<div class="w-full mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium px-1">' +
                     '<span class="flex items-center gap-1">' +
                       '<svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
