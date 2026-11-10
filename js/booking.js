@@ -735,12 +735,12 @@
           (!py && b.expires_at ? '<div class="mt-2.5 flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-3 py-2 rounded-xl font-mono"><span>Hold ends in <b class="timer text-amber-200" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
 
           '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
-            '<div>' +
+            '<div class="booking-pass-actions">' +
               '<button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-brand-lime/15 text-slate-300 hover:text-brand-lime border border-white/10 hover:border-brand-lime/30 text-xs font-display font-semibold transition-all cursor-pointer" data-ticket="' + esc(b.id) + '">' +
                 '<svg class="w-4 h-4 text-brand-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm-5 0h3v3h-3v-3zm2 2h2v4h-2v-4zm3 3h3v3h-3v-3zm-5 2h3v1h-3v-1z"/></svg>' +
                 'QR Pass' +
               '</button>' +
-              (py ? '<button type="button" class="proof-icon-action" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span aria-hidden="true">&#8369;</span></button>' : '') +
+              (py ? '<button type="button" class="proof-icon-action" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">payments</span></button>' : '') +
             '</div>' +
             '<div class="flex items-center gap-2">' +
               (withDecide

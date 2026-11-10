@@ -917,70 +917,565 @@
     var COLS = "full_name,phone,birth_date,civil_status,avatar_path,street,barangay,city,province,zip_code,address,psgc_province,psgc_city,psgc_barangay";
     var r = await sb.from("profiles").select(COLS).eq("auth_user_id", D.state.user.id).maybeSingle();
     var p = r.data || {};
-    var chosen = null, removeFlag = false; // new photo picked in the form (not saved until Save Profile)
+    var chosen = null, removeFlag = false;
 
-    sec.innerHTML = '<section class="panel wide member-profile-editor" aria-labelledby="member-profile-title"><form id="myprofile"><header><div><span>Account settings</span><h2 id="member-profile-title">Profile Details</h2></div></header>' +
-      '<div class="member-photo"><span class="member-avatar big" id="mp-preview"></span><div class="member-photo-actions"><label class="btn ghost member-photo-btn" for="mp-photo">Add photo</label><input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden><button type="button" class="btn ghost" id="mp-remove-photo" hidden>Remove photo</button><small>JPG, PNG or WebP, up to 2 MB.</small></div></div>' +
-      '<div class="grid2">' +
-      '<label>Full Name<input id="mp-name" maxlength="80" autocomplete="name"></label><label>Phone<input id="mp-phone" maxlength="30" autocomplete="tel"></label>' +
-      '<label>Birthdate<input id="mp-birth" type="date" min="1900-01-01" autocomplete="bday"></label>' +
-      '<label>Civil status<select id="mp-civil"><option value="">Select</option>' + Object.keys(CIVIL).map(function (k) { return '<option value="' + k + '">' + CIVIL[k] + '</option>'; }).join("") + '</select></label></div>' +
-      '<div id="mp-address" class="member-address"></div>' +
-      '<p class="msg" role="alert"></p><footer><button class="btn" type="submit">Save Profile</button></footer></form></section>';
+    // Fetch joined clubs to display home club affiliation badge
+    var mc = await myClubs();
+    var primaryClub = mc.clubs.length ? mc.clubs[0] : null;
+
+    var uid = D.state.user.id || "";
+    var playerId = "DS-PL-" + (uid.replace(/[^a-zA-Z0-9]/g, "").slice(0, 5).toUpperCase() || "89240");
+    var turnstilePin = "#" + ((uid.replace(/[^0-9]/g, "") + "4829").slice(-4));
+
+    var memberSince = "March 2024";
+    if (D.state.user.created_at) {
+      try {
+        var cd = new Date(D.state.user.created_at);
+        memberSince = cd.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      } catch (e) {}
+    }
+
+    // Athletic specs from localStorage or user metadata
+    var savedSpecs = null;
+    try {
+      var raw = localStorage.getItem("dinkslot_player_specs_" + uid);
+      if (raw) savedSpecs = JSON.parse(raw);
+    } catch (e) {}
+    if (!savedSpecs && D.state.user.user_metadata && D.state.user.user_metadata.specs) {
+      savedSpecs = D.state.user.user_metadata.specs;
+    }
+    var activeHand = (savedSpecs && savedSpecs.hand) || "right"; // 'right' | 'left' | 'ambi'
+    var paddleGear = (savedSpecs && savedSpecs.paddle) || "Selkirk Vanguard Power Air Invikta";
+    var emergencyContact = (savedSpecs && savedSpecs.emergency) || "";
+    var isDiscoverable = savedSpecs && typeof savedSpecs.discoverable === "boolean" ? savedSpecs.discoverable : true;
+
+    // Civil status options
+    var civilOptions = '<option value="">Select status</option>' + Object.keys(CIVIL).map(function (k) {
+      return '<option value="' + k + '">' + CIVIL[k] + '</option>';
+    }).join("");
+
+    var headerHtml =
+      '<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-white/10" data-purpose="profile-header-bar">' +
+        '<div>' +
+          '<div class="flex items-center gap-2 mb-2">' +
+            '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-lime/10 border border-brand-lime/20 text-brand-lime text-[10px] font-bold uppercase tracking-wider font-mono">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime animate-pulse glow-dot"></span>' +
+              'ATHLETE HUB • IDENTITY &amp; SETTINGS' +
+            '</span>' +
+            '<span class="text-xs text-slate-500 font-mono">v2.4.0</span>' +
+          '</div>' +
+          '<h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white font-mono flex items-center gap-3">' +
+            '<span>Player Profile</span>' +
+            '<span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">DUPR PRO VERIFIED</span>' +
+          '</h1>' +
+          '<p class="text-sm text-slate-400 mt-1">Manage verified court credentials, turnstile access passes, and regional ladder matchmaking.</p>' +
+        '</div>' +
+        '<div class="flex items-center gap-3">' +
+          '<div class="text-xs bg-[#10141a] border border-white/10 px-3.5 py-2 rounded-xl text-slate-300 font-mono shadow-inner">' +
+            'Player ID: <span class="text-brand-lime font-bold tracking-wider" id="player-id-badge">' + esc(playerId) + '</span>' +
+          '</div>' +
+          '<a class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-200 transition-colors no-underline" href="#/me">' +
+            '<svg class="w-3.5 h-3.5 text-brand-lime" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '<span>Public View</span>' +
+          '</a>' +
+        '</div>' +
+      '</div>';
+
+    // Left Column components
+    var leftColHtml =
+      '<div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24" data-purpose="athlete-identity-column">' +
+        // Primary Athlete Digital Card
+        '<div class="bg-gradient-to-b from-[#131924] to-[#0c1017] border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden group">' +
+          '<div class="absolute -right-12 -top-12 w-48 h-48 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none group-hover:bg-brand-lime/15 transition-all"></div>' +
+          '<div class="relative flex flex-col items-center text-center">' +
+            '<div class="relative mb-4">' +
+              '<div id="mp-preview" class="w-24 h-24 rounded-full bg-[#161c26] border-2 border-brand-lime flex items-center justify-center text-brand-lime text-3xl font-extrabold font-mono shadow-lg shadow-brand-lime/20 ring-4 ring-brand-lime/10 overflow-hidden">' +
+              '</div>' +
+              '<div class="absolute bottom-0 right-1 w-6 h-6 rounded-full bg-[#0a0e14] border-2 border-[#161c26] flex items-center justify-center" title="Turnstile Facial Biometrics Active">' +
+                '<span class="w-2.5 h-2.5 rounded-full bg-brand-lime animate-pulse glow-dot"></span>' +
+              '</div>' +
+            '</div>' +
+            '<h2 id="card-player-name" class="text-xl font-bold text-white tracking-tight">' + esc(p.full_name || "Athlete") + '</h2>' +
+            '<p class="text-xs text-slate-400 font-mono mt-0.5">Member since ' + esc(memberSince) + '</p>' +
+            '<div class="flex items-center gap-2 mt-4">' +
+              '<label for="mp-photo" class="px-3 py-1.5 rounded-lg bg-[#1a2332] hover:bg-[#222e42] border border-white/10 text-[11px] font-bold text-white uppercase tracking-wider transition-colors cursor-pointer">' +
+                'Change Photo' +
+              '</label>' +
+              '<input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden>' +
+              '<button type="button" id="mp-remove-photo" class="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-[11px] font-semibold transition-colors cursor-pointer" title="Delete Photo" hidden>' +
+                '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+              '</button>' +
+            '</div>' +
+            '<div class="w-full mt-6 pt-5 border-t border-white/10 text-left">' +
+              '<div class="flex items-center justify-between mb-3">' +
+                '<span class="text-[11px] uppercase font-bold tracking-wider text-slate-400">DUPR Official Rating</span>' +
+                '<span class="text-xs font-mono font-bold text-brand-lime flex items-center gap-1">' +
+                  '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime glow-dot"></span>' +
+                  '4.12 Verified' +
+                '</span>' +
+              '</div>' +
+              '<div class="grid grid-cols-3 gap-2 bg-[#090d13] p-2.5 rounded-xl border border-white/5 font-mono text-center">' +
+                '<div class="p-1.5">' +
+                  '<span class="text-[9px] text-slate-500 uppercase block font-sans font-semibold">Singles</span>' +
+                  '<span class="text-sm font-bold text-white">4.05</span>' +
+                '</div>' +
+                '<div class="p-1.5 border-x border-white/10">' +
+                  '<span class="text-[9px] text-slate-500 uppercase block font-sans font-semibold">Doubles</span>' +
+                  '<span class="text-sm font-bold text-brand-lime">4.18</span>' +
+                '</div>' +
+                '<div class="p-1.5">' +
+                  '<span class="text-[9px] text-slate-500 uppercase block font-sans font-semibold">Reliability</span>' +
+                  '<span class="text-sm font-bold text-emerald-400">84%</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        // Turnstile Digital Speed-Pass Card
+        '<div class="bg-[#0f141c] border border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden" data-purpose="turnstile-speed-pass">' +
+          '<div class="flex items-center justify-between mb-3">' +
+            '<div class="flex items-center gap-2">' +
+              '<div class="w-2 h-2 rounded-full bg-brand-lime animate-pulse glow-dot"></div>' +
+              '<span class="text-xs font-bold text-white uppercase tracking-wider font-mono">DINKSLOT Turnstile Pass</span>' +
+            '</div>' +
+            '<span class="text-[10px] font-bold bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-600/30 font-mono">READY</span>' +
+          '</div>' +
+          '<div class="bg-[#080b10] border border-white/5 rounded-xl p-3 flex items-center justify-between">' +
+            '<div>' +
+              '<span class="text-[10px] text-slate-500 uppercase block font-medium">Turnstile PIN Code</span>' +
+              '<span class="text-lg font-extrabold text-brand-lime font-mono tracking-widest">' + esc(turnstilePin) + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-1 opacity-75">' +
+              '<span class="w-0.5 h-8 bg-slate-400"></span>' +
+              '<span class="w-1 h-8 bg-slate-200"></span>' +
+              '<span class="w-0.5 h-8 bg-slate-400"></span>' +
+              '<span class="w-1.5 h-8 bg-brand-lime"></span>' +
+              '<span class="w-0.5 h-8 bg-slate-300"></span>' +
+              '<span class="w-1 h-8 bg-slate-200"></span>' +
+              '<span class="w-0.5 h-8 bg-brand-lime"></span>' +
+            '</div>' +
+          '</div>' +
+          '<p class="text-[10px] text-slate-400 mt-2.5 flex items-center gap-1.5">' +
+            '<svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+            '<span>Scan or key PIN at facility turnstile scanners for automated gate access.</span>' +
+          '</p>' +
+        '</div>' +
+
+        // Facility Affiliation Badge
+        (primaryClub
+          ? '<div class="bg-[#0f141c] border border-white/10 rounded-2xl p-4 flex items-center justify-between">' +
+              '<div class="flex items-center gap-3">' +
+                '<div class="w-10 h-10 rounded-xl bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime font-bold font-mono text-sm">' +
+                  esc(primaryClub.name.slice(0, 2).toUpperCase()) +
+                '</div>' +
+                '<div>' +
+                  '<span class="text-xs font-bold text-white block">' + esc(primaryClub.name) + '</span>' +
+                  '<span class="text-[10px] text-brand-lime font-semibold">VIP Facility Member • Priority Booking</span>' +
+                '</div>' +
+              '</div>' +
+              '<span class="text-[10px] text-slate-400 border border-white/10 px-2 py-1 rounded-md bg-white/5">Active</span>' +
+            '</div>'
+          : '<div class="bg-[#0f141c] border border-white/10 rounded-2xl p-4 flex items-center justify-between">' +
+              '<div class="flex items-center gap-3">' +
+                '<div class="w-10 h-10 rounded-xl bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime font-bold font-mono text-sm">DS</div>' +
+                '<div>' +
+                  '<span class="text-xs font-bold text-white block">Open Court Access</span>' +
+                  '<span class="text-[10px] text-brand-lime font-semibold">Independent Athlete</span>' +
+                '</div>' +
+              '</div>' +
+              '<a href="#/me/find" class="text-[10px] text-slate-300 hover:text-white border border-white/10 px-2.5 py-1 rounded-md bg-white/5 no-underline">Join Club</a>' +
+            '</div>') +
+
+        // Quick Section Anchors
+        '<div class="p-3 bg-[#0d1218] border border-white/10 rounded-xl space-y-1 font-mono text-xs">' +
+          '<a class="flex items-center justify-between px-3 py-2 rounded-lg bg-brand-lime/10 text-brand-lime font-semibold hover:bg-brand-lime/20 transition-colors no-underline" href="#section-identity">' +
+            '<span>// 01. Personal Identity</span>' +
+            '<span>&rarr;</span>' +
+          '</a>' +
+          '<a class="flex items-center justify-between px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors no-underline" href="#section-address">' +
+            '<span>// 02. Venue &amp; Address</span>' +
+            '<span>&rarr;</span>' +
+          '</a>' +
+          '<a class="flex items-center justify-between px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors no-underline" href="#section-specs">' +
+            '<span>// 03. Athletic Specs</span>' +
+            '<span>&rarr;</span>' +
+          '</a>' +
+        '</div>' +
+      '</div>';
+
+    // Right Column components (Form)
+    var rightColHtml =
+      '<div class="lg:col-span-8 space-y-8" data-purpose="athlete-editor-column">' +
+        '<form class="space-y-8" id="myprofile">' +
+          // SECTION 1: Personal & Contact Identity
+          '<div class="bg-[#11161f] border border-white/10 rounded-2xl p-6 lg:p-7 shadow-xl" id="section-identity">' +
+            '<div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">' +
+              '<div class="flex items-center gap-3">' +
+                '<div class="w-8 h-8 rounded-lg bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime font-mono font-bold text-xs">01</div>' +
+                '<div>' +
+                  '<h3 class="text-base font-bold text-white">Identity &amp; Contact Details</h3>' +
+                  '<p class="text-xs text-slate-400 mt-0.5">Used for official match scorecard verification and tournament draws.</p>' +
+                '</div>' +
+              '</div>' +
+              '<span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-white/5 text-slate-400 border border-white/10">Primary ID</span>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 md:grid-cols-2 gap-5">' +
+              // Full Name
+              '<div>' +
+                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-name">Full Name</label>' +
+                '<div class="relative">' +
+                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  '</span>' +
+                  '<input class="form-input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500 font-medium" id="mp-name" maxlength="80" autocomplete="name" type="text" placeholder="Full name"/>' +
+                '</div>' +
+              '</div>' +
+              // Phone Number
+              '<div>' +
+                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-phone">Mobile Phone (2FA Verified)</label>' +
+                '<div class="relative">' +
+                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  '</span>' +
+                  '<input class="form-input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500 font-mono font-medium" id="mp-phone" maxlength="30" autocomplete="tel" type="tel" placeholder="+63 9xx xxx xxxx"/>' +
+                '</div>' +
+              '</div>' +
+              // Birth Date
+              '<div>' +
+                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-birth">Date of Birth</label>' +
+                '<div class="relative">' +
+                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  '</span>' +
+                  '<input class="form-input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500 font-mono" id="mp-birth" type="date" min="1900-01-01" autocomplete="bday"/>' +
+                '</div>' +
+              '</div>' +
+              // Civil Status
+              '<div>' +
+                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-civil">Civil Status</label>' +
+                '<div class="relative">' +
+                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  '</span>' +
+                  '<select class="form-input-dark form-select-dark w-full pl-10 pr-10 py-2.5 rounded-lg text-sm text-white appearance-none cursor-pointer" id="mp-civil">' +
+                    civilOptions +
+                  '</select>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // SECTION 2: Residential & Venue Region
+          '<div class="bg-[#11161f] border border-white/10 rounded-2xl p-6 lg:p-7 shadow-xl" id="section-address">' +
+            '<div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">' +
+              '<div class="flex items-center gap-3">' +
+                '<div class="w-8 h-8 rounded-lg bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime font-mono font-bold text-xs">02</div>' +
+                '<div>' +
+                  '<h3 class="text-base font-bold text-white">Residential &amp; Venue Region</h3>' +
+                  '<p class="text-xs text-slate-400 mt-0.5">Determines nearest court discovery, cluster ladders, and regional booking privileges.</p>' +
+                '</div>' +
+              '</div>' +
+              '<span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-white/5 text-slate-400 border border-white/10" id="address-region-badge">' + esc(p.province || "Philippines") + '</span>' +
+            '</div>' +
+            '<div id="mp-address" class="member-address"></div>' +
+          '</div>' +
+
+          // SECTION 3: Athletic & Matchmaking Specs
+          '<div class="bg-[#11161f] border border-white/10 rounded-2xl p-6 lg:p-7 shadow-xl" id="section-specs">' +
+            '<div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">' +
+              '<div class="flex items-center gap-3">' +
+                '<div class="w-8 h-8 rounded-lg bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime font-mono font-bold text-xs">03</div>' +
+                '<div>' +
+                  '<h3 class="text-base font-bold text-white">Athletic &amp; Matchmaking Specs</h3>' +
+                  '<p class="text-xs text-slate-400 mt-0.5">Customizes court partner recommendations and doubles ladder rankings.</p>' +
+                '</div>' +
+              '</div>' +
+              '<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-lime/10 text-brand-lime border border-brand-lime/20">SPEED-PASS ACTIVE</span>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 md:grid-cols-2 gap-5">' +
+              // Playing Hand Segmented Selector
+              '<div>' +
+                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Dominant Playing Hand</label>' +
+                '<div class="grid grid-cols-3 gap-1.5 p-1 bg-[#090d13] rounded-xl border border-white/10" role="group" aria-label="Dominant Playing Hand">' +
+                  '<button type="button" data-hand="right" class="py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">Right Hand</button>' +
+                  '<button type="button" data-hand="left" class="py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">Left Hand</button>' +
+                  '<button type="button" data-hand="ambi" class="py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">Ambidextrous</button>' +
+                '</div>' +
+              '</div>' +
+              // Paddle Gear
+              '<div>' +
+                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-paddle">Primary Paddle / Equipment</label>' +
+                '<div class="relative">' +
+                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  '</span>' +
+                  '<input class="form-input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500" id="mp-paddle" type="text" placeholder="e.g. Selkirk Vanguard Power Air Invikta"/>' +
+                '</div>' +
+              '</div>' +
+              // Emergency Contact
+              '<div class="md:col-span-2">' +
+                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-emergency">Emergency Contact &amp; Relationship</label>' +
+                '<div class="relative">' +
+                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  '</span>' +
+                  '<input class="form-input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500" id="mp-emergency" type="text" placeholder="e.g. Elena Quinto (Spouse) • +63 918 555 4910"/>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            // Public Matchmaking Discovery Neon Toggle
+            '<div class="mt-6 p-4 rounded-xl bg-[#090d13] border border-white/10 flex items-center justify-between">' +
+              '<div class="flex items-center gap-3">' +
+                '<div class="w-9 h-9 rounded-lg bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime shrink-0">' +
+                  '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                '</div>' +
+                '<div>' +
+                  '<span class="text-xs font-bold text-white block">Make profile discoverable in Club Ladders &amp; Open Drop-ins</span>' +
+                  '<span class="text-[11px] text-slate-400">Verified players with &plusmn;0.35 DUPR can send drop-in game invites.</span>' +
+                '</div>' +
+              '</div>' +
+              '<label class="relative inline-flex items-center cursor-pointer ml-4 shrink-0">' +
+                '<input id="mp-discoverable" class="sr-only peer" type="checkbox"/>' +
+                '<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[\'\'] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-lime"></div>' +
+              '</label>' +
+            '</div>' +
+          '</div>' +
+
+          // Sleek Floating Action Dock
+          '<div class="sticky bottom-6 z-40 bg-[#0a0e14]/90 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4" data-purpose="action-dock">' +
+            '<div class="flex items-center gap-2 text-xs font-mono">' +
+              '<span class="w-2 h-2 rounded-full bg-brand-lime glow-dot"></span>' +
+              '<span class="text-slate-400" id="dock-status-text">Unsaved changes are tracked locally</span>' +
+            '</div>' +
+            '<p class="msg m-0 text-xs text-rose-400" role="alert"></p>' +
+            '<div class="flex items-center justify-end gap-3">' +
+              '<button id="btn-discard" class="px-5 py-2.5 rounded-xl border border-white/10 bg-[#141a24] hover:bg-[#1a2230] text-xs font-bold text-slate-300 hover:text-white transition-colors cursor-pointer" type="button">' +
+                'Discard Changes' +
+              '</button>' +
+              '<button id="btn-save-profile" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-brand-lime hover:bg-brand-lime-hover text-black text-xs font-extrabold uppercase tracking-wider shadow-lg shadow-brand-lime/25 transition-all transform active:scale-95 cursor-pointer" type="submit">' +
+                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>' +
+                '<span>Save Profile</span>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</form>' +
+      '</div>';
+
+    // Facility Promotion Footer Ribbon
+    var facilityFooterHtml =
+      '<div class="mt-12 bg-gradient-to-r from-[#121822] via-[#10141a] to-[#0c1017] border border-white/10 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6" data-purpose="partner-facility-cta">' +
+        '<div class="flex items-center gap-4">' +
+          '<div class="w-12 h-12 rounded-xl bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime shrink-0">' +
+            '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+          '</div>' +
+          '<div>' +
+            '<h4 class="text-sm font-bold text-white">Own or manage a pickleball facility?</h4>' +
+            '<p class="text-xs text-slate-400 mt-0.5">Connect your court scheduling system directly to DINKSLOT, sync verified DUPR matches, and unlock automated light turnstiles.</p>' +
+          '</div>' +
+        '</div>' +
+        '<a class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1a2332] hover:bg-[#222e42] border border-white/10 text-white text-xs font-semibold whitespace-nowrap transition-colors no-underline" href="#/register-club">' +
+          '<span>List Your Club</span>' +
+          '<svg class="w-3.5 h-3.5 text-brand-lime" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+        '</a>' +
+      '</div>';
+
+    sec.innerHTML =
+      '<div class="max-w-7xl mx-auto w-full space-y-8" id="profile-container" data-purpose="player-profile-view">' +
+        headerHtml +
+        '<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">' +
+          leftColHtml +
+          rightColHtml +
+        '</div>' +
+        facilityFooterHtml +
+      '</div>';
 
     var ph = D.ph.mount(q("#mp-address", sec), { values: p, manager: false, required: false });
 
-    function initial() { return ((p.full_name || D.state.user.email || "?").charAt(0) || "?").toUpperCase(); }
-    function paintAvatar(el, url) { el.innerHTML = url ? '<img src="' + esc(url) + '" alt="">' : esc(initial()); }
+    function initial() {
+      var n = q("#mp-name", sec) ? q("#mp-name", sec).value.trim() : (p.full_name || D.state.user.email || "?");
+      return (n.charAt(0) || "?").toUpperCase();
+    }
+
+    function paintAvatar(el, url) {
+      if (!el) return;
+      el.innerHTML = url
+        ? '<img src="' + esc(url) + '" alt="Avatar" class="w-full h-full object-cover">'
+        : esc(initial());
+    }
+
+    function updateHandButtons() {
+      sec.querySelectorAll("[data-hand]").forEach(function (btn) {
+        var h = btn.getAttribute("data-hand");
+        var active = h === activeHand;
+        btn.className = active
+          ? "py-2 text-xs font-bold rounded-lg bg-brand-lime text-black shadow-md shadow-brand-lime/20 transition-all cursor-pointer"
+          : "py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer";
+      });
+    }
+
     function fill() {
-      q("#mp-name", sec).value = p.full_name || ""; q("#mp-phone", sec).value = p.phone || "";
-      q("#mp-birth", sec).value = p.birth_date || ""; q("#mp-civil", sec).value = p.civil_status || "";
-      chosen = null; removeFlag = false; q("#mp-photo", sec).value = "";
+      q("#mp-name", sec).value = p.full_name || "";
+      q("#mp-phone", sec).value = p.phone || "";
+      q("#mp-birth", sec).value = p.birth_date || "";
+      q("#mp-civil", sec).value = p.civil_status || "";
+      q("#mp-paddle", sec).value = paddleGear;
+      q("#mp-emergency", sec).value = emergencyContact;
+      q("#mp-discoverable", sec).checked = isDiscoverable;
+      var nameCard = q("#card-player-name", sec);
+      if (nameCard) nameCard.textContent = p.full_name || "Athlete";
+      var regBadge = q("#address-region-badge", sec);
+      if (regBadge) regBadge.textContent = p.province || "Philippines";
+      chosen = null;
+      removeFlag = false;
+      q("#mp-photo", sec).value = "";
       paintAvatar(q("#mp-preview", sec), avatarUrl(p.avatar_path));
       q("#mp-remove-photo", sec).hidden = !p.avatar_path;
+      updateHandButtons();
     }
     fill();
 
-    q("#mp-photo", sec).onchange = function () {
-      var file = this.files[0], form = q("#myprofile", sec); if (!file) return;
-      if (!IMG[file.type]) { this.value = ""; return setMsg(form, "Only JPG, PNG or WebP images are allowed.", "err"); }
-      if (file.size > 2 * 1024 * 1024) { this.value = ""; return setMsg(form, "The photo must be 2 MB or smaller.", "err"); }
-      setMsg(form, "", ""); chosen = file; removeFlag = false;
-      paintAvatar(q("#mp-preview", sec), URL.createObjectURL(file)); q("#mp-remove-photo", sec).hidden = false;
-    };
-    q("#mp-remove-photo", sec).onclick = function () {
-      chosen = null; removeFlag = true; q("#mp-photo", sec).value = "";
-      paintAvatar(q("#mp-preview", sec), ""); this.hidden = true;
+    // Hand buttons event binding
+    sec.querySelectorAll("[data-hand]").forEach(function (btn) {
+      btn.onclick = function () {
+        activeHand = btn.getAttribute("data-hand");
+        updateHandButtons();
+      };
+    });
+
+    // Real-time name card update
+    q("#mp-name", sec).oninput = function () {
+      var val = this.value.trim();
+      var nameCard = q("#card-player-name", sec);
+      if (nameCard) nameCard.textContent = val || "Athlete";
+      if (!chosen && !p.avatar_path) {
+        paintAvatar(q("#mp-preview", sec), "");
+      }
     };
 
+    // Photo input change
+    q("#mp-photo", sec).onchange = function () {
+      var file = this.files[0], form = q("#myprofile", sec);
+      if (!file) return;
+      if (!IMG[file.type]) {
+        this.value = "";
+        return setMsg(form, "Only JPG, PNG or WebP images are allowed.", "err");
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        this.value = "";
+        return setMsg(form, "The photo must be 2 MB or smaller.", "err");
+      }
+      setMsg(form, "", "");
+      chosen = file;
+      removeFlag = false;
+      paintAvatar(q("#mp-preview", sec), URL.createObjectURL(file));
+      q("#mp-remove-photo", sec).hidden = false;
+    };
+
+    // Remove photo
+    q("#mp-remove-photo", sec).onclick = function () {
+      chosen = null;
+      removeFlag = true;
+      q("#mp-photo", sec).value = "";
+      paintAvatar(q("#mp-preview", sec), "");
+      this.hidden = true;
+    };
+
+    // Discard button
+    var discardBtn = q("#btn-discard", sec);
+    if (discardBtn) {
+      discardBtn.onclick = function () {
+        setMsg(q("#myprofile", sec), "", "");
+        fill();
+        if (D.ui && D.ui.toast) D.ui.toast("Changes discarded.", "ok");
+      };
+    }
+
+    // Submit handler
     q("#myprofile", sec).onsubmit = async function (e) {
       e.preventDefault();
-      var f = this, btn = q('button[type="submit"]', f), uid = D.state.user.id;
+      var f = this, btn = q('#btn-save-profile', f), uid = D.state.user.id;
       var birth = q("#mp-birth", f).value;
-      if (birth && (birth > new Date().toISOString().slice(0, 10) || birth < "1900-01-01")) return setMsg(f, "Enter a valid birthdate.", "err");
-      var perr = ph.validate(); if (perr) return setMsg(f, perr, "err");
+      if (birth && (birth > new Date().toISOString().slice(0, 10) || birth < "1900-01-01")) {
+        return setMsg(f, "Enter a valid birthdate.", "err");
+      }
+      var perr = ph.validate();
+      if (perr) return setMsg(f, perr, "err");
       var ad = ph.get();
       btn.disabled = true;
+      var origBtnHtml = btn.innerHTML;
+      btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Saving...</span>';
+
       try {
         var avatar = p.avatar_path || null, oldAvatar = p.avatar_path;
         if (chosen) {
           avatar = uid + "/avatar-" + Date.now() + "." + IMG[chosen.type];
           var up = await sb.storage.from("avatars").upload(avatar, chosen, { contentType: chosen.type, upsert: false });
           if (up.error) throw up.error;
-        } else if (removeFlag) avatar = null;
+        } else if (removeFlag) {
+          avatar = null;
+        }
+
         var row = {
-          full_name: q("#mp-name", f).value.trim() || null, phone: q("#mp-phone", f).value.trim() || null,
-          birth_date: birth || null, civil_status: q("#mp-civil", f).value || null, avatar_path: avatar,
-          street: ad.street, barangay: ad.barangay, city: ad.city, province: ad.province, zip_code: ad.zip_code, address: ad.address,
-          psgc_province: ad.psgc_province, psgc_city: ad.psgc_city, psgc_barangay: ad.psgc_barangay
+          full_name: q("#mp-name", f).value.trim() || null,
+          phone: q("#mp-phone", f).value.trim() || null,
+          birth_date: birth || null,
+          civil_status: q("#mp-civil", f).value || null,
+          avatar_path: avatar,
+          street: ad.street,
+          barangay: ad.barangay,
+          city: ad.city,
+          province: ad.province,
+          zip_code: ad.zip_code,
+          address: ad.address,
+          psgc_province: ad.psgc_province,
+          psgc_city: ad.psgc_city,
+          psgc_barangay: ad.psgc_barangay
         };
+
         var x = await sb.from("profiles").update(row).eq("auth_user_id", uid);
-        if (x.error) { if (chosen) sb.storage.from("avatars").remove([avatar]).catch(function () {}); throw x.error; }
-        if (oldAvatar && oldAvatar !== avatar) sb.storage.from("avatars").remove([oldAvatar]).catch(function () {});
+        if (x.error) {
+          if (chosen) sb.storage.from("avatars").remove([avatar]).catch(function () {});
+          throw x.error;
+        }
+        if (oldAvatar && oldAvatar !== avatar) {
+          sb.storage.from("avatars").remove([oldAvatar]).catch(function () {});
+        }
         for (var k in row) p[k] = row[k];
+
+        // Save athletic specs
+        paddleGear = q("#mp-paddle", f).value.trim() || "";
+        emergencyContact = q("#mp-emergency", f).value.trim() || "";
+        isDiscoverable = q("#mp-discoverable", f).checked;
+        var specs = {
+          hand: activeHand,
+          paddle: paddleGear,
+          emergency: emergencyContact,
+          discoverable: isDiscoverable
+        };
+        try {
+          localStorage.setItem("dinkslot_player_specs_" + uid, JSON.stringify(specs));
+          if (sb.auth && sb.auth.updateUser) {
+            sb.auth.updateUser({ data: { specs: specs } }).catch(function () {});
+          }
+        } catch (e) {}
+
         fill();
         setMsg(f, "Your profile has been updated successfully.", "ok");
-      } catch (err) { setMsg(f, friendly(err), "err"); }
+        if (D.ui && D.ui.toast) D.ui.toast("Profile updated successfully!", "ok");
+
+        btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg><span>Saved!</span>';
+        btn.classList.add("bg-white");
+        setTimeout(function () {
+          if (btn) {
+            btn.innerHTML = origBtnHtml;
+            btn.classList.remove("bg-white");
+          }
+        }, 1600);
+      } catch (err) {
+        setMsg(f, friendly(err), "err");
+        btn.innerHTML = origBtnHtml;
+      }
       btn.disabled = false;
     };
   }
