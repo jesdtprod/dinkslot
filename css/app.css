@@ -1765,7 +1765,7 @@ body.tenant-dashboard-mode #app {
   --action-font-weight: 500;
   --action-line-height: 20px;
 }
-body :is(button, a.btn, a.pill, a.linkbtn, a[role="button"], .navitem, .subnav a,
+body :is(button, a.btn, a.pill, a.linkbtn, a.transactions-button, a[role="button"], .navitem, .subnav a,
   #nav > a, .facility-account-menu > a, .facility-menu-item,
   #ds-side nav a, #ds-side > div:last-child a,
   .sidenav a, .sidefoot a,
@@ -2188,7 +2188,7 @@ body input[type="checkbox"]:disabled { opacity: .45; cursor: not-allowed; }
 body button,
 body a:is(.btn,.pill,.linkbtn,[role="button"],.auth-nav-switch,.nav-register,
   .landing-book,.court-cta-primary,.court-cta-secondary,.court-cta-bookings,
-  .facility-menu-item,.navitem),
+  .facility-menu-item,.navitem,.transactions-button),
 body a:is(.rounded-full,.rounded-xl,.rounded-2xl,.dashboard-rounded),
 body .facility-account > summary,
 body .footer-quick-links a {
