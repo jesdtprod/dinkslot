@@ -23,5 +23,5 @@
 .booking-ticket-modal { width: min(500px,calc(100vw - 24px)); }
 .booking-ticket-modal > div { max-width: none; }
 .booking-ticket-modal > div > section:first-of-type { padding-left: 14px; padding-right: 14px; }
-.booking-ticket-modal .ticket-white-frame { width: 90%; margin: 0 auto; padding: 0; }
+.booking-ticket-modal .ticket-white-frame { width: 84%; margin: 0 auto; padding: 0; border-radius: 12px; overflow: hidden; }
 .booking-ticket-modal .ticket-white-frame > div:last-child { padding: 6px 8px; }
