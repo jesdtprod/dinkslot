@@ -1181,8 +1181,12 @@ body.tenant-dashboard-mode #app {
 }
 .facility-avatar-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
 .facility-avatar {
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+  text-align: center;
   width: 28px;
   height: 28px;
   border-radius: 9999px;

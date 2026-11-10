@@ -223,7 +223,7 @@
       var profileName = (state.user.user_metadata && state.user.user_metadata.full_name) || state.user.email || "Player";
       var initial = profileName.trim().charAt(0).toUpperCase() || "P";
       // Club owners and staff go straight to their dashboard; everyone else keeps My account.
-      var acctLabel = state.managedSlug ? "Dashboard" : state.accountType === "tenant" ? "Set up my club" : "My dashboard";
+      var acctLabel = state.managedSlug ? "Facility Director" : state.accountType === "tenant" ? "Club Account" : "Player";
       h += '<span id="bellslot" class="dashboard-bellslot"></span>' +
         '<details class="facility-account"><summary aria-label="Account menu"><span class="facility-avatar">' + esc(initial) + '</span>' +
         '<span class="facility-account-text"><strong>' + esc(profileName) + '</strong><small>' + acctLabel + '</small></span>' +

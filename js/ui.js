@@ -100,7 +100,9 @@
   // returns { main, setTitle(title, sub, actionsHtml), setActive(key), setBadge(key, value), setStatusPill(courtsLive, util) }
   function dash(root, o) {
     var h = o.head || {};
-    var initial = esc((h.initial || h.title || "?").charAt(0).toUpperCase());
+    var user = D.state.user || {};
+    var accountName = (user.user_metadata && user.user_metadata.full_name) || user.email || h.title || "Account";
+    var accountInitial = esc(accountName.trim().charAt(0).toUpperCase() || "?");
 
     var items = (o.items || []).map(function (it) {
       if (it.type === "label") {
@@ -175,11 +177,11 @@
               '<span id="dashboard-bellslot" class="dashboard-bellslot"></span>' +
               '<details class="facility-account"><summary aria-label="Account menu">' +
                 '<div class="facility-avatar-wrap">' +
-                  '<span class="facility-avatar">' + (h.img ? '<img src="' + esc(h.img) + '" alt="">' : initial) + '</span>' +
+                  '<span class="facility-avatar">' + accountInitial + '</span>' +
                   '<span class="facility-status-dot" aria-hidden="true"></span>' +
                 '</div>' +
                 '<span class="facility-account-text">' +
-                  '<strong>' + esc(h.title || "Facility") + '</strong>' +
+                  '<strong>' + esc(accountName) + '</strong>' +
                   '<small>' + esc(h.sub || "Director") + '</small>' +
                 '</span>' +
                 '<span class="material-symbols-outlined facility-chevron" aria-hidden="true">expand_more</span>' +
