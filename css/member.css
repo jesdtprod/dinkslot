@@ -86,3 +86,9 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 .club-map-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
 #ds-tenant-dashboard #sec .club-map-settings p { font-size:11px; color:#8fa395; }
 @media(max-width:540px) { .club-map-fields { grid-template-columns:minmax(0,1fr); } }
+
+/* Profile Details and Club Media use matching stacked card headings. */
+#ds-tenant-dashboard #sec .club-profile { display:flex; flex-direction:column; gap:20px; }
+#ds-tenant-dashboard #sec .profile-details-heading { margin-bottom:2px; }
+#ds-tenant-dashboard #sec .profile-details-heading h3 { margin:0; color:#e0e8e2; font:600 15px/22px "Plus Jakarta Sans",sans-serif; }
+#ds-tenant-dashboard #sec .profile-details-heading p { margin:4px 0 0; color:#94a39a; font:400 12px/18px "Plus Jakarta Sans",sans-serif; }

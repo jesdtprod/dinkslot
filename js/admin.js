@@ -676,6 +676,7 @@
     PANELS.profile =
       '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">Club Profile</h1><p class="font-body-md text-on-surface-variant">Update venue information, location coordinates, and photography.</p></div>' +
       '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
+        '<header class="profile-details-heading"><h3>Profile Details</h3><p>Keep your club information, contact details, and location up to date.</p></header>' +
         '<form id="pf" class="flex flex-col gap-space-md">' +
           '<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">' +
             '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Club Name<input id="pn" maxlength="80" required value="' + esc(t.name) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
