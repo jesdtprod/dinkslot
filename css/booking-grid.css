@@ -67,3 +67,16 @@
 .home-club-details .material-symbols-outlined { flex-shrink:0; margin-top:1px; color:#8eaa80; font-size:15px; }
 #ds-tenant-dashboard #sec .home-club-actions a { min-width:0; padding:8px !important; font-size:11px !important; }
 @media(min-width:1051px) and (max-width:1280px) { #ds-tenant-dashboard #sec .home-clubs-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+/* Refined membership status and compact club information. */
+.home-club-joined { display:inline-flex; align-items:center; gap:4px; margin-bottom:4px; padding:4px 8px; border:1px solid #9abf762e; border-radius:6px; background:#9abf7610; color:#b3cd9d; font:600 10px/14px "Plus Jakarta Sans",sans-serif; }
+.home-club-joined .material-symbols-outlined { font-size:13px; }
+.home-club-body h3 { margin-top:10px; margin-bottom:5px; letter-spacing:-.015em; }
+.home-club-address { min-height:0; margin-bottom:12px; color:#8fa59a; line-height:17px; }
+.home-club-details { gap:10px; padding:12px 0; margin:0 0 2px; border-top:1px solid #ffffff08; }
+.home-club-facilities { display:flex; align-items:center !important; flex-wrap:wrap; gap:6px !important; }
+.home-club-fact,.home-club-format { display:inline-flex; align-items:center; gap:5px; padding:4px 7px; border:1px solid #ffffff0b; border-radius:5px; background:#ffffff03; color:#bdcbbf; font-size:10px; line-height:14px; }
+.home-club-detail-row { gap:9px !important; align-items:center !important; }
+.home-club-detail-row > .material-symbols-outlined { display:grid; place-items:center; width:26px; height:26px; margin:0; border-radius:6px; background:#ffffff03; }
+.home-club-detail-row > span:last-child { color:#c0cdc4; font-size:11px; line-height:16px; overflow-wrap:anywhere; }
+.home-club-detail-row small { display:block; margin-bottom:1px; color:#778e80; font-size:9px; line-height:12px; }
