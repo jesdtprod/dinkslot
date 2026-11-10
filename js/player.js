@@ -46,7 +46,7 @@
     else if (section === "profile") await profileView(sec);
     else await overviewView(sec);
     if (!sec.isConnected) return;
-    sec.insertAdjacentHTML('afterbegin', '<header class="member-page-heading"><div><h1>' + esc(SECTIONS[section][0]) + '</h1><p>' + esc(SECTIONS[section][1]) + '</p></div>' + (section === 'overview' || section === 'bookings' || section === 'clubs' ? '<a class="btn" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a>' : '') + '</header>');
+    sec.insertAdjacentHTML('afterbegin', '<header class="member-page-heading"><div><h1>' + esc(SECTIONS[section][0]) + '</h1><p>' + esc(SECTIONS[section][1]) + '</p></div>' + (section === 'bookings' || section === 'clubs' ? '<a class="btn" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a>' : '') + '</header>');
   }
 
   // clubs the player has joined, with club details (public view, approved clubs only)
@@ -68,34 +68,85 @@
   async function overviewView(sec) {
     var mc = await myClubs();
     var pids = mc.players.map(function (p) { return p.id; });
-    var up = 0, pending = 0, next = null, courtName = "", clubName = "", tz = "Asia/Manila";
+    var up = 0, pending = 0, total = 0, next = null, courtName = "", clubName = "", clubSlug = "", tz = "Asia/Manila";
     if (pids.length) {
       var bs = (await sb.from("bookings").select("*").in("player_id", pids).in("status", ["pending", "approved"])
         .gte("ends_at", new Date().toISOString()).order("starts_at")).data || [];
       up = bs.filter(function (b) { return b.status === "approved"; }).length;
       pending = bs.filter(function (b) { return b.status === "pending"; }).length;
       next = bs.filter(function (b) { return b.status === "approved"; })[0] || bs[0] || null;
+      var cnt = await sb.from("bookings").select("id", { count: "exact", head: true }).in("player_id", pids);
+      total = cnt.count || 0;
       if (next) {
         var c = (await sb.from("public_courts").select("name,club_slug").eq("id", next.court_id).maybeSingle()).data;
         courtName = c ? c.name : "Court";
+        clubSlug = c ? c.club_slug : "";
         var cl = c ? mc.clubs.filter(function (x) { return x.slug === c.club_slug; })[0] : null;
         clubName = cl ? cl.name : "";
         if (c) { var t = (await sb.from("public_clubs").select("timezone").eq("slug", c.club_slug).maybeSingle()).data; if (t && t.timezone) tz = t.timezone; }
       }
     }
-    var tile = function (n, label, icon, href, tone) {
-      return '<a class="metric-card" href="' + href + '"><div class="metric-heading"><span class="metric-icon material-symbols-outlined" aria-hidden="true">' + icon + '</span><span class="metric-badge">Your account</span></div><h2 class="metric-label">' + esc(label) + '</h2><div class="metric-reading"><strong>' + n + '</strong></div><div class="metric-footer"><span>View details</span><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></div></a>';
+    var user = D.state.user;
+    var who = ((user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email || "Player").split("@")[0]).split(" ")[0];
+    var GLOW = "shadow-[0_0_18px_rgba(163,230,53,0.3)] hover:shadow-[0_0_26px_rgba(163,230,53,0.45)]";
+    var tile = function (n, label, icon, note, href, linkLabel) {
+      return '<a href="' + href + '" class="group relative flex flex-col justify-between rounded-2xl bg-[#121822] border border-[#202c3d] p-5 shadow-lg transition-all duration-200 hover:border-[#a3e635]/45 hover:shadow-[0_0_25px_-4px_rgba(163,230,53,0.15)]">' +
+        '<div class="flex items-center justify-between"><div class="w-10 h-10 rounded-xl bg-[#a3e635]/10 border border-[#a3e635]/30 flex items-center justify-center text-[#a3e635]"><span class="material-symbols-outlined text-xl" aria-hidden="true">' + icon + '</span></div>' +
+        '<span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#192330] text-gray-400 border border-[#28374a]">Your account</span></div>' +
+        '<div class="mt-5 mb-6"><p class="text-xs uppercase tracking-wider font-mono text-gray-400">' + esc(label) + '</p>' +
+        '<div class="flex items-baseline gap-2 mt-2"><span class="text-4xl font-extrabold text-white tracking-tight">' + n + '</span></div>' +
+        '<p class="text-xs text-gray-400 mt-2 truncate">' + esc(note) + '</p></div>' +
+        '<span class="pt-3 border-t border-[#1d2737] text-xs font-semibold text-gray-400 group-hover:text-[#a3e635] flex items-center justify-between transition-colors"><span>' + esc(linkLabel) + '</span><span class="material-symbols-outlined text-base transition-transform group-hover:translate-x-1" aria-hidden="true">arrow_forward</span></span></a>';
     };
     var when = next ? new Date(next.starts_at).toLocaleString("en-PH", { timeZone: tz, weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
-    sec.innerHTML = '<div class="member-metrics">' + tile(up, "Confirmed upcoming", "event_available", "#/me/bookings") +
-      tile(pending, "Waiting for payment or approval", "pending_actions", "#/me/bookings", pending ? "warn" : "") +
-      tile(mc.clubs.length, "Clubs joined", "groups", "#/me/clubs") + "</div>" +
-      '<div class="panel wide"><h2>Next booking</h2>' + (next
-        ? '<p><b>' + esc(clubName) + "</b> - " + esc(courtName) + '<br><span class="muted">' + esc(when) + "</span></p>" +
-          '<p><span class="badge ' + esc(next.status) + '">' + esc(next.status) + "</span> <span class=\"muted small\">" + money(next.amount) + " - code " + esc(next.reference_code) + '</span></p><a class="btn sm" href="#/me/bookings">Manage bookings</a>'
-        : D.ui.emptyState('No upcoming bookings', 'Find a club and reserve your next court.', 'event_available', { href: '#/me/find', label: 'Find a club' })) + "</div>" +
-      (mc.clubs.length ? "" : '<div class="panel wide"><h2>Get started</h2><p class="muted">Join a club, pick a court and a time, then pay by QR. It takes a minute.</p>' +
-        '<a class="btn" href="#/me/find">Find a club</a></div>');
+    var until = next ? new Date(next.ends_at).toLocaleTimeString("en-PH", { timeZone: tz, hour: "numeric", minute: "2-digit" }) : "";
+    var mins = next ? Math.round((new Date(next.ends_at) - new Date(next.starts_at)) / 60000) : 0;
+
+    var hero = '<section class="relative overflow-hidden rounded-2xl bg-[#111722] border border-[#1f2b3b] p-6 sm:p-8 shadow-2xl">' +
+      '<div class="absolute -right-20 -top-24 w-96 h-96 bg-[#a3e635]/10 rounded-full blur-3xl pointer-events-none"></div>' +
+      '<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">' +
+        '<div class="space-y-2"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#182230] border border-[#293a50] text-[#a3e635] text-xs font-mono uppercase tracking-widest"><span class="w-2 h-2 rounded-full bg-[#a3e635] animate-pulse"></span>Player console</div>' +
+        '<h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Welcome back, ' + esc(who) + '</h2>' +
+        '<p class="text-gray-400 text-sm sm:text-base">Your bookings and clubs at a glance.</p></div>' +
+        '<div class="flex flex-wrap items-center gap-3">' +
+          '<a href="#/me/find" class="inline-flex items-center gap-2 bg-[#a3e635] hover:bg-[#bef264] text-black font-bold text-sm px-5 py-2.5 rounded-xl transition-all ' + GLOW + '"><span class="material-symbols-outlined text-base" aria-hidden="true">search</span>Find a Club</a>' +
+          '<a href="#/me/bookings" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#2b3a4e] bg-[#16202d] hover:bg-[#1d2a3c] text-white text-sm font-semibold transition-all"><span class="material-symbols-outlined text-base text-[#a3e635]" aria-hidden="true">event_available</span>My Bookings</a>' +
+        '</div></div></section>';
+
+    var metrics = '<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">' +
+      tile(up, "Confirmed upcoming", "event_available", up ? "Ready to play" : "Nothing confirmed yet", "#/me/bookings", "View bookings") +
+      tile(pending, "Waiting for payment or approval", "hourglass_top", pending ? "Needs your attention" : "No pending actions", "#/me/bookings", "View details") +
+      tile(mc.clubs.length, "Clubs joined", "groups", mc.clubs.length ? mc.clubs.map(function (x) { return x.name; }).join(", ") : "Join a club to start booking", "#/me/clubs", "My clubs") +
+      tile(total, "Total bookings", "history", "All time", "#/me/bookings", "Booking history") + '</section>';
+
+    var nextCard = '<section class="space-y-4"><h2 class="text-2xl font-bold text-white">Next booking</h2>' + (next
+      ? '<div class="relative overflow-hidden rounded-2xl bg-[#121924] border border-[#202c3d] p-6 sm:p-7 shadow-xl"><div class="absolute left-0 top-0 bottom-0 w-2 bg-[#a3e635] shadow-[0_0_15px_#a3e635]"></div>' +
+        '<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pl-2"><div class="space-y-3">' +
+          '<div class="flex flex-wrap items-center gap-2 sm:gap-3"><span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ' + (next.status === "approved" ? "bg-[#a3e635]/15 text-[#a3e635] border border-[#a3e635]/40" : "bg-amber-400/10 text-amber-300 border border-amber-300/30") + '"><span class="w-2 h-2 rounded-full ' + (next.status === "approved" ? "bg-[#a3e635]" : "bg-amber-300") + '"></span>' + (next.status === "approved" ? "Confirmed" : "Awaiting approval") + '</span>' +
+          '<span class="text-xs font-mono text-gray-400">Ref: <strong class="text-white">' + esc(next.reference_code) + '</strong></span></div>' +
+          '<h3 class="text-xl sm:text-2xl font-bold text-white">' + esc(clubName) + ' &bull; ' + esc(courtName) + '</h3>' +
+          '<p class="text-sm text-gray-400 flex flex-wrap items-center gap-y-1 gap-x-3"><span class="flex items-center gap-1 text-white font-medium"><span class="material-symbols-outlined text-sm text-[#a3e635]" aria-hidden="true">calendar_today</span>' + esc(when) + ' &ndash; ' + esc(until) + '</span>' +
+          '<span class="text-gray-600">&bull;</span><span class="text-[#a3e635]">' + mins + ' mins</span><span class="text-gray-600">&bull;</span><span>' + money(next.amount) + '</span></p>' +
+        '</div><div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 flex-shrink-0">' +
+          '<a href="#/me/bookings" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#a3e635] hover:bg-[#bef264] text-black font-bold text-sm transition-all ' + GLOW + '"><span class="material-symbols-outlined text-lg" aria-hidden="true">' + (next.status === "approved" ? "qr_code_2" : "payments") + '</span>' + (next.status === "approved" ? "View Pass / QR Ticket" : "Pay or upload proof") + '</a>' +
+          (clubSlug ? '<a href="#/c/' + esc(clubSlug) + '" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#192331] hover:bg-[#223043] text-gray-200 border border-[#2c3d52] text-xs font-semibold transition-colors">View club</a>' : "") +
+        '</div></div></div>'
+      : D.ui.emptyState('No upcoming bookings', 'Find a club and reserve your next court.', 'event_available', { href: '#/me/find', label: 'Find a club' })) + '</section>';
+
+    var clubs = mc.clubs.length ? '<section class="space-y-4"><div class="flex items-center gap-3"><h2 class="text-2xl font-bold text-white">My Clubs</h2><span class="px-2.5 py-0.5 rounded-full bg-[#172230] text-[#a3e635] font-mono text-xs border border-[#2a3c53]">' + mc.clubs.length + ' joined</span></div>' +
+      mc.clubs.slice(0, 3).map(function (cb) {
+        var logo = cb.logo_path ? '<img src="' + esc(D.mediaUrl(cb.logo_path)) + '" alt="" class="w-full h-full object-cover">' : '<span class="text-[#a3e635] text-3xl font-black">' + esc(cb.name.charAt(0).toUpperCase()) + '</span>';
+        return '<div class="relative overflow-hidden rounded-2xl bg-[#121924] border border-[#202c3d] p-5 sm:p-6 shadow-xl"><div class="absolute left-0 top-0 bottom-0 w-2 bg-[#a3e635] shadow-[0_0_15px_#a3e635]"></div>' +
+          '<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pl-2"><div class="flex items-center gap-4">' +
+            '<div class="w-16 h-16 rounded-2xl bg-[#182332] border border-[#29394d] flex-shrink-0 flex items-center justify-center overflow-hidden">' + logo + '</div>' +
+            '<div class="space-y-1"><div class="flex flex-wrap items-center gap-2"><h3 class="text-xl font-bold text-white">' + esc(cb.name) + '</h3><span class="px-3 py-1 rounded-full bg-[#a3e635] text-black font-mono text-xs font-bold uppercase tracking-wider">Joined</span></div>' +
+            '<p class="flex items-center gap-1 text-gray-400 text-sm"><span class="material-symbols-outlined text-sm text-[#a3e635]" aria-hidden="true">location_on</span>' + esc(cb.city || "Location not provided") + '</p></div></div>' +
+          '<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"><a href="#/c/' + esc(cb.slug) + '" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#1b2533] hover:bg-[#253245] text-white text-sm font-semibold border border-[#2c3d52] transition-all">View Club Details</a>' +
+          '<a href="#/c/' + esc(cb.slug) + '/book" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#a3e635] hover:bg-[#bef264] text-black text-sm font-bold transition-all ' + GLOW + '"><span class="material-symbols-outlined text-lg" aria-hidden="true">calendar_month</span>Book a court</a></div></div></div>';
+      }).join("") + '</section>'
+      : '<section class="rounded-2xl bg-gradient-to-r from-[#111722] via-[#141d2a] to-[#182332] border border-[#212f42] p-7 flex flex-col md:flex-row items-center justify-between gap-5"><div><h3 class="font-bold text-lg text-white">Get started</h3><p class="text-sm text-gray-400 mt-1">Join a club, pick a court and a time, then pay by QR. It takes a minute.</p></div><a href="#/me/find" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#a3e635] hover:bg-[#bef264] text-black text-sm font-bold ' + GLOW + '">Find a club</a></section>';
+
+    sec.innerHTML = '<div class="space-y-8">' + hero + metrics + nextCard + clubs + '</div>';
   }
 
   async function findView(sec) {
