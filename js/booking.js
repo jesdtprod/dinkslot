@@ -917,8 +917,7 @@
       if (todayBtn) todayBtn.onclick = function () {
         var today = dayStr(tz);
         q("#ndate", f).value = today;
-        S.date = today;
-        draw();
+        q("#ndate", f).dispatchEvent(new Event("change", { bubbles: true }));
       };
 
       var cancelBtn = q("#cancel-booking-btn", f);
@@ -932,6 +931,7 @@
       q("#ndate", f).onchange = function () {
         if (this.value) { S.date = this.value; draw(); }
       };
+      D.ui.dateTimePickers(f, tz);
       q("#nlen", f).onchange = function () {
         S.count = +this.value;
         paint();

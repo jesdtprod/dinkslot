@@ -288,20 +288,22 @@
 
   function dateTimePickers(root, timezone) {
     if (typeof HTMLElement.prototype.showPopover !== 'function') return;
-    root.querySelectorAll('input[type="datetime-local"]').forEach(function (input) {
+    root.querySelectorAll('input[type="datetime-local"], input[type="date"]').forEach(function (input) {
+      var dateOnly = input.type === 'date';
       var pad = function (n) { return String(n).padStart(2, '0'); };
       var today = new Intl.DateTimeFormat('en-CA', { timeZone: timezone || 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
       var draft = input.value || today + 'T08:00', month = draft.slice(0, 7);
-      var label = input.closest('label').firstChild.textContent.trim();
+      var labelElement = input.closest('label') || root.querySelector('label[for="' + input.id + '"]');
+      var label = dateOnly ? 'Booking date' : (labelElement ? labelElement.firstChild.textContent.trim() : 'Date and time');
       var host = document.createElement('span'); host.className = 'datetime-control';
       var trigger = document.createElement('button'); trigger.type = 'button'; trigger.className = 'datetime-trigger';
-      trigger.setAttribute('aria-label', label + ' date and time'); trigger.setAttribute('aria-haspopup', 'dialog'); trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('aria-label', label); trigger.setAttribute('aria-haspopup', 'dialog'); trigger.setAttribute('aria-expanded', 'false');
       var panel = document.createElement('div'); panel.className = 'datetime-picker'; panel.id = input.id + '-picker';
-      panel.setAttribute('popover', 'auto'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', label + ' date and time');
+      panel.setAttribute('popover', 'auto'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', label);
       trigger.setAttribute('aria-controls', panel.id);
       input.type = 'hidden'; input.required = false; input.after(host); host.append(trigger, panel);
       function text() {
-        trigger.innerHTML = '<span>' + (input.value ? esc(new Date(input.value).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })) : 'Select date & time') + '</span><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>';
+        trigger.innerHTML = '<span>' + (input.value ? esc(new Date(dateOnly ? input.value + 'T12:00:00' : input.value).toLocaleString('en-US', dateOnly ? { month: 'short', day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })) : (dateOnly ? 'Select date' : 'Select date & time')) + '</span><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>';
         trigger.classList.toggle('has-value', !!input.value);
       }
       function position() {
@@ -316,17 +318,18 @@
         for (var blank = 0; blank < date.getDay(); blank++) days += '<span></span>';
         for (var day = 1; day <= count; day++) {
           var value = month + '-' + pad(day);
-          days += '<button type="button" data-date="' + value + '" aria-label="' + value + '" aria-pressed="' + (value === draft.slice(0, 10)) + '"' + (value === today ? ' aria-current="date"' : '') + '>' + day + '</button>';
+          days += '<button type="button" data-date="' + value + '" aria-label="' + value + '" aria-pressed="' + (value === draft.slice(0, 10)) + '"' + (value === today ? ' aria-current="date"' : '') + (input.min && value < input.min.slice(0,10) ? ' disabled' : '') + '>' + day + '</button>';
         }
         function options(total, selected) {
           var html = ''; for (var n = 0; n < total; n++) html += '<option value="' + pad(n) + '"' + (pad(n) === selected ? ' selected' : '') + '>' + pad(n) + '</option>'; return html;
         }
         panel.innerHTML = '<div class="datetime-month"><strong aria-live="polite">' + date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</strong><button type="button" data-month="-1" aria-label="Previous month">‹</button><button type="button" data-month="1" aria-label="Next month">›</button></div>' +
           '<div class="datetime-week" aria-hidden="true">' + ['S','M','T','W','T','F','S'].map(function (d) { return '<span>' + d + '</span>'; }).join('') + '</div><div class="datetime-days">' + days + '</div>' +
-          '<div class="datetime-time"><span>Time <small>(24-hour)</small></span><select aria-label="Hour">' + options(24, draft.slice(11,13)) + '</select><span>:</span><select aria-label="Minute">' + options(60, draft.slice(14,16)) + '</select></div>' +
-          '<div class="datetime-actions"><button type="button" data-clear>Clear</button><button type="button" data-today>Today</button><button type="button" data-apply>Apply</button></div>';
+          (dateOnly ? '' : '<div class="datetime-time"><span>Time <small>(24-hour)</small></span><select aria-label="Hour">' + options(24, draft.slice(11,13)) + '</select><span>:</span><select aria-label="Minute">' + options(60, draft.slice(14,16)) + '</select></div>') +
+          '<div class="datetime-actions">' + (dateOnly ? '' : '<button type="button" data-clear>Clear</button>') + '<button type="button" data-today>Today</button><button type="button" data-apply>Apply</button></div>';
       }
       panel.addEventListener('change', function () {
+        if (dateOnly) return;
         var fields = panel.querySelectorAll('select'); draft = draft.slice(0,10) + 'T' + fields[0].value + ':' + fields[1].value;
       });
       panel.addEventListener('click', function (event) {
@@ -338,7 +341,7 @@
           draft = button.dataset.date + draft.slice(10); draw(); panel.querySelector('[data-date="' + draft.slice(0,10) + '"]').focus();
         } else if (button.hasAttribute('data-today')) { draft = today + draft.slice(10); month = today.slice(0,7); draw(); panel.querySelector('[data-date="' + today + '"]').focus();
         } else {
-          input.value = button.hasAttribute('data-clear') ? '' : draft;
+          input.value = button.hasAttribute('data-clear') ? '' : (dateOnly ? draft.slice(0,10) : draft);
           input.dispatchEvent(new Event('change', { bubbles: true })); text(); panel.hidePopover(); trigger.focus();
         }
       });
@@ -348,6 +351,7 @@
         if (event.target.dataset.date && offsets[event.key]) {
           event.preventDefault(); var d = new Date(event.target.dataset.date + 'T12:00:00'); d.setDate(d.getDate() + offsets[event.key]);
           var value = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+          if (input.min && value < input.min.slice(0,10)) return;
           month = value.slice(0,7); draft = value + draft.slice(10); draw(); panel.querySelector('[data-date="' + value + '"]').focus();
         }
       });
@@ -357,6 +361,7 @@
         if (panel.matches(':popover-open')) { panel.hidePopover(); return; }
         draft = input.value || today + 'T08:00'; month = draft.slice(0,7); draw(); panel.showPopover(); position(); panel.querySelector('[aria-pressed="true"]').focus();
       };
+      input.addEventListener('change', text);
       text();
     });
   }
