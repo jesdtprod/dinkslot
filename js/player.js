@@ -389,7 +389,7 @@
       '<div class="member-overview-stats"><div><span class="member-overview-stat-label">Clubs</span><span class="member-overview-stat-value">' + all.length + '</span><small>Available to explore</small></div><div><span class="member-overview-stat-label">Active Courts</span><span class="member-overview-stat-value">' + allCourts.length + '</span><small>Across the network</small></div><div><span class="member-overview-stat-label">My Clubs</span><span class="member-overview-stat-value">' + mc.clubs.length + '</span><small>Joined memberships</small></div></div></section>';
 
     var filterBarHtml = '<section class="club-directory-tools" data-purpose="search-and-filter-bar">' +
-      '<div class="club-directory-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input id="club-search-input" type="search" aria-label="Search clubs" placeholder="Search clubs, addresses, or ZIP codes" autocomplete="off"><button id="btn-clear-search" type="button"><span class="material-symbols-outlined" aria-hidden="true">close</span>Clear</button></div>' +
+      '<div class="club-directory-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input id="club-search-input" type="search" aria-label="Search clubs" placeholder="Search clubs, addresses, or ZIP codes" autocomplete="off"><button id="btn-clear-search" type="button" aria-label="Clear search" title="Clear search" hidden><span class="material-symbols-outlined" aria-hidden="true">close</span></button></div>' +
       '<div class="club-directory-filters"><label>City / Municipality<select id="club-filter-city">' + filterOptions(all.map(function (c) { return c.city; }), 'All locations') + '</select></label>' +
       '<label>Court Type<select id="club-filter-type"><option value="">All court types</option><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option></select></label>' +
       '<label>Surface<select id="club-filter-surface">' + filterOptions(allCourts.map(function (c) { return c.surface; }), 'All surfaces') + '</select></label>' +
@@ -432,7 +432,7 @@
       var searchInput = q("#club-search-input", sec);
       var term = searchInput ? searchInput.value.trim().toLowerCase() : "";
       var clearSearch = q('#btn-clear-search', sec);
-      if (clearSearch) clearSearch.disabled = !searchInput || !searchInput.value;
+      if (clearSearch) { clearSearch.hidden = !searchInput || !searchInput.value; clearSearch.disabled = clearSearch.hidden; }
 
       var list = combinedNearby.filter(function (c) {
         var haystack = [c.name,c.slug,c.address,c.street,c.barangay,c.city,c.province,c.zip_code].filter(Boolean).join(' ').toLowerCase();

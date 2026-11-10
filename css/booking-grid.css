@@ -407,3 +407,7 @@ body .club-directory-search #btn-clear-search { min-height:28px !important; padd
 .member-clubs-search { height:44px; padding:0 12px; }
 #ds-tenant-dashboard #sec .member-clubs-search input { height:42px; padding:8px 0; font-size:12px; }
 .member-clubs-search .material-symbols-outlined { font-size:18px; }
+
+/* Search reset is an icon only and appears only for non-empty searches. */
+body .club-directory-search #btn-clear-search { width:28px; min-width:28px; padding:4px !important; border:0 !important; background:transparent !important; }
+body .club-directory-search #btn-clear-search[hidden] { display:none !important; }
