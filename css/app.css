@@ -2789,3 +2789,9 @@ dialog#booking-modal select::picker-icon { align-self: center; margin-left: auto
 .datetime-days button:disabled { opacity: .3; cursor: not-allowed; }
 .datetime-days button:disabled:hover { background: transparent; }
 dialog#booking-modal .datetime-trigger { width: 100%; height: 38px; padding: 8px 12px; border-radius: 8px; }
+
+/* Align the first controls across customer and booking details. */
+dialog#booking-modal [data-purpose="customer-selection-card"],
+dialog#booking-modal [data-purpose="booking-parameters"] { display: flex; flex-direction: column; }
+dialog#booking-modal [data-purpose="customer-selection-card"] > [role="tablist"] { flex-shrink: 0; height: 38px; }
+dialog#booking-modal [data-purpose="booking-parameters"] > .grid { padding-top: 22px; }
