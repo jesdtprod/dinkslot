@@ -37,7 +37,7 @@
       foot: [{ label: "Browse All Clubs", icon: "home", href: "#/" }],
       active: section
     });
-    root.querySelector('#ds-tenant-dashboard').classList.add('member-dashboard', 'court-grid-bg');
+    root.querySelector('#ds-tenant-dashboard').classList.add('member-dashboard');
     var sec = ui.main;
     sec.innerHTML = '<div class="member-skeleton" aria-label="Loading page"><div class="ds-skeleton"></div><div class="ds-skeleton"></div><div class="ds-skeleton"></div></div>';
     if (section === "find") await findView(sec);
