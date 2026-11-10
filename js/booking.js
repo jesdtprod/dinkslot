@@ -1021,10 +1021,14 @@
         if (S.who === "guest" && !guest) return msg(f, "Enter the guest's name.", "err");
         if (S.who === "player" && !pid) return msg(f, "Choose a registered player from the directory.", "err");
         var a = S.slots[S.start], z = S.slots[S.start + S.count - 1], btn = q("#nreserve", f);
+        if (btn.disabled) return;
+        btn.disabled = true;
+        var customer = S.who === "guest" ? guest : ((players.find(function (player) { return player.id === pid; }) || {}).display_name || "the selected player");
+        var confirmation = await D.ui.confirmAction("Reserve " + S.court.name + " for " + customer + " on " + range(a.s, z.e, tz) + "? This booking will be confirmed immediately.", { title: "Confirm Booking", confirmText: "Confirm Booking", danger: false });
+        if (!confirmation) { btn.disabled = false; return; }
         var sig = "admin|" + S.court.id + "|" + a.s.toISOString() + "|" + z.e.toISOString() + "|" + (S.who === "guest" ? guest : pid);
         keys[sig] = keys[sig] || uuid();
         btn.disabled = true;
-        msg(f, "Confirming reservation on court...", "");
         var r = await sb.rpc("create_admin_booking", {
           p_court_id: S.court.id,
           p_starts_at: a.s.toISOString(),
