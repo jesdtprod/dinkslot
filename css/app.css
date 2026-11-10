@@ -3111,3 +3111,10 @@ article.group > a.relative:first-child > img { position: absolute; inset: 0; wid
 .facility-account summary { background:#192027; backdrop-filter:none; -webkit-backdrop-filter:none; }
 .facility-account-menu { background:#181c22; backdrop-filter:none; -webkit-backdrop-filter:none; animation:none; box-shadow:0 12px 32px #0006; }
 .facility-menu-header { background:#0d1218; }
+
+/* Public club identity: overlap only the avatar with the cover edge. */
+.pubwrap .clubid { align-items:flex-start; margin:-44px 24px 20px; gap:20px; }
+.pubwrap .clubid .bigcircle { position:relative; z-index:1; width:96px; height:96px; margin:0; border-radius:50%; }
+.pubwrap .clubid .clubid-text { padding-top:56px; }
+.pubwrap .clubid .bookcta { align-self:flex-end; }
+@media(max-width:640px) { .pubwrap .clubid { margin:-36px 14px 18px; gap:12px; } .pubwrap .clubid .bigcircle { width:80px; height:80px; } .pubwrap .clubid .clubid-text { flex-basis:100%; min-width:0; padding-top:0; } .pubwrap .clubid .bookcta { width:100%; } }
