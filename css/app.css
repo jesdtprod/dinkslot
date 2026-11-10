@@ -2978,3 +2978,18 @@ body:has(.confirmation-modal[open]) { overflow: hidden; }
 .ticket-reference { font: 600 14px/22px "JetBrains Mono",monospace; color: #c3dfa6; }
 .booking-ticket-modal .ticket-note { margin-top: 12px; font-size: 10px; color: #829889; }
 .ticket-actions { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+
+/* Court editor shares New Booking's inset sections and header rhythm. */
+.court-config-modal[open] { width: min(860px,calc(100vw - 32px)); background: #192127; }
+.court-config-modal .court-config-heading { padding: 16px 20px; align-items: center; }
+#ds-tenant-dashboard #sec .court-config-heading h3 { font: 600 19px/26px "Plus Jakarta Sans",sans-serif; }
+#ds-tenant-dashboard #sec .court-config-heading p { margin: 4px 0 0; color: #94a99a; font: 400 12px/18px "Plus Jakarta Sans",sans-serif; }
+.court-config-modal .court-config-close { width: 30px; height: 30px; border-radius: 8px; }
+.court-config-modal .court-config-body { padding: 18px 20px; gap: 16px; }
+.court-details-section, .court-config-modal .court-qr-upload { padding: 14px; border: 1px solid #ffffff0c; border-radius: 10px; background: #ffffff02; }
+.court-section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; color: #c3d0c6; font: 600 12px/18px "Plus Jakarta Sans",sans-serif; }
+.court-section-title > span { width: 7px; height: 7px; border-radius: 50%; background: #a3e635; }
+#ds-tenant-dashboard #sec .court-config-modal .court-details-section > .grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 16px; }
+#ds-tenant-dashboard #sec .court-config-modal label { font-family: "Plus Jakarta Sans",sans-serif; font-size: 11px; line-height: 16px; text-transform: none; letter-spacing: 0; }
+.court-config-modal .court-config-actions { padding: 14px 20px; }
+@media (max-width:540px) { #ds-tenant-dashboard #sec .court-config-modal .court-details-section > .grid { grid-template-columns: minmax(0,1fr); } }
