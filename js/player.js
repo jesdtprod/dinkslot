@@ -387,36 +387,9 @@
     var filterOpenNow = true;
     var sortBy = "distance";
 
-    // 1. Hero Header
-    var heroHtml =
-      '<section class="space-y-4" data-purpose="page-hero-banner">' +
-        '<div class="flex flex-wrap items-center justify-between gap-4">' +
-          '<div>' +
-            '<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#a3e635]/10 border border-[#a3e635]/25 text-[#a3e635] text-xs font-mono font-semibold tracking-wider uppercase mb-2">' +
-              '<span class="w-2 h-2 rounded-full bg-[#a3e635] animate-pulse"></span>' +
-              'Pickleball Club Network • 450+ Venues Active' +
-            '</div>' +
-            '<h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">Find a club</h1>' +
-            '<p class="text-slate-400 text-sm sm:text-base max-w-2xl mt-1">Join a club to start booking courts, ladder play, and high-performance tournaments with instant confirmation.</p>' +
-          '</div>' +
-          '<div class="flex items-center gap-3 sm:gap-6 bg-brand-cardDark/70 border border-brand-borderDark px-4 py-3 rounded-2xl backdrop-blur-sm shadow-xl">' +
-            '<div class="text-left">' +
-              '<div class="text-xs font-mono uppercase text-slate-400">Active Courts</div>' +
-              '<div class="text-lg font-bold text-white flex items-center gap-1.5"><span class="text-[#a3e635]">2,840+</span></div>' +
-            '</div>' +
-            '<div class="h-8 w-px bg-slate-800"></div>' +
-            '<div class="text-left">' +
-              '<div class="text-xs font-mono uppercase text-slate-400">DUPR Verified</div>' +
-              '<div class="text-lg font-bold text-white">94.2%</div>' +
-            '</div>' +
-            '<div class="h-8 w-px bg-slate-800"></div>' +
-            '<div class="text-left">' +
-              '<div class="text-xs font-mono uppercase text-slate-400">Match Latency</div>' +
-              '<div class="text-lg font-bold text-[#a3e635]">&lt;4 min</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</section>';
+    // Use the same compact header and account summary as Member Overview.
+    var heroHtml = '<section class="member-overview-header" data-purpose="page-hero-banner"><div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1>Find a Club</h1><p>Explore clubs, compare courts, and find your next place to play.</p></div>' +
+      '<div class="member-overview-stats"><div><span class="member-overview-stat-label">Clubs</span><span class="member-overview-stat-value">' + all.length + '</span><small>Available to explore</small></div><div><span class="member-overview-stat-label">Active Courts</span><span class="member-overview-stat-value">' + allCourts.length + '</span><small>Across the network</small></div><div><span class="member-overview-stat-label">My Clubs</span><span class="member-overview-stat-value">' + mc.clubs.length + '</span><small>Joined memberships</small></div></div></section>';
 
     // 2. Advanced Search & Filter Bar
     var filterBarHtml =
@@ -633,7 +606,7 @@
       '</section>';
 
     sec.innerHTML =
-      '<div class="space-y-8 max-w-7xl mx-auto w-full" data-purpose="player-find-club">' +
+      '<div class="member-find-page" data-purpose="player-find-club">' +
         heroHtml +
         filterBarHtml +
         joinedSectionHtml +

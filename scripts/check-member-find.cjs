@@ -104,7 +104,7 @@ function createMockSec() {
   await D.player.find(sec);
 
   assert.ok(sec.innerHTML.includes('data-purpose="page-hero-banner"'), 'Hero banner missing');
-  assert.ok(sec.innerHTML.includes('Pickleball Club Network • 450+ Venues Active'), 'Hero network badge missing');
+  assert.ok(sec.innerHTML.includes('member-overview-header') && sec.innerHTML.includes('Player Workspace'), 'Shared overview header missing');
   assert.ok(sec.innerHTML.includes('data-purpose="search-and-filter-bar"'), 'Filter bar missing');
   assert.ok(sec.innerHTML.includes('id="club-search-input"'), 'Search input missing');
   assert.ok(sec.innerHTML.includes('data-purpose="joined-clubs-section"'), 'Joined section missing');

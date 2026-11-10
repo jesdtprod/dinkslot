@@ -146,3 +146,19 @@
 .member-overview-stats > div { padding:0 18px; }
 @media(max-width:1100px) { #ds-tenant-dashboard #sec .member-overview-header { grid-template-columns:minmax(0,1fr); } .member-overview-stats { justify-self:start; } }
 @media(max-width:540px) { .member-overview-stats { grid-template-columns:repeat(3,minmax(0,max-content)); width:fit-content; } .member-overview-stats > div { padding:0 10px; } }
+
+/* Find a Club shares the overview's page width, surfaces and spacing. */
+#ds-tenant-dashboard #sec [data-purpose="player-find-club"] { width:100%; max-width:none; margin:0; display:flex; flex-direction:column; gap:24px; }
+#ds-tenant-dashboard #sec .member-find-page :is([data-purpose="search-and-filter-bar"],[data-purpose="club-onboarding-cta"]) { padding:20px; border:1px solid #ffffff10; border-radius:12px; background:#171d23; box-shadow:none; }
+.member-find-page [data-purpose="search-and-filter-bar"] > div + div { margin-top:14px; padding-top:14px; border-color:#ffffff0c; }
+#ds-tenant-dashboard #sec .member-find-page input#club-search-input { min-height:40px; border-radius:8px; background:#20282e; border-color:#ffffff12; font-size:12px; }
+.member-find-page :is(h2,h3) { color:#dce5df; letter-spacing:-.015em; }
+.member-find-page h2 { font-size:19px; line-height:27px; font-weight:650; }
+.member-find-page [data-purpose="nearby-clubs-grid"] > div:first-child { margin-bottom:16px; }
+#ds-tenant-dashboard #sec .member-find-page #discover-clubs-list { gap:16px; }
+#ds-tenant-dashboard #sec .member-find-page #discover-clubs-list > article { padding:18px; border:1px solid #ffffff10; border-radius:12px; background:#171d23; box-shadow:none; transform:none; }
+#ds-tenant-dashboard #sec .member-find-page [data-purpose="joined-clubs-section"] > article { padding:20px; border:1px solid #ffffff10; border-radius:12px; background:#171d23; box-shadow:none; }
+.member-find-page [data-purpose="joined-clubs-section"] > div:first-child { margin-bottom:16px; }
+.member-find-page [data-purpose="quick-slot-picker"] { border-color:#ffffff0c; border-radius:8px; background:#11171d; }
+.member-find-page :is(.neon-border-glow,.neon-glow-lime):hover { box-shadow:none !important; }
+@media(max-width:600px) { #ds-tenant-dashboard #sec .member-find-page :is([data-purpose="search-and-filter-bar"],[data-purpose="club-onboarding-cta"],[data-purpose="joined-clubs-section"] > article) { padding:16px; } }
