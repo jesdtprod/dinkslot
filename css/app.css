@@ -3106,3 +3106,8 @@ article.group > a.relative:first-child > img { position: absolute; inset: 0; wid
 .bell .nitem.unread::after { content:''; flex-shrink:0; width:5px; height:5px; margin:7px 0 0 2px; border-radius:50%; background:#a3e635; }
 .bell .ntext { min-width:0; overflow-wrap:anywhere; }
 .bell .ntext small { margin-top:4px; color:#7e9186; font-size:10px; line-height:15px; }
+
+/* Keep account dropdowns on simple surfaces without nested filtered layers. */
+.facility-account summary { background:#192027; backdrop-filter:none; -webkit-backdrop-filter:none; }
+.facility-account-menu { background:#181c22; backdrop-filter:none; -webkit-backdrop-filter:none; animation:none; box-shadow:0 12px 32px #0006; }
+.facility-menu-header { background:#0d1218; }
