@@ -49,4 +49,8 @@ const playerMenu = D.ui.accountMenu({ title: '<Player>', sub: 'Player' }, 'signo
 assert.ok(playerMenu.includes('&lt;Player&gt;'));
 assert.ok(playerMenu.includes('id="signout"'));
 assert.ok(!playerMenu.includes('Facility Management'));
+assert.ok(playerMenu.includes('href="#/me"'));
+const clubMenu = D.ui.accountMenu({ title: 'Test Club', slug: 'test-club' });
+assert.match(clubMenu, /href="#\/admin\/test-club"[^>]*>[\s\S]*?facility-item-title">Dashboard</);
+assert.match(clubMenu, /href="#\/admin\/test-club\/profile"[^>]*>\s*<div class="facility-item-main">\s*<div class="facility-item-icon"><span class="material-symbols-outlined">person<\/span><\/div>[\s\S]*?Personal Profile/);
 console.log('Dashboard shell, menu links, sign-out binding, Escape, and player menu checks passed.');

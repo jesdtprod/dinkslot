@@ -30,6 +30,16 @@
     '</div>' +
     (h.slug ?
       '<div class="facility-menu-label">Facility Management</div>' +
+      '<a href="#/admin/' + esc(h.slug) + '" class="facility-menu-item">' +
+        '<div class="facility-item-main">' +
+          '<div class="facility-item-icon"><span class="material-symbols-outlined">dashboard</span></div>' +
+          '<div class="facility-item-copy">' +
+            '<span class="facility-item-title">Dashboard</span>' +
+            '<span class="facility-item-sub">Facility overview & activity</span>' +
+          '</div>' +
+        '</div>' +
+        '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
+      '</a>' +
       '<a href="#/c/' + esc(h.slug) + '" target="_blank" rel="noopener" class="facility-menu-item">' +
         '<div class="facility-item-main">' +
           '<div class="facility-item-icon"><span class="material-symbols-outlined">storefront</span></div>' +
@@ -52,12 +62,12 @@
       '</a>'
     : '') +
     '<div class="facility-menu-label">Network & Account</div>' +
-    '<a href="#/me" class="facility-menu-item">' +
+    '<a href="' + (h.slug ? '#/admin/' + esc(h.slug) + '/profile' : '#/me') + '" class="facility-menu-item">' +
       '<div class="facility-item-main">' +
         '<div class="facility-item-icon"><span class="material-symbols-outlined">person</span></div>' +
         '<div class="facility-item-copy">' +
           '<span class="facility-item-title">Personal Profile</span>' +
-          '<span class="facility-item-sub">Player stats & reservations</span>' +
+          '<span class="facility-item-sub">' + (h.slug ? 'Club details, contact & media' : 'Player stats & reservations') + '</span>' +
         '</div>' +
       '</div>' +
       '<span class="material-symbols-outlined facility-item-arrow">chevron_right</span>' +
