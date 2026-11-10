@@ -459,3 +459,14 @@ body .myclubs-directory-tools #myclubs-clear[hidden] { display:none !important; 
 .membership-court-bottom small { margin-left:3px; color:#839b78; font-size:9px; font-weight:400; }
 .membership-court-bottom > .material-symbols-outlined { color:#789187; font-size:16px; transition:transform .15s,color .15s; }
 .membership-court-tile:hover .membership-court-bottom > .material-symbols-outlined { transform:translateX(3px); color:#b4d593; }
+
+/* Compact court tiles retain the detail hierarchy in fewer rows. */
+.membership-court-tile { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px 10px; padding:10px 12px; }
+.membership-court-top { grid-column:1/-1; }
+.membership-court-top .membership-court-icon { width:22px; height:22px; font-size:14px; }
+.membership-court-top .membership-court-type { padding:2px 6px; font-size:9px; line-height:13px; }
+.membership-court-tile strong { grid-column:1; font-size:13px; line-height:18px; }
+.membership-court-hours { grid-column:1; font-size:10px; line-height:15px; }
+.membership-court-bottom { grid-column:2; grid-row:2 / span 2; align-self:center; gap:8px; margin:0; padding:0; border:0; }
+.membership-court-bottom b { padding:3px 6px; font-size:10px; line-height:15px; }
+.membership-court-bottom > .material-symbols-outlined { font-size:14px; }
