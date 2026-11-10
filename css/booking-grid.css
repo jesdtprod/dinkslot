@@ -22,16 +22,21 @@
 .member-reservation-actions .btn { justify-content:center; }
 @media(max-width:700px) { .member-reservation-card { align-items:stretch; flex-direction:column; gap:16px; padding:16px; } .member-reservation-actions { flex-direction:row; flex-wrap:wrap; } .member-reservation-actions .btn { flex:1; } }
 
-/* Keep member metric content inset even when utility spacing is unavailable. */
-#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; align-items:stretch; }
-#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article { display:flex; flex-direction:column; min-width:0; padding:18px; border-radius:12px; box-sizing:border-box; box-shadow:none; }
+/* Compact member statistics with consistent spacing and quiet surfaces. */
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; align-items:stretch; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article { display:flex; flex-direction:column; min-width:0; padding:14px 16px; border:1px solid #ffffff10; border-radius:10px; background:#171d23; box-sizing:border-box; box-shadow:none; transition:border-color .15s,background .15s; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article:hover { border-color:#a3e63530 !important; background:#1a2127; box-shadow:none !important; }
 #ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:first-child { display:flex; align-items:center; justify-content:space-between; gap:10px; }
-#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:first-child > div { display:grid; place-items:center; flex-shrink:0; width:36px; height:36px; border-radius:10px; }
-#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) { flex:1; margin:18px 0 16px; }
-#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) > p:first-child { min-height:28px; margin:0; font-size:10px; line-height:14px; letter-spacing:.04em; }
-#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) > div { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:4px; }
-#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) > p:last-child { margin:8px 0 0; font-size:11px; line-height:18px; }
-#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > a { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:auto; padding:12px 0 0; font-size:12px; line-height:20px; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:first-child > div { display:grid; place-items:center; flex-shrink:0; width:28px; height:28px; border:1px solid #a3e63520; border-radius:8px; background:#a3e63508; color:#b0c994; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:first-child > div .material-symbols-outlined { font-size:17px; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:first-child > span { padding:2px 6px; border-radius:5px; font-size:9px; line-height:14px; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) { flex:1; margin:12px 0; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) > p:first-child { min-height:26px; margin:0; color:#91a399; font:500 10px/13px "Plus Jakarta Sans",sans-serif; letter-spacing:.025em; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) > div { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin-top:0; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) > div > span:first-child { font-size:28px; line-height:32px; font-weight:650; letter-spacing:-.035em; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > div:nth-child(2) > p:last-child { margin:6px 0 0; color:#8fa397; font-size:10px; line-height:16px; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > a { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:auto; padding:9px 0 0; border-color:#ffffff0a; color:#adbbb2; font-size:11px; font-weight:500; line-height:18px; }
+#ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] > article > a .material-symbols-outlined { font-size:15px; }
 @media(max-width:1100px) { #ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:540px) { #ds-tenant-dashboard #sec [data-purpose="metrics-summary-grid"] { grid-template-columns:minmax(0,1fr); } }
 
