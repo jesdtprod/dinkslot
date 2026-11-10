@@ -90,7 +90,7 @@
     function setZip(zip) {
       apiZip = zip || "";
       var z = $("ph-zip"), n = $("ph-zipnote");
-      if (apiZip) { z.value = apiZip; z.readOnly = true; n.textContent = "From the PSGC address API."; }
+      if (apiZip) { z.value = apiZip; z.readOnly = true; n.textContent = ""; }
       else { z.readOnly = false; z.value = ""; n.textContent = sel.city ? "No ZIP in the address API for this place. Enter your 4-digit ZIP." : ""; } // never keep another city's ZIP
     }
     function toText(id, val, ph) { // a dropdown that cannot be filled becomes a text box
