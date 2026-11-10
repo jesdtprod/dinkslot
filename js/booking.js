@@ -477,12 +477,21 @@
     var tz = t.timezone || "Asia/Manila", built = false;
     box.innerHTML = '<section class="booking-new-card"><div class="booking-new-heading"><div><h2>Book for a customer</h2>' +
       '<p class="muted small">For walk-in guests or registered players. The booking is confirmed right away.</p></div>' +
-      '<button class="btn sm" id="nbtoggle" type="button" aria-expanded="false" aria-controls="nbform"><span class="material-symbols-outlined" aria-hidden="true">add</span>New booking</button></div><div id="nbform" hidden></div></section>';
+      '<button class="btn sm" id="nbtoggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="booking-modal"><span class="material-symbols-outlined" aria-hidden="true">add</span>New booking</button></div>' +
+      '<dialog id="booking-modal" class="booking-modal" aria-labelledby="booking-modal-title"><header class="booking-modal-heading"><div><h2 id="booking-modal-title">Book for a customer</h2><p>Choose a customer, court, and available time.</p></div><button type="button" class="booking-modal-close" aria-label="Close booking form"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div id="nbform"></div></dialog></section>';
     var formBox = q("#nbform", box);
+    var dialog = q("#booking-modal", box), toggle = q("#nbtoggle", box);
+    q(".booking-modal-close", dialog).onclick = function () { dialog.close(); };
+    dialog.addEventListener("close", function () { toggle.setAttribute("aria-expanded", "false"); toggle.focus(); });
+    dialog.addEventListener("click", function (event) {
+      if (event.target !== dialog) return;
+      var rect = dialog.getBoundingClientRect();
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
+    });
     q("#nbtoggle", box).onclick = function () {
-      formBox.hidden = !formBox.hidden;
-      this.setAttribute("aria-expanded", String(!formBox.hidden));
-      if (!formBox.hidden && !built) { built = true; build(); }
+      dialog.showModal();
+      this.setAttribute("aria-expanded", "true");
+      if (!built) { built = true; build(); }
     };
 
     async function build() {

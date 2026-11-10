@@ -1747,6 +1747,19 @@ body.tenant-dashboard-mode #app {
 .booking-queue .bcard .font-mono { font-family: "Plus Jakarta Sans",sans-serif; font-size: 11px; }
 .booking-new-card #nbform:not([hidden]) { margin-top: 18px; border-top: 1px solid #ffffff09; padding-top: 16px; animation: court-form-enter .18s ease-out; }
 .booking-new-card #nbf { display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 0; border: 0; background: transparent; }
+.booking-modal { width: min(780px,calc(100vw - 32px)); max-height: calc(100dvh - 48px); margin: auto; padding: 22px; overflow-y: auto; border: 1px solid #ffffff1a; border-radius: 16px; background: #192127; color: #dce6de; box-shadow: 0 24px 80px #0008; color-scheme: dark; }
+.booking-modal::backdrop { background: #060b10b8; backdrop-filter: blur(5px); }
+.booking-modal[open] { animation: court-form-enter .18s ease-out; }
+.booking-modal-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid #ffffff0c; }
+#ds-tenant-dashboard #sec .booking-modal-heading h2 { margin: 0; font: 600 18px/26px "Plus Jakarta Sans",sans-serif; }
+.booking-modal-heading p { margin: 4px 0 0; color: #94a99a; font-size: 12px; }
+.booking-modal-close { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; padding: 0; border: 1px solid #ffffff0d; background: #ffffff04; color: #aebfb3; cursor: pointer; }
+.booking-modal-close:hover { background: #ffffff0a; color: #e0e8e2; }
+.booking-modal-close .material-symbols-outlined { font-size: 18px; }
+.booking-new-card .booking-modal #nbform { margin: 0; padding: 0; border: 0; animation: none; }
+body:has(.booking-modal[open]) { overflow: hidden; }
+@media (max-width:640px) { .booking-modal { padding: 16px; max-height: calc(100dvh - 24px); } }
+@media (prefers-reduced-motion: reduce) { .booking-modal[open] { animation: none; } }
 .booking-new-card label { display: flex; flex-direction: column; gap: 7px; min-width: 0; color: #a1b0a6; font: 500 11px/16px "Plus Jakarta Sans",sans-serif; }
 .booking-new-card .seg { align-self: flex-start; padding: 3px; border: 1px solid #ffffff0d; border-radius: 9px; background: #0c121640; }
 .booking-new-card .segbtn { padding: 7px 12px; color: #8f9f94; background: transparent; }
