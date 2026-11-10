@@ -81,7 +81,15 @@
   }
   function renderNav() {
     var h = "";
-    if (state.isPlatform) h += '<a href="#/platform">Platform</a>';
+    document.body.classList.toggle("sa", !!state.isPlatform);
+    if (state.isPlatform) {
+      // Super admin has its own chrome: no tenant items (register club, my account).
+      nav.innerHTML = '<span class="sa-tag">SUPER ADMIN</span><a href="#/platform">Console</a>' +
+        '<a href="#/">Public site</a><span class="muted-w">' + esc(state.user.email) + "</span>" +
+        '<button id="signout" class="linkbtn">Sign out</button>';
+      document.getElementById("signout").onclick = async function () { await sb.auth.signOut(); await refreshSession(); go("/"); };
+      return;
+    }
     if (state.user) {
       h += '<a href="#/me">My account</a><a href="#/register-club" class="pill">Register your club</a>' +
            '<button id="signout" class="linkbtn">Sign out</button>';
@@ -181,6 +189,7 @@
       if (res.error) return setMsg(app, friendly(res.error), "err");
       if (!res.data.session) return setMsg(app, "Account created. Check your email to confirm, then sign in.", "ok");
       await refreshSession();
+      if (state.isPlatform) return go("/platform");
       if (opts.join) {
         var dn = ($("#dn") && $("#dn").value.trim()) || $("#name").value.trim() || email.split("@")[0];
         var j = await sb.rpc("join_club", { p_slug: opts.join, p_display_name: dn });
@@ -259,19 +268,43 @@
   async function viewPlatform() {
     if (!requireUser("/platform")) return;
     if (!state.isPlatform) { app.innerHTML = "<h2>Not allowed</h2><p>This page is for the platform admin.</p>"; return; }
-    app.innerHTML = '<h1>Platform console</h1><p class="msg" role="alert"></p><div id="list">Loading...</div>';
+    app.innerHTML = '<h1>Super admin console</h1><p class="muted">Review and control every club on DINKSLOT.</p>' +
+      '<div id="stats" class="stats"></div>' +
+      '<div class="filters"><input id="sq" type="search" placeholder="Search clubs, owners, cities" aria-label="Search">' +
+      '<select id="sf" aria-label="Status filter"><option value="pending">Pending approval</option><option value="">All clubs</option>' +
+      '<option value="approved">Approved</option><option value="rejected">Rejected</option><option value="suspended">Suspended</option></select></div>' +
+      '<p class="msg" role="alert"></p><div id="list">Loading...</div>';
+    var all = [];
+    function draw() {
+      var q = $("#sq").value.trim().toLowerCase(), f = $("#sf").value;
+      var rows = all.filter(function (c) {
+        return (!f || c.status === f) &&
+          (!q || [c.name, c.slug, c.city, c.owner_name, c.contact_email].join(" ").toLowerCase().indexOf(q) !== -1);
+      });
+      var counts = { pending: 0, approved: 0, rejected: 0, suspended: 0 };
+      all.forEach(function (c) { counts[c.status] = (counts[c.status] || 0) + 1; });
+      $("#stats").innerHTML = ["pending", "approved", "rejected", "suspended"].map(function (s) {
+        return '<div class="stat ' + s + '"><b>' + counts[s] + "</b><span>" + s + "</span></div>";
+      }).join("") + '<div class="stat"><b>' + all.length + "</b><span>total</span></div>";
+      $("#list").innerHTML = rows.length ? '<table class="tbl"><thead><tr><th>Club</th><th>Owner</th><th>Registered</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+        rows.map(function (c) {
+          var b = function (d, label) { return '<button class="btn sm" data-id="' + esc(c.id) + '" data-d="' + d + '">' + label + "</button> "; };
+          return "<tr><td><strong>" + esc(c.name) + '</strong><br><span class="muted small">/c/' + esc(c.slug) + (c.city ? " - " + esc(c.city) : "") + "</span></td><td>" +
+            esc(c.owner_name || "") + (c.contact_email ? '<br><span class="muted small">' + esc(c.contact_email) + "</span>" : "") + '</td><td class="small">' +
+            esc(new Date(c.created_at).toLocaleDateString()) + '</td><td><span class="badge ' + esc(c.status) + '">' + esc(c.status) + "</span></td><td>" +
+            (c.status !== "approved" ? b("approved", "Approve") : "") + (c.status === "pending" ? b("rejected", "Reject") : "") +
+            (c.status === "approved" ? b("suspended", "Suspend") : "") + "</td></tr>";
+        }).join("") + "</tbody></table>" : '<p class="muted">No clubs match.</p>';
+      bind();
+    }
+    $("#sq").oninput = draw; $("#sf").onchange = draw;
     async function load() {
       var r = await sb.rpc("platform_list_clubs");
       if (r.error) return setMsg(app, friendly(r.error), "err");
-      var rows = r.data || [];
-      $("#list").innerHTML = rows.length ? '<table class="tbl"><thead><tr><th>Club</th><th>Owner</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
-        rows.map(function (c) {
-          var b = function (d, label) { return '<button class="btn sm" data-id="' + esc(c.id) + '" data-d="' + d + '">' + label + "</button> "; };
-          return "<tr><td><strong>" + esc(c.name) + '</strong><br><span class="muted small">' + esc(c.slug) + (c.city ? " - " + esc(c.city) : "") + "</span></td><td>" +
-            esc(c.owner_name || "") + '</td><td><span class="badge ' + esc(c.status) + '">' + esc(c.status) + "</span></td><td>" +
-            (c.status !== "approved" ? b("approved", "Approve") : "") + (c.status === "pending" ? b("rejected", "Reject") : "") +
-            (c.status === "approved" ? b("suspended", "Suspend") : "") + "</td></tr>";
-        }).join("") + "</tbody></table>" : '<p class="muted">No clubs registered yet.</p>';
+      all = r.data || [];
+      draw();
+    }
+    function bind() {
       Array.prototype.forEach.call(app.querySelectorAll("button[data-d]"), function (btn) {
         btn.onclick = async function () {
           var d = btn.getAttribute("data-d"), reason = null;
@@ -299,6 +332,8 @@
     var m;
     window.scrollTo(0, 0);
     try {
+      // Super admin never uses tenant/player screens.
+      if (state.isPlatform && (path === "/me" || path === "/register-club" || path === "/auth")) return go("/platform");
       if (path === "/") return await viewHome();
       if (path === "/auth") { var n = q.get("next"); return viewAuth({ next: n && n.charAt(0) === "/" ? n : "/me" }); }
       if (path === "/register-club") return viewRegisterClub();
