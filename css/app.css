@@ -2742,3 +2742,16 @@ dialog#booking-modal [data-purpose="bottom-bar"] #nreserve { margin: 0; }
   dialog#booking-modal [data-purpose="booking-parameters"] > .grid, dialog#booking-modal #view-walkin { grid-template-columns: minmax(0,1fr); }
   dialog#booking-modal [data-purpose="bottom-bar"] { flex-direction: column; align-items: stretch; }
 }
+
+/* Separate the scrolling fields from the persistent confirmation bar. */
+dialog#booking-modal.booking-modal { outline: none; }
+dialog#booking-modal #nbform { display: flex; flex: 1 1 auto; min-height: 0; max-height: calc(100dvh - 170px); overflow: hidden; }
+dialog#booking-modal #nbf { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; max-height: inherit; margin: 0; padding: 0; overflow: hidden; gap: 0; border: 0; background: transparent; }
+.booking-modal-body { display: flex; flex-direction: column; gap: 16px; min-height: 0; padding: 18px 20px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.booking-modal-body::-webkit-scrollbar { display: none; }
+dialog#booking-modal .booking-modal-body > section { flex-shrink: 0; min-width: 0; padding: 14px; border: 1px solid #ffffff0c; border-radius: 10px; background: #ffffff02; }
+dialog#booking-modal .booking-modal-body > .msg:empty { display: none; }
+dialog#booking-modal [data-purpose="bottom-bar"] { position: static; flex-shrink: 0; margin: 0; padding: 14px 20px; }
+dialog#booking-modal [data-purpose="payment-mode-selector"] { flex-shrink: 0; flex-wrap: wrap; padding: 12px 0 0; border-top: 1px solid #ffffff09; }
+dialog#booking-modal [data-purpose="bottom-bar"] > div:last-child { width: auto; }
+@media (max-width:640px) { .booking-modal-body { padding: 14px; } dialog#booking-modal [data-purpose="bottom-bar"] { padding: 12px 14px; } }

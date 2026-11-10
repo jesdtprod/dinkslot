@@ -549,7 +549,7 @@
       };
 
       formBox.innerHTML =
-        '<form id="nbf" class="p-6 space-y-6 max-h-[calc(88dvh-120px)] overflow-y-auto custom-modal-scrollbar" novalidate>' +
+        '<form id="nbf" novalidate><div class="booking-modal-body">' +
         '<!-- BEGIN: CustomerDetailsSection -->' +
         '<section class="border border-brand-border/80 bg-brand-card/50 rounded-xl p-5 relative" data-purpose="customer-selection-card">' +
           '<div class="flex items-center justify-between mb-4">' +
@@ -725,6 +725,7 @@
 
         '<p class="msg text-xs" role="alert"></p>' +
 
+        '</div>' +
         '<!-- BEGIN: ModalFooterActionSummary -->' +
         '<footer class="pt-5 border-t border-brand-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4" data-purpose="bottom-bar">' +
           '<div class="flex items-center gap-3">' +
