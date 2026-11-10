@@ -2928,3 +2928,6 @@ dialog#booking-modal [data-purpose="customer-selection-card"] > [role="tablist"]
 dialog#booking-modal [data-purpose="customer-selection-card"] > [role="tablist"]::before { top: -19px; line-height: 16px; }
 dialog#booking-modal [data-purpose="booking-parameters"] > .grid { padding-top: 19px; }
 #ds-tenant-dashboard #sec #booking-modal label.booking-court-label { top: -19px; margin: 0; }
+
+/* Uniform corners for booking form controls, including custom date triggers. */
+#ds-tenant-dashboard #sec #booking-modal :is(input:not([type="radio"]):not([type="checkbox"]),select,.datetime-trigger) { border-radius: 8px !important; }
