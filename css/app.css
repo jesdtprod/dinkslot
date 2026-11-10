@@ -1787,45 +1787,14 @@ body .facility-menu-item .facility-item-title {
 .site-footer .footer-brand:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; border-radius: 8px; }
 
 
-/* Editorial court invitation: strong hierarchy with a restrained brand accent. */
-#ds-landing .court-cta { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1.15fr 1fr; gap: 48px; padding: 48px; border: 1px solid #ffffff10; border-radius: 28px; background: radial-gradient(ellipse at 95% 0%,#b1e9030c,transparent 55%),#181e24; overflow: hidden; }
-.court-cta-eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--lime); font: 500 10px/16px "JetBrains Mono",monospace; letter-spacing: .1em; }
-.court-cta-eyebrow > span { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); }
-#ds-landing .court-cta h2 { margin: 18px 0 14px; font: 600 clamp(36px,4vw,54px)/1.06 "Space Grotesk",sans-serif; letter-spacing: -.045em; }
-.court-cta h2 em { color: var(--lime); font-style: normal; }
-.court-cta-copy > p { max-width: 390px; color: #abb5ac; font-size: 14px; line-height: 1.8; }
-.court-cta-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 26px; }
-#ds-landing .court-cta-actions a { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 46px; padding: 12px 18px; border-radius: 12px; font: 500 13px/20px "Plus Jakarta Sans",sans-serif; transition: background-color .18s; }
-#ds-landing .court-cta-primary { background: var(--brand-button); color: #213600; }
-#ds-landing .court-cta-primary:hover { background: var(--brand-button-hover); }
-#ds-landing .court-cta-secondary { background: #ffffff04; border: 1px solid #ffffff12; color: var(--ink); }
-#ds-landing .court-cta-secondary:hover { background: #ffffff0a; }
-.court-cta-actions .material-symbols-outlined { font-size: 18px; }
-.court-cta-copy > .court-cta-note { display: flex; align-items: flex-start; gap: 6px; margin-top: 18px; font-size: 10px; color: #818e85; }
-.court-cta-note .material-symbols-outlined { font-size: 14px; margin-top: 2px; }
-.court-cta-visual { display: flex; flex-direction: column; justify-content: center; min-width: 0; gap: 20px; }
-.court-cta-court { position: relative; width: 90%; height: 168px; margin: 0 auto; border: 1px solid #b1e90355; border-radius: 4px; background: linear-gradient(90deg,transparent 49.8%,#b1e90345 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.7%,#b1e90380 50%,transparent 50.3%),#b1e90304; transform: perspective(700px) rotateX(26deg) rotateZ(-8deg); box-shadow: 0 20px 45px #0003; }
-.court-cta-court i { position: absolute; inset: 32% 0; border-top: 1px solid #b1e90355; border-bottom: 1px solid #b1e90355; background: #b1e90308; }
-.court-cta-ball { position: absolute; top: 23%; right: 22%; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 35% 35%,#263a00 1.5px,transparent 2px),radial-gradient(circle at 65% 40%,#263a00 1.5px,transparent 2px),radial-gradient(circle at 50% 70%,#263a00 1.5px,transparent 2px),var(--lime); box-shadow: 0 0 30px #b1e90325; }
-.court-cta-steps { display: flex; justify-content: space-between; gap: 8px; color: #819176; font: 500 10px/18px "JetBrains Mono",monospace; }
-.court-cta-steps b { display: block; color: #bdc7bd; font: 500 11px/20px "Plus Jakarta Sans",sans-serif; }
-#ds-landing .court-cta-bookings { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid #ffffff0c; border-radius: 12px; background: #10161b; color: #8f9c93; font-size: 11px; }
-.court-cta-bookings > span:nth-child(2) { flex: 1; }
-.court-cta-bookings strong { display: block; margin-top: 3px; color: var(--ink); font-size: 12px; font-weight: 500; }
-.court-cta-bookings > .material-symbols-outlined { font-size: 20px; color: var(--lime); }
-@media (max-width:767px) { #ds-landing .court-cta { grid-template-columns: minmax(0,1fr); padding: 28px 24px; gap: 32px; border-radius: 22px; } .court-cta-court { height: 140px; max-width: 360px; } }
-@media (max-width:400px) { #ds-landing .court-cta-actions a { width: 100%; } }
-
+/* Editorial court invitation: modern dark athletic banner */
+#ds-landing .court-cta {
+  max-width: 1280px;
+  margin: 0 auto;
+}
 
 #ds-auth-screen.signup-screen .official-dupr-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
 #ds-auth-screen.signup-screen .official-dupr-options > button:first-child { grid-column: 1 / -1; }
-
-
-.court-cta-photo { position: relative; margin: 0; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 18px; border: 1px solid #ffffff12; background: #10161b; }
-.court-cta-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 58%; }
-.court-cta-photo::after { content: ""; position: absolute; inset: 40% 0 0; background: linear-gradient(transparent, #0a0e14b3); pointer-events: none; }
-.court-cta-photo figcaption { position: absolute; z-index: 1; left: 16px; bottom: 14px; display: flex; align-items: center; gap: 7px; font: 500 11px/18px "Plus Jakarta Sans",sans-serif; color: #fff; }
-.court-cta-photo figcaption .material-symbols-outlined { font-size: 17px; color: var(--lime); }
 
 
 #ds-auth-screen #switch-btn { text-decoration: none; }
