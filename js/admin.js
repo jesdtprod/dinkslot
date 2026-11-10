@@ -600,7 +600,13 @@
     var t = ctx.t;
     var st = (await sb.from("tenant_settings").select("*").eq("tenant_id", t.id).maybeSingle()).data || {};
     var qrUrl = part === "payments" ? await signedUrl(st.qr_path) : "";
-    var img = function (p, cls) { return p ? '<img class="w-24 h-24 dashboard-rounded object-cover border border-outline-variant/30" src="' + esc(D.mediaUrl(p)) + '" alt="">' : '<div class="w-24 h-24 dashboard-rounded bg-surface-container flex items-center justify-center text-outline border border-outline-variant/30"><span class="material-symbols-outlined text-3xl">image</span></div>'; };
+    function mediaCard(key, title, path, hint) {
+      return '<article class="media-upload ' + (key === 'cover' ? 'is-cover' : '') + '"><header><h3>' + title + '</h3><span>' + (path ? 'Uploaded' : 'Not uploaded') + '</span></header>' +
+        '<label class="media-drop" for="' + key + 'f"><input id="' + key + 'f" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose ' + title.toLowerCase() + '">' +
+          '<span class="media-preview">' + (path ? '<img src="' + esc(D.mediaUrl(path)) + '" alt="Current ' + title.toLowerCase() + '">' : '<span class="material-symbols-outlined" aria-hidden="true">' + (key === 'cover' ? 'panorama' : 'add_photo_alternate') + '</span>') + '</span>' +
+          '<span class="media-drop-title">Drop an image here, or <span>browse files</span></span><span class="media-hint">' + hint + '</span><span class="media-file" aria-live="polite">JPG, PNG or WebP ? Up to 5 MB</span>' +
+        '</label><footer><span>Preview before uploading</span><button id="' + key + 'b" class="media-upload-button" type="button" disabled><span class="material-symbols-outlined" aria-hidden="true">upload</span>Upload ' + (key === 'logo' ? 'logo' : 'cover') + '</button></footer></article>';
+    }
 
     var PANELS = {};
     PANELS.profile =
@@ -619,28 +625,11 @@
           '<button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer self-start" type="submit">Save Profile</button>' +
         '</form>' +
       '</div>' +
-      '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
-        '<h3 class="font-headline-sm text-on-surface">Club Media Assets</h3>' +
-        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-lg">' +
-          '<div class="p-space-md bg-surface-container dashboard-rounded flex items-center gap-space-md border border-outline-variant/20">' +
-            img(t.logo_path, "round") +
-            '<div class="flex flex-col gap-2 min-w-0 flex-1">' +
-              '<span class="font-body-md font-semibold text-on-surface">Profile Logo</span>' +
-              '<input id="logof" type="file" accept="image/jpeg,image/png,image/webp" class="text-sm font-label-sm">' +
-              '<button class="px-3 py-1.5 rounded-full bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface font-label-sm transition-all border border-outline-variant/30 cursor-pointer self-start" id="logob" type="button">Upload Logo</button>' +
-            '</div>' +
-          '</div>' +
-          '<div class="p-space-md bg-surface-container dashboard-rounded flex items-center gap-space-md border border-outline-variant/20">' +
-            img(t.cover_path, "wide") +
-            '<div class="flex flex-col gap-2 min-w-0 flex-1">' +
-              '<span class="font-body-md font-semibold text-on-surface">Cover Banner</span>' +
-              '<input id="coverf" type="file" accept="image/jpeg,image/png,image/webp" class="text-sm font-label-sm">' +
-              '<button class="px-3 py-1.5 rounded-full bg-surface-container-highest hover:bg-primary hover:text-on-primary text-on-surface font-label-sm transition-all border border-outline-variant/30 cursor-pointer self-start" id="coverb" type="button">Upload Cover</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        '<p class="msg" role="alert" id="phmsg"></p>' +
-      '</div>';
+      '<section class="profile-media"><header><h3>Club media</h3><p>Give players a clear first impression of your club.</p></header><div class="media-upload-grid">' +
+        mediaCard('logo', 'Profile logo', t.logo_path, 'Square image recommended ? 400 ? 400 px') +
+        mediaCard('cover', 'Cover banner', t.cover_path, 'Wide landscape image recommended') +
+      '</div><p class="msg" role="alert" id="phmsg"></p></section>';
+
 
     PANELS.payments =
       '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">Payments &amp; Booking Rules</h1><p class="font-body-md text-on-surface-variant">Configure payment QR, auto-approval workflows, and cancellation cutoff windows.</p></div>' +
@@ -684,7 +673,7 @@
         '<p class="msg" role="alert" id="stmsg"></p>' +
       '</div>';
 
-    sec.innerHTML = PANELS[part];
+    sec.innerHTML = part === "profile" ? '<div class="club-profile">' + PANELS[part] + '</div>' : PANELS[part];
 
     if (part === "profile") {
       q("#pf", sec).onsubmit = async function (e) {
@@ -696,9 +685,35 @@
         setMsg(f, "Profile saved.", "ok");
       };
       function photoUpload(btnSel, fileSel, col, name) {
+        var input = q(fileSel, sec), button = q(btnSel, sec), card = input.closest('.media-upload');
+        var drop = card.querySelector('.media-drop'), filename = card.querySelector('.media-file');
+        function preview() {
+          var file = input.files[0];
+          button.disabled = true;
+          try { checkImage(file); } catch (err) { filename.textContent = err.message; return; }
+          filename.textContent = file.name + ' ? ' + (file.size / 1024 / 1024).toFixed(2) + ' MB';
+          var reader = new FileReader();
+          reader.onload = function () {
+            if (input.files[0] !== file) return;
+            var image = document.createElement('img'); image.src = reader.result; image.alt = 'Selected image preview';
+            card.querySelector('.media-preview').replaceChildren(image);
+            button.disabled = false;
+          };
+          reader.onerror = function () { filename.textContent = 'Could not preview this image. Choose another file.'; };
+          reader.readAsDataURL(file);
+        }
+        input.onchange = preview;
+        ['dragenter', 'dragover'].forEach(function (event) { drop.addEventListener(event, function (e) { e.preventDefault(); drop.classList.add('is-dragging'); }); });
+        drop.addEventListener('dragleave', function (e) { if (!drop.contains(e.relatedTarget)) drop.classList.remove('is-dragging'); });
+        drop.addEventListener('drop', function (e) {
+          e.preventDefault(); drop.classList.remove('is-dragging');
+          if (!e.dataTransfer.files.length) return;
+          var transfer = new DataTransfer(); transfer.items.add(e.dataTransfer.files[0]); input.files = transfer.files; preview();
+        });
         q(btnSel, sec).onclick = async function () {
           var msg = q("#phmsg", sec), file = q(fileSel, sec).files[0];
           msg.className = "msg"; msg.textContent = "Uploading...";
+          button.disabled = true; button.setAttribute("aria-busy", "true");
           try {
             var old = ctx.t[col];
             var path = await upload("club-media", t.id + "/" + name + "-" + Date.now() + "." + (TYPES[(file || {}).type] || "x"), file);
@@ -707,6 +722,7 @@
             await removeQuiet("club-media", old);
             render(ctx.slug, "profile");
           } catch (err) { msg.className = "msg err"; msg.textContent = friendly(err); }
+          finally { button.disabled = false; button.removeAttribute("aria-busy"); }
         };
       }
       photoUpload("#logob", "#logof", "logo_path", "logo");

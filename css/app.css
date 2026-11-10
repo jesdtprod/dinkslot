@@ -1647,6 +1647,39 @@ body.tenant-dashboard-mode #app {
 #ds-tenant-dashboard #sec .font-label-sm { font-family: "JetBrains Mono",monospace; font-size: 10px; line-height: 16px; font-weight: 500; }
 #ds-tenant-dashboard #sec :is(button,a):is(.font-label-md,.font-label-lg) { font-family: "Plus Jakarta Sans",sans-serif; font-size: 12px; font-weight: 600; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 10px; }
 #ds-tenant-dashboard #sec .text-headline-display { font-family: "Space Grotesk",sans-serif; font-size: 40px; line-height: 1.1; font-weight: 600; letter-spacing: -.035em; }
+.club-profile { display: flex; flex-direction: column; gap: 20px; }
+#ds-tenant-dashboard #sec .club-profile > div[class*="p-space-lg"] { padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); box-shadow: none; }
+.club-profile #pf label { font: 500 11px/16px "Plus Jakarta Sans",sans-serif; text-transform: none; color: #a1b0a6; gap: 7px; }
+#ds-tenant-dashboard #sec .club-profile #pf :is(input,textarea) { border-radius: 8px; background: #20282e; padding: 9px 12px; font: 400 13px/20px "Plus Jakarta Sans",sans-serif; }
+.club-profile #pf .msg:empty, .profile-media .msg:empty { display: none; }
+.profile-media { padding: 20px; border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); }
+#ds-tenant-dashboard #sec .profile-media h3 { margin: 0; color: #e0e8e2; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; }
+.profile-media > header p { margin: 4px 0 18px; color: #94a39a; font-size: 12px; }
+.media-upload-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; }
+.media-upload { min-width: 0; border: 1px solid #ffffff0c; border-radius: 10px; background: #0c12162b; overflow: hidden; }
+.media-upload > header, .media-upload > footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; }
+#ds-tenant-dashboard #sec .media-upload h3 { font-size: 12px; line-height: 18px; }
+.media-upload > header > span { color: #94a38f; font-size: 10px; }
+.media-drop { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; margin: 0 14px; padding: 18px 12px; border: 1px dashed #ffffff22; border-radius: 8px; background: #ffffff02; cursor: pointer; text-align: center; transition: border-color .15s, background .15s; }
+.media-drop:hover, .media-drop.is-dragging { border-color: #a3e63570; background: #a3e63506; }
+.media-drop:focus-within { outline: 2px solid #b1df74; outline-offset: 3px; }
+.media-drop > input[type="file"] { position: absolute; width: 1px; height: 1px; padding: 0; opacity: 0; overflow: hidden; }
+.media-preview { display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 5px; border: 1px solid #ffffff10; border-radius: 12px; background: #ffffff04; overflow: hidden; color: #94b582; }
+.media-preview > img { width: 100%; height: 100%; object-fit: contain; }
+.is-cover .media-preview { width: 180px; border-radius: 8px; }
+.is-cover .media-preview > img { object-fit: cover; }
+.media-preview > .material-symbols-outlined { font-size: 28px; }
+.media-drop-title { color: #bbc9c0; font-size: 12px; }
+.media-drop-title > span { color: #c2dfa5; text-decoration: underline; text-underline-offset: 3px; }
+.media-hint, .media-file { max-width: 100%; color: #819489; font-size: 10px; line-height: 16px; overflow-wrap: anywhere; }
+.media-file { color: #9aa99e; }
+.media-upload > footer > span { color: #7f9185; font-size: 10px; }
+.media-upload-button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; min-height: 32px; border: 1px solid #a3e63528; background: #a3e6350a; color: #c6e2a8; cursor: pointer; white-space: nowrap; }
+.media-upload-button > .material-symbols-outlined { font-size: 16px; }
+.media-upload-button:disabled { opacity: .4; cursor: not-allowed; }
+.media-upload-button:not(:disabled):hover { background: #a3e6351c; }
+@media (max-width:640px) { .media-upload-grid { grid-template-columns: minmax(0,1fr); } .profile-media { padding: 16px; } }
+@media (prefers-reduced-motion: reduce) { .media-drop { transition: none; } }
 .booking-new-card, .booking-queue { border: 1px solid #ffffff10; border-radius: 12px; background: linear-gradient(135deg, #1b2228, #171d22); padding: 18px 20px; color-scheme: dark; }
 .booking-new-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 #ds-tenant-dashboard #sec .booking-new-heading h2, #ds-tenant-dashboard #sec .booking-queue h3 { margin: 0; color: #e0e8e2; font: 600 15px/22px "Plus Jakarta Sans",sans-serif; letter-spacing: 0; }
