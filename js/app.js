@@ -74,7 +74,8 @@
     state.user = r.data.session ? r.data.session.user : null;
     state.isPlatform = false;
     if (state.user) {
-      var p = await sb.from("profiles").select("is_platform_admin").maybeSingle();
+      // Filter to our own row: a platform admin can read every profile, so maybeSingle() alone would fail.
+      var p = await sb.from("profiles").select("is_platform_admin").eq("auth_user_id", state.user.id).maybeSingle();
       state.isPlatform = !!(p.data && p.data.is_platform_admin);
     }
     renderNav();
