@@ -496,7 +496,7 @@
         (courts.length ? '<div class="overflow-x-auto"><table class="w-full text-left font-body-sm text-body-sm"><thead class="text-on-surface-variant font-label-sm uppercase tracking-wider bg-surface-container/60"><tr><th class="py-space-sm px-space-md rounded-l-DEFAULT">Court Details</th><th class="py-space-sm px-space-md">Hourly Rate</th><th class="py-space-sm px-space-md">Hours</th><th class="py-space-sm px-space-md">Slot Duration</th><th class="py-space-sm px-space-md">Status</th><th class="py-space-sm px-space-md rounded-r-DEFAULT text-right">Actions</th></tr></thead><tbody class="divide-y divide-surface-container-high">' +
           courts.map(function (c) {
             return '<tr class="hover:bg-surface-container transition-colors"><td class="py-space-sm px-space-md"><strong>' + esc(c.name) + '</strong><br><span class="font-label-sm text-on-surface-variant">' + esc(c.surface || "Acrylic Pro") + (c.is_indoor ? " • Indoor" : " • Outdoor") +
-              (c.qr_path ? " • Dedicated QR" : "") + "</span></td><td class=\"py-space-sm px-space-md font-label-md text-primary font-bold\">" + money(c.hourly_rate) + "/hr</td><td class=\"py-space-sm px-space-md font-label-md\">" + hhmm(c.open_time) + " - " + hhmm(c.close_time) +
+              (c.qr_path ? " • Dedicated QR" : "") + "</span></td><td class=\"py-space-sm px-space-md font-label-md text-primary font-bold\">" + money(c.hourly_rate) + "/hr</td><td class=\"py-space-sm px-space-md font-label-md\">" + D.hoursText(c.open_time, c.close_time) +
               "</td><td class=\"py-space-sm px-space-md\">" + c.slot_minutes + ' min slots</td><td class=\"py-space-sm px-space-md\"><span class="px-space-xs py-0.5 rounded-full font-label-sm ' + (c.status === "active" ? "bg-primary/10 text-primary" : "bg-error/10 text-error") + '">' + esc(c.status.charAt(0).toUpperCase() + c.status.slice(1)) +
               '</span></td><td class="py-space-sm px-space-md text-right whitespace-nowrap"><button class="court-icon-action" data-edit="' + esc(c.id) + '" type="button" title="Edit court" aria-label="Edit ' + esc(c.name) + '"><span class="material-symbols-outlined" aria-hidden="true">edit</span></button> ' +
               '<button class="court-icon-action is-danger" data-del="' + esc(c.id) + '" type="button" title="Delete court" aria-label="Delete ' + esc(c.name) + '"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></td></tr>';
@@ -566,7 +566,7 @@
         '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Slot Duration<select id="cm" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + [30, 60, 90, 120].map(function (m) {
           return '<option value="' + m + '"' + (m === v.slot_minutes ? " selected" : "") + ">" + m + " minutes</option>"; }).join("") + "</select></label>" +
         '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Opens<input id="co" type="time" required value="' + esc(hhmm(v.open_time)) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-        '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Closes<input id="cc" type="time" required value="' + esc(hhmm(v.close_time)) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
+        '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Closes <span class="normal-case text-on-surface-variant">(12:00 AM = midnight)</span><input id="cc" type="time" required value="' + esc(hhmm(v.close_time)) + '" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
         '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Status<select id="cst" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"><option value="active"' + (v.status === "active" ? " selected" : "") + '>Active</option><option value="maintenance"' +
         (v.status === "maintenance" ? " selected" : "") + '>Maintenance (not bookable)</option></select></label>' +
         '<label class="flex items-center gap-2 pt-6 font-body-md text-on-surface cursor-pointer"><input id="ci" type="checkbox"' + (v.is_indoor ? " checked" : "") + ' class="w-4 h-4 accent-primary"> Indoor Cushioned Court</label>' +
@@ -580,7 +580,7 @@
     q("#cf", box).onsubmit = async function (e) {
       e.preventDefault();
       var f = q("#cf", box), btn = q("button[type=submit]", f);
-      if (val("#co", f) >= val("#cc", f)) return setMsg(f, "Closing time must be after opening time.", "err");
+      if (val("#cc", f) !== "00:00" && val("#co", f) >= val("#cc", f)) return setMsg(f, "Closing time must be after opening time. To close at midnight choose 12:00 AM.", "err");
       btn.disabled = true; setMsg(f, "Saving court...", "");
       try {
         var payload = { name: val("#cn", f).trim(), surface: val("#cs", f).trim() || null, is_indoor: q("#ci", f).checked,

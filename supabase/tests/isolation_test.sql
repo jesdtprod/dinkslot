@@ -369,6 +369,18 @@ begin
       ('Cannot set deleted_at directly',             'a1', $q$update public.payment_qrs set deleted_at=now() where tenant_id='{T1}'$q$, 'deny'),
       ('Payment off hides all QR cards',             'a1', $q$with u as (update public.tenant_settings set payment_enabled=false where tenant_id='{T1}' returning 1) select count(*) from u$q$, 'pos'),
       ('No cards are offered when payment is off',   'p2', $q$select jsonb_array_length(public.get_booking_info('{C1}')->'qrs')::text$q$, 'eq:0'),
+      -- closing at midnight (close_time 00:00 = end of day)
+      ('Court cannot close before it opens (22:00 -> 08:00)', 'a1', $q$update public.courts set open_time='22:00', close_time='08:00' where id='{C1}'$q$, 'deny'),
+      ('Owner sets the court to close at midnight',  'a1', $q$with u as (update public.courts set open_time='06:00', close_time='00:00' where id='{C1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('Player books the last slot, 11 PM to midnight','p2', $q$select status from public.create_booking('{C1}','{D2}'::timestamptz+interval '23 hours','{D2}'::timestamptz+interval '24 hours','k-midnight')$q$, 'eq:pending'),
+      ('Booking cannot run past midnight',           'p2', $q$select * from public.create_booking('{C1}','{D2}'::timestamptz+interval '23 hours','{D2}'::timestamptz+interval '25 hours','k-past-mid')$q$, 'deny'),
+      ('Booking cannot start at or after midnight closing', 'p2', $q$select * from public.create_booking('{C1}','{D2}'::timestamptz+interval '24 hours','{D2}'::timestamptz+interval '25 hours','k-after-mid')$q$, 'deny'),
+      ('Midnight slot is taken for others',          'a1', $q$select count(*) from public.court_availability('{C1}','{D2}'::timestamptz+interval '23 hours','{D2}'::timestamptz+interval '24 hours')$q$, 'pos'),
+      ('Club books the 11 PM slot on another day',   'a1', $q$select status from public.create_admin_booking('{C1}','{D2}'::timestamptz+interval '1 day 23 hours','{D2}'::timestamptz+interval '2 days','ab-mid',null,'Late Guest')$q$, 'eq:approved'),
+      ('Owner opens the court 24 hours',             'a1', $q$with u as (update public.courts set open_time='00:00', close_time='00:00' where id='{C1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('Early morning 2 AM slot works on a 24-hour court', 'p2', $q$select status from public.create_booking('{C1}','{D2}'::timestamptz+interval '2 days 2 hours','{D2}'::timestamptz+interval '2 days 3 hours','k-2am')$q$, 'eq:pending'),
+      ('Back to a normal 6 AM to 10 PM court',       'a1', $q$with u as (update public.courts set open_time='06:00', close_time='22:00' where id='{C1}' returning 1) select count(*) from u$q$, 'pos'),
+      ('After 10 PM is refused again on that court', 'p2', $q$select * from public.create_booking('{C1}','{D2}'::timestamptz+interval '3 days 22 hours','{D2}'::timestamptz+interval '3 days 23 hours','k-late')$q$, 'deny'),
       ('Creating many clubs in a day is limited (6th is refused)', 'pg', $q$do $d$ declare i int; begin
           perform set_config('request.jwt.claims', json_build_object('sub','{P2}','role','authenticated')::text, true);
           for i in 1..11 loop

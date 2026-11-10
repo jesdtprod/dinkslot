@@ -105,6 +105,12 @@
     if (!action) scheduleDismiss();
     return dismiss;
   }
+  // "06:00 - midnight", "Open 24 hours" ... (a closing time of 00:00 means midnight, the end of the day)
+  function hoursText(open, close) {
+    var o = String(open).slice(0, 5), c = String(close).slice(0, 5);
+    if (o === "00:00" && c === "00:00") return "Open 24 hours";
+    return o + " - " + (c === "00:00" ? "midnight" : c);
+  }
   function mediaUrl(path) {
     return path ? sb.storage.from("club-media").getPublicUrl(path).data.publicUrl : "";
   }
@@ -515,8 +521,15 @@
     var c = r.data;
     if (!c) { app.innerHTML = '<div class="pubwrap"><h2>Club not found</h2><p>This club does not exist or is not approved yet.</p><a class="btn" href="#/">Back to clubs</a></div>'; return; }
     var courts = (await sb.from("public_courts").select("*").eq("club_slug", slug).order("name")).data || [];
-    var hrs = courts.length ? String(courts.map(function (k) { return String(k.open_time).slice(0, 5); }).sort()[0]) + " - " +
-      String(courts.map(function (k) { return String(k.close_time).slice(0, 5); }).sort().slice(-1)[0]) : "";
+    // earliest opening to latest closing; a closing time of 00:00 means midnight (end of day)
+    var hrs = "";
+    if (courts.length) {
+      var toM = function (t) { var x = String(t).slice(0, 5).split(":"); return +x[0] * 60 + +x[1]; };
+      var fm = function (m) { return (m < 600 ? "0" : "") + Math.floor(m / 60) + ":" + (m % 60 < 10 ? "0" : "") + (m % 60); };
+      var om = Math.min.apply(null, courts.map(function (k) { return toM(k.open_time); }));
+      var cm = Math.max.apply(null, courts.map(function (k) { return toM(k.close_time) === 0 ? 1440 : toM(k.close_time); }));
+      hrs = om === 0 && cm === 1440 ? "Open 24 hours" : fm(om) + " - " + (cm === 1440 ? "midnight" : fm(cm));
+    }
     var nextPath = encodeURIComponent("/c/" + slug + "/book");
     var bookHref = state.user ? "#/c/" + esc(slug) + "/book" : "#/auth?mode=up&join=" + esc(slug) + "&next=" + nextPath;
     var signInHref = "#/auth?mode=in&join=" + esc(slug) + "&next=" + nextPath;
@@ -535,7 +548,7 @@
       (courts.length ? '<div class="courtgrid">' + courts.map(function (k) {
         return '<div class="courtcard"><div class="cc-top"><h3>' + esc(k.name) + '</h3><span class="chip">' + (k.is_indoor ? "Indoor" : "Outdoor") + "</span></div>" +
           '<p class="cc-rate"><b>PHP ' + esc(Number(k.hourly_rate).toFixed(2)) + "</b><span>/hr</span></p>" +
-          '<p class="muted small"><span class="mi">schedule</span>' + esc(String(k.open_time).slice(0, 5)) + " - " + esc(String(k.close_time).slice(0, 5)) +
+          '<p class="muted small"><span class="mi">schedule</span>' + esc(hoursText(k.open_time, k.close_time)) +
           " &middot; " + esc(String(k.slot_minutes)) + " min slots" + (k.surface ? " &middot; " + esc(k.surface) : "") + "</p>" +
           '<a class="btn sm" href="' + bookHref + '">' + (state.user ? "Book" : "Sign up to book") + "</a></div>";
       }).join("") + "</div>" : '<p class="muted">This club has not listed its courts yet.</p>') + "</div>";
@@ -1712,7 +1725,7 @@
   // Shared helpers for the club dashboard module (js/admin.js).
   window.DS = {
     sb: sb, state: state, esc: esc, $: $, go: go, setMsg: setMsg, friendly: friendly,
-    requireUser: requireUser, mediaUrl: mediaUrl, root: function () { return app; }
+    requireUser: requireUser, mediaUrl: mediaUrl, hoursText: hoursText, root: function () { return app; }
   };
 
   // ----------------------------------------------------------------- router

@@ -49,6 +49,8 @@
   function money(n) { return "PHP " + Number(n).toFixed(2); }
   function hhmm(t) { return String(t).slice(0, 5); }
   function pad(n) { return (n < 10 ? "0" : "") + n; }
+  // closing time 00:00 means midnight: the end of the day (1440 minutes), so the last slot can end at 12 AM
+  function closeMin(c) { var h = hhmm(c.close_time); return h === "00:00" ? 1440 : toMin(h); }
   function toMin(hm) { var p = hm.split(":"); return +p[0] * 60 + +p[1]; }
   function timeOf(d, tz) { return d.toLocaleTimeString("en-PH", { timeZone: tz, hour: "numeric", minute: "2-digit" }); }
   function dayStr(tz) { return new Date().toLocaleDateString("en-CA", { timeZone: tz }); }
@@ -226,7 +228,7 @@
     async function drawSlots() {
       var c = S.court, step = c.slot_minutes, box = q("#slots", root);
       box.innerHTML = '<div class="grid grid-cols-3 sm:grid-cols-4 gap-2">' + Array(6).fill('<div class="h-10 rounded-lg bg-surface-container-high/60 ds-skeleton"></div>').join('') + '</div>'; S.start = null; summary();
-      var startM = toMin(hhmm(c.open_time)), endM = toMin(hhmm(c.close_time)), slots = [];
+      var startM = toMin(hhmm(c.open_time)), endM = closeMin(c), slots = [];
       for (var m = startM; m + step <= endM; m += step) {
         var s = zonedToUtc(S.date + "T" + pad(Math.floor(m / 60)) + ":" + pad(m % 60), tz);
         slots.push({ s: s, e: new Date(s.getTime() + step * 60000) });
@@ -893,7 +895,7 @@
         grid.innerHTML = '<div class="py-6 text-center text-slate-400 font-mono text-xs flex items-center justify-center gap-2"><span class="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>Refreshing available slots...</div>';
         S.start = null;
         summary();
-        var a = toMin(hhmm(c.open_time)), z = toMin(hhmm(c.close_time)), slots = [];
+        var a = toMin(hhmm(c.open_time)), z = closeMin(c), slots = [];
         for (var m = a; m + step <= z; m += step) {
           var s0 = zonedToUtc(S.date + "T" + pad(Math.floor(m / 60)) + ":" + pad(m % 60), tz);
           slots.push({ s: s0, e: new Date(s0.getTime() + step * 60000) });
