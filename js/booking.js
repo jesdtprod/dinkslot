@@ -649,7 +649,6 @@
             '<div>' +
               '<label class="block text-xs font-medium text-slate-300 mb-1.5 flex justify-between" for="ndate">' +
                 '<span>Date</span>' +
-                '<button id="btn-date-today" class="text-[11px] text-brand-lime hover:underline cursor-pointer" type="button">Today</button>' +
               '</label>' +
               '<div class="relative">' +
                 '<input id="ndate" class="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-lime focus:border-brand-lime cursor-pointer [color-scheme:dark]" type="date" value="' + S.date + '"/>' +
@@ -914,13 +913,6 @@
       q("#ndate", f).value = S.date;
       q("#ndate", f).min = S.date;
       lengths();
-
-      var todayBtn = q("#btn-date-today", f);
-      if (todayBtn) todayBtn.onclick = function () {
-        var today = dayStr(tz);
-        q("#ndate", f).value = today;
-        q("#ndate", f).dispatchEvent(new Event("change", { bubbles: true }));
-      };
 
       var cancelBtn = q("#cancel-booking-btn", f);
       if (cancelBtn) cancelBtn.onclick = function () { dialog.close(); };
