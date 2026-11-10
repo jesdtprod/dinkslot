@@ -436,7 +436,7 @@
           ticket.querySelector('header p').textContent = court.name || 'Court';
           ticket.querySelector('.ticket-reference').textContent = booking.reference_code;
           ticket.querySelector('.ticket-schedule').textContent = range(booking.starts_at, booking.ends_at, tz);
-          var code = window.qrcode(0, 'M'); code.addData(booking.reference_code); code.make();
+          var code = window.qrcode(3, 'H'); code.addData(booking.reference_code); code.make();
           var count = code.getModuleCount(), size = count + 8;
           var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '"><rect width="100%" height="100%" fill="white"/><g fill="black">';
           for (var row = 0; row < count; row++) {
@@ -445,15 +445,15 @@
               var finder = (row < 7 && col < 7) || (row < 7 && col >= count - 7) || (row >= count - 7 && col < 7);
               if (finder) continue;
               var x = col + 4.5, y = row + 4.5;
-              svg += '<circle cx="' + x + '" cy="' + y + '" r="0.48"/>';
-              // Join adjacent modules into rounded strokes, leaving isolated dots.
-              if (col + 1 < count && code.isDark(row, col + 1)) svg += '<path d="M' + x + ' ' + y + 'h1" fill="none" stroke="black" stroke-width="0.96" stroke-linecap="round"/>';
-              if (row + 1 < count && code.isDark(row + 1, col)) svg += '<path d="M' + x + ' ' + y + 'v1" fill="none" stroke="black" stroke-width="0.96" stroke-linecap="round"/>';
+              svg += '<circle cx="' + x + '" cy="' + y + '" r="0.42"/>';
+
             }
           }
           [[4,4],[count - 3,4],[4,count - 3]].forEach(function (point) {
-            svg += '<rect x="' + point[0] + '" y="' + point[1] + '" width="7" height="7" rx="1.7"/><rect x="' + (point[0]+1) + '" y="' + (point[1]+1) + '" width="5" height="5" rx="0.9" fill="white"/><rect x="' + (point[0]+2) + '" y="' + (point[1]+2) + '" width="3" height="3" rx="0.65"/>';
+            svg += '<rect x="' + point[0] + '" y="' + point[1] + '" width="7" height="7" rx="1.7"/><rect x="' + (point[0]+1) + '" y="' + (point[1]+1) + '" width="5" height="5" rx="0.9" fill="white"/><rect x="' + (point[0]+2) + '" y="' + (point[1]+2) + '" width="3" height="3" rx="1.5"/>';
           });
+          var center = size / 2;
+          svg += '<circle cx="' + center + '" cy="' + center + '" r="3.3" fill="white"/><circle cx="' + center + '" cy="' + center + '" r="2.6"/><path d="M' + (center-0.9) + ' ' + (center-1.5) + 'v3h0.8c2 0 2-3 0-3z" fill="none" stroke="white" stroke-width="0.42" stroke-linejoin="round"/>';
           svg += '</g></svg>';
           ticket.querySelector('.ticket-qr').innerHTML = svg;
           ticket.querySelector('[data-close]').onclick = function () { ticket.close(); };
