@@ -389,7 +389,8 @@
   }
   function bookingQrSvg(text, logo) {
     var code = window.qrcode(3, "H"); code.addData(text); code.make();
-    var count = code.getModuleCount(), quiet = 4, size = count + quiet * 2, c = size / 2, hole = 4.9;
+    var count = code.getModuleCount(), quiet = 4, size = count + quiet * 2, c = size / 2;
+    var holeW = 3, holeH = 2; // modules left out each side of the centre: a 7 x 5 block, just big enough for the logo
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + size + " " + size +
       '" role="img" aria-label="Booking QR code"><rect width="100%" height="100%" fill="white"/><g fill="black">';
     for (var row = 0; row < count; row++) {
@@ -397,7 +398,7 @@
         if (!code.isDark(row, col)) continue;
         if ((row < 7 && col < 7) || (row < 7 && col >= count - 7) || (row >= count - 7 && col < 7)) continue; // drawn below as rounded squares
         var x = col + quiet + 0.5, y = row + quiet + 0.5;
-        if (Math.sqrt((x - c) * (x - c) + (y - c) * (y - c)) < hole) continue; // room for the logo
+        if (Math.abs(x - c) <= holeW && Math.abs(y - c) <= holeH) continue; // room for the logo
         // soft rounded squares: nearly dots, but large enough that scanners read them (small round dots do not scan)
         svg += '<rect x="' + (x - 0.47) + '" y="' + (y - 0.47) + '" width="0.94" height="0.94" rx="0.3"/>';
       }
@@ -408,13 +409,13 @@
         '<rect x="' + (pt[0] + 2) + '" y="' + (pt[1] + 2) + '" width="3" height="3" rx="0.4"/>';
     });
     svg += "</g>";
-    // logo badge: plain white disc (no border), the DINKSLOT logo inside
-    svg += '<circle cx="' + c + '" cy="' + c + '" r="' + (hole - 0.3) + '" fill="white"/>';
+    // logo: a plain white block exactly as big as the cleared modules (no border), the DINKSLOT logo inside it
+    svg += '<rect x="' + (c - holeW - 0.5) + '" y="' + (c - holeH - 0.5) + '" width="' + (holeW * 2 + 1) + '" height="' + (holeH * 2 + 1) + '" rx="1" fill="white"/>';
     if (logo) {
-      var half = 3.6;
+      var half = 3; // logo is 6 modules wide (about 4 tall): a small, tidy mark
       svg += '<image x="' + (c - half) + '" y="' + (c - half) + '" width="' + half * 2 + '" height="' + half * 2 + '" preserveAspectRatio="xMidYMid meet" href="' + logo + '" xlink:href="' + logo + '"/>';
     } else {
-      svg += '<circle cx="' + c + '" cy="' + c + '" r="2.4" fill="black"/>';
+      svg += '<circle cx="' + c + '" cy="' + c + '" r="1.6" fill="black"/>';
     }
     return svg + "</svg>";
   }

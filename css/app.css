@@ -2964,20 +2964,12 @@ body:has(.confirmation-modal[open]) { overflow: hidden; }
 #ds-tenant-dashboard .facility-partner-badge,
 #ds-tenant-dashboard .facility-account > summary { box-sizing: border-box; height: 38px; min-height: 38px; border-radius: 12px; }
 #ds-tenant-dashboard .facility-partner-badge { align-items: center; padding: 0 12px; gap: 7px; }
-.booking-queues .bcard { background: linear-gradient(135deg,#1d262b,#192126); padding: 16px; border-radius: 12px; }
-.booking-queues .bcard > div:first-child { padding-bottom: 10px; }
-.booking-queues .bcard .font-title-md { font: 600 14px/22px "Plus Jakarta Sans",sans-serif; }
-.booking-card-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 1px solid #ffffff09; }
-.booking-ticket-modal { width: min(380px,calc(100vw - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 22px; overflow-y: auto; border: 1px solid #ffffff18; border-radius: 14px; background: #192127; color: #dce6de; text-align: center; }
-.booking-ticket-modal::backdrop { background: #060b10b8; backdrop-filter: blur(5px); }
-.ticket-caption { color: #9fb78f; font-size: 10px; }
-.booking-ticket-modal h2 { margin: 8px 0 4px; font: 600 19px/26px "Plus Jakarta Sans",sans-serif; }
-.booking-ticket-modal p { margin: 6px 0; color: #a1b1a6; font: 400 12px/19px "Plus Jakarta Sans",sans-serif; }
-.ticket-qr { width: 220px; max-width: 100%; margin: 18px auto; padding: 8px; border-radius: 10px; background: white; }
-.ticket-qr svg { display: block; width: 100%; height: auto; }
-.ticket-reference { font: 600 14px/22px "JetBrains Mono",monospace; color: #c3dfa6; }
-.booking-ticket-modal .ticket-note { margin-top: 12px; font-size: 10px; color: #829889; }
-.ticket-actions { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+.booking-queues .bcard { background: transparent; padding: 0; border: 0; }
+.booking-ticket-modal { width: min(440px,calc(100vw - 24px)); max-height: calc(100dvh - 32px); margin: auto; padding: 0; overflow: visible; border: 0; border-radius: 24px; background: transparent; color: #f1f5f9; box-shadow: none; }
+.booking-ticket-modal::backdrop { background: rgba(6, 9, 14, 0.88); backdrop-filter: blur(8px); }
+.ticket-notch-left { position: absolute; left: -12px; width: 24px; height: 24px; border-radius: 9999px; background-color: #06090e; box-shadow: inset -3px 0 5px rgba(0,0,0,0.5); }
+.ticket-notch-right { position: absolute; right: -12px; width: 24px; height: 24px; border-radius: 9999px; background-color: #06090e; box-shadow: inset 3px 0 5px rgba(0,0,0,0.5); }
+.shadow-modal-elevated { box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px -10px rgba(163, 230, 53, 0.08); }
 
 /* Court editor shares New Booking's inset sections and header rhythm. */
 .court-config-modal[open] { width: min(860px,calc(100vw - 32px)); background: #192127; }
