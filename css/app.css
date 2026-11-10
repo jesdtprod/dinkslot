@@ -2948,3 +2948,6 @@ dialog#booking-modal [data-purpose="booking-parameters"] > .grid { padding-top: 
 .confirmation-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #ffffff0b; }
 body:has(.confirmation-modal[open]) { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .confirmation-modal[open] { animation: none; } }
+
+/* Standard corners for maintenance date/time controls. */
+#ds-tenant-dashboard #sec .court-matrix .datetime-trigger { border-radius: 8px !important; }
