@@ -85,3 +85,34 @@ Deno.test("booking made by the club: player is told, admins are not alerted; gue
   const guest = planEmails(ctx({ status: "approved", source: "walk_in", guest_name: "Juan" }, { playerEmail: null, playerUserId: null }), true);
   if (guest.length !== 0) throw new Error("a walk-in guest has no email and admins need no alert");
 });
+
+Deno.test("approved email carries the ticket QR (booking code); other emails do not", () => {
+  const approved = planEmails(ctx({ status: "approved" }), false);
+  if (approved.length !== 1 || approved[0].qr !== "DS-ABC123") throw new Error("approved mail should carry qr");
+  if (!approved[0].html.includes('src="cid:ticket-qr"')) throw new Error("html must reference the inline QR");
+  if (!approved[0].text.includes("DS-ABC123")) throw new Error("text version must show the code");
+  for (const st of ["pending", "rejected", "cancelled", "expired"]) {
+    const m = planEmails(ctx({ status: st }), st === "pending");
+    if (m.some((x) => x.qr || x.html.includes("cid:ticket-qr"))) throw new Error(st + " mail must not carry a QR");
+  }
+});
+
+Deno.test("approved booking made by the club for a registered player also carries the QR", () => {
+  const m = planEmails(ctx({ status: "approved", source: "admin" }), true);
+  if (m.length !== 1 || m[0].qr !== "DS-ABC123" || m[0].to !== "player@x.com") throw new Error("club-made booking for a player needs the QR email");
+});
+
+Deno.test("MIME with an inline image: multipart/related, Content-ID, bytes intact", () => {
+  const png = Uint8Array.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3, 250, 251, 252]);
+  const mime = buildMime({
+    fromName: "Club", fromEmail: "s@gmail.com", to: "p@x.com", subject: "Confirmed", text: "t", html: '<img src="cid:ticket-qr">',
+    inline: [{ cid: "ticket-qr", type: "image/png", filename: "booking-DS-1.png", data: png }],
+  }, "ALT", "REL");
+  const head = mime.split("\r\n\r\n")[0];
+  if (!head.includes('multipart/related; boundary="REL"')) throw new Error("outer type");
+  if (!mime.includes('multipart/alternative; boundary="ALT"') || !mime.includes("Content-ID: <ticket-qr>") || !mime.includes("Content-Disposition: inline")) throw new Error("structure");
+  const m = mime.match(/Content-ID: <ticket-qr>[^]*?\r\n\r\n([^]*?)\r\n--REL--/);
+  const bytes = Uint8Array.from(atob(m![1].replace(/\r\n/g, "")), (c) => c.charCodeAt(0));
+  if (bytes.length !== png.length || bytes.some((v, i) => v !== png[i])) throw new Error("image bytes changed");
+  if (!mime.trim().endsWith("--REL--")) throw new Error("closing boundary");
+});

@@ -20,3 +20,6 @@ Error correction is level H (about 30% of the code can be unreadable). The logo 
 
 ## Tip
 Phone cameras are usually more forgiving than the test scanner, but print or show the ticket at least 3 cm wide and scan one real ticket with a phone before relying on it at the door.
+
+## Ticket QR in the approved email
+When a booking becomes **approved**, the registered player gets the "Booking confirmed" email with the same ticket QR (booking code, DINKSLOT logo in the centre) shown inside the email as an inline PNG (`supabase/functions/send-booking-email/qr.ts`, `cid:ticket-qr`). The text version of the email shows the booking code. This also applies to bookings the club creates for a registered player. The "Booking received" email goes to the player when the booking is created (pending). Walk-in guests have no account email, so they get nothing. Tests: `deno test -A lib_test.ts qr_test.ts` (the PNG is decoded with jsQR). Emails only go out once Gmail is configured (`scripts/setup-email.ps1`, see `gmail-setup.md`).

@@ -10,10 +10,11 @@
 //   WEBHOOK_SECRET, GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, GMAIL_SENDER
 //   optional: SITE_URL, EMAIL_DRY_RUN=1 (records email_log as sent without sending)
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { b64url, buildMime, type Ctx, type Mail, planEmails, safeEqual } from "./lib.ts";
+import { b64url, buildMime, type Ctx, type Inline, type Mail, planEmails, safeEqual } from "./lib.ts";
+import { bookingQrPng } from "./qr.ts";
 
 // ---- Mailer: swap this for Resend later without touching the webhook, templates or email_log.
-interface OutMail { fromName: string; fromEmail: string; to: string; replyTo?: string | null; subject: string; text: string; html: string }
+interface OutMail { fromName: string; fromEmail: string; to: string; replyTo?: string | null; subject: string; text: string; html: string; inline?: Inline[] }
 interface Mailer { name: string; fromEmail: string; send(m: OutMail): Promise<string> }
 
 function gmailMailer(): Mailer | null {
@@ -116,9 +117,13 @@ Deno.serve(async (req) => {
       continue;
     }
     try {
+      // the approved email carries the ticket QR (same code as the ticket in the app) as an inline PNG
+      const inline: Inline[] | undefined = mail.qr
+        ? [{ cid: "ticket-qr", type: "image/png", filename: `booking-${mail.qr}.png`, data: bookingQrPng(mail.qr) }]
+        : undefined;
       const id = await mailer.send({
         fromName: tenant.name, fromEmail: mailer.fromEmail, to: mail.to, replyTo: tenant.contact_email,
-        subject: mail.subject, text: mail.text, html: mail.html,
+        subject: mail.subject, text: mail.text, html: mail.html, inline,
       });
       await admin.from("email_log").update({ status: "sent", provider_message_id: id }).eq("id", log.id);
       results.push({ to: mail.to, template: mail.template, result: "sent" });

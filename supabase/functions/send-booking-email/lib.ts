@@ -25,6 +25,7 @@ export interface Mail {
   text: string;
   html: string;
   key: string; // idempotency key: booking_id:status (unique together with the recipient)
+  qr?: string; // when set, the email carries a ticket QR (PNG, inline) encoding this text (the booking code)
 }
 
 export function escHtml(s: unknown): string {
@@ -43,8 +44,8 @@ export function fmtRange(startIso: string, endIso: string, tz: string): string {
   return `${day}, ${t(a)} - ${t(b)}`;
 }
 
-function layout(ctx: Ctx, heading: string, lines: string[], cta?: { label: string; url: string }): { text: string; html: string } {
-  const text = [heading, "", ...lines, ...(cta ? ["", `${cta.label}: ${cta.url}`] : []), "", `- ${ctx.clubName} (via DINKSLOT)`].join("\n");
+function layout(ctx: Ctx, heading: string, lines: string[], cta?: { label: string; url: string }, qr?: string): { text: string; html: string } {
+  const text = [heading, "", ...lines, ...(qr ? ["", `Show this booking code at the court: ${qr}`] : []), ...(cta ? ["", `${cta.label}: ${cta.url}`] : []), "", `- ${ctx.clubName} (via DINKSLOT)`].join("\n");
   const html = `<!doctype html><html><body style="margin:0;background:#10141a;font-family:Arial,Helvetica,sans-serif;color:#dfe2eb">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#181c22;border:1px solid #262a31;border-radius:16px">
@@ -52,6 +53,7 @@ function layout(ctx: Ctx, heading: string, lines: string[], cta?: { label: strin
 <tr><td style="padding:24px">
 <h1 style="margin:0 0 14px;font-size:20px;color:#ccff80">${escHtml(heading)}</h1>
 ${lines.map((l) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.55">${escHtml(l)}</p>`).join("")}
+${qr ? `<p style="margin:18px 0 6px;text-align:center"><img src="cid:ticket-qr" width="220" height="220" alt="Booking QR code ${escHtml(qr)}" style="display:inline-block;width:220px;height:220px;border-radius:12px;background:#ffffff"></p><p style="margin:0 0 6px;text-align:center;font-size:13px;color:#c2cab0">Show this QR code at the court.<br>Booking code <b style="color:#ccff80;letter-spacing:.06em">${escHtml(qr)}</b></p>` : ""}
 ${cta ? `<p style="margin:20px 0 4px"><a href="${escHtml(cta.url)}" style="background:#a3e635;color:#213600;text-decoration:none;font-weight:700;padding:11px 20px;border-radius:999px;display:inline-block">${escHtml(cta.label)}</a></p>` : ""}
 </td></tr>
 <tr><td style="padding:14px 24px;font-size:12px;color:#8c947c;border-top:1px solid #262a31">Sent by ${escHtml(ctx.clubName)} through DINKSLOT. Book Your Slot. Own the Court.</td></tr>
@@ -76,10 +78,10 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
   const myBookings = ctx.siteUrl.replace(/\/?$/, "/") + "#/me";
   const queue = ctx.siteUrl.replace(/\/?$/, "/") + `#/admin/${ctx.clubSlug}/bookings`;
   const out: Mail[] = [];
-  const toPlayer = (template: string, subject: string, heading: string, lines: string[], cta?: { label: string; url: string }) => {
+  const toPlayer = (template: string, subject: string, heading: string, lines: string[], cta?: { label: string; url: string }, qr?: string) => {
     if (!ctx.playerEmail) return;
-    const { text, html } = layout(ctx, heading, [`Hi ${ctx.playerName},`, ...lines], cta);
-    out.push({ template, to: ctx.playerEmail, subject, text, html, key });
+    const { text, html } = layout(ctx, heading, [`Hi ${ctx.playerName},`, ...lines], cta, qr);
+    out.push({ template, to: ctx.playerEmail, subject, text, html, key, ...(qr ? { qr } : {}) });
   };
   const toAdmins = (template: string, subject: string, heading: string, lines: string[]) => {
     const { text, html } = layout(ctx, heading, lines, { label: "Open the approval queue", url: queue });
@@ -94,7 +96,7 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
       [`${ctx.playerName} requested a court.`, ...details(ctx)]);
   } else if (status === "approved") {
     toPlayer("booking_approved", `Booking confirmed - ${b.reference_code}`, "Your booking is confirmed",
-      ["See you on the court!", ...details(ctx)], { label: "View my bookings", url: myBookings });
+      ["Your booking is approved. Keep this email: the QR code below is your ticket.", ...details(ctx)], { label: "View my bookings", url: myBookings }, b.reference_code);
     // bookings the club created itself (walk-in or for a player) do not need an alert to the club
     if (isInsert && (b.source ?? "online") === "online") {
       toAdmins("booking_request", `New booking - ${b.reference_code}`, "New booking (auto-approved)",
@@ -131,23 +133,33 @@ function wrap76(s: string): string { return s.replace(/(.{76})/g, "$1\r\n"); }
 function encWord(s: string): string { return /^[\x20-\x7e]*$/.test(s) ? s : `=?UTF-8?B?${b64(enc.encode(s))}?=`; }
 function noCrlf(s: string): string { return s.replace(/[\r\n]+/g, " ").trim(); }
 
+export interface Inline { cid: string; type: string; filename: string; data: Uint8Array }
 export interface Out {
   fromName: string; fromEmail: string; to: string; replyTo?: string | null;
   subject: string; text: string; html: string;
+  inline?: Inline[]; // images shown inside the HTML (cid:...)
 }
 
-export function buildMime(m: Out, boundary = "ds_" + crypto.randomUUID().replace(/-/g, "")): string {
+export function buildMime(m: Out, boundary = "ds_" + crypto.randomUUID().replace(/-/g, ""), relBoundary = "rel_" + crypto.randomUUID().replace(/-/g, "")): string {
+  const inline = m.inline ?? [];
   const headers = [
     `From: ${encWord(noCrlf(m.fromName))} <${noCrlf(m.fromEmail)}>`,
     `To: ${noCrlf(m.to)}`,
     ...(m.replyTo ? [`Reply-To: ${noCrlf(m.replyTo)}`] : []),
     `Subject: ${encWord(noCrlf(m.subject))}`,
     "MIME-Version: 1.0",
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    inline.length ? `Content-Type: multipart/related; boundary="${relBoundary}"` : `Content-Type: multipart/alternative; boundary="${boundary}"`,
   ];
   const part = (type: string, body: string) =>
     `--${boundary}\r\nContent-Type: ${type}; charset="UTF-8"\r\nContent-Transfer-Encoding: base64\r\n\r\n${wrap76(b64(enc.encode(body)))}\r\n`;
-  return headers.join("\r\n") + "\r\n\r\n" + part("text/plain", m.text) + part("text/html", m.html) + `--${boundary}--\r\n`;
+  const alternative = part("text/plain", m.text) + part("text/html", m.html) + `--${boundary}--\r\n`;
+  if (!inline.length) return headers.join("\r\n") + "\r\n\r\n" + alternative;
+  // multipart/related: the text+HTML alternatives, then each inline image referenced as cid:<id>
+  const images = inline.map((i) =>
+    `--${relBoundary}\r\nContent-Type: ${i.type}; name="${noCrlf(i.filename)}"\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <${noCrlf(i.cid)}>\r\n` +
+    `Content-Disposition: inline; filename="${noCrlf(i.filename)}"\r\n\r\n${wrap76(b64(i.data))}\r\n`).join("");
+  return headers.join("\r\n") + "\r\n\r\n" +
+    `--${relBoundary}\r\nContent-Type: multipart/alternative; boundary="${boundary}"\r\n\r\n` + alternative + images + `--${relBoundary}--\r\n`;
 }
 
 export function safeEqual(a: string, b: string): boolean {
