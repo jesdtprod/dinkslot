@@ -54,6 +54,15 @@
     return r.data ? r.data.signedUrl : "";
   }
 
+  var SECTIONS = {
+    overview: ["Overview", "How your club is doing today."],
+    bookings: ["Bookings", "Approve payments and manage today's courts."],
+    courts: ["Courts", "Courts, rates, opening hours and blocked times."],
+    profile: ["Club profile", "Your public page: details and photos."],
+    payments: ["Payments and rules", "Payment QR, approvals and booking rules."],
+    staff: ["Staff", "People who help you run the club."]
+  };
+
   // ----------------------------------------------------------------- shell
   async function render(slug, section) {
     var root = D.root();
@@ -69,48 +78,84 @@
       return;
     }
     ctx = { t: t, role: role, slug: slug };
-    var base = "#/admin/" + esc(slug);
-    var tab = function (key, label, href) {
-      return '<a href="' + href + '" class="' + (section === key ? "on" : "") + '">' + label + "</a>";
-    };
-    root.innerHTML =
-      '<div class="adminhead"><div><h1>' + esc(t.name) + '</h1><span class="badge ' + esc(t.status) + '">' + esc(t.status) +
-      '</span> <span class="muted small">' + esc(role) + "</span></div>" +
-      (t.status === "approved" ? '<a class="btn sm" href="#/c/' + esc(slug) + '">View public page</a>' : "") + "</div>" +
-      '<nav class="subnav">' + tab("dashboard", "Dashboard", base) + tab("courts", "Courts", base + "/courts") +
-      (role === "owner" ? tab("settings", "Settings", base + "/settings") : "") + "</nav>" +
-      (t.status !== "approved" ? '<p class="notice">This club is <b>' + esc(t.status) + "</b>. It is hidden from the public until the platform admin approves it. You can set it up meanwhile.</p>" : "") +
-      '<div id="sec"></div>';
-    var sec = q("#sec");
-    if (section === "courts") return courtsView(sec);
-    if (section === "settings") {
-      if (role !== "owner") { sec.innerHTML = "<p>Only the club owner can change settings.</p>"; return; }
-      return settingsView(sec);
+    if (!section || section === "dashboard") section = "overview";
+    if (section === "settings") section = "profile";
+    var owner = role === "owner";
+    var pendingCount = (await sb.from("bookings").select("id", { count: "exact", head: true })
+      .eq("tenant_id", t.id).eq("status", "pending")).count || 0;
+    var base = "#/admin/" + slug;
+    var items = [
+      { type: "label", label: "Manage" },
+      { key: "overview", label: "Overview", icon: "dashboard", href: base },
+      { key: "bookings", label: "Bookings", icon: "event_available", href: base + "/bookings", badge: pendingCount || "" },
+      { key: "courts", label: "Courts", icon: "sports_tennis", href: base + "/courts" }
+    ];
+    if (owner) {
+      items.push({ type: "label", label: "Club" },
+        { key: "profile", label: "Club profile", icon: "storefront", href: base + "/profile" },
+        { key: "payments", label: "Payments and rules", icon: "qr_code_2", href: base + "/payments" },
+        { key: "staff", label: "Staff", icon: "group", href: base + "/staff" });
     }
+    var foot = [];
+    if (t.status === "approved") foot.push({ label: "View public page", icon: "open_in_new", href: "#/c/" + slug });
+    foot.push({ label: "My account", icon: "arrow_back", href: "#/me" });
+    var ui = D.ui.dash(root, {
+      head: { title: t.name, sub: role === "owner" ? "Owner" : "Staff", status: t.status, img: t.logo_path ? D.mediaUrl(t.logo_path) : "" },
+      items: items, foot: foot, active: section
+    });
+    var meta = SECTIONS[section] || SECTIONS.overview;
+    ui.setTitle(meta[0], meta[1]);
+    var sec = ui.main;
+    if (t.status !== "approved") {
+      sec.insertAdjacentHTML("beforebegin", '<p class="notice">This club is <b>' + esc(t.status) +
+        "</b>. It is hidden from the public until the platform admin approves it. You can set it up meanwhile.</p>");
+    }
+    if (section === "bookings") return D.booking ? D.booking.queue(sec, t) : undefined;
+    if (section === "courts") return courtsView(sec);
+    if (!owner && (section === "profile" || section === "payments" || section === "staff")) {
+      sec.innerHTML = "<p>Only the club owner can change this.</p>"; return;
+    }
+    if (section === "profile" || section === "payments" || section === "staff") return settingsView(sec, section);
     return dashboardView(sec);
   }
 
-  // ------------------------------------------------------------- dashboard
+  // -------------------------------------------------------------- overview
   async function dashboardView(sec) {
-    var t = ctx.t;
-    var courts = await sb.from("courts").select("id", { count: "exact", head: true }).eq("tenant_id", t.id);
-    var st = (await sb.from("tenant_settings").select("*").eq("tenant_id", t.id).maybeSingle()).data || {};
+    var t = ctx.t, tz = t.timezone;
+    var today = new Date().toLocaleDateString("en-CA", { timeZone: tz });
+    var dayStart = zonedToUtc(today + "T00:00", tz), dayEnd = new Date(dayStart.getTime() + 86400000);
+    function count(build) {
+      return build(sb.from("bookings").select("id", { count: "exact", head: true }).eq("tenant_id", t.id)).then(function (r) { return r.count || 0; });
+    }
+    var res = await Promise.all([
+      count(function (b) { return b.eq("status", "pending"); }),
+      count(function (b) { return b.eq("status", "approved").gte("starts_at", dayStart.toISOString()).lt("starts_at", dayEnd.toISOString()); }),
+      count(function (b) { return b.eq("status", "approved").gte("starts_at", dayEnd.toISOString()); }),
+      sb.from("courts").select("id", { count: "exact", head: true }).eq("tenant_id", t.id).then(function (r) { return r.count || 0; }),
+      sb.from("tenant_settings").select("*").eq("tenant_id", t.id).maybeSingle().then(function (r) { return r.data || {}; })
+    ]);
+    var pending = res[0], todayN = res[1], upcoming = res[2], courts = res[3], st = res[4];
+    var base = "#/admin/" + esc(ctx.slug);
+    var tile = function (n, label, icon, href, tone) {
+      return '<a class="tile ' + (tone || "") + '" href="' + href + '"><span class="mi">' + icon + "</span><b>" + n + "</b><span>" + label + "</span></a>";
+    };
     var items = [
-      [!!t.logo_path, "Profile photo", "settings"],
-      [!!t.cover_path, "Cover photo", "settings"],
-      [(courts.count || 0) > 0, "At least one court", "courts"],
-      [!st.payment_enabled || !!st.qr_path, "Payment QR code", "settings"],
-      [!st.payment_enabled || !!(st.payment_instructions && st.payment_instructions.trim()), "Payment instructions", "settings"]
+      [!!t.logo_path, "Profile photo", "profile"],
+      [!!t.cover_path, "Cover photo", "profile"],
+      [courts > 0, "At least one court", "courts"],
+      [!st.payment_enabled || !!st.qr_path, "Payment QR code", "payments"],
+      [!st.payment_enabled || !!(st.payment_instructions && st.payment_instructions.trim()), "Payment instructions", "payments"]
     ];
     var done = items.filter(function (i) { return i[0]; }).length;
-    sec.innerHTML = '<div class="panel wide"><h2>Setup checklist (' + done + "/" + items.length + ")</h2><ul class=\"check\">" +
-      items.map(function (i) {
-        return "<li class=\"" + (i[0] ? "ok" : "todo") + '">' + (i[0] ? "Done: " : "To do: ") + esc(i[1]) +
-          (!i[0] && (i[2] === "courts" || ctx.role === "owner") ? ' - <a href="#/admin/' + esc(ctx.slug) + "/" + i[2] + '">fix</a>' : "") + "</li>";
-      }).join("") + "</ul></div>" +
-      '<div id="queue"></div>';
-    // Approval queue, today's and upcoming bookings (js/booking.js); live via Realtime.
-    if (D.booking) D.booking.queue(q("#queue", sec), t);
+    sec.innerHTML = '<div class="tiles">' + tile(pending, "Needs approval", "pending_actions", base + "/bookings", pending ? "warn" : "") +
+      tile(todayN, "Today", "today", base + "/bookings") + tile(upcoming, "Upcoming", "event_upcoming", base + "/bookings") +
+      tile(courts, "Courts", "sports_tennis", base + "/courts") + "</div>" +
+      '<div class="panel wide"><div class="row"><h2>Setup checklist</h2><span class="badge ' + (done === items.length ? "approved" : "pending") + '">' + done + "/" + items.length + "</span></div>" +
+      '<ul class="check">' + items.map(function (i) {
+        var canFix = i[2] === "courts" || ctx.role === "owner";
+        return '<li class="' + (i[0] ? "ok" : "todo") + '"><span class="mi">' + (i[0] ? "check_circle" : "radio_button_unchecked") + "</span><span>" + esc(i[1]) + "</span>" +
+          (!i[0] && canFix ? '<a class="btn sm ghost" href="' + base + "/" + i[2] + '">Set up</a>' : "") + "</li>";
+      }).join("") + "</ul></div>";
   }
 
   // ---------------------------------------------------------------- courts
@@ -219,13 +264,14 @@
   }
 
   // -------------------------------------------------------------- settings
-  async function settingsView(sec) {
+  async function settingsView(sec, part) {
     var t = ctx.t;
     var st = (await sb.from("tenant_settings").select("*").eq("tenant_id", t.id).maybeSingle()).data || {};
-    var qrUrl = await signedUrl(st.qr_path);
+    var qrUrl = part === "payments" ? await signedUrl(st.qr_path) : "";
     var img = function (p, cls) { return p ? '<img class="thumb ' + cls + '" src="' + esc(D.mediaUrl(p)) + '" alt="">' : '<div class="thumb ' + cls + ' ph"></div>'; };
 
-    sec.innerHTML =
+    var PANELS = {};
+    PANELS.profile =
       '<div class="panel wide"><h2>Club profile</h2><form id="pf"><div class="grid2">' +
       '<label>Club name<input id="pn" maxlength="80" required value="' + esc(t.name) + '"></label>' +
       '<label>City<input id="pc" value="' + esc(t.city || "") + '"></label>' +
@@ -237,8 +283,8 @@
       '<h3>Photos</h3><div class="photos">' +
       '<div>' + img(t.logo_path, "round") + '<label>Profile photo<input id="logof" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="btn sm" id="logob" type="button">Upload profile photo</button></div>' +
       '<div>' + img(t.cover_path, "wide") + '<label>Cover photo<input id="coverf" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="btn sm" id="coverb" type="button">Upload cover photo</button></div>' +
-      '</div><p class="msg" role="alert" id="phmsg"></p></div>' +
-
+      '</div><p class="msg" role="alert" id="phmsg"></p></div>';
+    PANELS.payments =
       '<div class="panel wide"><h2>Payments and booking rules</h2><form id="sf">' +
       '<label class="chk"><input id="spe" type="checkbox"' + (st.payment_enabled ? " checked" : "") + '> Players pay by scanning my QR (turn off if you collect payment another way)</label>' +
       '<label>Payment instructions<textarea id="spi" rows="3" placeholder="e.g. GCash 0917 000 0000, include the booking code in the message">' + esc(st.payment_instructions || "") + '</textarea></label>' +
@@ -251,12 +297,14 @@
       '<label>Max hours per booking<input id="smx" type="number" min="0.5" step="0.5" required value="' + esc(st.max_hours) + '"></label>' +
       '<label>Cancel allowed until (hours before start)<input id="scc" type="number" min="0" required value="' + esc(st.cancel_cutoff_hours) + '"></label>' +
       '<label>Hold an unpaid booking for (minutes)<input id="sph" type="number" min="5" max="1440" required value="' + esc(st.pending_hold_minutes) + '"></label></div>' +
-      '<p class="msg" role="alert"></p><button class="btn sm" type="submit">Save settings</button></form></div>' +
-
+      '<p class="msg" role="alert"></p><button class="btn sm" type="submit">Save settings</button></form></div>';
+    PANELS.staff =
       '<div class="panel wide"><h2>Staff</h2><p class="muted small">Staff can manage courts and approve bookings. They must already have a DINKSLOT account with a confirmed email.</p>' +
       '<p class="msg" role="alert" id="stmsg"></p><div id="stafflist">Loading...</div>' +
       '<form id="stf" class="inline"><label>Staff email<input id="ste" type="email" required></label><button class="btn sm" type="submit">Add staff</button></form></div>';
+    sec.innerHTML = PANELS[part];
 
+    if (part === "profile") {
     // profile text
     q("#pf", sec).onsubmit = async function (e) {
       e.preventDefault();
@@ -277,13 +325,15 @@
           var r = await sb.from("tenants").update((function () { var o = {}; o[col] = path; return o; })()).eq("id", t.id);
           if (r.error) { await removeQuiet("club-media", path); throw r.error; }
           await removeQuiet("club-media", old);
-          D.go("/admin/" + ctx.slug + "/settings"); render(ctx.slug, "settings");
+          render(ctx.slug, "profile");
         } catch (err) { msg.className = "msg err"; msg.textContent = friendly(err); }
       };
     }
     photoUpload("#logob", "#logof", "logo_path", "logo");
     photoUpload("#coverb", "#coverf", "cover_path", "cover");
 
+    }
+    if (part === "payments") {
     // payment QR
     q("#qrb", sec).onclick = async function () {
       var f = q("#sf", sec), file = q("#qrf", sec).files[0];
@@ -293,7 +343,7 @@
         var r = await sb.from("tenant_settings").update({ qr_path: path }).eq("tenant_id", t.id);
         if (r.error) { await removeQuiet("payment", path); throw r.error; }
         await removeQuiet("payment", st.qr_path);
-        render(ctx.slug, "settings");
+        render(ctx.slug, "payments");
       } catch (err) { setMsg(f, friendly(err), "err"); }
     };
     // booking rules
@@ -308,6 +358,8 @@
       if (r.error) return setMsg(f, friendly(r.error), "err");
       setMsg(f, "Saved.", "ok");
     };
+    }
+    if (part === "staff") {
     // staff
     async function loadStaff() {
       var r = await sb.rpc("list_tenant_staff", { p_tenant_id: t.id });
@@ -340,6 +392,7 @@
       q("#ste", sec).value = "";
       loadStaff();
     };
+    }
   }
 
   D.admin = { render: render };

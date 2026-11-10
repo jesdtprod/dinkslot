@@ -121,7 +121,7 @@
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col">
-  <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-white/5">
+  <header class="site-header fixed top-0 w-full z-50">
     <div class="h-16 w-full px-gutter lg:px-gutter-desktop flex items-center justify-between">
       <a href="#/" class="site-brand flex items-center gap-space-sm no-underline">
         <div class="site-logo-frame">
@@ -129,23 +129,80 @@
         </div>
         <div class="flex flex-col">
           <span class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface font-bold leading-none">DINKSLOT</span>
-          <span class="font-label-sm text-label-sm tracking-widest text-primary font-medium">SPORTS • DS PICKLEBALL</span>
+          <span class="font-label-sm text-label-sm tracking-widest text-primary font-medium">Book Your Slot. Own the Court.</span>
         </div>
       </a>
       <nav id="nav" class="flex items-center gap-space-md"></nav>
     </div>
   </header>
   <main id="app" class="relative w-full pt-16 flex-1 flex flex-col bg-surface" aria-live="polite"></main>
-  <footer class="w-full bg-surface-container-lowest py-space-lg mt-auto border-t border-white/5">
-    <div class="w-full px-gutter lg:px-gutter-desktop flex flex-col md:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
-      <div class="flex items-center gap-space-sm">
-        <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-        <span>DINKSLOT SPORTS NETWORK • BOOK YOUR SLOT. OWN THE COURT.</span>
+  <footer class="w-full bg-surface-container-lowest mt-space-xl pt-space-xl pb-space-lg shadow-[0_-1px_12px_rgba(0,0,0,0.5)] border-t border-white/5">
+    <div class="w-full px-gutter md:px-margin-desktop grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-xl">
+      <div class="lg:col-span-2 flex flex-col gap-space-md">
+        <div class="flex items-center gap-space-sm">
+          <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+            <span class="material-symbols-outlined text-label-lg">sports_tennis</span>
+          </div>
+          <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface font-bold uppercase">DINK<span class="text-primary">SLOT</span></span>
+        </div>
+        <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
+          Next-generation competitive court scheduling, DUPR rating sync, verified paddle leagues, and live venue management for the modern pickleball athlete.
+        </p>
+        <div class="flex items-center gap-space-sm pt-space-xs">
+          <span class="inline-flex items-center gap-space-xs px-space-sm py-space-xs rounded-full bg-surface-container text-primary font-label-sm text-label-sm">
+            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>LIVE SYSTEM OPERATIONAL
+          </span>
+        </div>
+        <div class="flex items-center gap-space-md pt-space-xs text-on-surface-variant">
+          <a class="p-space-xs rounded-full bg-surface-container hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#/"><span class="material-symbols-outlined text-headline-sm">terminal</span></a>
+          <a class="p-space-xs rounded-full bg-surface-container hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#/"><span class="material-symbols-outlined text-headline-sm">podcasts</span></a>
+          <a class="p-space-xs rounded-full bg-surface-container hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#/"><span class="material-symbols-outlined text-headline-sm">public</span></a>
+          <a class="p-space-xs rounded-full bg-surface-container hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#/"><span class="material-symbols-outlined text-headline-sm">forum</span></a>
+        </div>
       </div>
-      <div class="flex items-center gap-space-lg">
-        <a class="hover:text-on-surface transition-colors" href="#/">Court Finder</a>
-        <a class="hover:text-on-surface transition-colors" href="#/register-club">Register Club</a>
-        <span>© 2026 DS Pickleball</span>
+      <div class="flex flex-col gap-space-sm">
+        <span class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider font-semibold">Company</span>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/">About DS Pickleball</a>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/">Plans &amp; Pricing</a>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/">Careers &amp; Scouts</a>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/">Press &amp; Media Kit</a>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/">Safety Guidelines</a>
+      </div>
+      <div class="flex flex-col gap-space-sm">
+        <span class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider font-semibold">Venues &amp; Comp</span>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/register-club">Club Partner Portal</a>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/">Court Booking Engine</a>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/">Tournament Schedule</a>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/">Referee Certification</a>
+        <a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#/register-club">Court Owner API</a>
+      </div>
+      <div class="flex flex-col gap-space-sm">
+        <span class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider font-semibold">Get DINKSLOT App</span>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Instant queue alerts, live court cameras, and peer-to-peer matchmaking on iOS &amp; Android.</p>
+        <div class="flex flex-col gap-space-xs pt-space-xs">
+          <a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors" href="#/auth">
+            <span class="material-symbols-outlined text-primary">phone_iphone</span>
+            <div class="flex flex-col">
+              <span class="font-label-sm text-label-sm text-on-surface-variant leading-none">Download on</span>
+              <span class="font-label-md text-label-md text-on-surface leading-tight">Apple App Store</span>
+            </div>
+          </a>
+          <a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors" href="#/auth">
+            <span class="material-symbols-outlined text-primary">smart_display</span>
+            <div class="flex flex-col">
+              <span class="font-label-sm text-label-sm text-on-surface-variant leading-none">Get it on</span>
+              <span class="font-label-md text-label-md text-on-surface leading-tight">Google Play</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="w-full px-gutter md:px-margin-desktop mt-space-xl pt-space-md flex flex-col md:flex-row items-center justify-between gap-space-md bg-surface-container-lowest border-t border-white/5">
+      <span class="font-label-md text-label-md text-on-surface-variant">© 2026 DINKSLOT / DS Pickleball. All rights reserved.</span>
+      <div class="flex items-center gap-space-md text-on-surface-variant font-label-md text-label-md">
+        <a class="hover:text-on-surface transition-colors" href="#/">Privacy Policy</a>
+        <a class="hover:text-on-surface transition-colors" href="#/">Terms of Service</a>
+        <a class="hover:text-on-surface transition-colors" href="#/">DUPR Integration Agreement</a>
       </div>
     </div>
   </footer>
@@ -153,6 +210,7 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/booking.js"></script>
 </body>

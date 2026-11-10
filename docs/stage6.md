@@ -19,3 +19,10 @@ Retry safety: the browser keeps one idempotency key per selection, so a double c
 
 ## Verification
 Isolation and flow test: 159 checks, 0 failures. Stage 6 additions: player cancel (and retry), rebooking a cancelled slot, admin cancel needs a reason and the player sees it, expiry through `expire_pending_bookings` (and clients cannot call it), expired slot is bookable again, expiry notification, cancel blocked inside the cutoff for players but allowed for the club admin. Earlier checks already cover create, approve, reject and retried idempotency keys.
+
+## UI redesign (sidebar dashboards, public pages)
+- `js/ui.js`: `DS.ui.dash()` renders the sidebar dashboard shell (club dashboard and super admin console).
+- Club dashboard routes: `/#/admin/<slug>` (overview), `/bookings`, `/courts`, `/profile`, `/payments`, `/staff` (owner-only sections hidden from staff). `/settings` still works and opens the profile.
+- Super admin console: sidebar by status (pending, approved, rejected, suspended, all) with live counts.
+- Public pages: landing (hero search, club cards with price and court count), club page (banner, logo, chips, court cards), My account (profile editor, clubs, bookings).
+- Tailwind's reset strips default heading, list and link styles, so `css/app.css` defines a scoped typography base for app-built pages. The auth screen is untouched.
