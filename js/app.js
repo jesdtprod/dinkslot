@@ -9,6 +9,11 @@
   var app = document.getElementById("app");
   var nav = document.getElementById("nav");
   var state = { user: null, isPlatform: false };
+  var liveChannel = null, livePoll = null;
+  function stopLive() {
+    if (liveChannel) { sb.removeChannel(liveChannel); liveChannel = null; }
+    if (livePoll) { clearInterval(livePoll); livePoll = null; }
+  }
 
   // ---------------------------------------------------------------- helpers
   function esc(s) {
@@ -281,16 +286,35 @@
 
   async function viewMe() {
     if (!requireUser("/me")) return;
-    app.innerHTML = '<h1>My account</h1><p class="muted">' + esc(state.user.email) + '</p><div id="mine">Loading...</div>';
-    var m = await sb.from("tenant_members").select("role, tenants(id, slug, name, status)").eq("user_id", state.user.id);
-    var rows = m.data || [];
-    $("#mine").innerHTML = "<h2>Clubs you manage</h2>" + (rows.length ? '<ul class="list">' + rows.map(function (x) {
-      var t = x.tenants || {};
-      return "<li><strong>" + esc(t.name) + '</strong> <span class="badge ' + esc(t.status) + '">' + esc(t.status) + "</span> (" + esc(x.role) + ")" +
-        (t.status === "approved" ? ' - <a href="#/c/' + esc(t.slug) + '">public page</a>' : "") +
-        ' - <a href="#/admin/' + esc(t.slug) + '">dashboard</a></li>';
-    }).join("") + "</ul>" : '<p class="muted">None yet. <a href="#/register-club">Register your club</a>.</p>') +
-      "<h2>My bookings</h2><p class=\"muted\">Booking comes in a later stage.</p>";
+    app.innerHTML = '<h1>My account</h1><p class="muted">' + esc(state.user.email) + '</p><p class="msg ok" role="status"></p><div id="mine">Loading...</div>';
+    var known = {};
+    async function loadMine(announce) {
+      var m = await sb.from("tenant_members").select("role, tenants(id, slug, name, status)").eq("user_id", state.user.id);
+      if (!$("#mine")) return; // user navigated away
+      var rows = m.data || [];
+      rows.forEach(function (x) {
+        var t = x.tenants || {};
+        if (announce && known[t.id] && known[t.id] !== t.status) {
+          setMsg(app, t.name + " is now " + t.status + "!", t.status === "approved" ? "ok" : "err");
+        }
+        known[t.id] = t.status;
+      });
+      $("#mine").innerHTML = "<h2>Clubs you manage</h2>" + (rows.length ? '<ul class="list">' + rows.map(function (x) {
+        var t = x.tenants || {};
+        return "<li><strong>" + esc(t.name) + '</strong> <span class="badge ' + esc(t.status) + '">' + esc(t.status) + "</span> (" + esc(x.role) + ")" +
+          (t.status === "pending" ? ' <span class="muted small">- waiting for approval</span>' : "") +
+          (t.status === "approved" ? ' - <a href="#/c/' + esc(t.slug) + '">public page</a>' : "") +
+          ' - <a href="#/admin/' + esc(t.slug) + '">dashboard</a></li>';
+      }).join("") + "</ul>" : '<p class="muted">None yet. <a href="#/register-club">Register your club</a>.</p>') +
+        "<h2>My bookings</h2><p class=\"muted\">Booking comes in a later stage.</p>";
+    }
+    await loadMine(false);
+    // Live update: when the super admin decides, the status changes here without a refresh.
+    // Realtime only delivers rows this user may read (RLS). Polling is a safety net.
+    liveChannel = sb.channel("my-clubs-" + state.user.id)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tenants" }, function () { loadMine(true); })
+      .subscribe();
+    livePoll = setInterval(function () { loadMine(true); }, 20000);
   }
 
   async function viewPlatform() {
@@ -359,6 +383,7 @@
     var q = new URLSearchParams(qs === -1 ? "" : raw.slice(qs + 1));
     var m;
     window.scrollTo(0, 0);
+    stopLive();
     try {
       // Super admin never uses tenant/player screens.
       if (state.isPlatform && (path === "/me" || path === "/register-club" || path === "/auth")) return go("/platform");
