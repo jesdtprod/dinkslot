@@ -22,7 +22,7 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
     </p>
     <!-- MODERN INTERACTIVE QUICK SEARCH BAR -->
     <div class="landing-search-panel w-full max-w-none mt-space-xl p-space-sm md:p-space-md rounded-2xl bg-surface-container-high shadow-2xl">
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-space-xs items-center">
+      <div class="landing-search-controls grid grid-cols-1 md:grid-cols-12 gap-space-xs items-stretch">
         <!-- Venue / Search Input -->
         <div class="landing-search-field md:col-span-4 flex items-center gap-space-sm px-space-md py-3.5 rounded-xl bg-surface-container text-left group transition-all">
           <span class="material-symbols-outlined text-primary text-headline-sm">search</span>
@@ -51,7 +51,7 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
           <span class="material-symbols-outlined text-outline text-label-md">schedule</span>
         </div>
         <!-- CTA Search Button -->
-        <div class="md:col-span-2 flex items-center h-full">
+        <div class="landing-search-action md:col-span-2 flex items-stretch">
           <button id="find-courts-btn" type="button" class="w-full h-full min-h-[52px] rounded-xl bg-primary hover:bg-secondary-fixed text-on-primary font-headline-sm text-label-lg font-bold uppercase tracking-tight flex items-center justify-center gap-space-xs shadow-[0_0_24px_rgba(163,230,53,0.35)] hover:shadow-[0_0_32px_rgba(163,230,53,0.6)] transition-all cursor-pointer border-0">
             <span>Find Courts</span>
             <span class="material-symbols-outlined text-label-lg">arrow_forward</span>
