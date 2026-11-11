@@ -347,7 +347,7 @@
             '<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">' +
               '<div>' +
                 '<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">' +
-                  '<span class="material-symbols-outlined text-label-md">pin_drop</span> ' + esc(c.city || c.address || "Metro Manila") +
+                  '<span class="material-symbols-outlined text-label-md">pin_drop</span> ' + esc([c.city, c.province].filter(Boolean).join(", ") || c.address || "Metro Manila") +
                 '</div>' +
                 '<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mt-1 group-hover:text-primary transition-colors">' +
                   '<a href="#/c/' + esc(c.slug) + '" class="text-inherit no-underline">' + esc(c.name) + '</a>' +
@@ -503,7 +503,7 @@
       '<div class="sectionhead"><h2>Courts</h2></div>' +
       (courts.length ? '<div class="courtgrid">' + courts.map(function (k) {
         return '<div class="courtcard"><div class="cc-top"><h3>' + esc(k.name) + '</h3><span class="chip">' + (k.is_indoor ? "Indoor" : "Outdoor") + "</span></div>" +
-          '<p class="cc-rate"><b>' + (k.rate_max != null && Number(k.rate_max) !== Number(k.rate_min) ? "PHP " + esc(Number(k.rate_min).toFixed(0)) + " - " + esc(Number(k.rate_max).toFixed(0)) : "PHP " + esc(Number(k.rate_min != null ? k.rate_min : k.hourly_rate).toFixed(2))) + "</b><span>/hr</span></p>" +
+          '<p class="cc-rate"><b>PHP ' + esc(Number(k.rate_min != null ? k.rate_min : k.hourly_rate).toFixed(2)) + "</b><span>/hr</span></p>" +
           '<p class="muted small"><span class="mi">schedule</span>' + esc(hoursText(k.open_time, k.close_time)) +
           " &middot; " + esc(String(k.slot_minutes)) + " min slots" + (k.surface ? " &middot; " + esc(k.surface) : "") + "</p>" +
           '<a class="btn sm" href="' + bookHref + '">' + (state.user ? "Book" : "Sign up to book") + "</a></div>";

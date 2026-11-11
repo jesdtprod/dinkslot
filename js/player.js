@@ -320,7 +320,7 @@
           detailHtml + '<div class="home-club-actions"><a class="btn ghost" href="#/c/' + esc(club.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="#/c/' + esc(club.slug) + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></div></article>';
       }).join('') : D.ui.emptyState('No clubs joined', 'Find a club to start booking courts.', 'groups', {href:'#/me/find',label:'Find a Club'})) + '</div></section>';
 
-    sec.innerHTML = '<div class="space-y-9" data-purpose="player-dashboard">' +
+    sec.innerHTML = '<div class="space-y-9 member-profile-theme" data-purpose="player-dashboard">' +
       heroHtml +
       metricsHtml +
       nextBookingHtml +
@@ -421,7 +421,7 @@
       }).join('') : D.ui.emptyState('No clubs joined', 'Explore the clubs below to find your next court.', 'groups')) + '</div></section>';
 
     sec.innerHTML =
-      '<div class="member-find-page" data-purpose="player-find-club">' +
+      '<div class="member-find-page member-profile-theme" data-purpose="player-find-club">' +
         heroHtml +
         filterBarHtml +
         joinedSectionHtml +
@@ -548,7 +548,7 @@
     (result.data || []).forEach(function (court) { (courtsBySlug[court.club_slug] || (courtsBySlug[court.club_slug] = [])).push(court); });
     var clubFilter = 'all';
     function options(values, label) { return '<option value="">' + label + '</option>' + Array.from(new Set(values.filter(Boolean))).sort().map(function (value) { return '<option value="' + esc(value) + '">' + esc(value) + '</option>'; }).join(''); }
-    sec.innerHTML = '<div class="member-clubs-page"><section class="member-overview-header"><div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1>My Clubs</h1><p>Your joined clubs, court details, and booking access in one place.</p></div>' +
+    sec.innerHTML = '<div class="member-clubs-page member-profile-theme"><section class="member-overview-header"><div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1>My Clubs</h1><p>Your joined clubs, court details, and booking access in one place.</p></div>' +
       '<div class="member-overview-stats"><div><span class="member-overview-stat-label">My Clubs</span><span class="member-overview-stat-value">' + mc.clubs.length + '</span><small>Joined memberships</small></div><div><span class="member-overview-stat-label">Active Courts</span><span class="member-overview-stat-value">' + (result.data || []).length + '</span><small>At your clubs</small></div></div></section>' +
       '<section class="club-directory-tools myclubs-directory-tools" aria-label="Filter your clubs"><div class="club-directory-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input data-has-icon id="myclubs-filter-input" type="search" placeholder="Search clubs, addresses, or ZIP codes" aria-label="Search your clubs"><button id="myclubs-clear" type="button" aria-label="Clear search" hidden><span class="material-symbols-outlined" aria-hidden="true">close</span></button></div><div class="club-directory-filters"><label>City / Municipality<select id="myclubs-city">' + options(mc.clubs.map(function (club) { return club.city; }), 'All locations') + '</select></label><label>Court Type<select id="myclubs-type"><option value="">All court types</option><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option></select></label><label>Surface<select id="myclubs-surface">' + options((result.data || []).map(function (court) { return court.surface; }), 'All surfaces') + '</select></label><div class="club-directory-results"><span id="myclubs-result-count" role="status"></span></div></div></section>' +
       '<div id="my-joined-clubs-list" class="home-clubs-grid"></div></div>';
@@ -583,7 +583,7 @@
           '<section class="membership-panel-courts"><header><h3><span class="material-symbols-outlined" aria-hidden="true">bolt</span>Quick Book a Court</h3><a href="' + base + '/book">View All Courts <span aria-hidden="true">&rarr;</span></a></header><div class="membership-court-grid">' +
           (courts.length ? courts.slice(0,4).map(function (court) {
             var hours = court.open_time && court.close_time ? D.hoursText(court.open_time,court.close_time) : 'See booking schedule';
-            return '<a class="membership-court-tile" href="' + base + '/book"><div class="membership-court-top"><span class="membership-court-icon material-symbols-outlined" aria-hidden="true">sports_tennis</span><span class="membership-court-type">' + (court.is_indoor ? 'Indoor' : 'Outdoor') + '</span></div><strong>' + esc(court.name || 'Court') + '</strong><span class="membership-court-hours"><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + esc(hours) + '</span><div class="membership-court-bottom">' + (court.hourly_rate != null ? '<b>' + (court.rate_max != null && Number(court.rate_max) !== Number(court.rate_min) ? 'PHP ' + Number(court.rate_min).toFixed(0) + ' - ' + Number(court.rate_max).toFixed(0) : money(court.rate_min != null ? court.rate_min : court.hourly_rate)) + '<small>/hr</small></b>' : '<span>View rates</span>') + '<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></div></a>';
+            return '<a class="membership-court-tile" href="' + base + '/book"><div class="membership-court-top"><span class="membership-court-icon material-symbols-outlined" aria-hidden="true">sports_tennis</span><span class="membership-court-type">' + (court.is_indoor ? 'Indoor' : 'Outdoor') + '</span></div><strong>' + esc(court.name || 'Court') + '</strong><span class="membership-court-hours"><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + esc(hours) + '</span><div class="membership-court-bottom">' + (court.hourly_rate != null ? '<b>' + money(court.rate_min != null ? court.rate_min : court.hourly_rate) + '<small>/hr</small></b>' : '<span>View rates</span>') + '<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></div></a>';
           }).join('') : '<p class="muted small">No active courts are currently listed.</p>') + '</div><p class="membership-court-note">Choose a date on the booking page to check live availability.</p></section>' +
           '<footer class="membership-panel-footer"><span><span class="material-symbols-outlined" aria-hidden="true">verified_user</span>Joined Member</span>' +
           (club.contact_phone ? '<span><span class="material-symbols-outlined" aria-hidden="true">call</span>' + esc(club.contact_phone) + '</span>' : '') +
@@ -919,13 +919,8 @@
     var p = r.data || {};
     var chosen = null, removeFlag = false;
 
-    // Fetch joined clubs to display home club affiliation badge
-    var mc = await myClubs();
-    var primaryClub = mc.clubs.length ? mc.clubs[0] : null;
-
     var uid = D.state.user.id || "";
     var playerId = "DS-PL-" + (uid.replace(/[^a-zA-Z0-9]/g, "").slice(0, 5).toUpperCase() || "89240");
-    var turnstilePin = "#" + ((uid.replace(/[^0-9]/g, "") + "4829").slice(-4));
 
     var memberSince = "March 2024";
     if (D.state.user.created_at) {
@@ -934,20 +929,6 @@
         memberSince = cd.toLocaleDateString("en-US", { month: "long", year: "numeric" });
       } catch (e) {}
     }
-
-    // Athletic specs from localStorage or user metadata
-    var savedSpecs = null;
-    try {
-      var raw = localStorage.getItem("dinkslot_player_specs_" + uid);
-      if (raw) savedSpecs = JSON.parse(raw);
-    } catch (e) {}
-    if (!savedSpecs && D.state.user.user_metadata && D.state.user.user_metadata.specs) {
-      savedSpecs = D.state.user.user_metadata.specs;
-    }
-    var activeHand = (savedSpecs && savedSpecs.hand) || "right"; // 'right' | 'left' | 'ambi'
-    var paddleGear = (savedSpecs && savedSpecs.paddle) || "Selkirk Vanguard Power Air Invikta";
-    var emergencyContact = (savedSpecs && savedSpecs.emergency) || "";
-    var isDiscoverable = savedSpecs && typeof savedSpecs.discoverable === "boolean" ? savedSpecs.discoverable : true;
 
     // Civil status options
     var civilOptions = '<option value="">Select status</option>' + Object.keys(CIVIL).map(function (k) {
@@ -968,7 +949,7 @@
             '<span>Player Profile</span>' +
             '<span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">DUPR PRO VERIFIED</span>' +
           '</h1>' +
-          '<p class="text-sm text-slate-400 mt-1">Manage verified court credentials, turnstile access passes, and regional ladder matchmaking.</p>' +
+          '<p class="text-sm text-slate-400 mt-1">Manage your personal details, profile photo, and address.</p>' +
         '</div>' +
         '<div class="flex items-center gap-3">' +
           '<div class="text-xs bg-[#10141a] border border-white/10 px-3.5 py-2 rounded-xl text-slate-300 font-mono shadow-inner">' +
@@ -1032,76 +1013,6 @@
           '</div>' +
         '</div>' +
 
-        // Turnstile Digital Speed-Pass Card
-        '<div class="bg-[#0f141c] border border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden" data-purpose="turnstile-speed-pass">' +
-          '<div class="flex items-center justify-between mb-3">' +
-            '<div class="flex items-center gap-2">' +
-              '<div class="w-2 h-2 rounded-full bg-brand-lime animate-pulse glow-dot"></div>' +
-              '<span class="text-xs font-bold text-white uppercase tracking-wider font-mono">DINKSLOT Turnstile Pass</span>' +
-            '</div>' +
-            '<span class="text-[10px] font-bold bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-600/30 font-mono">READY</span>' +
-          '</div>' +
-          '<div class="bg-[#080b10] border border-white/5 rounded-xl p-3 flex items-center justify-between">' +
-            '<div>' +
-              '<span class="text-[10px] text-slate-500 uppercase block font-medium">Turnstile PIN Code</span>' +
-              '<span class="text-lg font-extrabold text-brand-lime font-mono tracking-widest">' + esc(turnstilePin) + '</span>' +
-            '</div>' +
-            '<div class="flex items-center gap-1 opacity-75">' +
-              '<span class="w-0.5 h-8 bg-slate-400"></span>' +
-              '<span class="w-1 h-8 bg-slate-200"></span>' +
-              '<span class="w-0.5 h-8 bg-slate-400"></span>' +
-              '<span class="w-1.5 h-8 bg-brand-lime"></span>' +
-              '<span class="w-0.5 h-8 bg-slate-300"></span>' +
-              '<span class="w-1 h-8 bg-slate-200"></span>' +
-              '<span class="w-0.5 h-8 bg-brand-lime"></span>' +
-            '</div>' +
-          '</div>' +
-          '<p class="text-[10px] text-slate-400 mt-2.5 flex items-center gap-1.5">' +
-            '<svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-            '<span>Scan or key PIN at facility turnstile scanners for automated gate access.</span>' +
-          '</p>' +
-        '</div>' +
-
-        // Facility Affiliation Badge
-        (primaryClub
-          ? '<div class="bg-[#0f141c] border border-white/10 rounded-2xl p-4 flex items-center justify-between">' +
-              '<div class="flex items-center gap-3">' +
-                '<div class="w-10 h-10 rounded-xl bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime font-bold font-mono text-sm">' +
-                  esc(primaryClub.name.slice(0, 2).toUpperCase()) +
-                '</div>' +
-                '<div>' +
-                  '<span class="text-xs font-bold text-white block">' + esc(primaryClub.name) + '</span>' +
-                  '<span class="text-[10px] text-brand-lime font-semibold">VIP Facility Member • Priority Booking</span>' +
-                '</div>' +
-              '</div>' +
-              '<span class="text-[10px] text-slate-400 border border-white/10 px-2 py-1 rounded-md bg-white/5">Active</span>' +
-            '</div>'
-          : '<div class="bg-[#0f141c] border border-white/10 rounded-2xl p-4 flex items-center justify-between">' +
-              '<div class="flex items-center gap-3">' +
-                '<div class="w-10 h-10 rounded-xl bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime font-bold font-mono text-sm">DS</div>' +
-                '<div>' +
-                  '<span class="text-xs font-bold text-white block">Open Court Access</span>' +
-                  '<span class="text-[10px] text-brand-lime font-semibold">Independent Athlete</span>' +
-                '</div>' +
-              '</div>' +
-              '<a href="#/me/find" class="text-[10px] text-slate-300 hover:text-white border border-white/10 px-2.5 py-1 rounded-md bg-white/5 no-underline">Join Club</a>' +
-            '</div>') +
-
-        // Quick Section Anchors
-        '<div class="p-3 bg-[#0d1218] border border-white/10 rounded-xl space-y-1 font-mono text-xs">' +
-          '<a class="flex items-center justify-between px-3 py-2 rounded-lg bg-brand-lime/10 text-brand-lime font-semibold hover:bg-brand-lime/20 transition-colors no-underline" href="#section-identity">' +
-            '<span>// 01. Personal Identity</span>' +
-            '<span>&rarr;</span>' +
-          '</a>' +
-          '<a class="flex items-center justify-between px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors no-underline" href="#section-address">' +
-            '<span>// 02. Venue &amp; Address</span>' +
-            '<span>&rarr;</span>' +
-          '</a>' +
-          '<a class="flex items-center justify-between px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors no-underline" href="#section-specs">' +
-            '<span>// 03. Athletic Specs</span>' +
-            '<span>&rarr;</span>' +
-          '</a>' +
-        '</div>' +
       '</div>';
 
     // Right Column components (Form)
@@ -1181,67 +1092,6 @@
             '<div id="mp-address" class="member-address"></div>' +
           '</div>' +
 
-          // SECTION 3: Athletic & Matchmaking Specs
-          '<div class="bg-[#11161f] border border-white/10 rounded-2xl p-6 lg:p-7 shadow-xl" id="section-specs">' +
-            '<div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">' +
-              '<div class="flex items-center gap-3">' +
-                '<div class="w-8 h-8 rounded-lg bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime font-mono font-bold text-xs">03</div>' +
-                '<div>' +
-                  '<h3 class="text-base font-bold text-white">Athletic &amp; Matchmaking Specs</h3>' +
-                  '<p class="text-xs text-slate-400 mt-0.5">Customizes court partner recommendations and doubles ladder rankings.</p>' +
-                '</div>' +
-              '</div>' +
-              '<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-lime/10 text-brand-lime border border-brand-lime/20">SPEED-PASS ACTIVE</span>' +
-            '</div>' +
-            '<div class="grid grid-cols-1 md:grid-cols-2 gap-5">' +
-              // Playing Hand Segmented Selector
-              '<div>' +
-                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Dominant Playing Hand</label>' +
-                '<div class="grid grid-cols-3 gap-1.5 p-1 bg-[#090d13] rounded-xl border border-white/10" role="group" aria-label="Dominant Playing Hand">' +
-                  '<button type="button" data-hand="right" class="py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">Right Hand</button>' +
-                  '<button type="button" data-hand="left" class="py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">Left Hand</button>' +
-                  '<button type="button" data-hand="ambi" class="py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">Ambidextrous</button>' +
-                '</div>' +
-              '</div>' +
-              // Paddle Gear
-              '<div>' +
-                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-paddle">Primary Paddle / Equipment</label>' +
-                '<div class="relative">' +
-                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
-                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                  '</span>' +
-                  '<input class="form-input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500" id="mp-paddle" type="text" placeholder="e.g. Selkirk Vanguard Power Air Invikta"/>' +
-                '</div>' +
-              '</div>' +
-              // Emergency Contact
-              '<div class="md:col-span-2">' +
-                '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-emergency">Emergency Contact &amp; Relationship</label>' +
-                '<div class="relative">' +
-                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
-                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                  '</span>' +
-                  '<input class="form-input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500" id="mp-emergency" type="text" placeholder="e.g. Elena Quinto (Spouse) • +63 918 555 4910"/>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-            // Public Matchmaking Discovery Neon Toggle
-            '<div class="mt-6 p-4 rounded-xl bg-[#090d13] border border-white/10 flex items-center justify-between">' +
-              '<div class="flex items-center gap-3">' +
-                '<div class="w-9 h-9 rounded-lg bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime shrink-0">' +
-                  '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                '</div>' +
-                '<div>' +
-                  '<span class="text-xs font-bold text-white block">Make profile discoverable in Club Ladders &amp; Open Drop-ins</span>' +
-                  '<span class="text-[11px] text-slate-400">Verified players with &plusmn;0.35 DUPR can send drop-in game invites.</span>' +
-                '</div>' +
-              '</div>' +
-              '<label class="relative inline-flex items-center cursor-pointer ml-4 shrink-0">' +
-                '<input id="mp-discoverable" class="sr-only peer" type="checkbox"/>' +
-                '<div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[\'\'] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-lime"></div>' +
-              '</label>' +
-            '</div>' +
-          '</div>' +
-
           // Sleek Floating Action Dock
           '<div class="sticky bottom-6 z-40 bg-[#0a0e14]/90 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4" data-purpose="action-dock">' +
             '<div class="flex items-center gap-2 text-xs font-mono">' +
@@ -1262,24 +1112,6 @@
         '</form>' +
       '</div>';
 
-    // Facility Promotion Footer Ribbon
-    var facilityFooterHtml =
-      '<div class="mt-12 bg-gradient-to-r from-[#121822] via-[#10141a] to-[#0c1017] border border-white/10 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6" data-purpose="partner-facility-cta">' +
-        '<div class="flex items-center gap-4">' +
-          '<div class="w-12 h-12 rounded-xl bg-brand-lime/10 border border-brand-lime/20 flex items-center justify-center text-brand-lime shrink-0">' +
-            '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-          '</div>' +
-          '<div>' +
-            '<h4 class="text-sm font-bold text-white">Own or manage a pickleball facility?</h4>' +
-            '<p class="text-xs text-slate-400 mt-0.5">Connect your court scheduling system directly to DINKSLOT, sync verified DUPR matches, and unlock automated light turnstiles.</p>' +
-          '</div>' +
-        '</div>' +
-        '<a class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1a2332] hover:bg-[#222e42] border border-white/10 text-white text-xs font-semibold whitespace-nowrap transition-colors no-underline" href="#/register-club">' +
-          '<span>List Your Club</span>' +
-          '<svg class="w-3.5 h-3.5 text-brand-lime" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-        '</a>' +
-      '</div>';
-
     sec.innerHTML =
       '<div class="max-w-7xl mx-auto w-full space-y-8" id="profile-container" data-purpose="player-profile-view">' +
         headerHtml +
@@ -1287,7 +1119,6 @@
           leftColHtml +
           rightColHtml +
         '</div>' +
-        facilityFooterHtml +
       '</div>';
 
     var ph = D.ph.mount(q("#mp-address", sec), { values: p, manager: false, required: false });
@@ -1304,24 +1135,11 @@
         : esc(initial());
     }
 
-    function updateHandButtons() {
-      sec.querySelectorAll("[data-hand]").forEach(function (btn) {
-        var h = btn.getAttribute("data-hand");
-        var active = h === activeHand;
-        btn.className = active
-          ? "py-2 text-xs font-bold rounded-lg bg-brand-lime text-black shadow-md shadow-brand-lime/20 transition-all cursor-pointer"
-          : "py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer";
-      });
-    }
-
     function fill() {
       q("#mp-name", sec).value = p.full_name || "";
       q("#mp-phone", sec).value = p.phone || "";
       q("#mp-birth", sec).value = p.birth_date || "";
       q("#mp-civil", sec).value = p.civil_status || "";
-      q("#mp-paddle", sec).value = paddleGear;
-      q("#mp-emergency", sec).value = emergencyContact;
-      q("#mp-discoverable", sec).checked = isDiscoverable;
       var nameCard = q("#card-player-name", sec);
       if (nameCard) nameCard.textContent = p.full_name || "Athlete";
       var regBadge = q("#address-region-badge", sec);
@@ -1331,17 +1149,8 @@
       q("#mp-photo", sec).value = "";
       paintAvatar(q("#mp-preview", sec), avatarUrl(p.avatar_path));
       q("#mp-remove-photo", sec).hidden = !p.avatar_path;
-      updateHandButtons();
     }
     fill();
-
-    // Hand buttons event binding
-    sec.querySelectorAll("[data-hand]").forEach(function (btn) {
-      btn.onclick = function () {
-        activeHand = btn.getAttribute("data-hand");
-        updateHandButtons();
-      };
-    });
 
     // Real-time name card update
     q("#mp-name", sec).oninput = function () {
@@ -1443,26 +1252,8 @@
         }
         for (var k in row) p[k] = row[k];
 
-        // Save athletic specs
-        paddleGear = q("#mp-paddle", f).value.trim() || "";
-        emergencyContact = q("#mp-emergency", f).value.trim() || "";
-        isDiscoverable = q("#mp-discoverable", f).checked;
-        var specs = {
-          hand: activeHand,
-          paddle: paddleGear,
-          emergency: emergencyContact,
-          discoverable: isDiscoverable
-        };
-        try {
-          localStorage.setItem("dinkslot_player_specs_" + uid, JSON.stringify(specs));
-          if (sb.auth && sb.auth.updateUser) {
-            sb.auth.updateUser({ data: { specs: specs } }).catch(function () {});
-          }
-        } catch (e) {}
-
         fill();
         setMsg(f, "Your profile has been updated successfully.", "ok");
-        if (D.ui && D.ui.toast) D.ui.toast("Profile updated successfully!", "ok");
 
         btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg><span>Saved!</span>';
         btn.classList.add("bg-white");

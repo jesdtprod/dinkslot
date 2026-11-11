@@ -50,8 +50,7 @@
   // Time-based pricing: the database decides each slot's rate (court_slot_rates) and the booking total.
   // These helpers only attach the rate to each slot and add them up for the preview.
   function rateRange(c) {
-    var lo = c.rate_min != null ? Number(c.rate_min) : Number(c.hourly_rate), hi = c.rate_max != null ? Number(c.rate_max) : lo;
-    return lo === hi ? money(lo) + "/hr" : "PHP " + lo.toFixed(0) + " - " + hi.toFixed(0) + "/hr";
+    return money(c.rate_min != null ? c.rate_min : c.hourly_rate) + "/hr"; // lowest rate across the time bands
   }
   async function attachRates(court, date, slots) {
     var r = await sb.rpc("court_slot_rates", { p_court_id: court.id, p_date: date }), by = {};

@@ -209,16 +209,10 @@ function createMockSec() {
   assert.ok(sec.innerHTML.includes('4.12 Verified'), 'DUPR 4.12 score missing');
   assert.ok(sec.innerHTML.includes('Singles') && sec.innerHTML.includes('Doubles'), 'Singles/Doubles ratings missing');
 
-  // 3. Turnstile Speed-Pass & Affiliation
-  assert.ok(sec.innerHTML.includes('data-purpose="turnstile-speed-pass"'), 'Turnstile speed pass missing');
-  assert.ok(sec.innerHTML.includes('Turnstile PIN Code'), 'Turnstile PIN label missing');
-  assert.ok(sec.innerHTML.includes('The Pickleshot'), 'Primary club affiliation missing');
-  assert.ok(sec.innerHTML.includes('VIP Facility Member • Priority Booking'), 'VIP facility perk missing');
-
-  // 4. Section Anchors
-  assert.ok(sec.innerHTML.includes('#section-identity'), 'Identity anchor missing');
-  assert.ok(sec.innerHTML.includes('#section-address'), 'Address anchor missing');
-  assert.ok(sec.innerHTML.includes('#section-specs'), 'Specs anchor missing');
+  // Removed sidebar cards and section navigation
+  for (const content of ['turnstile-speed-pass', 'Turnstile PIN Code', 'VIP Facility Member', '#section-identity', '#section-address', '#section-specs']) {
+    assert.ok(!sec.innerHTML.includes(content), content + ' should be removed');
+  }
 
   // 5. Right Column: Form Sections
   assert.ok(sec.innerHTML.includes('data-purpose="athlete-editor-column"'), 'Athlete editor column missing');
@@ -235,24 +229,18 @@ function createMockSec() {
   assert.ok(sec.innerHTML.includes('Residential &amp; Venue Region'), 'Section 2 heading missing');
   assert.ok(sec.innerHTML.includes('id="mp-address"'), 'Address mount container missing');
 
-  // Section 03: Athletic & Matchmaking Specs
-  assert.ok(sec.innerHTML.includes('Athletic &amp; Matchmaking Specs'), 'Section 3 heading missing');
-  assert.ok(sec.innerHTML.includes('data-hand="right"'), 'Right hand button missing');
-  assert.ok(sec.innerHTML.includes('data-hand="left"'), 'Left hand button missing');
-  assert.ok(sec.innerHTML.includes('data-hand="ambi"'), 'Ambidextrous button missing');
-  assert.ok(sec.innerHTML.includes('id="mp-paddle"'), 'Paddle gear input missing');
-  assert.ok(sec.innerHTML.includes('id="mp-emergency"'), 'Emergency contact input missing');
-  assert.ok(sec.innerHTML.includes('id="mp-discoverable"'), 'Discoverable checkbox toggle missing');
+  // Removed athletic fields
+  for (const content of ['section-specs', 'data-hand=', 'mp-paddle', 'mp-emergency', 'mp-discoverable']) {
+    assert.ok(!sec.innerHTML.includes(content), content + ' should be removed');
+  }
 
   // Sticky Action Dock
   assert.ok(sec.innerHTML.includes('data-purpose="action-dock"'), 'Action dock missing');
   assert.ok(sec.innerHTML.includes('id="btn-discard"'), 'Discard button missing');
   assert.ok(sec.innerHTML.includes('id="btn-save-profile"'), 'Save button missing');
 
-  // Facility Promotion Ribbon
-  assert.ok(sec.innerHTML.includes('data-purpose="partner-facility-cta"'), 'Partner facility CTA missing');
-  assert.ok(sec.innerHTML.includes('List Your Club'), 'List your club button missing');
-  assert.ok(sec.innerHTML.includes('#/register-club'), 'Register club link missing');
+  assert.ok(!sec.innerHTML.includes('partner-facility-cta'), 'Facility banner should be removed');
+  assert.ok(!sec.innerHTML.includes('List Your Club'), 'Club listing CTA should be removed');
 
   // 6. Test Interactive Form Input & Real-Time Sync
   const nameInput = elements['#mp-name'];
@@ -265,10 +253,6 @@ function createMockSec() {
   discardBtn.onclick();
   assert.equal(elements['#mp-name'].value, 'Marlon Quinto', 'Name should be restored from profile data');
 
-  // 8. Test Dominant Hand Selection
-  const leftHandBtn = elements['[data-hand="left"]'];
-  leftHandBtn.onclick();
-
   // 9. Change name and Submit Form
   nameInput.value = 'Carlos Yulo';
   nameInput.oninput();
@@ -277,7 +261,7 @@ function createMockSec() {
   assert.ok(updatedRow, 'Profile row should have been updated in Supabase');
   assert.equal(updatedRow.full_name, 'Carlos Yulo', 'Updated full name should match input');
 
-  console.log('Member profile header, digital identity card, turnstile pass, form sections, interactive specs & submission passed!');
+  console.log('Member profile rendering, removed sections, editing, discard & submission passed!');
 })().catch(err => {
   console.error(err);
   process.exitCode = 1;
