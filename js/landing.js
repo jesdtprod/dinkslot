@@ -60,7 +60,7 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
       </div>
       <!-- Filter Pills Sub-bar -->
       <div class="mt-space-sm pt-space-xs px-space-sm flex flex-wrap items-center justify-between gap-space-sm text-left border-t border-outline-variant/20">
-        <div class="flex flex-wrap items-center gap-space-xs font-label-md text-label-md">
+        <div class="flex flex-wrap items-center gap-3 font-label-md text-label-md">
           <span class="text-on-surface-variant">Surface:</span>
           <button type="button" class="surf-pill px-space-sm py-1 rounded-full bg-primary/20 text-primary font-medium hover:bg-surface-bright transition-colors flex items-center gap-1 border-0 cursor-pointer" data-filter="all">
             <span class="material-symbols-outlined text-label-md text-primary">check_circle</span> All Courts
