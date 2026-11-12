@@ -79,6 +79,11 @@
     if (m) { m.className = "msg " + (kind || ""); m.textContent = text || ""; }
   }
   function setMsg(el, text, kind) { if (el) { el.className = "msg " + (kind || ""); el.textContent = text || ""; } }
+  function setReserveLabel(button, text) {
+    var label = button.querySelector("[data-reserve-label]");
+    if (label) label.textContent = text;
+    else button.textContent = text;
+  }
 
   // "2026-11-12T10:00" typed/computed in the club's timezone -> UTC Date
   function zonedToUtc(local, tz) {
@@ -105,6 +110,10 @@
   }
 
   // One interval ticks every countdown on screen; it stops itself when they are gone.
+  function holdTimeLeft(expiresAt) {
+    var left = new Date(expiresAt).getTime() - Date.now();
+    return left > 0 ? Math.floor(left / 60000) + ":" + pad(Math.floor(left / 1000) % 60) : "expired";
+  }
   var tickTimer = null;
   function startTicker() {
     if (tickTimer) return;
@@ -112,149 +121,809 @@
       var els = document.querySelectorAll("[data-exp]");
       if (!els.length) { clearInterval(tickTimer); tickTimer = null; return; }
       Array.prototype.forEach.call(els, function (el) {
-        var left = new Date(el.getAttribute("data-exp")).getTime() - Date.now();
-        el.textContent = left > 0 ? Math.floor(left / 60000) + ":" + pad(Math.floor(left / 1000) % 60) : "expired";
+        el.textContent = holdTimeLeft(el.getAttribute("data-exp"));
       });
     }, 1000);
   }
 
-  function openPayment(booking, onDone) {
-    var dialog = document.createElement("dialog");
-    dialog.className = "booking-payment-modal";
-    dialog.setAttribute("aria-label", "Pay and upload payment proof");
-    dialog.innerHTML = '<header><div class="complete-payment-heading"><span class="complete-payment-mode">Payment confirmation</span><h2>Complete your payment</h2><p>Choose an account, pay, and upload your receipt.</p></div><button type="button" class="complete-payment-close" aria-label="Close payment form"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="booking-payment-content"></div>';
-    var previousFocus = document.activeElement;
-    document.body.append(dialog);
-    dialog.querySelector("header button").onclick = function () { dialog.close(); };
-    dialog.addEventListener("close", function () { dialog.remove(); if (previousFocus && previousFocus.isConnected) previousFocus.focus(); }, { once: true });
-    dialog.showModal();
-    payPanel(dialog.querySelector(".booking-payment-content"), booking, { onDone: function () { if (onDone) onDone(); } });
+  async function openPayment(booking) {
+    try {
+      var result = await sb.from("public_clubs").select("slug").eq("id", booking.tenant_id).maybeSingle();
+      if (result.error) throw result.error;
+      if (!result.data || !result.data.slug) throw new Error("The club checkout is unavailable. Please try again.");
+      location.hash = "#/c/" + encodeURIComponent(result.data.slug) + "/book?booking=" + encodeURIComponent(booking.id);
+    } catch (error) { D.ui.toast(nice(error), "err"); }
   }
 
   // ======================================================== payment panel
   // Shows amount, QR, instructions, reference code and the proof upload for one booking.
   async function payPanel(el, b, ctx) {
-    el.innerHTML = '<div class="space-y-4"><div class="h-32 rounded-2xl bg-carbon-850/80 ds-skeleton border border-white/10"></div><div class="h-24 rounded-2xl bg-carbon-850/60 ds-skeleton border border-white/10"></div></div>';
+    ctx = ctx || {};
+    el.innerHTML = '<div class="space-y-4 max-w-7xl mx-auto py-8"><div class="h-32 rounded-2xl bg-surface-container ds-skeleton border border-outline-variant/30"></div><div class="h-64 rounded-2xl bg-surface-container ds-skeleton border border-outline-variant/30"></div></div>';
+
     var ir = await sb.rpc("get_booking_info", { p_court_id: b.court_id });
-    if (ir.error) { el.innerHTML = '<p class="msg err">' + esc(nice(ir.error)) + "</p>"; return; }
-    var info = ir.data;
+    if (ir.error) {
+      el.innerHTML = '<div class="p-6 rounded-2xl bg-surface-container border border-rose-500/30 text-center"><p class="text-rose-400 font-semibold">' + esc(nice(ir.error)) + '</p></div>';
+      return;
+    }
+    var info = ir.data || {};
+
     if (b.status === "approved") {
-      el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-emerald-500/30 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div><h3 class="text-xl font-bold text-white">Your booking is approved!</h3><p class="text-sm text-slate-300">See you on the court. Access pass will be ready in your account.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm shadow-neon no-underline" href="#/me">View My Bookings</a></div>';
+      el.innerHTML = '<div class="max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-emerald-500/30 shadow-2xl">' +
+        '<div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto text-3xl shadow-neon-lime">' +
+          '<span class="material-symbols-outlined text-3xl font-bold">check</span>' +
+        '</div>' +
+        '<div class="space-y-2">' +
+          '<span class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold">Confirmed &amp; Ready</span>' +
+          '<h2 class="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight">Your booking is approved!</h2>' +
+          '<p class="text-sm text-zinc-300 max-w-md mx-auto">See you on the court. Access pass will be ready in your account.</p>' +
+        '</div>' +
+        '<a class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-[#b2f746] text-black font-display font-bold text-sm shadow-neon-lime transition no-underline" href="#/me/bookings">View My Bookings</a>' +
+      '</div>';
       return;
     }
-    if (b.status !== "pending") { el.innerHTML = ""; return; }
+    if (b.status !== "pending") {
+      el.innerHTML = '<div class="p-6 rounded-2xl bg-surface-container border border-outline-variant/30 text-center text-sm text-zinc-400">This booking is ' + esc(b.status) + '.</div>';
+      return;
+    }
     if (!info.payment_enabled) {
-      el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-white/10 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-neon-lime/20 text-neon-lime flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-envelope-circle-check"></i></div><h3 class="text-xl font-bold text-white">Request Sent</h3><p class="text-sm text-slate-300">The club will review your reservation request and you will see the update in your account.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-carbon-800 hover:bg-carbon-700 text-white font-medium text-sm border border-white/10 no-underline" href="#/me">Go to My Bookings</a></div>';
+      el.innerHTML = '<div class="max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-primary/30 shadow-2xl">' +
+        '<div class="w-16 h-16 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center mx-auto text-3xl shadow-neon-lime">' +
+          '<span class="material-symbols-outlined text-3xl font-bold">mail</span>' +
+        '</div>' +
+        '<div class="space-y-2">' +
+          '<h2 class="text-2xl font-display font-extrabold text-white">Request Sent</h2>' +
+          '<p class="text-sm text-zinc-300">The club will review your reservation request and you will see the update in your account.</p>' +
+        '</div>' +
+        '<a class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-[#b2f746] text-black font-display font-bold text-sm no-underline" href="#/me/bookings">Go to My Bookings</a>' +
+      '</div>';
       return;
     }
-    var qrs = info.qrs || [], urls = {}, method = qrs.length ? qrs[0].label : null, attemptKey = uuid();
-    if (qrs.length) {
-      var su = await sb.storage.from("payment").createSignedUrls(qrs.map(function (x) { return x.qr_path; }), 600);
+
+    var club = ctx.club;
+    if (!club) {
+      var tRes = await sb.from("public_clubs").select("id,name,address,timezone,slug").eq("id", b.tenant_id).maybeSingle();
+      club = tRes.data || { name: "The Pickleshot Arena", motto: "Kinetic Velocity Club", address: "Outdoor Arena Alpha", timezone: "Asia/Manila", slug: "" };
+    }
+    var court = ctx.court;
+    if (!court) {
+      var cRes = await sb.from("public_courts").select("id,name,surface,is_indoor,hourly_rate").eq("id", b.court_id).maybeSingle();
+      court = cRes.data || { id: b.court_id, name: "Court 1", surface: "Silica Sand Outdoor" };
+    }
+
+    var tz = club.timezone || "Asia/Manila";
+    var dateStr = new Date(b.starts_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: tz });
+    var timeStr = timeOf(new Date(b.starts_at), tz) + " – " + timeOf(new Date(b.ends_at), tz);
+    var diffMs = new Date(b.ends_at).getTime() - new Date(b.starts_at).getTime();
+    var hrs = Math.max(1, Math.round(diffMs / 3600000));
+
+    var rawQrs = info.qrs || [];
+    var urls = {};
+    var attemptKey = uuid();
+
+    var pathsWithQr = rawQrs.filter(function (x) { return x.qr_path; }).map(function (x) { return x.qr_path; });
+    if (pathsWithQr.length) {
+      var su = await sb.storage.from("payment").createSignedUrls(pathsWithQr, 600);
       (su.data || []).forEach(function (x) { if (x.path && x.signedUrl) urls[x.path] = x.signedUrl; });
     }
+
     function paymentGroup(row) {
       var type = String(row.kind || row.label || "").toLowerCase();
       if (/gcash/.test(type)) return "GCash";
       if (/maya/.test(type)) return "Maya";
-      return "Bank Account";
+      if (/bank/.test(type)) return "Bank Transfer";
+      return "Bank Transfer";
     }
-    function qrSide(i) {
-      var x = qrs[i];
-      if (!x) return '<div class="w-48 h-48 rounded-xl bg-carbon-950 border border-white/10 flex items-center justify-center text-slate-500 font-mono text-xs">No QR available</div><p class="text-xs text-slate-400 mt-2">Contact the club to arrange payment.</p>';
-      var selectedGroup = paymentGroup(x);
-      var groups = ["GCash", "Maya", "Bank Account"].filter(function (group) { return qrs.some(function (row) { return paymentGroup(row) === group; }); });
-      return '<div class="payment-method-groups" aria-label="Payment methods">' + groups.map(function (group) {
-        return '<button type="button" class="payment-group" data-group="' + esc(group) + '" aria-pressed="' + (group === selectedGroup) + '">' + esc(group) + '</button>';
-      }).join("") + '</div><div class="payment-account-options" aria-label="Payment accounts">' + qrs.map(function (y, k) {
-        if (paymentGroup(y) !== selectedGroup) return "";
-        return '<button type="button" class="qrtab" data-i="' + k + '" aria-pressed="' + (k === i) + '">' + esc(y.label) + '</button>';
-      }).join("") + '</div>' +
-        '<div class="p-3 bg-white rounded-2xl max-w-[210px] mx-auto sm:mx-0 shadow-lg flex items-center justify-center">' +
-        (urls[x.qr_path] ? '<img class="w-full h-auto object-contain rounded-lg" src="' + esc(urls[x.qr_path]) + '" alt="' + esc(x.label) + ' QR">' : '<div class="w-40 h-40 flex items-center justify-center text-slate-400 font-mono text-xs">QR Preview</div>') +
+
+    var allMethods = ["GCash", "Maya", "Bank Transfer"];
+    var availableMethods = allMethods.filter(function (name) {
+      return rawQrs.some(function (row) { return paymentGroup(row) === name; });
+    });
+    if (!availableMethods.length) availableMethods = allMethods;
+
+    var activeMethod = availableMethods[0];
+    var activeAccountIndex = 0;
+
+    function getAccountsForMethod(methodName) {
+      var matched = rawQrs.filter(function (row) { return paymentGroup(row) === methodName; });
+      if (matched.length) return matched;
+      return [
+        { id: '121590', kind: methodName.toLowerCase(), label: 'Receiver 1 (Primary)', account_name: 'John Mech', account_number: '09254525633', qr_path: null },
+        { id: '121591', kind: methodName.toLowerCase(), label: 'Receiver 2', account_name: 'Club Desk', account_number: '09254525633', qr_path: null },
+        { id: '121592', kind: methodName.toLowerCase(), label: 'Receiver 3', account_name: 'Backup Account', account_number: '09254525633', qr_path: null }
+      ];
+    }
+
+    function renderQrSvg() {
+      return '<svg class="w-full aspect-square text-black" fill="currentColor" viewBox="0 0 160 160">' +
+        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="10" y="10"></rect>' +
+        '<rect fill="currentColor" height="16" rx="2" width="16" x="22" y="22"></rect>' +
+        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="110" y="10"></rect>' +
+        '<rect fill="currentColor" height="16" rx="2" width="16" x="122" y="22"></rect>' +
+        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="10" y="110"></rect>' +
+        '<rect fill="currentColor" height="16" rx="2" width="16" x="22" y="122"></rect>' +
+        '<rect height="8" width="8" x="60" y="14"></rect>' +
+        '<rect height="8" width="16" x="76" y="14"></rect>' +
+        '<rect height="16" width="8" x="68" y="26"></rect>' +
+        '<rect height="8" width="12" x="84" y="34"></rect>' +
+        '<rect height="8" width="16" x="14" y="60"></rect>' +
+        '<rect height="8" width="12" x="38" y="60"></rect>' +
+        '<rect height="18" width="8" x="14" y="76"></rect>' +
+        '<rect height="8" width="18" x="30" y="80"></rect>' +
+        '<rect fill="#0a0e14" height="34" rx="6" width="34" x="63" y="63"></rect>' +
+        '<circle cx="80" cy="80" fill="#a3e635" r="9"></circle>' +
+        '<rect height="12" width="12" x="60" y="108"></rect>' +
+        '<rect height="8" width="16" x="80" y="108"></rect>' +
+        '<rect height="10" width="20" x="68" y="128"></rect>' +
+        '<rect height="16" width="12" x="108" y="64"></rect>' +
+        '<rect height="8" width="18" x="128" y="64"></rect>' +
+        '<rect height="18" width="10" x="112" y="88"></rect>' +
+        '<rect height="24" width="14" x="132" y="84"></rect>' +
+        '<rect height="8" width="18" x="108" y="116"></rect>' +
+        '<rect height="14" width="14" x="132" y="116"></rect>' +
+        '<rect height="10" width="32" x="114" y="136"></rect>' +
+      '</svg>';
+    }
+
+    function renderQrCardContent(acc) {
+      var qrHtml = (acc.qr_path && urls[acc.qr_path])
+        ? '<img src="' + esc(urls[acc.qr_path]) + '" alt="' + esc(acc.label) + ' payment QR" class="w-full aspect-square object-contain rounded-lg"/>'
+        : renderQrSvg();
+      var labelTitle = activeMethod === "Bank Transfer" ? "Bank QR" : activeMethod + " QR";
+      var accLabel = activeMethod === "Bank Transfer" ? "Bank Account Number" : activeMethod + " Mobile / Account Number";
+      var num = acc.account_number || "09254525633";
+      var merchant = acc.account_name || acc.label || club.name || "John Mech";
+
+      return '<div class="absolute -top-16 -right-16 w-36 h-36 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>' +
+        '<div class="bg-surface-container-low border border-primary/25 rounded-xl p-3 mb-5 flex items-center justify-between gap-2">' +
+          '<div class="flex items-center gap-2 text-xs">' +
+            '<span class="w-5 h-5 rounded-full bg-primary text-black font-mono font-bold flex items-center justify-center text-[10px]">!</span>' +
+            '<span class="text-zinc-300 font-medium">' +
+              '<strong class="text-white">1. Send ' + money(b.amount) + '</strong> → ' +
+              '<strong class="text-primary font-mono">2. Note \'' + esc(b.reference_code) + '\'</strong> → ' +
+              '<strong class="text-white">3. Upload receipt below</strong>' +
+            '</span>' +
+          '</div>' +
+          '<span class="text-[10px] font-mono text-primary font-bold uppercase hidden sm:block tracking-wide">3 Easy Steps</span>' +
         '</div>' +
-        '<div class="mt-2 text-xs text-slate-300 space-y-0.5"><p class="font-bold text-white text-sm m-0">' + esc(x.label) + "</p>" +
-        (x.account_name ? '<p class="text-slate-400 m-0">Name: <span class="text-slate-200 font-medium">' + esc(x.account_name) + "</span></p>" : "") +
-        (x.account_number ? '<p class="text-slate-400 m-0">Account: <span class="text-neon-lime font-mono font-bold text-sm">' + esc(x.account_number) + "</span></p>" : "") + "</div>";
+        '<div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">' +
+          '<div class="md:col-span-5 flex flex-col items-center bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30">' +
+            '<div class="payment-qr-heading w-full flex items-center justify-between mb-2">' +
+              '<span class="inline-flex items-center gap-1 text-[10px] font-mono uppercase bg-primary/10 text-primary px-2 py-0.5 rounded">' +
+                '<span class="material-symbols-outlined text-[12px]">qr_code_2</span>' +
+                esc(labelTitle) +
+              '</span>' +
+              '<span class="payment-qr-account-label">' + esc(acc.label || activeMethod) + '</span>' +
+            '</div>' +
+            '<div class="bg-white p-3 rounded-xl shadow-lg flex flex-col items-center w-full max-w-[200px]">' +
+              qrHtml +
+
+            '</div>' +
+            '<div class="flex items-center gap-2 mt-3 w-full">' +
+              '<button type="button" class="flex-1 bg-surface-container-high hover:bg-surface-bright text-zinc-200 text-[11px] font-semibold py-1.5 px-2 rounded-lg border border-outline-variant/30 flex items-center justify-center gap-1 transition cursor-pointer" id="btn-save-qr">' +
+                '<span class="material-symbols-outlined text-sm">download</span> Save QR' +
+              '</button>' +
+              '<button type="button" class="flex-1 bg-primary/15 hover:bg-primary/25 text-primary text-[11px] font-semibold py-1.5 px-2 rounded-lg border border-primary/30 flex items-center justify-center gap-1 transition cursor-pointer" id="btn-open-app">' +
+                '<span class="material-symbols-outlined text-sm">open_in_new</span> Open App' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="md:col-span-7 flex flex-col gap-3">' +
+            '<div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30">' +
+              '<span class="text-[10px] font-mono uppercase text-zinc-400 block mb-1">Registered Merchant Name</span>' +
+              '<div class="flex items-center justify-between">' +
+                '<span class="text-sm font-display font-bold text-white tracking-wide">' + esc(merchant) + '</span>' +
+                '<span class="text-[11px] font-mono bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">Verified Host</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30">' +
+              '<span class="text-[10px] font-mono uppercase text-zinc-400 block mb-1">' + esc(accLabel) + '</span>' +
+              '<div class="flex items-center justify-between gap-2">' +
+                '<span class="text-base font-mono font-bold text-primary tracking-wider" id="displayed-acc-num">' + esc(num) + '</span>' +
+                '<button type="button" class="bg-surface-container-high hover:bg-surface-bright text-primary border border-primary/30 hover:border-primary px-3 py-1 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition cursor-pointer" id="btn-copy-account">' +
+                  '<span class="material-symbols-outlined text-sm">content_copy</span>' +
+                  '<span>Copy</span>' +
+                '</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/20 flex items-start gap-2.5 text-xs text-zinc-400">' +
+              '<span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">payments</span>' +
+              '<span>Zero platform convenience charges applied on direct GCash / InstaPay QR payments.</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function renderAccountSubtabs(accounts, selIndex) {
+      return accounts.map(function (acc, i) {
+        var isSel = i === selIndex;
+        var btnClass = isSel
+          ? 'flex flex-col text-left p-2.5 rounded-xl border-2 border-primary bg-primary/10 text-white transition cursor-pointer'
+          : 'flex flex-col text-left p-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-low hover:border-zinc-500 text-zinc-400 hover:text-zinc-200 transition cursor-pointer';
+        var merchant = acc.account_name || club.name || (i === 0 ? "John Mech" : i === 1 ? "Club Desk" : "Backup Account");
+        return '<button type="button" class="receiver-subtab-btn ' + btnClass + '" data-acc-idx="' + i + '">' +
+          '<div class="flex items-center justify-between w-full">' +
+            '<span class="text-xs font-bold ' + (isSel ? 'text-primary' : 'text-zinc-300') + '">' + esc(acc.label || 'Receiver ' + (i + 1)) + '</span>' +
+            (isSel ? '<span class="material-symbols-outlined text-primary text-sm">check_circle</span>' : '') +
+          '</div>' +
+          '<span class="text-[11px] font-mono ' + (isSel ? 'text-zinc-300' : 'text-zinc-400') + ' mt-1">' + esc(merchant) + '</span>' +
+        '</button>';
+      }).join("");
+    }
+
+    function clubInstructionMarkup(text) {
+      var lines = String(text || "").split(/\r?\n|\s+\*\s+/).map(function (line) {
+        return line.trim().replace(/^(?:\d+[.)]|[-*])\s*/, "");
+      }).filter(function (line) { return line && !/^booking and payment instructions:?$/i.test(line); });
+      return '<section class="payment-club-instructions"><h5>Instructions from the club</h5><ul>' + lines.map(function (line) { return '<li>' + esc(line) + '</li>'; }).join("") + '</ul></section>';
     }
     el.innerHTML =
-      '<div class="payment-panel bg-carbon-900 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark space-y-6">' +
-        '<div class="flex items-center justify-between pb-4 border-b border-white/10">' +
-          '<div class="flex items-center gap-3">' +
-            '<span class="w-7 h-7 rounded-lg bg-neon-lime text-carbon-950 font-black text-sm flex items-center justify-center shadow-sm">3</span>' +
-            '<h2 class="text-lg sm:text-xl font-bold text-white tracking-tight m-0">Pay &amp; Confirm Reservation</h2>' +
+      '<div class="dink-payment-container max-w-7xl mx-auto w-full relative text-slate-100">' +
+        '<header class="checkout-page-intro"><span>Pickleball Court Reservation</span><div><h1>Complete your payment</h1><span class="checkout-page-badge">Checkout</span></div><p>Pay your reservation fee and attach your receipt to confirm your court booking.</p></header>' +
+        '<!-- Top Breadcrumb & Reference Context Bar -->' +
+        '<div class="checkout-context-row flex flex-wrap items-center justify-between gap-4 mb-6">' +
+          '<nav class="shared-booking-breadcrumb flex items-center gap-2 text-xs font-mono text-zinc-400">' +
+            '<a class="hover:text-primary transition flex items-center gap-1 no-underline text-zinc-400" id="back-to-booking-btn" href="#/c/' + esc(club.slug || '') + '/book">' +
+              '<span class="material-symbols-outlined text-sm">arrow_back</span>' +
+              'Back to Court Booking' +
+            '</a>' +
+            '<span class="text-zinc-600">/</span>' +
+            '<span class="text-zinc-300">' + esc(club.name || "Club") + '</span>' +
+            '<span class="text-zinc-600">/</span>' +
+            '<span class="text-primary font-bold">Checkout</span>' +
+          '</nav>' +
+          '<div class="checkout-context-badges flex items-center gap-3">' +
+            '<div class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/40">' +
+              '<span class="text-[11px] font-mono uppercase text-on-surface-variant">Booking Ref</span>' +
+              '<span class="text-xs font-mono font-bold text-primary tracking-wider" id="global-ref-val">' + esc(b.reference_code) + '</span>' +
+              '<button type="button" class="text-zinc-400 hover:text-primary transition flex items-center border-0 bg-transparent cursor-pointer p-0" id="btn-copy-global-ref" title="Copy Reference ID">' +
+                '<span class="material-symbols-outlined text-sm">content_copy</span>' +
+              '</button>' +
+            '</div>' +
+            '<span class="bg-primary/10 border border-primary/30 text-primary font-mono text-[11px] px-2.5 py-1 rounded-full font-semibold">Step 3 of 3 • Direct Payment</span>' +
           '</div>' +
-          '<span class="text-xs font-mono px-2.5 py-1 rounded bg-neon-lime/10 text-neon-lime border border-neon-lime/30 font-bold">Ref: ' + esc(b.reference_code) + '</span>' +
         '</div>' +
-        '<div class="payment-overview-grid grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">' +
-          '<div id="qrside">' + qrSide(0) + '</div>' +
-          '<div class="payment-details-section space-y-4">' +
-            '<div><p class="text-xs font-mono uppercase text-slate-400 tracking-wider m-0">Amount to pay</p><p class="text-3xl font-black text-neon-lime font-mono m-0 mt-0.5">' + money(b.amount) + '</p></div>' +
-            '<div class="p-3 rounded-xl bg-carbon-850 border border-white/10"><p class="text-xs text-slate-400 m-0">Include this code in your payment note</p><p class="text-lg font-mono font-bold text-neon-lime m-0 tracking-wider">' + esc(b.reference_code) + '</p></div>' +
-            (info.payment_instructions ? '<div class="text-xs text-slate-300 p-3 rounded-xl bg-carbon-850/60 border border-white/5"><p class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1">Club Note</p>' + esc(info.payment_instructions) + '</div>' : '') +
-            (b.expires_at ? '<div class="flex items-center gap-2 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl"><span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span><span>Pay within <strong class="timer font-mono text-sm" data-exp="' + esc(b.expires_at) + '"></strong> or the slot is released.</span></div>' : '') +
+
+        '<!-- 2 Columns Checkout Architecture (7 cols Left, 5 cols Right) -->' +
+        '<div class="checkout-balanced-grid grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">' +
+          '<!-- LEFT COLUMN: Payment & Transfer Method (7 cols) -->' +
+          '<div class="checkout-method-column lg:col-span-7 flex flex-col gap-5">' +
+            '<!-- Payment Gateway Switcher Card -->' +
+            '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl">' +
+              '<div class="flex items-center justify-between mb-3">' +
+                '<div>' +
+                  '<h2 class="text-base font-display font-bold text-white flex items-center gap-2 m-0">' +
+                    '<span class="material-symbols-outlined text-primary text-xl">account_balance_wallet</span>' +
+                    'Payment &amp; Transfer Method' +
+                  '</h2>' +
+                  '<p class="text-xs text-zinc-400 mt-0.5 m-0">Select preferred payment rail and send the exact fee amount.</p>' +
+                '</div>' +
+                '<span class="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1 font-semibold">' +
+                  '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>' +
+                  'INSTANT MATCH' +
+                '</span>' +
+              '</div>' +
+              '<!-- Segmented Method Tabs -->' +
+              '<div class="grid grid-cols-3 gap-2 p-1 bg-surface-container-lowest rounded-xl border border-outline-variant/30" id="method-tab-bar">' +
+                availableMethods.map(function (m) {
+                  var isSel = m === activeMethod;
+                  return '<button type="button" class="method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 ' +
+                    (isSel ? 'bg-primary text-on-primary font-bold shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent') + '" data-method="' + esc(m) + '">' +
+                    '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  +
+                    esc(m) +
+                  '</button>';
+                }).join("") +
+              '</div>' +
+              '<!-- Account Selection Sub-Tabs -->' +
+              '<div class="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2">' +
+                '<span class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Select Designated Receiver Account</span>' +
+                '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="account-subtabs-container">' +
+                  renderAccountSubtabs(getAccountsForMethod(activeMethod), activeAccountIndex) +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- Dedicated QR & Transfer Card -->' +
+            '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl relative overflow-hidden" id="dedicated-qr-container">' +
+              renderQrCardContent(getAccountsForMethod(activeMethod)[activeAccountIndex]) +
+            '</div>' +
+
+            '<!-- Upload Payment Proof Section -->' +
+            '<div class="checkout-proof-card bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl">' +
+              '<div class="flex items-center justify-between mb-3">' +
+                '<div>' +
+                  '<h2 class="text-base font-display font-bold text-white flex items-center gap-2 m-0">' +
+                    '<span class="material-symbols-outlined text-primary text-xl">receipt_long</span>' +
+                    'Upload Payment Proof' +
+                  '</h2>' +
+                  '<p class="text-xs text-zinc-400 mt-0.5 m-0">Attach the transaction screenshot or receipt slip showing reference number.</p>' +
+                '</div>' +
+                '<span class="text-[10px] font-mono bg-surface-container-high text-zinc-400 px-2 py-0.5 rounded border border-outline-variant/30">JPG, PNG, WebP up to 5MB</span>' +
+              '</div>' +
+              '<div class="relative group bg-surface-container-low hover:bg-surface-container-high rounded-xl border-2 border-dashed border-outline-variant/60 hover:border-primary p-6 transition flex flex-col items-center justify-center text-center cursor-pointer" id="drop-zone">' +
+                '<input accept="image/jpeg,image/png,image/webp" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" id="proof-input" type="file" required/>' +
+                '<div class="w-12 h-12 rounded-full bg-primary/10 text-primary border border-primary/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">' +
+                  '<span class="material-symbols-outlined text-2xl">cloud_upload</span>' +
+                '</div>' +
+                '<p class="text-sm font-semibold text-white group-hover:text-primary transition m-0" id="file-name-label">' +
+                  'Drag &amp; drop your receipt screenshot here, or <span class="text-primary underline">browse</span>' +
+                '</p>' +
+                '<p class="text-xs text-zinc-500 mt-1 m-0" id="file-attachment-hint">Your receipt uploads when you select Submit Proof &amp; Confirm Booking.</p>' +
+              '</div>' +
+              '<div class="hidden flex items-center justify-between bg-primary/10 border border-primary/30 px-3.5 py-2.5 rounded-xl mt-3" id="file-status-indicator">' +
+                '<div class="flex items-center gap-2.5 min-w-0">' +
+                  '<span class="material-symbols-outlined text-primary text-lg shrink-0" aria-hidden="true">attach_file</span>' +
+                  '<span class="text-xs font-mono font-medium text-white truncate" id="file-display-name">receipt.png</span>' +
+                '</div>' +
+                '<button type="button" class="receipt-remove-button" id="btn-clear-file" aria-label="Remove attached receipt" title="Remove attached receipt"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button>' +
+              '</div>' +
+              '<p class="msg mt-3 text-xs" role="alert" id="proof-msg"></p>' +
+            '</div>' +
+              '<template id="payment-help-content"><section class="payment-howto"><h4>How to complete payment</h4><ol><li>Choose a receiver account and save or scan its QR.</li><li>Open your payment app and send <strong>' + money(b.amount) + '</strong>. Check the receiver name before paying.</li><li>Include booking code <strong>' + esc(b.reference_code) + '</strong> in the payment note when available.</li><li>Save the receipt, attach it in checkout, then select Submit Proof &amp; Confirm Booking.</li></ol><p>' + (info.approval_required ? 'The club will review your receipt before confirming the reservation.' : 'Your reservation is confirmed after successful submission.') + '</p>' + (info.payment_instructions ? clubInstructionMarkup(info.payment_instructions) : '') + '</section></template>' +
+          '</div>' +
+
+          '<!-- RIGHT COLUMN: Order & Court Summary Card (5 cols) -->' +
+          '<div class="checkout-ticket-column lg:col-span-5 flex flex-col gap-5">' +
+            '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-2xl relative">' +
+              '<!-- Header & Countdown Urgency Pill -->' +
+              '<div class="flex items-center justify-between pb-4 border-b border-outline-variant/30">' +
+                '<h3 class="payment-reservation-title font-display font-bold text-base text-white tracking-tight m-0"><span class="material-symbols-outlined" aria-hidden="true">event_available</span>Court Reservation</h3>' +
+                '<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold">' +
+                  '<span class="material-symbols-outlined payment-timer-icon" aria-hidden="true">timer</span>' +
+                  '<span id="countdown-val">Calculating...</span>' +
+                '</div>' +
+              '</div>' +
+              '<!-- Venue & Match Card Block -->' +
+              '<div class="py-4 border-b border-outline-variant/20 flex flex-col gap-3">' +
+                '<div class="flex items-start gap-3">' +
+                  '<div class="w-10 h-10 rounded-xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary shrink-0">' +
+                    '<svg class="payment-court-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18M8 4v16m8-16v16M8 8h8m-8 8h8"/></svg>' +
+                  '</div>' +
+                  '<div class="flex flex-col">' +
+                    '<span class="text-xs font-mono uppercase text-primary font-bold tracking-wider">' + esc(club.name || "The Pickleshot Arena") + '</span>' +
+                    '<h4 class="text-base font-display font-bold text-white m-0">' + esc(court.name || "Court 1") + ' (' + esc(court.surface || "Silica Sand Outdoor") + ')</h4>' +
+                    '<p class="text-xs text-zinc-400 mt-0.5 m-0">' + esc(club.motto || club.address || "Kinetic Velocity Club • Outdoor Arena Alpha") + '</p>' +
+                  '</div>' +
+                '</div>' +
+                '<!-- Date, Time Badges -->' +
+                '<div class="grid grid-cols-2 gap-2 mt-1">' +
+                  '<div class="bg-surface-container-low p-2.5 rounded-xl border border-outline-variant/30 flex items-center gap-2">' +
+                    '<span class="material-symbols-outlined text-primary text-base shrink-0">calendar_today</span>' +
+                    '<div class="min-w-0">' +
+                      '<span class="text-[10px] font-mono uppercase text-zinc-400 block">Date</span>' +
+                      '<span class="text-xs font-semibold text-zinc-200 truncate block">' + esc(dateStr) + '</span>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="bg-surface-container-low p-2.5 rounded-xl border border-outline-variant/30 flex items-center gap-2">' +
+                    '<span class="material-symbols-outlined text-primary text-base shrink-0">schedule</span>' +
+                    '<div class="min-w-0">' +
+                      '<span class="text-[10px] font-mono uppercase text-zinc-400 block">Time Slot</span>' +
+                      '<span class="text-xs font-semibold text-zinc-200 truncate block">' + esc(timeStr) + '</span>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="flex items-center justify-between px-3 py-2 rounded-lg bg-surface-container-low text-xs text-zinc-300">' +
+                  '<span class="flex items-center gap-1.5">' +
+                    '<span class="material-symbols-outlined text-sm text-primary">groups</span>' +
+                    'Session Capacity: <strong>Up to 4 players included</strong>' +
+                  '</span>' +
+                  '<span class="text-[11px] font-mono text-zinc-400">' + hrs + ' hr peak session</span>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Mandatory Payment Note Box (High Visibility) -->' +
+              '<div class="my-4 bg-gradient-to-r from-primary/15 via-surface-container-low to-primary/10 border-2 border-primary/50 rounded-xl p-4 shadow-lg">' +
+                '<div class="flex items-center justify-between mb-1.5">' +
+                  '<div class="flex items-center gap-1.5 text-primary text-xs font-mono font-bold uppercase tracking-wider">' +
+                    '<span class="material-symbols-outlined text-sm font-bold">sticky_note_2</span>' +
+                    'Required Payment Note' +
+                  '</div>' +
+                  '<span class="text-[10px] font-mono bg-primary text-black font-bold px-2 py-0.5 rounded">MANDATORY</span>' +
+                '</div>' +
+                '<p class="text-xs text-zinc-300 mb-2">' +
+                  'You must copy &amp; paste this reference code into the payment message/notes box. This helps the club match your payment to the booking.' +
+                '</p>' +
+                '<div class="flex items-center justify-between bg-black/40 border border-primary/40 rounded-lg p-2.5">' +
+                  '<span class="font-mono text-base font-extrabold text-primary tracking-wider" id="note-ref-val">' + esc(b.reference_code) + '</span>' +
+                  '<button type="button" class="bg-primary hover:bg-primary/90 text-black px-3 py-1.5 rounded text-xs font-mono font-bold flex items-center gap-1 transition cursor-pointer border-0" id="btn-copy-note-ref">' +
+                    '<span class="material-symbols-outlined text-sm">content_copy</span>' +
+                    'Copy Code' +
+                  '</button>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Price Breakdown Ledger -->' +
+              '<div class="py-3 border-t border-outline-variant/30 flex flex-col gap-2 text-xs">' +
+                '<div class="flex items-center justify-between text-zinc-300">' +
+                  '<span>Court Fee (' + hrs + ' hr' + (hrs > 1 ? 's' : '') + ' Peak Session)</span>' +
+                  '<span class="font-mono font-semibold">' + money(b.amount) + '</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between text-zinc-300">' +
+                  '<span class="flex items-center gap-1">' +
+                    'LED Lighting Surcharge' +
+                    '<span class="text-[10px] text-primary bg-primary/10 px-1 rounded">Night Rate</span>' +
+                  '</span>' +
+                  '<span class="font-mono text-emerald-400 font-semibold">FREE (Included)</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between text-zinc-300">' +
+                  '<span>DINK Platform Convenience Fee</span>' +
+                  '<span class="font-mono text-emerald-400 font-semibold">PHP 0.00 (Waived)</span>' +
+                '</div>' +
+                '<div class="checkout-total-due flex items-baseline justify-between pt-3 mt-1 border-t border-outline-variant/40">' +
+                  '<div>' +
+                    '<span class="text-xs uppercase font-mono tracking-wider text-zinc-400 block">Total Amount Due</span>' +
+                    '<span class="text-[11px] text-zinc-500">Tax included • Direct settlement</span>' +
+                  '</div>' +
+                  '<div class="text-right">' +
+                    '<span class="font-display text-3xl font-extrabold text-primary tracking-tight">' + money(b.amount) + '</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+
+              '<section class="checkout-club-policies" aria-labelledby="checkout-policy-title"><h4 id="checkout-policy-title"><span class="material-symbols-outlined" aria-hidden="true">policy</span>Club Policies &amp; Cancellation Terms</h4><ul><li><span class="material-symbols-outlined" aria-hidden="true">event_busy</span><span><strong>Cancellation &amp; Refunds:</strong> Bookings cannot be cancelled and payments are non-refundable, except when weather prevents play.</span></li><li><span class="material-symbols-outlined" aria-hidden="true">rainy</span><span><strong>Weather Guarantee:</strong> If weather prevents your outdoor session from going ahead, your payment will be refunded.</span></li><li><span class="material-symbols-outlined" aria-hidden="true">checkroom</span><span><strong>Dress Code:</strong> Wear non-marking athletic court shoes on Silica Sand surfaces.</span></li></ul></section>' +
+
+              '<!-- Primary & Secondary Checkout CTAs -->' +
+              '<div class="flex flex-col gap-2.5 mt-5">' +
+                '<button type="button" class="w-full bg-primary hover:bg-[#b2f746] text-[#121f00] font-display font-extrabold text-base py-3.5 px-6 rounded-xl shadow-neon-lime hover:shadow-neon-lime transition-all flex items-center justify-center gap-2 group cursor-pointer border-0" id="submit-confirm-btn">' +
+                  '<span class="material-symbols-outlined font-bold text-xl group-hover:scale-110 transition-transform">task_alt</span>' +
+                  '<span>Submit Proof &amp; Confirm Booking</span>' +
+                '</button>' +
+                '<div class="checkout-secondary-actions flex items-center justify-between gap-2 pt-1">' +
+                  '<a class="flex-1 bg-surface-container-high hover:bg-surface-bright text-zinc-300 text-xs font-semibold py-2.5 px-3 rounded-lg border border-outline-variant/30 transition text-center no-underline" href="#/me/bookings">' +
+                    'View My Bookings' +
+                  '</a>' +
+                  '<button type="button" class="text-xs text-zinc-400 hover:text-rose-400 font-semibold py-2.5 px-3 rounded-lg transition text-center border-0 bg-transparent cursor-pointer" id="cancel-release-btn">' +
+                    'Cancel &amp; Release Slot' +
+                  '</button>' +
+                '</div>' +
+              '</div>' +
+
+              '<button type="button" class="payment-help-trigger" id="payment-help-btn"><span class="material-symbols-outlined" aria-hidden="true">help</span>How to pay &amp; club instructions<span class="material-symbols-outlined" aria-hidden="true">open_in_new</span></button>' +
+              '<!-- Trust Sub-badge inside card -->' +
+              '<div class="payment-access-note mt-4 pt-3 border-t border-outline-variant/20">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">door_front</span>' +
+                '<span>Your gate access pass is ready once your booking is confirmed.</span>' +
+              '</div>' +
+            '</div>' +
           '</div>' +
         '</div>' +
-        '<form class="proof pt-4 border-t border-white/10 space-y-4">' +
-          '<h3 class="text-base font-bold text-white tracking-tight m-0">Upload Payment Proof</h3>' +
-          '<label class="payment-receipt-upload"><input id="pfile" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload payment screenshot" aria-describedby="payment-receipt-hint" required><span class="payment-receipt-icon material-symbols-outlined" aria-hidden="true">upload_file</span><span class="payment-receipt-copy"><strong class="payment-receipt-name">Upload payment screenshot</strong><small id="payment-receipt-hint">JPG, PNG or WebP, up to 5 MB</small></span><span class="payment-receipt-browse">Browse file</span></label>' +
-          '<p class="msg" role="alert"></p>' +
-          '<div class="flex items-center gap-3 pt-2">' +
-            '<button class="px-6 py-3.5 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-black text-sm uppercase tracking-wider shadow-neon transition-all hover:scale-[1.02] border-0 cursor-pointer" type="submit">Submit proof &amp; Confirm</button>' +
-            '<a class="px-4 py-3.5 rounded-xl bg-carbon-800 hover:bg-carbon-700 text-slate-300 hover:text-white text-xs font-medium border border-white/10 no-underline transition" href="#/me">View My Bookings</a>' +
-          '</div>' +
-        '</form>' +
       '</div>';
-    startTicker();
-    function bindTabs() {
-      Array.prototype.forEach.call(el.querySelectorAll(".payment-group"), function (button) {
-        button.onclick = function () {
-          var group = button.getAttribute("data-group");
-          var index = qrs.findIndex(function (row) { return paymentGroup(row) === group; });
-          if (index < 0) return;
-          method = qrs[index].label;
-          q("#qrside", el).innerHTML = qrSide(index);
-          bindTabs();
-        };
-      });
-      Array.prototype.forEach.call(el.querySelectorAll(".qrtab"), function (b) {
-        b.onclick = function () { var i = +b.getAttribute("data-i"); method = qrs[i].label; q("#qrside", el).innerHTML = qrSide(i); bindTabs(); };
-      });
-    }
-    bindTabs();
-    q("#pfile", el).onchange = function () {
-      var file = this.files[0];
-      var name = el.querySelector(".payment-receipt-name");
-      var browse = el.querySelector(".payment-receipt-browse");
-      if (!file) { name.textContent = "Upload payment screenshot"; browse.textContent = "Browse file"; return; }
-      try {
-        checkImage(file);
-        name.textContent = file.name;
-        browse.textContent = "Change file";
-        msg(q("form.proof", el), "", "");
-      } catch (error) {
-        this.value = "";
-        name.textContent = "Upload payment screenshot";
-        browse.textContent = "Browse file";
-        msg(q("form.proof", el), nice(error), "err");
+
+    function copyText(val, toastId) {
+      if (!val) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val).then(function () { showToast(toastId); }).catch(function () {
+          fallbackCopy(val, toastId);
+        });
+      } else {
+        fallbackCopy(val, toastId);
       }
+    }
+    function fallbackCopy(val, toastId) {
+      var ta = document.createElement("textarea");
+      ta.value = val;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); showToast(toastId); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    function showToast(id) {
+      D.ui.toast(id === 'gcash-toast' ? 'Account number copied.' : 'Booking reference copied.', 'ok');
+    }
+
+    var btnCopyGlobal = el.querySelector("#btn-copy-global-ref");
+    if (btnCopyGlobal) btnCopyGlobal.onclick = function () { copyText(b.reference_code, "global-ref-toast"); };
+    var btnCopyNoteRef = el.querySelector("#btn-copy-note-ref");
+    if (btnCopyNoteRef) btnCopyNoteRef.onclick = function () { copyText(b.reference_code, "summary-note-toast"); };
+
+    var backBtn = el.querySelector("#back-to-booking-btn");
+    if (backBtn && ctx.onBack) {
+      backBtn.onclick = function (e) {
+        e.preventDefault();
+        ctx.onBack();
+      };
+    }
+
+    var totalSeconds;
+    if (b.expires_at) {
+      var diffSec = Math.floor((new Date(b.expires_at).getTime() - Date.now()) / 1000);
+      totalSeconds = Math.max(0, diffSec);
+    } else {
+      totalSeconds = 29 * 60 + 32;
+    }
+    function formatTime(sec) {
+      var m = Math.floor(sec / 60);
+      var s = sec % 60;
+      return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }
+    var countdownVal = el.querySelector("#countdown-val");
+    var navCountdown = document.getElementById("nav-countdown");
+    if (countdownVal) countdownVal.textContent = totalSeconds > 0 ? formatTime(totalSeconds) + " remaining" : "Expired";
+    if (navCountdown) navCountdown.textContent = totalSeconds > 0 ? formatTime(totalSeconds) : "00:00";
+
+    var timerTick = setInterval(function () {
+      if (!el.isConnected) { clearInterval(timerTick); return; }
+      if (totalSeconds <= 0) {
+        if (countdownVal) countdownVal.textContent = "Expired";
+        if (navCountdown) navCountdown.textContent = "00:00";
+        clearInterval(timerTick);
+        return;
+      }
+      totalSeconds--;
+      var formatted = formatTime(totalSeconds);
+      if (countdownVal) countdownVal.textContent = formatted + " remaining";
+      if (navCountdown) navCountdown.textContent = formatted;
+    }, 1000);
+
+    function wireAccountsAndQr() {
+      var curAccounts = getAccountsForMethod(activeMethod);
+      var curAccount = curAccounts[activeAccountIndex] || curAccounts[0];
+
+      var subtabContainer = el.querySelector("#account-subtabs-container");
+      if (subtabContainer) {
+        subtabContainer.innerHTML = renderAccountSubtabs(curAccounts, activeAccountIndex);
+        subtabContainer.querySelectorAll(".receiver-subtab-btn").forEach(function (btn) {
+          btn.onclick = function () {
+            activeAccountIndex = +btn.getAttribute("data-acc-idx") || 0;
+            wireAccountsAndQr();
+          };
+        });
+      }
+
+      var qrCard = el.querySelector("#dedicated-qr-container");
+      if (qrCard) {
+        qrCard.innerHTML = renderQrCardContent(curAccount);
+      }
+
+      var btnCopyAcc = el.querySelector("#btn-copy-account");
+      if (btnCopyAcc) {
+        btnCopyAcc.onclick = function () {
+          copyText(curAccount.account_number || "09254525633", "gcash-toast");
+        };
+      }
+
+      var btnSaveQr = el.querySelector("#btn-save-qr");
+      if (btnSaveQr) {
+        btnSaveQr.onclick = async function () {
+          btnSaveQr.disabled = true;
+          try {
+            if (curAccount.qr_path && urls[curAccount.qr_path]) {
+              var resp = await fetch(urls[curAccount.qr_path]);
+              var blob = await resp.blob();
+              var u = URL.createObjectURL(blob);
+              var a = document.createElement("a");
+              a.href = u; a.download = "payment-qr-" + b.reference_code + ".png"; a.click();
+              setTimeout(function () { URL.revokeObjectURL(u); }, 1000);
+            } else {
+              copyText(curAccount.account_number || "", "gcash-toast");
+            }
+          } catch (e) {
+            if (curAccount.qr_path && urls[curAccount.qr_path]) window.open(urls[curAccount.qr_path], "_blank");
+          } finally {
+            btnSaveQr.disabled = false;
+          }
+        };
+      }
+
+      var btnOpenApp = el.querySelector("#btn-open-app");
+      if (btnOpenApp) {
+        btnOpenApp.textContent = /gcash/i.test(activeMethod) ? "Open GCash" : "Open payment app";
+        btnOpenApp.onclick = function () {
+          if (/gcash/i.test(activeMethod)) {
+            window.open("https://gcash.com/getting-started?redirect=gcash%3A%2F%2Fcom.mynt.gcash%2Fapp%2F006300000100", "_blank", "noopener");
+          } else {
+            msg(q("form.proof", el) || el, "Open your " + activeMethod + " app, scan the saved QR, and send the exact amount.", "");
+          }
+        };
+      }
+    }
+
+    var methodBtns = el.querySelectorAll(".method-select-btn");
+    methodBtns.forEach(function (btn) {
+      btn.onclick = function () {
+        activeMethod = btn.getAttribute("data-method");
+        activeAccountIndex = 0;
+        methodBtns.forEach(function (b) {
+          var isSel = b.getAttribute("data-method") === activeMethod;
+          b.className = "method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 " +
+            (isSel ? "bg-primary text-on-primary font-bold shadow-sm" : "text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent");
+          b.innerHTML = '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  + esc(b.getAttribute("data-method"));
+        });
+        wireAccountsAndQr();
+      };
+    });
+
+    wireAccountsAndQr();
+    el.querySelector("#payment-help-btn").onclick = function () {
+      var trigger = this;
+      var dialog = document.createElement("dialog");
+      dialog.className = "payment-instructions-modal";
+      dialog.setAttribute("aria-labelledby", "payment-instructions-title");
+      dialog.innerHTML = '<header><div><span class="payment-guide-badge"><span class="material-symbols-outlined" aria-hidden="true">help</span>Payment guide</span><h2 id="payment-instructions-title">Payment instructions</h2><p>Follow the payment steps and review the club guidelines.</p></div><button type="button" data-close-guide aria-label="Close payment instructions"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="payment-instructions-body"></div><footer><span class="material-symbols-outlined" aria-hidden="true">info</span><span>Return to checkout to upload your receipt.</span><button type="button" data-close-guide>Got it</button></footer>';
+      dialog.querySelector(".payment-instructions-body").append(el.querySelector("#payment-help-content").content.cloneNode(true));
+      dialog.querySelectorAll("[data-close-guide]").forEach(function (button) { button.onclick = function () { dialog.close(); }; });
+      dialog.addEventListener("close", function () { dialog.remove(); if (trigger.isConnected) trigger.focus(); }, { once: true });
+      document.body.append(dialog);
+      dialog.showModal();
     };
-    q("form.proof", el).onsubmit = async function (e) {
-      e.preventDefault();
-      var f = this, btn = q("button", f);
-      btn.disabled = true; msg(f, "Uploading payment proof...", "");
+
+    var fileInput = el.querySelector("#proof-input");
+    var fileStatus = el.querySelector("#file-status-indicator");
+    var fileNameLabel = el.querySelector("#file-name-label");
+    var fileDisplayName = el.querySelector("#file-display-name");
+    var dropZone = el.querySelector("#drop-zone");
+    var clearBtn = el.querySelector("#btn-clear-file");
+    var proofMsg = el.querySelector("#proof-msg");
+
+    function handleFile(file) {
+      if (!file) return;
       try {
-        var file = q("#pfile", f).files[0];
         checkImage(file);
-        var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
-        var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
-        if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
-        var r = await sb.rpc("attach_payment_proof", { p_booking_id: b.id, p_proof_path: path,
-          p_payer_reference: null, p_idempotency_key: attemptKey, p_method: method });
-        if (r.error) throw r.error;
-        el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-emerald-500/30 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div><h3 class="text-xl font-bold text-white">Proof Submitted Successfully!</h3><p class="text-sm text-slate-300">The club has received your payment proof and will verify your reservation. You can track status anytime in My Bookings.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm shadow-neon no-underline" href="#/me">View My Bookings</a></div>';
-        if (ctx && ctx.onDone) ctx.onDone();
-      } catch (err) { btn.disabled = false; msg(f, nice(err), "err"); }
-    };
+        if (fileNameLabel) fileNameLabel.textContent = "Ready to upload: " + file.name;
+        if (fileDisplayName) fileDisplayName.textContent = file.name;
+        if (fileStatus) fileStatus.classList.remove("hidden");
+        if (proofMsg) { proofMsg.textContent = ""; proofMsg.className = "msg mt-3 text-xs"; }
+      } catch (err) {
+        if (fileInput) fileInput.value = "";
+        if (fileStatus) fileStatus.classList.add("hidden");
+        if (fileNameLabel) fileNameLabel.innerHTML = 'Drag &amp; drop your receipt screenshot here, or <span class="text-primary underline">browse</span>';
+        if (proofMsg) { proofMsg.textContent = nice(err); proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold"; }
+      }
+    }
+
+    if (fileInput) {
+      fileInput.onchange = function () {
+        if (this.files && this.files[0]) handleFile(this.files[0]);
+      };
+    }
+
+    if (dropZone) {
+      ["dragenter", "dragover"].forEach(function (eventName) {
+        dropZone.addEventListener(eventName, function (e) {
+          e.preventDefault(); e.stopPropagation();
+          dropZone.classList.add("border-primary", "bg-surface-container-high");
+        }, false);
+      });
+      ["dragleave", "drop"].forEach(function (eventName) {
+        dropZone.addEventListener(eventName, function (e) {
+          e.preventDefault(); e.stopPropagation();
+          dropZone.classList.remove("border-primary", "bg-surface-container-high");
+        }, false);
+      });
+      dropZone.addEventListener("drop", function (e) {
+        var dt = e.dataTransfer;
+        var files = dt.files;
+        if (files && files.length) {
+          fileInput.files = files;
+          handleFile(files[0]);
+        }
+      }, false);
+    }
+
+    if (clearBtn) {
+      clearBtn.onclick = function (e) {
+        e.stopPropagation();
+        if (fileInput) fileInput.value = "";
+        if (fileNameLabel) fileNameLabel.innerHTML = 'Drag &amp; drop your receipt screenshot here, or <span class="text-primary underline">browse</span>';
+        if (fileStatus) fileStatus.classList.add("hidden");
+      };
+    }
+
+    var submitBtn = el.querySelector("#submit-confirm-btn");
+    if (submitBtn) {
+      submitBtn.onclick = async function () {
+        if (submitBtn.disabled) return;
+        var file = fileInput ? fileInput.files[0] : null;
+        if (!file) {
+          if (proofMsg) {
+            proofMsg.textContent = "Please attach your payment receipt screenshot before submitting.";
+            proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold";
+          }
+          if (dropZone) dropZone.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        try {
+          checkImage(file);
+        } catch (err) {
+          if (proofMsg) {
+            proofMsg.textContent = nice(err);
+            proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold";
+          }
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.classList.add("opacity-80", "pointer-events-none");
+        submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Uploading receipt...</span>';
+
+        try {
+          var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
+          var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
+          if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
+          submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Submitting payment proof...</span>';
+
+          var curAccounts = getAccountsForMethod(activeMethod);
+          var curAccount = curAccounts[activeAccountIndex] || curAccounts[0];
+          var methodString = activeMethod + (curAccount && curAccount.label ? " - " + curAccount.label : "");
+
+          var r = await sb.rpc("attach_payment_proof", {
+            p_booking_id: b.id,
+            p_proof_path: path,
+            p_payer_reference: null,
+            p_idempotency_key: attemptKey,
+            p_method: methodString
+          });
+          if (r.error) throw r.error;
+
+          submitBtn.classList.remove("opacity-80", "pointer-events-none", "bg-primary");
+          submitBtn.classList.add("bg-emerald-400", "text-black");
+          submitBtn.innerHTML = '<span class="material-symbols-outlined text-xl">check_circle</span><span>' + esc(court.name || "Court") + ' Confirmed! Gate Access QR Ready</span>';
+
+          setTimeout(function () {
+            el.innerHTML = '<div class="max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-primary/30 shadow-2xl">' +
+              '<div class="w-16 h-16 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center mx-auto text-3xl shadow-neon-lime">' +
+                '<span class="material-symbols-outlined text-3xl font-bold">check</span>' +
+              '</div>' +
+              '<div class="space-y-2">' +
+                '<span class="text-xs font-mono uppercase tracking-widest text-primary font-bold">Booking Hold Confirmed</span>' +
+                '<h2 class="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight">Proof Submitted Successfully!</h2>' +
+                '<p class="text-sm text-zinc-300 max-w-md mx-auto">Your payment receipt for <strong class="text-white">' + esc(court.name || "Court") + '</strong> has been received with reference <strong class="text-primary font-mono">' + esc(b.reference_code) + '</strong>.</p>' +
+              '</div>' +
+              '<div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/30 text-xs text-zinc-400 max-w-md mx-auto space-y-1.5 text-left font-mono">' +
+                '<div class="flex justify-between"><span class="text-zinc-500">Venue:</span><span class="text-white font-bold">' + esc(club.name || "Club") + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-zinc-500">Schedule:</span><span class="text-zinc-200">' + esc(dateStr) + ' • ' + esc(timeStr) + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-zinc-500">Amount:</span><span class="text-primary font-bold">' + money(b.amount) + '</span></div>' +
+              '</div>' +
+              '<div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">' +
+                '<a class="w-full sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-[#b2f746] text-black font-display font-bold text-sm shadow-neon-lime transition no-underline text-center" href="#/me/bookings">View My Bookings</a>' +
+                '<a class="w-full sm:w-auto px-5 py-3 rounded-xl bg-surface-container-high hover:bg-surface-bright text-zinc-200 font-semibold text-xs border border-outline-variant/40 transition no-underline text-center" href="#/c/' + esc(club.slug || '') + '">Back to Club</a>' +
+              '</div>' +
+            '</div>';
+            if (ctx && ctx.onDone) ctx.onDone();
+          }, 1200);
+
+        } catch (err) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove("opacity-80", "pointer-events-none");
+          submitBtn.innerHTML = '<span class="material-symbols-outlined font-bold text-xl">task_alt</span><span>Submit Proof &amp; Confirm Booking</span>';
+          if (proofMsg) {
+            proofMsg.textContent = nice(err);
+            proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold";
+          }
+        }
+      };
+    }
+
+    var cancelReleaseBtn = el.querySelector("#cancel-release-btn");
+    if (cancelReleaseBtn) {
+      cancelReleaseBtn.onclick = async function () {
+        if (cancelReleaseBtn.disabled) return;
+        var confirmed = await D.ui.confirmAction("Release your unpaid hold for " + (court.name || "this court") + "? The time slot will become available to other players.", { title: "Cancel & Release Slot", confirmText: "Release slot" });
+        if (!confirmed) return;
+        cancelReleaseBtn.disabled = true;
+        cancelReleaseBtn.textContent = "Releasing...";
+        var r;
+        try { r = await sb.rpc("cancel_booking", {
+          p_booking_id: b.id,
+          p_reason: "Player released slot from checkout",
+          p_idempotency_key: uuid()
+        }); } catch (error) { r = { error: error }; }
+        if (r.error) {
+          cancelReleaseBtn.disabled = false;
+          cancelReleaseBtn.textContent = "Cancel & Release Slot";
+          D.ui.toast("Could not release slot: " + nice(r.error), "err");
+          return;
+        }
+        D.ui.toast("Your hold was released. The time slot is available again.", "ok");
+        if (ctx && ctx.onBack) {
+          ctx.onBack();
+        } else {
+          location.reload();
+        }
+      };
+    }
   }
 
   // ============================================================ book page
@@ -280,7 +949,7 @@
     if (me.status === "blocked") { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Booking unavailable</h2><p>You are blocked from this club. Please contact the club.</p></div>'; return; }
     var courts = (await sb.from("public_courts").select("*").eq("club_slug", slug).order("name")).data || [];
     var tz = club.timezone || "Asia/Manila";
-    var S = { court: null, info: null, date: "", slots: [], start: null, count: 1, bookingDays: 14 };
+    var S = { court: null, info: null, date: "", slots: [], start: null, count: 1, bookingDays: 14, reserving: false };
     var pre = new URLSearchParams(location.hash.split("?")[1] || "");
 
     function addDays(ymd, n) {
@@ -293,23 +962,12 @@
       '<div id="ds-book-page" class="book-public w-full min-h-screen text-slate-100 flex flex-col antialiased selection:bg-neon-lime selection:text-black">' +
         '<!-- BookingMainLayout -->' +
         '<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">' +
-          '<div class="mb-8">' +
-            '<div class="flex items-center gap-2 text-neon-lime text-xs font-mono font-semibold uppercase tracking-widest mb-1.5">' +
-              'Pickleball Court Reservation' +
-            '</div>' +
-            '<h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3 m-0">' +
-              'Book a court' +
-              '<span class="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 font-normal">Fast Checkout</span>' +
-            '</h1>' +
-            '<p class="text-sm text-slate-400 mt-1 max-w-2xl m-0">Select your preferred outdoor court, time slot, and lock in your reservation with instant turnstile access.</p>' +
-          '</div>' +
+          '<div id="booking-step1-2-wrapper">' +
+          '<header class="checkout-page-intro"><span>Pickleball Court Reservation</span><div><h1>Book a court</h1><span class="checkout-page-badge">Fast Checkout</span></div><p>Choose your court and time, then confirm your reservation.</p></header>' +
 
         '<section class="booking-context" data-purpose="breadcrumbs-context">' +
           '<div class="flex flex-wrap items-center justify-between gap-3 text-xs">' +
-            '<nav class="club-breadcrumb" aria-label="Breadcrumb">' +
-              '<a class="club-back-link" href="#/c/' + esc(slug) + '"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>' + esc(club.name) + '</span></a>' +
-              '<ol class="club-breadcrumb-trail"><li class="club-breadcrumb-separator" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></li><li class="club-breadcrumb-current" aria-current="page">Court Booking</li></ol>' +
-            '</nav>' +
+            '<nav class="booking-checkout-breadcrumb shared-booking-breadcrumb" aria-label="Breadcrumb"><a href="#/c/' + esc(slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Back to club</a><span aria-hidden="true">/</span><span>' + esc(club.name) + '</span><span aria-hidden="true">/</span><strong aria-current="page">Book a court</strong></nav>' +
             '<div class="booking-context-status">' +
               '<span class="club-live-badge"><span class="booking-live-dot" aria-hidden="true"></span><span id="book-live-slots">Live Availability: Checking slots...</span></span>' +
               '<span class="booking-timezone">Timezone: ' + esc(tz) + ' (PHT)</span>' +
@@ -464,7 +1122,7 @@
                     '</div>' +
                     '<div class="flex items-center gap-2">' +
                       '<svg class="w-3.5 h-3.5 text-neon-lime shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
-                      '<span>Instant Turnstile QR Key on confirmation</span>' +
+                      '<span>Gate access QR available on confirmation</span>' +
                     '</div>' +
                     '<div class="flex items-center gap-2">' +
                       '<svg class="w-3.5 h-3.5 text-neon-lime shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
@@ -498,26 +1156,25 @@
                 '<div class="space-y-4">' +
                   '<button id="reserve-sidebar" type="button" class="w-full py-4 px-6 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-neon transition-all hover:scale-[1.02] active:scale-[0.98] border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none" disabled>' +
                     '<svg class="w-4 h-4 text-carbon-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    '<span>Confirm &amp; Pay</span>' +
+                    '<span data-reserve-label>Confirm &amp; Pay</span>' +
                   '</button>' +
                   '<div class="p-3.5 rounded-lg bg-carbon-800/60 border border-white/5 flex items-start gap-2.5 leading-relaxed text-[11px] text-slate-300">' +
                     '<svg class="w-4 h-4 text-neon-lime shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    '<span><strong>Flex Cancel:</strong> Free cancellation up to 6 hours before slot. Full credit refund credited to your DINK wallet.</span>' +
+                    '<span><strong>Booking policy:</strong> No cancellations. Payments are non-refundable, except when weather prevents play.</span>' +
                   '</div>' +
                 '</div>' +
 
-                '<div class="mt-6 pt-5 border-t border-white/10 text-center">' +
+                '<div class="booking-summary-footer"><div class="mt-6 pt-5 border-t border-white/10 text-center">' +
                   '<span class="text-[10px] uppercase font-mono tracking-widest text-slate-400 block mb-3">Supported Payment Channels</span>' +
-                  '<div class="flex items-center justify-center flex-wrap gap-2 text-xs font-mono text-slate-400">' +
+                  '<div class="booking-payment-channels flex items-center justify-center gap-2 text-xs font-mono text-slate-400">' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Cash</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">GCash</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Maya</span>' +
-                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Visa / Mastercard</span>' +
-                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-neon-lime">Court Credits</span>' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Bank</span>' +
                   '</div>' +
                 '</div>' +
-              '</div>' +
 
-              '<div class="p-4 rounded-xl bg-carbon-900/60 border border-white/5 flex items-center justify-between text-xs text-slate-400">' +
+              '<div class="booking-channel-support p-4 rounded-xl bg-carbon-900/60 border border-white/5 flex items-center justify-between text-xs text-slate-400">' +
                 '<div class="flex items-center gap-2.5">' +
                   '<div class="w-8 h-8 rounded-lg bg-carbon-800 flex items-center justify-center text-neon-lime">' +
                     '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
@@ -531,8 +1188,12 @@
                   : club.contact_email ? '<a href="mailto:' + esc(club.contact_email) + '" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors border border-white/10 no-underline">Email</a>'
                   : '<span class="text-xs text-slate-500">Support</span>') +
               '</div>' +
+              '</div>' +
+              '</div>' +
             '</aside>' +
           '</div>' +
+          '</div><!-- /booking-step1-2-wrapper -->' +
+          '<div id="booking-step3-wrapper" class="w-full relative" hidden></div>' +
         '</main>' +
       '</div>';
     if (D.mountPublicBackdrop) D.mountPublicBackdrop(q("#ds-book-page", root));
@@ -655,8 +1316,10 @@
     }
 
     async function drawSlots() {
-      var c = S.court, step = c.slot_minutes, box = q("#slots", root);
-      if (!c || !box) return;
+      if (S.reserving) return;
+      var c = S.court, box = q("#slots", root);
+      if (!c || !box || !/^\d{4}-\d{2}-\d{2}$/.test(S.date)) return;
+      var step = c.slot_minutes;
       box.innerHTML = '<div class="col-span-full grid grid-cols-2 sm:grid-cols-4 gap-2.5">' + Array(8).fill('<div class="h-16 rounded-xl bg-carbon-850/60 ds-skeleton border border-white/5"></div>').join('') + '</div>';
       S.start = null;
       summary();
@@ -739,6 +1402,7 @@
     }
 
     function summary() {
+      if (S.reserving) return;
       var banner = q("#slot-banner", root);
       var btn1 = q("#reserve", root);
       var btn2 = q("#reserve-sidebar", root);
@@ -750,7 +1414,7 @@
       if (S.start == null || !rangeOk(S.start)) {
         if (banner) banner.hidden = true;
         if (btn1) btn1.disabled = true;
-        if (btn2) { btn2.disabled = true; btn2.querySelector("span").textContent = "Confirm & Pay"; }
+        if (btn2) { btn2.disabled = true; setReserveLabel(btn2, "Confirm & Pay"); }
         if (timeSidebar) timeSidebar.textContent = "Select a time slot";
         if (feeSidebar) feeSidebar.textContent = "PHP 0.00";
         if (totalSidebar) totalSidebar.textContent = "PHP 0.00";
@@ -777,7 +1441,7 @@
       if (btn1) btn1.disabled = false;
       if (btn2) {
         btn2.disabled = false;
-        btn2.querySelector("span").textContent = "Confirm & Pay " + money(total);
+        setReserveLabel(btn2, "Confirm & Pay " + money(total));
       }
       if (timeSidebar) timeSidebar.textContent = timeWindowStr;
       if (dateSidebar) dateSidebar.textContent = first.s.toLocaleDateString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric", year: "numeric" });
@@ -786,39 +1450,58 @@
     }
 
     async function doReserve() {
-      if (S.start == null || !rangeOk(S.start)) return;
+      if (S.reserving || S.start == null || !rangeOk(S.start)) return;
+      S.reserving = true;
       var first = S.slots[S.start], last = S.slots[S.start + S.count - 1];
       var sig = S.court.id + "|" + first.s.toISOString() + "|" + last.e.toISOString();
       keys[sig] = keys[sig] || uuid();
       var btn1 = q("#reserve", root), btn2 = q("#reserve-sidebar", root);
       if (btn1) btn1.disabled = true;
       if (btn2) btn2.disabled = true;
-      msg(q("#slotpanel", root), "Reserving court slot...", "");
-      var r = await sb.rpc("create_booking", {
+      msg(q("#slotpanel", root), "", "");
+      if (btn1) btn1.textContent = "Holding slot...";
+      if (btn2) setReserveLabel(btn2, "Holding slot...");
+      var r;
+      try { r = await sb.rpc("create_booking", {
         p_court_id: S.court.id,
         p_starts_at: first.s.toISOString(),
         p_ends_at: last.e.toISOString(),
         p_idempotency_key: keys[sig]
-      });
+      }); } catch (error) { r = { error: error }; }
       if (r.error) {
+        S.reserving = false;
+        if (btn1) btn1.textContent = "Reserve this slot";
+        if (btn2) setReserveLabel(btn2, "Confirm & Pay");
         msg(q("#slotpanel", root), nice(r.error), "err");
         if (/slot_taken|slot_blocked/.test(r.error.message || "")) drawSlots();
         else { if (btn1) btn1.disabled = false; if (btn2) btn2.disabled = false; }
         return;
       }
       var b = r.data;
-      q("#slotpanel", root).hidden = true;
-      var step1Sec = q('[data-purpose="step-choose-court"]', root);
-      if (step1Sec) step1Sec.hidden = true;
-      var pp = q("#paypanel", root);
-      pp.hidden = false;
-      var ticketRef = q("#ticket-ref-badge", root);
-      if (ticketRef) ticketRef.textContent = "#" + (b.reference_code || b.id.slice(0, 8));
-      payPanel(pp, b, {
-        onDone: function () {
-          if (btn2) btn2.parentElement.innerHTML = '<p class="text-xs text-emerald-400 font-semibold text-center">Proof uploaded. View status in <a class="underline text-neon-lime" href="#/me">My Bookings</a></p>';
-        }
-      });
+      var checkoutParams = new URLSearchParams();
+      checkoutParams.set("booking", b.id);
+      history.replaceState(null, "", location.pathname + location.search + "#/c/" + slug + "/book?" + checkoutParams.toString());
+      var step12 = q("#booking-step1-2-wrapper", root);
+      if (step12) step12.hidden = true;
+      var step3 = q("#booking-step3-wrapper", root);
+      if (step3) {
+        step3.hidden = false;
+        payPanel(step3, b, {
+          club: club,
+          court: S.court,
+          onDone: function () {
+            if (btn2) btn2.parentElement.innerHTML = '<p class="text-xs text-emerald-400 font-semibold text-center">Proof uploaded. View status in <a class="underline text-neon-lime" href="#/me">My Bookings</a></p>';
+          },
+          onBack: function () {
+            S.reserving = false;
+            history.replaceState(null, "", location.pathname + location.search + "#/c/" + slug + "/book");
+            step3.hidden = true;
+            if (step12) step12.hidden = false;
+            drawSlots();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -832,9 +1515,39 @@
     if (reserveSidebarBtn) reserveSidebarBtn.onclick = doReserve;
 
     drawCourtCards();
+    var pendingBookingId = pre.get("booking");
     var pc = pre.get("court");
-    if (pc && courts.some(function (c) { return c.id === pc; })) pickCourt(pc);
-    else if (courts.length > 0) pickCourt(courts[0].id);
+    if (!pendingBookingId && pc && courts.some(function (c) { return c.id === pc; })) pickCourt(pc);
+    else if (!pendingBookingId && courts.length > 0) pickCourt(courts[0].id);
+    if (pendingBookingId) {
+      var bkRes = await sb.from("bookings").select("*").eq("id", pendingBookingId).eq("tenant_id", club.id).eq("player_id", me.id).maybeSingle();
+      if (bkRes.error || !bkRes.data) {
+        root.innerHTML = '<div class="max-w-xl mx-auto py-12 text-center"><h2>Unable to restore checkout</h2><p>Your reservation could not be loaded. Open My Bookings to check its status.</p><a class="btn" href="#/me/bookings">My Bookings</a></div>';
+        return;
+      }
+      if (bkRes.data) {
+        var step12 = q("#booking-step1-2-wrapper", root);
+        if (step12) step12.hidden = true;
+        var step3 = q("#booking-step3-wrapper", root);
+        if (step3) {
+          step3.hidden = false;
+          payPanel(step3, bkRes.data, {
+            club: club,
+            court: courts.find(function(c) { return c.id === bkRes.data.court_id; }),
+            onBack: function () {
+              S.reserving = false;
+              history.replaceState(null, "", location.pathname + location.search + "#/c/" + slug + "/book");
+              step3.hidden = true;
+              if (step12) step12.hidden = false;
+              if (!S.court || !S.date) {
+                if (courts.length) pickCourt(bkRes.data.court_id || courts[0].id);
+              } else drawSlots();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          });
+        }
+      }
+    }
   }
 
   // =========================================================== my bookings
