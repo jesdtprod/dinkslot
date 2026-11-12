@@ -4534,3 +4534,23 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 
 #ds-book-page .booking-date-field .datetime-trigger { height:46px; padding:10px 12px 10px 42px; border:1px solid #35434b; border-radius:10px; background:#202a30; font:600 13px/20px 'Plus Jakarta Sans',sans-serif; }
 #ds-book-page .booking-date-field .datetime-trigger .material-symbols-outlined { color:#a3e635; }
+
+@media (max-width:639px) {
+  #ds-book-page .dink-payment-container { min-width:0; }
+  #ds-book-page .checkout-context-row { align-items:flex-start; gap:10px; margin-bottom:20px; }
+  #ds-book-page .checkout-context-badges { width:100%; gap:8px; }
+  #ds-book-page .checkout-context-badges > :is(div,span) { max-width:100%; }
+  #ds-book-page .checkout-balanced-grid { gap:16px; }
+  #ds-book-page .checkout-method-column { gap:16px; min-width:0; }
+  #ds-book-page .checkout-method-column > div { padding:16px; }
+  #ds-book-page .checkout-method-column > div:first-child > div:first-child { flex-wrap:wrap; align-items:flex-start; gap:8px; }
+  #ds-book-page .checkout-method-column > div:first-child > div:first-child > div { min-width:0; flex:1 1 200px; }
+  #ds-book-page .checkout-method-column h2 { font-size:17px; line-height:24px; }
+  #ds-book-page .checkout-method-column h2 > .material-symbols-outlined { flex-shrink:0; }
+  #ds-book-page #method-tab-bar { gap:4px; }
+  #ds-book-page #method-tab-bar .method-select-btn { min-width:0; min-height:44px; padding:6px 3px; gap:4px; font-size:11px; line-height:15px; }
+  #ds-book-page #account-subtabs-container { gap:8px; }
+  #ds-book-page .checkout-total-due { align-items:center; gap:8px; }
+  #ds-book-page .checkout-total-due > div:first-child { flex:1 1 auto; }
+  #ds-book-page .checkout-total-due > div:last-child > span { font-size:clamp(20px,6vw,26px); }
+}
