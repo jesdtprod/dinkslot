@@ -408,3 +408,8 @@
 .member-bookings-page .booking-tone-negative { --booking-accent:#fca5a5; --booking-accent-rgb:252,165,165; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-card { border:1px solid #35434b; border-top:2px solid var(--booking-accent); background:linear-gradient(rgba(var(--booking-accent-rgb),.035),rgba(var(--booking-accent-rgb),.035)),#181f24; }
 #ds-tenant-dashboard #sec .member-bookings-page .reservation-status-badge { color:var(--booking-accent); background:rgba(var(--booking-accent-rgb),.1); border:1px solid rgba(var(--booking-accent-rgb),.25); }
+
+/* Keep booking metadata aligned above the action buttons. */
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta { display:grid; grid-template-columns:max-content max-content; justify-content:start; align-items:center; gap:6px; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta > span:first-child { grid-column:1 / -1; justify-self:start; width:fit-content; max-width:100%; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta > :is(span,strong) { box-sizing:border-box; display:inline-flex; align-items:center; min-height:26px; padding:4px 8px; line-height:16px; }
