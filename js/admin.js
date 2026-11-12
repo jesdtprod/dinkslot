@@ -771,7 +771,7 @@
       '<section class="pay-card"><header><h2>1. Checkout</h2><p>What players see when they pay for a booking.</p></header>' +
         '<label class="pay-toggle"><input id="spe" form="paycfg" type="checkbox"' + (st.payment_enabled ? " checked" : "") + '><span><b>Players pay by scanning a QR code</b><small>Turn off if you collect payment another way. Players then only send a booking request.</small></span></label>' +
         '<label class="pay-toggle"><input id="sar" form="paycfg" type="checkbox"' + (st.approval_required ? " checked" : "") + '><span><b>I approve every booking myself</b><small>Recommended. You check the payment proof, then approve or reject.</small></span></label>' +
-        '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Payment instructions shown to players<textarea id="spi" form="paycfg" rows="3" placeholder="e.g. Send the exact amount and type your booking code in the message" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(st.payment_instructions || "") + '</textarea></label>' +
+        '<label class="payment-instructions-field flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Payment instructions shown to players<textarea id="spi" form="paycfg" rows="3" placeholder="e.g. Send the exact amount and type your booking code in the message" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(st.payment_instructions || "") + '</textarea></label>' +
       '</section>' +
 
       // ---- 2. payment methods (cards live here, outside the form) -------------------------------------------------------

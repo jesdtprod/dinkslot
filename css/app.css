@@ -4025,3 +4025,5 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .dink-payment-container [class~="border-primary/50"] { border-color: rgba(var(--payment-green-rgb), 0.5); }
 .dink-payment-container .receiver-subtab-btn { box-shadow: none; }
 .dink-payment-container .receiver-subtab-btn.border-primary { background-color: rgba(var(--payment-green-rgb), .1); }
+
+#ds-tenant-dashboard .payment-instructions-field { gap: 8px; margin-top: 8px; }
