@@ -176,3 +176,12 @@
 @media(max-width:1100px) { .member-overview-page #next-booking-card-slot { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .member-overview-page #next-booking-card-slot { grid-template-columns:minmax(0,1fr); } }
 .member-overview-page .overview-calendar-button { display:inline-flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap; }
+
+/* My Clubs shares Next Booking's open section and card tracks. */
+#ds-tenant-dashboard #sec .member-overview-page #my-home-club { padding:0; border:0; border-radius:0; background:transparent; }
+#ds-tenant-dashboard #sec .member-overview-page .home-clubs-heading { margin-bottom:16px; padding-bottom:0; border-bottom:0; }
+#ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; align-items:stretch; }
+#ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-grid > * { min-width:0; margin:0; }
+#ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-grid > .app-empty-state { grid-column:1 / -1; }
+@media(max-width:1100px) { #ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { #ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-grid { grid-template-columns:minmax(0,1fr); } }
