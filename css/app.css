@@ -4152,3 +4152,9 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .checkout-total-due > div { min-width: 0; }
 .checkout-total-due > div:last-child { flex-shrink: 0; display: flex; align-items: center; }
 .checkout-total-due > div:last-child > span { line-height: 1.2; white-space: nowrap; }
+
+/* Booking context matches Complete Payment's breadcrumb and badge type scale. */
+.booking-checkout-breadcrumb { font-size: 12px; line-height: 16px; font-weight: 400; }
+.booking-checkout-breadcrumb strong { font-weight: 700; }
+#ds-book-page .booking-context-status .club-live-badge,
+#ds-book-page .booking-context-status .booking-timezone { font-size: 11px; line-height: 16px; font-weight: 600; }
