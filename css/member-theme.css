@@ -81,3 +81,60 @@
   #ds-tenant-dashboard #sec .member-profile-theme .member-overview-stats { width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); }
   #ds-tenant-dashboard #sec .member-profile-theme .member-overview-stats > div { padding-inline:8px; overflow-wrap:anywhere; }
 }
+
+/* Overview follows Book a Court: shared backdrop, lime accent, and flat surfaces. */
+#ds-tenant-dashboard #sec .member-overview-page {
+  --member-accent:#a3e635; --lime:#a3e635; --member-panel:#181f24;
+  --member-inset:#202a30; --member-border:#303c43;
+  position:relative; isolation:isolate; display:flex; flex-direction:column;
+  gap:24px; padding:24px; background:#10141a; border-radius:12px;
+  color:#dce6df; font:400 13px/1.65 "Plus Jakarta Sans",sans-serif;
+}
+.member-overview-page > :is(section,header) { position:relative; z-index:1; }
+.member-overview-page > .auth-pattern { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; mask-image:linear-gradient(to bottom,transparent,#000 32px); }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header { grid-template-columns:minmax(0,1fr) auto; gap:24px; padding:0 0 8px; border:0; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-eyebrow { display:block; margin:0 0 6px; padding:0; border:0; background:none; font:600 12px/16px "JetBrains Mono",monospace; letter-spacing:.1em; }
+.member-overview-page .member-overview-eyebrow::before { content:none; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-intro h1 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-intro p { margin:4px 0 16px; font-size:13px; line-height:21px; color:#91a5b2; }
+#ds-tenant-dashboard #sec .member-overview-page :is(h2,h3) { font-family:"Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
+#ds-tenant-dashboard #sec .member-overview-page h2 { font-size:19px; line-height:26px; margin:0; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-stats { padding:16px 0; background:#181f24; border-color:#303c43; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-stat-value { color:#a3e635; background:#a3e6350d; border-color:#a3e63530; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-stat-label { color:#91a5b2; }
+.member-overview-page .overview-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+#ds-tenant-dashboard #sec .member-overview-page .overview-metric { display:flex; flex-direction:column; gap:14px; padding:20px; border:1px solid #303c43; border-radius:12px; background:#181f24; box-shadow:none; }
+.overview-metric-heading { display:flex; align-items:center; gap:9px; color:#becbd3; font-size:12px; font-weight:600; }
+.overview-metric-heading .material-symbols-outlined { display:grid; place-items:center; flex:0 0 32px; height:32px; border:1px solid #a3e63525; border-radius:8px; background:#a3e6350a; color:#a3e635; font-size:18px; }
+.overview-metric > strong { color:#f1f5f2; font-size:30px; line-height:36px; font-weight:700; }
+.overview-metric-footer { display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:12px; border-top:1px solid #303c43; color:#91a5b2; font-size:11px; }
+.overview-metric-footer a { display:grid; place-items:center; flex:0 0 28px; height:28px; border-radius:7px; background:#202a30; color:#a3e635; text-decoration:none; }
+.overview-metric-footer .material-symbols-outlined { font-size:17px; }
+.member-overview-page :is(#next-booking,#my-home-club) { padding:24px; border:1px solid #303c43; border-radius:12px; background:#181f24; }
+.member-overview-page #next-booking > div:first-child { margin-bottom:16px; gap:16px; }
+.member-overview-page [role="tablist"] { background:#0f171c; border-color:#303c43; border-radius:9px; }
+.member-overview-page [data-bfilter] { min-height:32px; padding:6px 10px; border:0; border-radius:7px; white-space:nowrap; font:600 11px/18px "Plus Jakarta Sans",sans-serif; }
+.member-overview-page [data-bfilter][aria-selected="true"] { background:#a3e635; color:#142000; box-shadow:none; }
+#ds-tenant-dashboard #sec .member-overview-page :is(.member-reservation-card,.home-club-card) { background:#202a30; border-color:#35434b; box-shadow:none; }
+#ds-tenant-dashboard #sec .member-overview-page .member-reservation-card h3 { font-size:16px; line-height:23px; }
+.member-overview-page .home-clubs-heading { align-items:center; gap:16px; }
+.member-overview-page .home-clubs-heading p { margin:4px 0 0; font-size:12px; color:#91a5b2; }
+#ds-tenant-dashboard #sec .member-overview-page .btn { min-height:38px; border-radius:9px; border-color:#a3e635; background:#a3e635; color:#142000; font:600 12px/18px "Plus Jakarta Sans",sans-serif; text-transform:none; letter-spacing:0; box-shadow:none; }
+#ds-tenant-dashboard #sec .member-overview-page .btn:hover { background:#b4ee59; }
+#ds-tenant-dashboard #sec .member-overview-page .btn.ghost { background:#202a30; border-color:#35434b; color:#c8d6df; }
+#ds-tenant-dashboard #sec .member-overview-page .btn.ghost:hover { background:#2a363e; }
+.member-overview-page :is(a,button):focus-visible { outline:2px solid #a3e635; outline-offset:3px; }
+@media(max-width:1200px) { #ds-tenant-dashboard #sec .member-overview-page .member-overview-header { grid-template-columns:1fr; } .member-overview-page .overview-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:639px) {
+  #ds-tenant-dashboard #sec .member-overview-page { padding:16px 0; gap:16px; }
+  #ds-tenant-dashboard #sec .member-overview-page .member-overview-intro h1 { font-size:28px; line-height:34px; }
+  #ds-tenant-dashboard #sec .member-overview-page .member-overview-stats { width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .member-overview-page :is(#next-booking,#my-home-club) { padding:16px; }
+  #ds-tenant-dashboard #sec .member-overview-page .overview-metric { padding:14px; gap:10px; }
+  .overview-metric-heading { font-size:11px; align-items:flex-start; }
+  .overview-metric-footer { align-items:flex-end; }
+  .member-overview-page [role="tablist"] { display:flex; width:100%; overflow-x:auto; }
+  .member-overview-page [data-bfilter] { flex:1; }
+  .member-overview-page .home-clubs-heading { align-items:flex-start; flex-wrap:wrap; }
+}
+@media(max-width:359px) { .member-overview-page .overview-metrics { grid-template-columns:1fr; } }

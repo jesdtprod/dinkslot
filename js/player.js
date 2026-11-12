@@ -172,106 +172,21 @@
 
     // 1. TOP DISCOVERY & ATHLETIC HERO CONSOLE
     var heroHtml = '<section class="member-overview-header" aria-labelledby="member-overview-title">' +
-      '<div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1 id="member-overview-title">Overview</h1><p>Your bookings, court schedules, and clubs in one place.</p>' +
+      '<div class="member-overview-intro"><span class="member-overview-eyebrow">Pickleball Court Reservation</span><h1 id="member-overview-title">Overview</h1><p>Your bookings, court schedules, and clubs in one place.</p>' +
       '<div class="member-overview-actions"><a class="btn" href="' + bookHref + '"><span class="material-symbols-outlined" aria-hidden="true">calendar_add_on</span>Quick Reserve</a><a class="btn ghost" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a></div></div>' +
       '<div class="member-overview-stats" aria-label="Your account summary"><div><span class="member-overview-stat-label">Active Courts</span><span class="member-overview-stat-value">' + (activeCourtsCount == null ? 'Unavailable' : activeCourtsCount) + '</span><small>Across the network</small></div>' +
       '<div><span class="member-overview-stat-label">Skill Level</span><span class="member-overview-stat-value member-overview-skill">' + esc(duprVal) + '</span><small>Self-reported</small></div>' +
       '<div><span class="member-overview-stat-label">Upcoming Bookings</span><span class="member-overview-stat-value">' + up + '</span><small>Confirmed reservations</small></div></div></section>';
 
-    // 2. ENHANCED STATS / METRIC CARDS GRID (4 CARDS)
-    var metricsHtml =
-      '<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5" data-purpose="metrics-summary-grid">' +
-        // Card 1: Confirmed upcoming
-        '<article class="bg-[#121822] border border-[#202c3d] rounded-2xl p-5 card-neon-hover transition-all duration-200 flex flex-col justify-between relative group shadow-lg">' +
-          '<div class="flex items-center justify-between">' +
-            '<div class="w-10 h-10 rounded-xl bg-[#a3e635]/10 border border-[#a3e635]/30 flex items-center justify-center text-[#a3e635]">' +
-              '<span class="material-symbols-outlined text-xl" aria-hidden="true">event_available</span>' +
-            '</div>' +
-            '<span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#192330] text-gray-400 border border-[#28374a]">Your account</span>' +
-          '</div>' +
-          '<div class="mt-5 mb-6">' +
-            '<p class="text-xs uppercase tracking-wider font-mono text-gray-400">Confirmed upcoming</p>' +
-            '<div class="flex items-baseline gap-2 mt-2">' +
-              '<span class="text-4xl font-extrabold font-display text-white tracking-tight">' + up + '</span>' +
-              '<span class="text-xs text-[#a3e635] font-semibold bg-[#a3e635]/10 px-2 py-0.5 rounded-full border border-[#a3e635]/30">' + (up ? "Active slot" : "Ready to book") + '</span>' +
-            '</div>' +
-            '<p class="text-xs text-gray-400 mt-2 truncate">' + esc(activeClubTitle + " • " + activeCourtTitle) + '</p>' +
-          '</div>' +
-          '<a class="pt-3 border-t border-[#1d2737] text-xs font-semibold text-gray-400 group-hover:text-[#a3e635] flex items-center justify-between transition-colors no-underline" href="#/me/bookings">' +
-            '<span>View match pass</span>' +
-            '<span class="material-symbols-outlined text-base transition-transform group-hover:translate-x-1" aria-hidden="true">arrow_forward</span>' +
-          '</a>' +
-        '</article>' +
-        // Card 2: Waiting for payment or approval
-        '<article class="bg-[#121822] border border-[#202c3d] rounded-2xl p-5 card-neon-hover transition-all duration-200 flex flex-col justify-between relative group shadow-lg">' +
-          '<div class="flex items-center justify-between">' +
-            '<div class="w-10 h-10 rounded-xl bg-[#a3e635]/10 border border-[#a3e635]/30 flex items-center justify-center text-[#a3e635]">' +
-              '<span class="material-symbols-outlined text-xl" aria-hidden="true">hourglass_top</span>' +
-            '</div>' +
-            '<span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#192330] text-gray-400 border border-[#28374a]">Your account</span>' +
-          '</div>' +
-          '<div class="mt-5 mb-6">' +
-            '<p class="text-xs uppercase tracking-wider font-mono text-gray-400">Waiting for payment or approval</p>' +
-            '<div class="flex items-baseline gap-2 mt-2">' +
-              '<span class="text-4xl font-extrabold font-display text-white tracking-tight">' + pending + '</span>' +
-              '<span class="text-xs text-gray-400 font-medium">pending actions</span>' +
-            '</div>' +
-            '<p class="text-xs text-gray-400 mt-2">' + (pending ? "Needs your attention" : "All dues and memberships current") + '</p>' +
-          '</div>' +
-          '<a class="pt-3 border-t border-[#1d2737] text-xs font-semibold text-gray-400 group-hover:text-[#a3e635] flex items-center justify-between transition-colors no-underline" href="#/me/bookings">' +
-            '<span>View details</span>' +
-            '<span class="material-symbols-outlined text-base transition-transform group-hover:translate-x-1" aria-hidden="true">arrow_forward</span>' +
-          '</a>' +
-        '</article>' +
-        // Card 3: Clubs joined
-        '<article class="bg-[#121822] border border-[#202c3d] rounded-2xl p-5 card-neon-hover transition-all duration-200 flex flex-col justify-between relative group shadow-lg">' +
-          '<div class="flex items-center justify-between">' +
-            '<div class="w-10 h-10 rounded-xl bg-[#a3e635]/10 border border-[#a3e635]/30 flex items-center justify-center text-[#a3e635]">' +
-              '<span class="material-symbols-outlined text-xl" aria-hidden="true">groups</span>' +
-            '</div>' +
-            '<span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#192330] text-gray-400 border border-[#28374a]">Home Club</span>' +
-          '</div>' +
-          '<div class="mt-5 mb-6">' +
-            '<p class="text-xs uppercase tracking-wider font-mono text-gray-400">Clubs joined</p>' +
-            '<div class="flex items-center gap-2 mt-2">' +
-              '<span class="text-4xl font-extrabold font-display text-white tracking-tight">' + mc.clubs.length + '</span>' +
-              '<span class="text-xs font-bold px-2 py-0.5 rounded-full bg-[#1b2533] text-[#a3e635] border border-[#a3e635]/40 truncate max-w-[150px]">' + esc(primaryClub.name) + '</span>' +
-            '</div>' +
-            '<p class="text-xs text-gray-400 mt-2">Tier: VIP Full Access • ' + esc(primaryClub.city || "1.2 mi away") + '</p>' +
-          '</div>' +
-          '<a class="pt-3 border-t border-[#1d2737] text-xs font-semibold text-gray-400 group-hover:text-[#a3e635] flex items-center justify-between transition-colors no-underline" href="#/me/clubs">' +
-            '<span>Manage membership</span>' +
-            '<span class="material-symbols-outlined text-base transition-transform group-hover:translate-x-1" aria-hidden="true">arrow_forward</span>' +
-          '</a>' +
-        '</article>' +
-        // Card 4: DUPR Matches & Performance
-        '<article class="bg-[#121822] border border-[#202c3d] rounded-2xl p-5 card-neon-hover transition-all duration-200 flex flex-col justify-between relative group shadow-lg">' +
-          '<div class="flex items-center justify-between">' +
-            '<div class="w-10 h-10 rounded-xl bg-[#a3e635]/10 border border-[#a3e635]/30 flex items-center justify-center text-[#a3e635]">' +
-              '<span class="material-symbols-outlined text-xl" aria-hidden="true">insights</span>' +
-            '</div>' +
-            '<span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 font-bold">' +
-              '<span class="material-symbols-outlined text-xs" aria-hidden="true">trending_up</span> +0.4 Mo' +
-            '</span>' +
-          '</div>' +
-          '<div class="mt-5 mb-6">' +
-            '<p class="text-xs uppercase tracking-wider font-mono text-gray-400">DUPR Match Form</p>' +
-            '<div class="flex items-baseline gap-2 mt-2">' +
-              '<span class="text-4xl font-extrabold font-display text-white tracking-tight">' + (total || 28) + '</span>' +
-              '<span class="text-xs text-gray-300 font-medium">Matches played</span>' +
-            '</div>' +
-            '<p class="text-xs text-gray-400 mt-2 flex items-center gap-2">' +
-              '<span>Win Rate: <strong class="text-white">68%</strong></span>' +
-              '<span class="text-gray-600">•</span>' +
-              '<span class="text-[#a3e635] font-semibold">Streak: W4</span>' +
-            '</p>' +
-          '</div>' +
-          '<a class="pt-3 border-t border-[#1d2737] text-xs font-semibold text-gray-400 group-hover:text-[#a3e635] flex items-center justify-between transition-colors no-underline" href="#/me/bookings">' +
-            '<span>View player ladder</span>' +
-            '<span class="material-symbols-outlined text-base transition-transform group-hover:translate-x-1" aria-hidden="true">arrow_forward</span>' +
-          '</a>' +
-        '</article>' +
-      '</section>';
+    // Account totals use the same compact card system as court booking.
+    var metricsHtml = '<section class="overview-metrics" data-purpose="overview-summary-grid" aria-label="Booking summary">' + [
+      { label: 'Confirmed upcoming', value: up, icon: 'event_available', note: 'Ready for your next game', href: '#/me/bookings' },
+      { label: 'Pending reservations', value: pending, icon: 'pending_actions', note: 'Payment or approval needed', href: '#/me/bookings' },
+      { label: 'Clubs joined', value: mc.clubs.length, icon: 'groups', note: 'Your places to play', href: '#/me/clubs' },
+      { label: 'Total reservations', value: total, icon: 'receipt_long', note: 'Across your booking history', href: '#/me/bookings' }
+    ].map(function (metric) {
+      return '<article class="overview-metric"><div class="overview-metric-heading"><span class="material-symbols-outlined" aria-hidden="true">' + metric.icon + '</span><span>' + metric.label + '</span></div><strong>' + metric.value + '</strong><div class="overview-metric-footer"><span>' + metric.note + '</span><a href="' + metric.href + '" aria-label="View ' + metric.label.toLowerCase() + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a></div></article>';
+    }).join('') + '</section>';
 
     // 3. NEXT BOOKING / LIVE COURT SCHEDULE CARD
     var nextBookingHtml =
@@ -320,12 +235,14 @@
           detailHtml + '<div class="home-club-actions"><a class="btn ghost" href="#/c/' + esc(club.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="#/c/' + esc(club.slug) + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></div></article>';
       }).join('') : D.ui.emptyState('No clubs joined', 'Find a club to start booking courts.', 'groups', {href:'#/me/find',label:'Find a Club'})) + '</div></section>';
 
-    sec.innerHTML = '<div class="space-y-9 member-profile-theme" data-purpose="player-dashboard">' +
+    sec.innerHTML = '<div class="member-overview-page member-profile-theme" data-purpose="player-dashboard">' +
       heroHtml +
       metricsHtml +
       nextBookingHtml +
       homeClubHtml +
     '</div>';
+
+    if (D.mountPublicBackdrop) D.mountPublicBackdrop(sec.querySelector(".member-overview-page"));
 
     // Wire interactive buttons in Overview
     var inviteBtn = q("#btn-invite-partner", sec);

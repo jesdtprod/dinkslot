@@ -845,7 +845,7 @@
 
   // Bend only the decorative mesh; the form remains on a stationary surface.
   function mountAuthPattern(stage) {
-    var sharedBackdrop = stage.matches(".auth-stage, #club-signup-screen, #club-profile-stage, #ds-book-page");
+    var sharedBackdrop = stage.matches(".auth-stage, #club-signup-screen, #club-profile-stage, #ds-book-page, .member-overview-page");
     var glow;
     if (sharedBackdrop) {
       // Replace route-specific ambient artwork with the sign-in backdrop on every page.
