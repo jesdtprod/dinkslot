@@ -4588,3 +4588,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
   #ds-book-page .payment-success-card > div:nth-child(3) > div { gap:12px; }
   #ds-book-page .payment-success-card > div:nth-child(3) > div > span:last-child { text-align:right; }
 }
+
+#ds-book-page .payment-success-card > div:nth-child(3) > div { display:grid; grid-template-columns:72px minmax(0,1fr); align-items:start; gap:12px; line-height:18px; }
+#ds-book-page .payment-success-card > div:nth-child(3) > div + div { margin-top:8px; }
+#ds-book-page .payment-success-card > div:nth-child(3) > div > span:last-child { min-width:0; text-align:right; overflow-wrap:anywhere; }
