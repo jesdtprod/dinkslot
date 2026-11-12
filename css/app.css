@@ -4183,3 +4183,15 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 .checkout-page-intro p { margin-top: 4px; }
 
 .dink-payment-container .payment-help-trigger { width: 100%; margin-top: 12px; box-sizing: border-box; }
+
+/* Open instruction layout: no nested cards inside the modal. */
+.payment-instructions-modal .payment-instructions-body { padding: 20px; }
+.payment-instructions-modal .payment-howto { margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.payment-instructions-modal .payment-howto > h4 { margin: 0 0 14px; color: #e0e9e4; font-size: 13px; }
+.payment-instructions-modal .payment-howto > ol { gap: 10px; }
+.payment-instructions-modal .payment-howto > ol > li { padding-left: 30px; line-height: 1.75; }
+.payment-instructions-modal .payment-howto > p { padding: 0 0 0 30px; margin: 12px 0 0; background: transparent; border-radius: 0; color: #91a5b2; }
+.payment-instructions-modal .payment-club-instructions { margin-top: 20px; padding: 18px 0 0; border: 0; border-top: 1px solid #ffffff12; border-radius: 0; background: transparent; }
+.payment-instructions-modal .payment-club-instructions h5 { margin: 0 0 12px; color: #e0e9e4; font-size: 12px; }
+.payment-instructions-modal .payment-club-instructions ul { gap: 7px; padding-left: 16px; line-height: 1.75; }
+@media(max-width:480px) { .payment-instructions-modal .payment-instructions-body { padding: 16px; } }
