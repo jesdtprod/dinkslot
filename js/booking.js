@@ -1200,6 +1200,14 @@
       var players = (await sb.from("club_players").select("id,display_name,phone").eq("tenant_id", t.id)).data || [];
       var courts = (await sb.from("courts").select("id,name,is_indoor").eq("tenant_id", t.id)).data || [];
       var pays = bs.length ? (await sb.from("booking_payments").select("*").eq("tenant_id", t.id).in("booking_id", bs.map(function (b) { return b.id; }))).data || [] : [];
+      // The scoped RPC supplies real profile names without granting access to profile rows.
+      var contacts = typeof sb.rpc === "function" ? await sb.rpc("club_player_contacts", { p_tenant_id: t.id }) : { data: [] };
+      var contactMap = {};
+      (contacts.data || []).forEach(function (contact) { contactMap[contact.player_id] = contact; });
+      players.forEach(function (player) {
+        var contact = contactMap[player.id];
+        if (contact) { player.full_name = contact.full_name; player.phone = contact.phone || player.phone; }
+      });
       var pm = {}, cm = {}, pay = {};
       players.forEach(function (p) { pm[p.id] = p; }); courts.forEach(function (c) { cm[c.id] = c; }); pays.forEach(function (p) { pay[p.booking_id] = p; });
       var today = dayStr(tz);
@@ -1209,7 +1217,7 @@
       var later = approved.filter(function (b) { return todayList.indexOf(b) === -1; });
       function row(b, withDecide) {
         var p = pm[b.player_id] || {}, c = cm[b.court_id] || {}, py = pay[b.id];
-        p = { display_name: p.display_name || b.guest_name, phone: p.phone || b.guest_phone };
+        p = { display_name: p.full_name || p.display_name || b.guest_name, phone: p.phone || b.guest_phone };
         var displayName = p.display_name || "Guest";
         var initials = displayName.split(" ").filter(Boolean).map(function (w) { return w[0]; }).slice(0, 2).join("").toUpperCase() || "BK";
 
@@ -1219,36 +1227,13 @@
               ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Proof uploaded</span>'
               : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>No proof</span>');
 
-        return '<div class="bcard relative bg-[#121822] hover:bg-[#151c27] border border-white/10 hover:border-brand-lime/30 rounded-2xl p-4 sm:p-5 mb-3 transition-all duration-200 shadow-md hover:shadow-xl group" data-b="' + esc(b.id) + '">' +
-          '<div class="flex items-start justify-between gap-3">' +
-            '<div class="flex items-center gap-3 min-w-0">' +
-              '<div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-brand-lime/20 via-emerald-400/10 to-transparent border border-brand-lime/30 flex items-center justify-center font-display font-bold text-brand-lime text-sm sm:text-base tracking-wider shrink-0 shadow-sm">' + esc(initials) + '</div>' +
-              '<div class="min-w-0">' +
-                '<h4 class="text-base sm:text-lg font-display font-bold text-white group-hover:text-brand-lime transition-colors leading-tight truncate">' + esc(displayName) + '</h4>' +
-                (p.phone ? '<div class="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 mt-0.5"><svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>' + esc(p.phone) + '</div>' : '') +
-              '</div>' +
-            '</div>' +
-            '<div class="shrink-0">' + statusBadge + '</div>' +
-          '</div>' +
-
-          '<div class="mt-3.5 flex flex-wrap items-center gap-2">' +
-            '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-slate-200">' +
-              '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime"></span>' + esc(c.name || "Court") +
-            '</div>' +
-            '<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 font-medium">' +
-              '<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' +
-              esc(range(b.starts_at, b.ends_at, tz)) +
-            '</div>' +
-            '<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-lime/10 border border-brand-lime/25 text-xs font-mono font-bold text-brand-lime">' +
-              money(b.amount) +
-            '</div>' +
-            '<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-white/10 text-xs font-mono text-slate-400 tracking-wider">' +
-              'Ref #' + esc(b.reference_code) +
-            '</div>' +
-          '</div>' +
-
-          (!py && b.expires_at ? '<div class="mt-2.5 flex items-center gap-2 text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-3 py-2 rounded-xl font-mono"><span>Hold ends in <b class="timer text-amber-200" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
-
+        var bookingDate = new Date(b.starts_at).toLocaleDateString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric" });
+        return '<article class="bcard reservation-review-card" data-b="' + esc(b.id) + '">' +
+          '<header class="reservation-review-header"><div class="reservation-customer"><span class="reservation-customer-avatar" aria-hidden="true">' + esc(initials) + '</span><div class="reservation-customer-copy"><span class="reservation-field-label">Customer</span><h4>' + esc(displayName) + '</h4></div></div><div class="reservation-payment-status">' + statusBadge + '</div></header>' +
+          '<div class="reservation-customer-phone"><span class="material-symbols-outlined" aria-hidden="true">call</span><span>' + esc(p.phone || "Phone not provided") + '</span></div>' +
+          '<dl class="reservation-review-details"><div><dt>Court</dt><dd>' + esc(c.name || "Court") + '</dd></div><div><dt>Amount</dt><dd class="reservation-review-amount">' + money(b.amount) + '</dd></div><div><dt>Date</dt><dd>' + esc(bookingDate) + '</dd></div><div><dt>Time</dt><dd>' + esc(timeOf(new Date(b.starts_at), tz) + " ? " + timeOf(new Date(b.ends_at), tz)) + '</dd></div></dl>' +
+          '<div class="reservation-review-reference"><span>Reference</span><strong>' + esc(b.reference_code || "Not available") + '</strong></div>' +
+          (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
           '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
             '<div class="booking-pass-actions">' +
               '<button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-brand-lime/15 text-slate-300 hover:text-brand-lime border border-white/10 hover:border-brand-lime/30 text-xs font-display font-semibold transition-all cursor-pointer" data-ticket="' + esc(b.id) + '">' +
@@ -1265,7 +1250,7 @@
             '</div>' +
           '</div>' +
           '<p class="msg" role="alert"></p>' +
-        '</div>';
+        '</article>';
       }
       box.innerHTML = '<div class="booking-queues">' + [
         { title: 'Needs approval', description: 'Review payment proof before approving.', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },

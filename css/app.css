@@ -3577,3 +3577,24 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 /* Equal breathing room beneath every queue heading and description. */
 .booking-queue:has(.booking-queue-description) .booking-record-grid { margin-top: 16px; }
 .booking-queue:has(.booking-queue-description) > .app-empty-state { margin-top: 16px; }
+
+/* A clear customer-first layout for staff reservation review. */
+.booking-queue .booking-record-grid > .reservation-review-card { padding: 16px; border-radius: 12px; }
+.reservation-review-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.reservation-customer { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.reservation-customer-avatar { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border: 1px solid #a3e63530; border-radius: 10px; background: #a3e6350d; color: var(--lime); font-weight: 700; }
+.reservation-customer-copy { min-width: 0; }
+.reservation-field-label { color: #91a3ae; font-size: 10px; line-height: 16px; }
+.reservation-customer-copy h4 { margin: 0; color: #eef3ef; font: 600 13px/20px "Plus Jakarta Sans", sans-serif; overflow-wrap: anywhere; }
+.reservation-payment-status { flex-shrink: 0; }
+.reservation-customer-phone { display: flex; align-items: center; gap: 6px; margin: 10px 0 14px; color: #b6c6cf; font: 400 12px/18px "Plus Jakarta Sans", sans-serif; font-variant-numeric: tabular-nums; }
+.reservation-customer-phone .material-symbols-outlined { font-size: 15px; color: #91a3ae; }
+.reservation-review-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 12px; border: 1px solid #ffffff0a; border-radius: 9px; background: #11191e55; }
+.reservation-review-details dt { margin-bottom: 3px; color: #91a3ae; font-size: 10px; }
+.reservation-review-details dd { margin: 0; color: #e1eae5; font-size: 12px; font-weight: 500; line-height: 1.6; overflow-wrap: anywhere; }
+.reservation-review-details dd.reservation-review-amount { color: var(--lime); font-weight: 700; }
+.reservation-review-reference { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-top: 12px; color: #91a3ae; font-size: 10px; }
+.reservation-review-reference strong { color: #b9c9d3; font-weight: 500; font-family: "JetBrains Mono", monospace; overflow-wrap: anywhere; }
+.reservation-review-hold { display: flex; align-items: center; gap: 6px; margin-top: 12px; padding: 7px 9px; border: 1px solid #fbbf2433; border-radius: 8px; background: #fbbf240d; color: #fcd34d; font-size: 11px; }
+.reservation-review-hold .material-symbols-outlined { font-size: 15px; }
+.reservation-review-card .msg:empty { display: none; }
