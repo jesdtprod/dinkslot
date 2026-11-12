@@ -619,7 +619,7 @@
             "</div>" +
             '<div class="club-booking-actions flex flex-col gap-2 self-stretch lg:self-end lg:items-end">' +
               '<div class="club-booking-buttons flex flex-wrap sm:flex-nowrap items-center gap-3">' +
-                '<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[12px] font-bold text-black bg-dink-lime hover:bg-dink-limeHover active:scale-95 transition shadow-neon-lime font-display text-sm uppercase tracking-wider no-underline" href="#club-courts" data-scroll="club-courts">' +
+                '<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[12px] font-bold text-black bg-dink-lime hover:bg-dink-limeHover active:scale-95 transition font-display text-sm uppercase tracking-wider no-underline" href="#club-courts" data-scroll="club-courts">' +
                   '<i class="fa-solid fa-bolt-lightning text-sm" aria-hidden="true"></i>' + (state.user ? "Book a court" : "Sign up to book") + "</a>" +
                 '<button type="button" data-scroll="club-dates" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-[12px] font-semibold text-slate-200 bg-dink-surfaceLight hover:bg-slate-700/80 border border-dink-border hover:border-slate-500 transition text-sm">' +
                   '<i class="fa-solid fa-calendar-check text-slate-400" aria-hidden="true"></i>Court Schedule</button>' +
@@ -699,7 +699,7 @@
         var n = openCount(d), on = idx === S.day;
         var tone = on ? "opacity-90" : n === 0 ? "text-slate-500" : n <= 6 ? "text-amber-400" : "text-dink-lime";
         return '<button type="button" data-day="' + idx + '" aria-pressed="' + on + '" class="flex-shrink-0 flex flex-col items-center justify-center w-24 py-2.5 px-3 rounded-[12px] transition ' +
-          (on ? "bg-dink-lime text-black font-semibold shadow-neon-lime" : "bg-dink-surfaceLight hover:bg-slate-700/60 border border-dink-border text-slate-300") + '">' +
+          (on ? "bg-dink-lime text-black font-semibold" : "bg-dink-surfaceLight hover:bg-slate-700/60 border border-dink-border text-slate-300") + '">' +
           '<span class="text-[10px] uppercase font-bold tracking-wider ' + (on ? "opacity-80" : "text-slate-400") + '">' + dayLabel(idx) + "</span>" +
           '<span class="text-base font-extrabold font-display ' + (on ? "" : "text-white") + '">' + dateLabel(idx) + "</span>" +
           '<span class="text-[10px] font-medium ' + tone + '">' + (n === 0 ? "Fully booked" : n + (n === 1 ? " slot left" : " slots left")) + "</span></button>";
@@ -767,7 +767,7 @@
             "</div>" +
           "</div>" +
           '<div class="p-6 pt-2 bg-dink-surface">' +
-            '<a href="' + esc(bookHref(k, selSlot ? selSlot.m : null)) + '" class="w-full py-3 rounded-[12px] bg-dink-lime hover:bg-dink-limeHover active:scale-[0.98] text-black font-bold font-display text-sm transition shadow-neon-lime flex items-center justify-center gap-2 no-underline">' +
+            '<a href="' + esc(bookHref(k, selSlot ? selSlot.m : null)) + '" class="w-full py-3 rounded-[12px] bg-dink-lime hover:bg-dink-limeHover active:scale-[0.98] text-black font-bold font-display text-sm transition flex items-center justify-center gap-2 no-underline">' +
               '<i class="fa-solid ' + (selSlot ? "fa-check" : "fa-bolt-lightning") + ' text-xs" aria-hidden="true"></i>' +
               esc((state.user ? "Book " : "Sign up to book ") + k.name + (selSlot ? " \u2022 " + timeLabel(selSlot.s) : "")) + "</a>" +
           "</div></article>";
