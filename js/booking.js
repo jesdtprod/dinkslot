@@ -358,8 +358,8 @@
       '<div class="dink-payment-container max-w-7xl mx-auto w-full relative text-slate-100">' +
         '<header class="checkout-page-intro"><span>Pickleball Court Reservation</span><div><h1>Complete your payment</h1><span class="checkout-page-badge">Checkout</span></div><p>Pay your reservation fee and attach your receipt to confirm your court booking.</p></header>' +
         '<!-- Top Breadcrumb & Reference Context Bar -->' +
-        '<div class="flex flex-wrap items-center justify-between gap-4 mb-6">' +
-          '<nav class="flex items-center gap-2 text-xs font-mono text-zinc-400">' +
+        '<div class="checkout-context-row flex flex-wrap items-center justify-between gap-4 mb-6">' +
+          '<nav class="shared-booking-breadcrumb flex items-center gap-2 text-xs font-mono text-zinc-400">' +
             '<a class="hover:text-primary transition flex items-center gap-1 no-underline text-zinc-400" id="back-to-booking-btn" href="#/c/' + esc(club.slug || '') + '/book">' +
               '<span class="material-symbols-outlined text-sm">arrow_back</span>' +
               'Back to Court Booking' +
@@ -973,7 +973,7 @@
 
         '<section class="booking-context" data-purpose="breadcrumbs-context">' +
           '<div class="flex flex-wrap items-center justify-between gap-3 text-xs">' +
-            '<nav class="booking-checkout-breadcrumb" aria-label="Breadcrumb"><a href="#/c/' + esc(slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Back to club</a><span aria-hidden="true">/</span><span>' + esc(club.name) + '</span><span aria-hidden="true">/</span><strong aria-current="page">Book a court</strong></nav>' +
+            '<nav class="booking-checkout-breadcrumb shared-booking-breadcrumb" aria-label="Breadcrumb"><a href="#/c/' + esc(slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Back to club</a><span aria-hidden="true">/</span><span>' + esc(club.name) + '</span><span aria-hidden="true">/</span><strong aria-current="page">Book a court</strong></nav>' +
             '<div class="booking-context-status">' +
               '<span class="club-live-badge"><span class="booking-live-dot" aria-hidden="true"></span><span id="book-live-slots">Live Availability: Checking slots...</span></span>' +
               '<span class="booking-timezone">Timezone: ' + esc(tz) + ' (PHT)</span>' +

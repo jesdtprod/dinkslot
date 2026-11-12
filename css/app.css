@@ -4195,3 +4195,11 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 .payment-instructions-modal .payment-club-instructions h5 { margin: 0 0 12px; color: #e0e9e4; font-size: 12px; }
 .payment-instructions-modal .payment-club-instructions ul { gap: 7px; padding-left: 16px; line-height: 1.75; }
 @media(max-width:480px) { .payment-instructions-modal .payment-instructions-body { padding: 16px; } }
+
+/* Identical breadcrumb metrics on booking and checkout, independent of utilities. */
+#ds-book-page .shared-booking-breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 20px; margin: 0; padding: 0; font: 400 12px/20px "JetBrains Mono",monospace; letter-spacing: 0; }
+#ds-book-page .shared-booking-breadcrumb a { display: inline-flex; align-items: center; gap: 5px; font: inherit; }
+#ds-book-page .shared-booking-breadcrumb :is(strong, .font-bold) { font-weight: 700; }
+#ds-book-page .shared-booking-breadcrumb .material-symbols-outlined { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; font-size: 14px; line-height: 1; }
+#ds-book-page .booking-context, #ds-book-page .checkout-context-row { margin: 0 0 24px; padding: 0; min-height: 32px; }
+#ds-book-page .booking-context > div, #ds-book-page .checkout-context-row { align-items: center; }
