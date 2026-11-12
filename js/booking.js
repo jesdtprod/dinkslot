@@ -1170,7 +1170,7 @@
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Cash</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">GCash</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Maya</span>' +
-                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Bank Transfer</span>' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Bank</span>' +
                   '</div>' +
                 '</div>' +
 
