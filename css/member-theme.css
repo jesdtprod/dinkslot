@@ -386,3 +386,18 @@
 #app #ds-tenant-dashboard #sec .member-clubs-page .membership-court-hours { grid-column:1; font-size:10px; line-height:16px; }
 #app #ds-tenant-dashboard #sec .member-clubs-page .membership-court-bottom { grid-column:2; grid-row:2 / 4; align-self:center; margin:0; padding:0; border:0; gap:8px; }
 #app #ds-tenant-dashboard #sec .member-clubs-page .membership-court-bottom b { font-size:12px; line-height:18px; white-space:nowrap; }
+
+/* My Bookings uses four compact desktop card tracks. */
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; align-items:stretch; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container > * { margin:0; min-width:0; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-card { display:flex; flex-direction:column; align-items:stretch; justify-content:space-between; gap:16px; padding:16px; }
+.member-bookings-page #booking-cards-container .clean-booking-main h3 { font-size:15px; line-height:22px; }
+.member-bookings-page #booking-cards-container .member-reservation-meta { gap:6px; }
+.member-bookings-page #booking-cards-container .member-reservation-meta > span:first-child { max-width:100%; white-space:normal; }
+.member-bookings-page #booking-cards-container .clean-booking-actions { display:flex; flex-direction:column; flex-wrap:nowrap; margin-top:auto; padding:12px 0 0; border-left:0; border-top:1px solid #ffffff09; }
+.member-bookings-page #booking-cards-container .clean-booking-actions > button { width:100%; }
+.member-bookings-page #booking-cards-container .clean-booking-actions > div { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions > div > button { min-width:0; padding:8px 5px !important; gap:4px !important; font-size:10px !important; }
+#booking-cards-container > .app-empty-state { grid-column:1 / -1; }
+@media(max-width:1200px) { #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container { grid-template-columns:minmax(0,1fr); } }
