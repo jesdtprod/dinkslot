@@ -291,8 +291,6 @@
 #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
 #ds-tenant-dashboard #sec .member-find-page .home-club-cover { height:180px; }
 #ds-tenant-dashboard #sec .member-find-page .home-club-avatar { border-color:#202a30; }
-#ds-tenant-dashboard #sec .member-find-page .home-clubs-heading { padding:16px 20px; margin:16px 0; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); }
-#ds-tenant-dashboard #sec .member-find-page .home-clubs-heading h2 { font-size:22px; line-height:30px; }
 #ds-tenant-dashboard #sec .member-find-page .home-club-card .home-club-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
 #ds-tenant-dashboard #sec .member-find-page .home-club-card .home-club-actions > a { min-width:0; padding-inline:6px; font-size:11px; white-space:nowrap; }
 @media(max-width:1100px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }

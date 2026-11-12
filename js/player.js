@@ -345,7 +345,7 @@
       '<div class="club-directory-results"><span><strong id="nearby-count-badge">' + all.length + '</strong> clubs found</span></div></div></section>';
 
     // Membership cards contain only saved venue and active-court records.
-    var joinedSectionHtml = '<section data-purpose="joined-clubs-section"><header class="home-clubs-heading"><div><h2>My Clubs</h2><p>' + mc.clubs.length + (mc.clubs.length === 1 ? ' joined club' : ' joined clubs') + '</p></div></header><div class="home-clubs-grid find-membership-grid">' +
+    var joinedSectionHtml = '<section id="my-home-club" data-purpose="joined-clubs-section"><header class="home-clubs-heading"><div><span class="overview-clubs-eyebrow">Your Pickleball Community</span><h2>My Clubs</h2><p>Explore your joined clubs, view court details, and book your next game.</p></div><a class="btn ghost" href="#/me/clubs"><span class="material-symbols-outlined" aria-hidden="true">groups</span>View All Clubs</a></header><div class="home-clubs-grid find-membership-grid">' +
       (mc.clubs.length ? mc.clubs.map(function (membership) {
         var club = all.find(function (row) { return row.id === membership.id; }) || membership;
         var courts = courtsBySlug[club.slug] || [];
