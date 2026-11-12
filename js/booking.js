@@ -1668,7 +1668,11 @@
 
   // ==================================================== club approval queue
   async function openPass(booking, court, t, player, button) {
+    if (!booking || booking.status !== 'approved') return D.ui.toast('QR Pass is available only after the booking is approved.', 'info');
     if (!booking || !booking.reference_code) return D.ui.toast('The booking reference is unavailable.', 'err');
+    var latest = await sb.from('bookings').select('status').eq('id', booking.id).maybeSingle();
+    if (latest.error) return D.ui.toast('Unable to verify booking approval. Please try again.', 'err');
+    if (!latest.data || latest.data.status !== 'approved') return D.ui.toast('QR Pass is available only after the booking is approved.', 'info');
     button = button || document.activeElement;
           var logo = await loadQrLogo();
           player = player || {}; court = court || {}; t = t || {};
@@ -1966,7 +1970,7 @@
           '<div class="reservation-review-reference reservation-review-payment"><span>Payment</span><strong class="payment-state-' + paymentState + '">' + paymentLabel + '</strong></div>' +
           '<div class="reservation-card-actions mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
             '<div class="booking-pass-actions">' +
-              '<button type="button" class="booking-decision-action qr-pass" data-ticket="' + esc(b.id) + '" aria-label="View QR pass" title="View QR Pass"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span></button>' +
+              '<button type="button" class="booking-decision-action qr-pass" data-ticket="' + esc(b.id) + '" aria-label="View QR pass" title="' + (b.status === 'approved' ? 'View QR Pass' : 'Available after booking approval') + '"' + (b.status === 'approved' ? '' : ' disabled aria-disabled="true"') + '><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span></button>' +
               (((py && py.proof_path) || (!b.player_id && paymentState === "paid")) ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>' : '') +
               (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '">' + holdTimeLeft(b.expires_at) + '</b></span></div>' : '') +
             '</div>' +

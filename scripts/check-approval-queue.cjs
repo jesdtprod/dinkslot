@@ -23,6 +23,7 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.match(normal.innerHTML,/Needs approval/);
   assert.match(normal.innerHTML,/Unpaid/);
   assert.match(normal.innerHTML,/data-ok="pending"[^>]*disabled/);
+  assert.match(normal.innerHTML,/data-ticket="pending"[^>]*disabled/);
   assert.ok(normal.innerHTML.indexOf('reservation-review-hold') > normal.innerHTML.indexOf('data-ticket="pending"'));
   assert.match(normal.innerHTML,/data-exp="[^"]+">\d+:\d{2}<\/b>/);
   assert.doesNotMatch(normal.innerHTML,/data-exp="[^"]+"><\/b>/);
@@ -50,6 +51,7 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.doesNotMatch(paid.innerHTML.split("Today's confirmed bookings")[0],/PAID-GUEST/);
   assert.match(paid.innerHTML,/PAID-GUEST/);
   assert.doesNotMatch(paid.innerHTML,/data-guest-pay/);
+  assert.doesNotMatch(paid.innerHTML,/data-ticket="guest"[^>]*disabled/);
   assert.match(paid.innerHTML,/data-proof="guest"/);
   assert.ok(paid.innerHTML.indexOf('data-proof="guest"') < paid.innerHTML.indexOf('data-cx="guest"'));
   payments=[{booking_id:'guest',proof_path:'club/guest-proofs/receipt.png'}];
