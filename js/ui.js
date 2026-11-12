@@ -296,7 +296,7 @@
               '<button type="button" id="side-toggle-btn" class="md:hidden p-2 rounded-full text-on-surface-variant hover:text-on-surface border-0 bg-transparent cursor-pointer flex items-center justify-center">' +
                 '<span class="material-symbols-outlined text-2xl">menu</span>' +
               '</button>' +
-              '<a href="#/" class="dashboard-mobile-brand" aria-label="DINKSLOT home"><strong>DINK<span>SLOT</span></strong></a>' +
+              '<a href="#/" class="dashboard-mobile-brand" aria-label="DINKSLOT home"><strong class="font-headline-sm text-headline-sm uppercase tracking-wider font-bold leading-none">DINK<span>SLOT</span></strong></a>' +
               (o.hideLocationChip ? '' : '<div class="dashboard-location-chip flex items-center gap-space-xs bg-surface-container-high px-space-md py-space-xs rounded-full border border-outline-variant/30"><span class="material-symbols-outlined text-primary text-sm">location_on</span><span class="font-label-md text-label-md text-on-surface font-semibold truncate">' + esc(o.chip || ((h.title || "Facility") + (h.city ? ' - ' + h.city : ''))) + '</span></div>') +
             '</div>' +
             '<div class="flex items-center gap-space-md">' +
