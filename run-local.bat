@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 
-set "PORT=8000"
+set "PORT=8080"
 if not "%~1"=="" set "PORT=%~1"
 
 py -3 --version >nul 2>&1
