@@ -601,9 +601,9 @@
               '</div>' +
 
               '<!-- Trust Sub-badge inside card -->' +
-              '<div class="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-center gap-2 text-[11px] text-zinc-500 font-mono">' +
-                '<span class="material-symbols-outlined text-sm text-primary">qr_code_2</span>' +
-                '<span>Instant Turnstile Access QR unlocks immediately upon proof upload</span>' +
+              '<div class="payment-access-note mt-4 pt-3 border-t border-outline-variant/20">' +
+                '<span class="material-symbols-outlined" aria-hidden="true">door_front</span>' +
+                '<span>Gate access after booking confirmation</span>' +
               '</div>' +
             '</div>' +
           '</div>' +

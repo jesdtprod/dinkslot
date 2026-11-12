@@ -4066,3 +4066,6 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .payment-club-instructions h5 { margin: 0 0 10px; color: #d5e0e6; font: 600 11px/18px "Plus Jakarta Sans",sans-serif; }
 .payment-club-instructions ul { display: flex; flex-direction: column; gap: 8px; margin: 0; padding-left: 16px; list-style: disc; color: #aabac5; font-size: 11px; line-height: 1.75; }
 .payment-club-instructions li::marker { color: #a3e635; }
+
+.payment-access-note { display: flex; align-items: center; justify-content: center; gap: 6px; color: #91a5b2; font: 400 10px/18px "Plus Jakarta Sans",sans-serif; white-space: nowrap; }
+.payment-access-note .material-symbols-outlined { flex-shrink: 0; font-size: 16px; line-height: 1; color: #a3e635; }
