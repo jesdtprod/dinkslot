@@ -4477,3 +4477,10 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 /* Remove the backdrop fade directly beneath the public header. */
 #ds-auth-screen .auth-stage::before { content:none; }
 #ds-auth-screen .auth-stage > .auth-pattern, #club-signup-screen > .auth-pattern, #club-profile-stage > .auth-pattern { mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 32px),transparent); -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 32px),transparent); }
+
+/* Match the sign-in card gutters on mobile club registration. */
+@media(max-width:640px) {
+  #app > #club-signup-screen { box-sizing:border-box; padding-inline:12px; }
+  #club-signup-screen .club-signup-layout { width:100%; max-width:520px; }
+  #club-signup-screen .club-signup-form { padding-inline:20px; }
+}
