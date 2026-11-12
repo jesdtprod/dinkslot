@@ -95,130 +95,341 @@
   // ----------------------------------------------------------------- skeletons
   function skeletonSection(sec) {
     if (sec === "courts") {
-      return '<div class="space-y-6" aria-label="Loading courts" role="status">' +
-        '<div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">' +
-          '<div class="space-y-2">' +
-            '<div class="h-8 w-44 rounded-lg bg-surface-container-high/70 ds-skeleton"></div>' +
-            '<div class="h-4 w-64 rounded bg-surface-container-high/40 ds-skeleton"></div>' +
+      return '<div class="admin-skeleton" role="status" aria-label="Loading courts">' +
+        '<header class="admin-skeleton-header">' +
+          '<div class="admin-skeleton-intro">' +
+            '<span class="skeleton-line" style="width:140px;height:12px;"></span>' +
+            '<div class="skeleton-line" style="width:150px;height:30px;"></div>' +
+            '<span class="skeleton-line" style="width:300px;max-width:85%;height:13px;"></span>' +
           '</div>' +
-          '<div class="h-10 w-36 rounded-full bg-primary/20 ds-skeleton"></div>' +
+          '<div class="admin-skeleton-stats">' +
+            '<div class="member-skeleton-btn ds-skeleton" style="width:130px;height:42px;"></div>' +
+          '</div>' +
+        '</header>' +
+        '<div class="admin-skeleton-toolbar ds-skeleton">' +
+          '<div style="display:flex;gap:10px;align-items:center;"><div class="skeleton-pill" style="width:100px;height:30px;"></div><div class="skeleton-pill" style="width:90px;height:30px;"></div><div class="skeleton-pill" style="width:100px;height:30px;"></div></div>' +
+          '<div class="skeleton-pill" style="width:120px;height:26px;"></div>' +
         '</div>' +
-        '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">' +
-          '<div class="rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col gap-4">' +
-            '<div class="h-28 rounded-xl bg-surface-container-high ds-skeleton"></div>' +
-            '<div class="space-y-2"><div class="h-5 w-36 rounded bg-surface-container-high ds-skeleton"></div><div class="h-4 w-24 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
-            '<div class="pt-3 border-t border-outline-variant/15 flex items-center justify-between"><div class="h-5 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-8 w-20 rounded-lg bg-surface-container-high/60 ds-skeleton"></div></div>' +
+        '<div class="admin-skeleton-grid-3">' +
+          '<div class="admin-skeleton-court-card ds-skeleton">' +
+            '<div class="admin-skeleton-court-cover"></div>' +
+            '<div class="admin-skeleton-court-body">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-line" style="width:120px;height:18px;"></div><div class="skeleton-pill" style="width:65px;height:20px;"></div></div>' +
+              '<div style="display:flex;gap:8px;"><div class="skeleton-pill" style="width:80px;height:18px;"></div><div class="skeleton-pill" style="width:90px;height:18px;"></div></div>' +
+              '<div class="skeleton-line" style="width:150px;height:12px;"></div>' +
+              '<div style="display:flex;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);"><div class="member-skeleton-btn ds-skeleton" style="flex:1;height:34px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="flex:1;height:34px;"></div></div>' +
+            '</div>' +
           '</div>' +
-          '<div class="rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col gap-4">' +
-            '<div class="h-28 rounded-xl bg-surface-container-high ds-skeleton"></div>' +
-            '<div class="space-y-2"><div class="h-5 w-40 rounded bg-surface-container-high ds-skeleton"></div><div class="h-4 w-20 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
-            '<div class="pt-3 border-t border-outline-variant/15 flex items-center justify-between"><div class="h-5 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-8 w-20 rounded-lg bg-surface-container-high/60 ds-skeleton"></div></div>' +
+          '<div class="admin-skeleton-court-card ds-skeleton">' +
+            '<div class="admin-skeleton-court-cover"></div>' +
+            '<div class="admin-skeleton-court-body">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-line" style="width:130px;height:18px;"></div><div class="skeleton-pill" style="width:65px;height:20px;"></div></div>' +
+              '<div style="display:flex;gap:8px;"><div class="skeleton-pill" style="width:80px;height:18px;"></div><div class="skeleton-pill" style="width:90px;height:18px;"></div></div>' +
+              '<div class="skeleton-line" style="width:150px;height:12px;"></div>' +
+              '<div style="display:flex;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);"><div class="member-skeleton-btn ds-skeleton" style="flex:1;height:34px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="flex:1;height:34px;"></div></div>' +
+            '</div>' +
           '</div>' +
-          '<div class="rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col gap-4">' +
-            '<div class="h-28 rounded-xl bg-surface-container-high ds-skeleton"></div>' +
-            '<div class="space-y-2"><div class="h-5 w-32 rounded bg-surface-container-high ds-skeleton"></div><div class="h-4 w-28 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
-            '<div class="pt-3 border-t border-outline-variant/15 flex items-center justify-between"><div class="h-5 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-8 w-20 rounded-lg bg-surface-container-high/60 ds-skeleton"></div></div>' +
+          '<div class="admin-skeleton-court-card ds-skeleton">' +
+            '<div class="admin-skeleton-court-cover"></div>' +
+            '<div class="admin-skeleton-court-body">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-line" style="width:115px;height:18px;"></div><div class="skeleton-pill" style="width:65px;height:20px;"></div></div>' +
+              '<div style="display:flex;gap:8px;"><div class="skeleton-pill" style="width:80px;height:18px;"></div><div class="skeleton-pill" style="width:90px;height:18px;"></div></div>' +
+              '<div class="skeleton-line" style="width:150px;height:12px;"></div>' +
+              '<div style="display:flex;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);"><div class="member-skeleton-btn ds-skeleton" style="flex:1;height:34px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="flex:1;height:34px;"></div></div>' +
+            '</div>' +
           '</div>' +
-        '</div></div>';
+        '</div>' +
+      '</div>';
     }
+
     if (sec === "bookings") {
-      return '<div class="space-y-6" aria-label="Loading bookings" role="status">' +
-        '<div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">' +
-          '<div class="space-y-2">' +
-            '<div class="h-8 w-56 rounded-lg bg-surface-container-high/70 ds-skeleton"></div>' +
-            '<div class="h-4 w-72 rounded bg-surface-container-high/40 ds-skeleton"></div>' +
+      return '<div class="admin-skeleton" role="status" aria-label="Loading bookings">' +
+        '<header class="admin-skeleton-header">' +
+          '<div class="admin-skeleton-intro">' +
+            '<span class="skeleton-line" style="width:140px;height:12px;"></span>' +
+            '<div class="skeleton-line" style="width:170px;height:30px;"></div>' +
+            '<span class="skeleton-line" style="width:310px;max-width:85%;height:13px;"></span>' +
           '</div>' +
-          '<div class="h-8 w-28 rounded-full bg-surface-container-high/50 ds-skeleton"></div>' +
+          '<div class="admin-skeleton-stats">' +
+            '<div class="member-skeleton-btn ds-skeleton" style="width:140px;height:42px;"></div>' +
+          '</div>' +
+        '</header>' +
+        '<div class="admin-skeleton-toolbar ds-skeleton">' +
+          '<div class="admin-skeleton-tabs">' +
+            '<div class="skeleton-pill" style="width:120px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:70px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:85px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:60px;height:32px;"></div>' +
+          '</div>' +
+          '<div class="skeleton-tb-input" style="max-width:320px;height:38px;"></div>' +
         '</div>' +
-        '<div class="h-14 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-3 flex items-center gap-3 ds-skeleton"></div>' +
-        '<div class="space-y-3">' +
-          '<div class="h-24 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
-          '<div class="h-24 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
-          '<div class="h-24 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
-        '</div></div>';
-    }
-    if (sec === "profile" || sec === "payments" || sec === "staff") {
-      return '<div class="space-y-6" aria-label="Loading ' + sec + '" role="status">' +
-        '<div class="flex items-center gap-3 pb-4 border-b border-outline-variant/20">' +
-          '<div class="h-9 w-28 rounded-full bg-surface-container-high/70 ds-skeleton"></div>' +
-          '<div class="h-9 w-28 rounded-full bg-surface-container-high/40 ds-skeleton"></div>' +
-          '<div class="h-9 w-24 rounded-full bg-surface-container-high/40 ds-skeleton"></div>' +
+        '<div style="display:flex;flex-direction:column;gap:14px;">' +
+          '<div class="admin-skeleton-card ds-skeleton">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:10px;"><div class="skeleton-pill" style="width:110px;height:22px;"></div><div class="skeleton-line" style="width:130px;height:11px;"></div></div><div class="skeleton-pill" style="width:90px;height:22px;"></div></div>' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 0;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);">' +
+              '<div style="display:flex;align-items:center;gap:10px;"><div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.06);"></div><div><div class="skeleton-line" style="width:120px;height:14px;margin-bottom:4px;"></div><div class="skeleton-line" style="width:90px;height:11px;"></div></div></div>' +
+              '<div style="display:flex;gap:8px;align-items:center;"><div class="skeleton-chip" style="width:100px;height:28px;"></div><div class="skeleton-chip" style="width:130px;height:28px;"></div></div>' +
+              '<div style="display:flex;align-items:center;gap:8px;"><div style="width:42px;height:42px;border-radius:8px;background:rgba(255,255,255,0.06);"></div><div class="skeleton-line" style="width:80px;height:18px;"></div></div>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:flex-end;gap:8px;"><div class="member-skeleton-btn ghost ds-skeleton" style="width:90px;height:34px;"></div><div class="member-skeleton-btn ds-skeleton" style="width:110px;height:34px;"></div></div>' +
+          '</div>' +
+          '<div class="admin-skeleton-card ds-skeleton">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:10px;"><div class="skeleton-pill" style="width:110px;height:22px;"></div><div class="skeleton-line" style="width:130px;height:11px;"></div></div><div class="skeleton-pill" style="width:90px;height:22px;"></div></div>' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 0;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);">' +
+              '<div style="display:flex;align-items:center;gap:10px;"><div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.06);"></div><div><div class="skeleton-line" style="width:110px;height:14px;margin-bottom:4px;"></div><div class="skeleton-line" style="width:85px;height:11px;"></div></div></div>' +
+              '<div style="display:flex;gap:8px;align-items:center;"><div class="skeleton-chip" style="width:100px;height:28px;"></div><div class="skeleton-chip" style="width:130px;height:28px;"></div></div>' +
+              '<div style="display:flex;align-items:center;gap:8px;"><div style="width:42px;height:42px;border-radius:8px;background:rgba(255,255,255,0.06);"></div><div class="skeleton-line" style="width:80px;height:18px;"></div></div>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:flex-end;gap:8px;"><div class="member-skeleton-btn ghost ds-skeleton" style="width:90px;height:34px;"></div><div class="member-skeleton-btn ds-skeleton" style="width:110px;height:34px;"></div></div>' +
+          '</div>' +
         '</div>' +
-        '<div class="h-96 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 flex flex-col gap-4 ds-skeleton"></div>' +
       '</div>';
     }
+
+    if (sec === "profile" || sec === "settings") {
+      return '<div class="admin-skeleton" role="status" aria-label="Loading club profile">' +
+        '<header class="admin-skeleton-header">' +
+          '<div class="admin-skeleton-intro">' +
+            '<span class="skeleton-line" style="width:140px;height:12px;"></span>' +
+            '<div class="skeleton-line" style="width:180px;height:30px;"></div>' +
+            '<span class="skeleton-line" style="width:310px;max-width:85%;height:13px;"></span>' +
+          '</div>' +
+          '<div class="admin-skeleton-stats">' +
+            '<div class="member-skeleton-btn ds-skeleton" style="width:130px;height:42px;"></div>' +
+          '</div>' +
+        '</header>' +
+        '<div class="admin-skeleton-toolbar ds-skeleton">' +
+          '<div class="admin-skeleton-tabs">' +
+            '<div class="skeleton-pill" style="width:110px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:120px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:110px;height:32px;"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="admin-skeleton-grid-2">' +
+          '<div class="admin-skeleton-card ds-skeleton">' +
+            '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:140px;height:18px;"></div><div class="skeleton-line" style="width:240px;height:12px;"></div></div>' +
+            '<div style="display:flex;flex-direction:column;gap:14px;margin-top:10px;">' +
+              '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:80px;height:11px;"></div><div class="skeleton-tb-input"></div></div>' +
+              '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:70px;height:11px;"></div><div class="skeleton-tb-input"></div></div>' +
+              '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:90px;height:11px;"></div><div class="skeleton-tb-input" style="height:80px;"></div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="admin-skeleton-card ds-skeleton">' +
+            '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:130px;height:18px;"></div><div class="skeleton-line" style="width:220px;height:12px;"></div></div>' +
+            '<div style="display:flex;flex-direction:column;gap:14px;margin-top:10px;">' +
+              '<div style="display:flex;gap:14px;align-items:center;"><div style="width:90px;height:90px;border-radius:16px;background:rgba(255,255,255,0.06);flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:120px;height:14px;"></div><div class="skeleton-line" style="width:160px;height:11px;"></div><div class="member-skeleton-btn ds-skeleton" style="width:110px;height:32px;margin-top:4px;"></div></div></div>' +
+              '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:100px;height:11px;"></div><div class="admin-skeleton-court-cover" style="height:120px;border-radius:12px;"></div></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    if (sec === "payments") {
+      return '<div class="admin-skeleton" role="status" aria-label="Loading payments & rules">' +
+        '<header class="admin-skeleton-header">' +
+          '<div class="admin-skeleton-intro">' +
+            '<span class="skeleton-line" style="width:140px;height:12px;"></span>' +
+            '<div class="skeleton-line" style="width:200px;height:30px;"></div>' +
+            '<span class="skeleton-line" style="width:320px;max-width:85%;height:13px;"></span>' +
+          '</div>' +
+          '<div class="admin-skeleton-stats">' +
+            '<div class="member-skeleton-btn ds-skeleton" style="width:120px;height:42px;"></div>' +
+          '</div>' +
+        '</header>' +
+        '<div class="admin-skeleton-toolbar ds-skeleton">' +
+          '<div class="admin-skeleton-tabs">' +
+            '<div class="skeleton-pill" style="width:140px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:130px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:150px;height:32px;"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="admin-skeleton-grid-2">' +
+          '<div class="admin-skeleton-card ds-skeleton">' +
+            '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:160px;height:18px;"></div><div class="skeleton-line" style="width:240px;height:12px;"></div></div>' +
+            '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;"><div class="member-skeleton-btn ds-skeleton" style="width:100%;height:36px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="width:100%;height:36px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="width:100%;height:36px;"></div></div>' +
+            '<div style="display:flex;gap:16px;align-items:center;margin-top:12px;"><div style="width:130px;height:130px;border-radius:14px;background:#fff;padding:8px;box-sizing:border-box;"><div style="width:100%;height:100%;background:#0d1218;border-radius:8px;"></div></div><div style="flex:1;display:flex;flex-direction:column;gap:8px;"><div class="skeleton-line" style="width:120px;height:12px;"></div><div class="skeleton-line" style="width:140px;height:16px;"></div><div class="member-skeleton-btn ds-skeleton" style="width:110px;height:34px;margin-top:4px;"></div></div></div>' +
+          '</div>' +
+          '<div class="admin-skeleton-card ds-skeleton">' +
+            '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:150px;height:18px;"></div><div class="skeleton-line" style="width:230px;height:12px;"></div></div>' +
+            '<div style="display:flex;flex-direction:column;gap:14px;margin-top:10px;">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);"><div style="display:flex;flex-direction:column;gap:4px;"><div class="skeleton-line" style="width:130px;height:13px;"></div><div class="skeleton-line" style="width:180px;height:10px;"></div></div><div class="skeleton-pill" style="width:44px;height:24px;"></div></div>' +
+              '<div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:110px;height:11px;"></div><div class="skeleton-tb-input" style="height:70px;"></div></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    if (sec === "staff") {
+      return '<div class="admin-skeleton" role="status" aria-label="Loading staff & team">' +
+        '<header class="admin-skeleton-header">' +
+          '<div class="admin-skeleton-intro">' +
+            '<span class="skeleton-line" style="width:140px;height:12px;"></span>' +
+            '<div class="skeleton-line" style="width:170px;height:30px;"></div>' +
+            '<span class="skeleton-line" style="width:310px;max-width:85%;height:13px;"></span>' +
+          '</div>' +
+          '<div class="admin-skeleton-stats">' +
+            '<div class="member-skeleton-btn ds-skeleton" style="width:140px;height:42px;"></div>' +
+          '</div>' +
+        '</header>' +
+        '<div class="admin-skeleton-toolbar ds-skeleton">' +
+          '<div class="admin-skeleton-tabs">' +
+            '<div class="skeleton-pill" style="width:70px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:90px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:80px;height:32px;"></div>' +
+          '</div>' +
+          '<div class="skeleton-tb-input" style="max-width:280px;height:38px;"></div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:12px;">' +
+          '<div class="admin-skeleton-card ds-skeleton" style="padding:16px 20px;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:12px;"><div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.06);"></div><div><div class="skeleton-line" style="width:130px;height:14px;margin-bottom:4px;"></div><div class="skeleton-line" style="width:160px;height:11px;"></div></div></div><div class="skeleton-pill" style="width:80px;height:24px;"></div><div style="display:flex;gap:6px;"><div class="member-skeleton-btn ghost ds-skeleton" style="width:80px;height:32px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="width:70px;height:32px;"></div></div></div>' +
+          '</div>' +
+          '<div class="admin-skeleton-card ds-skeleton" style="padding:16px 20px;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:12px;"><div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.06);"></div><div><div class="skeleton-line" style="width:120px;height:14px;margin-bottom:4px;"></div><div class="skeleton-line" style="width:150px;height:11px;"></div></div></div><div class="skeleton-pill" style="width:80px;height:24px;"></div><div style="display:flex;gap:6px;"><div class="member-skeleton-btn ghost ds-skeleton" style="width:80px;height:32px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="width:70px;height:32px;"></div></div></div>' +
+          '</div>' +
+          '<div class="admin-skeleton-card ds-skeleton" style="padding:16px 20px;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:12px;"><div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.06);"></div><div><div class="skeleton-line" style="width:140px;height:14px;margin-bottom:4px;"></div><div class="skeleton-line" style="width:170px;height:11px;"></div></div></div><div class="skeleton-pill" style="width:80px;height:24px;"></div><div style="display:flex;gap:6px;"><div class="member-skeleton-btn ghost ds-skeleton" style="width:80px;height:32px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="width:70px;height:32px;"></div></div></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
     if (sec === "account") {
-      return '<div class="space-y-6" aria-label="Loading account" role="status">' +
-        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
-        '<div class="h-72 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
+      return '<div class="admin-skeleton" role="status" aria-label="Loading admin profile">' +
+        '<header class="admin-skeleton-header">' +
+          '<div class="admin-skeleton-intro">' +
+            '<span class="skeleton-line" style="width:130px;height:12px;"></span>' +
+            '<div class="skeleton-line" style="width:160px;height:30px;"></div>' +
+            '<span class="skeleton-line" style="width:280px;max-width:85%;height:13px;"></span>' +
+          '</div>' +
+          '<div class="admin-skeleton-stats">' +
+            '<div class="skeleton-pill" style="width:120px;height:36px;"></div>' +
+          '</div>' +
+        '</header>' +
+        '<div class="admin-skeleton-grid-2">' +
+          '<div class="admin-skeleton-card ds-skeleton">' +
+            '<div style="display:flex;align-items:center;gap:16px;"><div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.06);"></div><div><div class="skeleton-line" style="width:140px;height:18px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:170px;height:12px;"></div></div></div>' +
+            '<div style="display:flex;gap:10px;margin-top:12px;"><div class="member-skeleton-btn ds-skeleton" style="width:120px;height:36px;"></div><div class="member-skeleton-btn ghost ds-skeleton" style="width:100px;height:36px;"></div></div>' +
+          '</div>' +
+          '<div class="admin-skeleton-card ds-skeleton">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-line" style="width:150px;height:18px;"></div><div class="skeleton-pill" style="width:80px;height:20px;"></div></div>' +
+            '<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">' +
+              '<div style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);"><div class="skeleton-line" style="width:120px;height:14px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:160px;height:11px;"></div></div>' +
+              '<div style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);"><div class="skeleton-line" style="width:110px;height:14px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:150px;height:11px;"></div></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
       '</div>';
     }
-    return '<div class="space-y-6" aria-label="Loading dashboard" role="status">' +
-      '<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-outline-variant/15">' +
-        '<div class="flex flex-col gap-2">' +
-          '<div class="h-7 w-56 bg-surface-container-high/70 rounded-lg ds-skeleton"></div>' +
-          '<div class="h-4 w-80 max-w-full bg-surface-container-high/40 rounded ds-skeleton"></div>' +
+
+    return '<div class="admin-skeleton" role="status" aria-label="Loading dashboard overview">' +
+      '<header class="admin-skeleton-header">' +
+        '<div class="admin-skeleton-intro">' +
+          '<span class="skeleton-line" style="width:150px;height:12px;"></span>' +
+          '<div class="skeleton-line" style="width:180px;height:32px;"></div>' +
+          '<span class="skeleton-line" style="width:340px;max-width:85%;height:13px;"></span>' +
+          '<div style="display:flex;gap:10px;margin-top:6px;"><div class="member-skeleton-btn ds-skeleton"></div><div class="member-skeleton-btn ghost ds-skeleton"></div></div>' +
         '</div>' +
-        '<div class="flex items-center gap-3">' +
-          '<div class="h-9 w-28 rounded-full bg-surface-container-high/50 ds-skeleton"></div>' +
-          '<div class="h-9 w-32 rounded-full bg-primary/20 ds-skeleton"></div>' +
+        '<div class="admin-skeleton-stats">' +
+          '<div class="admin-skeleton-stat ds-skeleton"><div style="padding:12px;display:flex;flex-direction:column;gap:6px;"><span class="skeleton-line" style="width:65px;height:9px;"></span><span class="skeleton-line" style="width:36px;height:20px;"></span></div></div>' +
+          '<div class="admin-skeleton-stat ds-skeleton"><div style="padding:12px;display:flex;flex-direction:column;gap:6px;"><span class="skeleton-line" style="width:75px;height:9px;"></span><span class="skeleton-line" style="width:36px;height:20px;"></span></div></div>' +
+          '<div class="admin-skeleton-stat ds-skeleton"><div style="padding:12px;display:flex;flex-direction:column;gap:6px;"><span class="skeleton-line" style="width:80px;height:9px;"></span><span class="skeleton-line" style="width:36px;height:20px;"></span></div></div>' +
+        '</div>' +
+      '</header>' +
+      '<div class="admin-skeleton-metrics">' +
+        '<div class="admin-skeleton-metric ds-skeleton">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-icon" style="width:24px;height:24px;border-radius:8px;"></div><div class="skeleton-pill" style="width:70px;height:18px;"></div></div>' +
+          '<div><div class="skeleton-line" style="width:90px;height:12px;margin-bottom:6px;"></div><div style="display:flex;align-items:baseline;gap:6px;"><div class="skeleton-line" style="width:40px;height:24px;"></div><div class="skeleton-line" style="width:60px;height:11px;"></div></div></div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid rgba(255,255,255,0.04);"><div class="skeleton-line" style="width:90px;height:10px;"></div><div class="skeleton-icon" style="width:14px;height:14px;border-radius:4px;"></div></div>' +
+        '</div>' +
+        '<div class="admin-skeleton-metric ds-skeleton">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-icon" style="width:24px;height:24px;border-radius:8px;"></div><div class="skeleton-pill" style="width:50px;height:18px;"></div></div>' +
+          '<div><div class="skeleton-line" style="width:100px;height:12px;margin-bottom:6px;"></div><div style="display:flex;align-items:baseline;gap:6px;"><div class="skeleton-line" style="width:36px;height:24px;"></div><div class="skeleton-line" style="width:60px;height:11px;"></div></div></div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid rgba(255,255,255,0.04);"><div class="skeleton-line" style="width:90px;height:10px;"></div><div class="skeleton-icon" style="width:14px;height:14px;border-radius:4px;"></div></div>' +
+        '</div>' +
+        '<div class="admin-skeleton-metric ds-skeleton">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-icon" style="width:24px;height:24px;border-radius:8px;"></div><div class="skeleton-pill" style="width:75px;height:18px;"></div></div>' +
+          '<div><div class="skeleton-line" style="width:105px;height:12px;margin-bottom:6px;"></div><div style="display:flex;align-items:baseline;gap:6px;"><div class="skeleton-line" style="width:38px;height:24px;"></div><div class="skeleton-line" style="width:65px;height:11px;"></div></div></div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid rgba(255,255,255,0.04);"><div class="skeleton-line" style="width:90px;height:10px;"></div><div class="skeleton-icon" style="width:14px;height:14px;border-radius:4px;"></div></div>' +
+        '</div>' +
+        '<div class="admin-skeleton-metric ds-skeleton">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-icon" style="width:24px;height:24px;border-radius:8px;"></div><div class="skeleton-pill" style="width:65px;height:18px;"></div></div>' +
+          '<div><div class="skeleton-line" style="width:95px;height:12px;margin-bottom:6px;"></div><div style="display:flex;align-items:baseline;gap:6px;"><div class="skeleton-line" style="width:34px;height:24px;"></div><div class="skeleton-line" style="width:70px;height:11px;"></div></div></div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid rgba(255,255,255,0.04);"><div class="skeleton-line" style="width:90px;height:10px;"></div><div class="skeleton-icon" style="width:14px;height:14px;border-radius:4px;"></div></div>' +
         '</div>' +
       '</div>' +
-      '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">' +
-        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col justify-between"><div class="flex items-center justify-between"><div class="h-4 w-24 rounded bg-surface-container-high ds-skeleton"></div><div class="h-7 w-7 rounded-lg bg-surface-container-high ds-skeleton"></div></div><div class="h-8 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-3 w-32 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
-        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col justify-between"><div class="flex items-center justify-between"><div class="h-4 w-28 rounded bg-surface-container-high ds-skeleton"></div><div class="h-7 w-7 rounded-lg bg-surface-container-high ds-skeleton"></div></div><div class="h-8 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-3 w-32 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
-        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col justify-between"><div class="flex items-center justify-between"><div class="h-4 w-24 rounded bg-surface-container-high ds-skeleton"></div><div class="h-7 w-7 rounded-lg bg-surface-container-high ds-skeleton"></div></div><div class="h-8 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-3 w-32 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
-        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col justify-between"><div class="flex items-center justify-between"><div class="h-4 w-28 rounded bg-surface-container-high ds-skeleton"></div><div class="h-7 w-7 rounded-lg bg-surface-container-high ds-skeleton"></div></div><div class="h-8 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-3 w-32 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
+      '<div class="admin-skeleton-card ds-skeleton">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:14px;"><div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:120px;height:10px;"></div><div class="skeleton-line" style="width:180px;height:22px;"></div><div class="skeleton-line" style="width:260px;max-width:80%;height:12px;"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;"><div class="skeleton-line" style="width:110px;height:14px;"></div><div class="skeleton-pill" style="width:120px;height:6px;"></div></div></div>' +
+        '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);"><div class="skeleton-icon" style="width:28px;height:28px;border-radius:8px;"></div><div style="flex:1;display:flex;flex-direction:column;gap:4px;"><div class="skeleton-line" style="width:140px;height:14px;"></div><div class="skeleton-line" style="width:220px;max-width:80%;height:11px;"></div></div><div class="skeleton-pill" style="width:90px;height:28px;"></div></div>' +
+          '<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);"><div class="skeleton-icon" style="width:28px;height:28px;border-radius:8px;"></div><div style="flex:1;display:flex;flex-direction:column;gap:4px;"><div class="skeleton-line" style="width:130px;height:14px;"></div><div class="skeleton-line" style="width:200px;max-width:80%;height:11px;"></div></div><div class="skeleton-pill" style="width:90px;height:28px;"></div></div>' +
+          '<div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);"><div class="skeleton-icon" style="width:28px;height:28px;border-radius:8px;"></div><div style="flex:1;display:flex;flex-direction:column;gap:4px;"><div class="skeleton-line" style="width:150px;height:14px;"></div><div class="skeleton-line" style="width:240px;max-width:80%;height:11px;"></div></div><div class="skeleton-pill" style="width:90px;height:28px;"></div></div>' +
+        '</div>' +
       '</div>' +
-      '<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">' +
-        '<div class="lg:col-span-7 h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
-        '<div class="lg:col-span-5 h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
+      '<div class="admin-skeleton-card ds-skeleton">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:150px;height:20px;"></div><div class="skeleton-line" style="width:220px;height:12px;"></div></div><div class="skeleton-pill" style="width:90px;height:28px;"></div></div>' +
+        '<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);"><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);"></div><div><div class="skeleton-line" style="width:110px;height:13px;margin-bottom:4px;"></div><div class="skeleton-line" style="width:80px;height:10px;"></div></div></div><div class="skeleton-pill" style="width:90px;height:22px;"></div><div class="skeleton-line" style="width:70px;height:14px;"></div></div>' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);"><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);"></div><div><div class="skeleton-line" style="width:120px;height:13px;margin-bottom:4px;"></div><div class="skeleton-line" style="width:75px;height:10px;"></div></div></div><div class="skeleton-pill" style="width:90px;height:22px;"></div><div class="skeleton-line" style="width:70px;height:14px;"></div></div>' +
+        '</div>' +
       '</div>' +
-      '<div class="h-56 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
     '</div>';
   }
 
-  function skeletonShell() {
-    return '<div id="ds-tenant-dashboard" class="flex w-full min-h-screen bg-surface text-on-surface relative">' +
-      '<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between py-space-md border-r border-outline-variant/20 -translate-x-full md:translate-x-0">' +
-        '<div class="flex flex-col gap-space-md">' +
-          '<div class="facility-brand-row flex items-center gap-3 px-4">' +
-            '<div class="w-10 h-10 rounded-xl bg-surface-container-high/60 ds-skeleton shrink-0"></div>' +
-            '<div class="flex flex-col gap-1.5 flex-1 min-w-0">' +
-              '<div class="h-4 w-24 bg-surface-container-high/60 rounded ds-skeleton"></div>' +
-              '<div class="h-2.5 w-32 bg-surface-container-high/40 rounded ds-skeleton"></div>' +
+  function skeletonShell(activeSection) {
+    activeSection = activeSection || "overview";
+    var navItems = [
+      { key: "overview", label: "Dashboard", icon: "dashboard" },
+      { key: "courts", label: "Courts", icon: "sports_tennis" },
+      { key: "bookings", label: "Bookings", icon: "event_available" },
+      { key: "profile", label: "Club Profile", icon: "storefront" },
+      { key: "payments", label: "Payments & Rules", icon: "payments" },
+      { key: "staff", label: "Staff & Team", icon: "groups" },
+      { key: "account", label: "My Profile", icon: "person" }
+    ];
+
+    var navHtml = navItems.map(function (item) {
+      var isActive = item.key === activeSection;
+      return '<div class="admin-skeleton-nav-item' + (isActive ? ' is-active' : '') + ' ds-skeleton" style="height:40px;border-radius:12px;padding:0 12px;display:flex;align-items:center;gap:10px;background:' + (isActive ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)') + ';border:1px solid rgba(255,255,255,0.04);margin-bottom:4px;">' +
+        '<span class="skeleton-icon" style="width:20px;height:20px;border-radius:6px;"></span>' +
+        '<span class="skeleton-line" style="width:100px;height:12px;"></span>' +
+      '</div>';
+    }).join("");
+
+    return '<div class="admin-skeleton-shell" role="status" aria-label="Loading admin dashboard">' +
+      '<aside class="admin-skeleton-aside">' +
+        '<div style="display:flex;flex-direction:column;gap:18px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;padding:0 4px;">' +
+            '<div style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);flex-shrink:0;"></div>' +
+            '<div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;">' +
+              '<div class="skeleton-line" style="width:90px;height:16px;"></div>' +
+              '<div class="skeleton-line" style="width:110px;height:11px;"></div>' +
             '</div>' +
           '</div>' +
-          '<div class="flex flex-col gap-2 px-3 pt-2">' +
-            '<div class="h-3 w-16 bg-surface-container-high/30 rounded mx-2 mb-1 ds-skeleton"></div>' +
-            '<div class="h-10 w-full rounded-xl bg-surface-container-high/60 ds-skeleton"></div>' +
-            '<div class="h-10 w-full rounded-xl bg-surface-container-high/40 ds-skeleton"></div>' +
-            '<div class="h-10 w-full rounded-xl bg-surface-container-high/40 ds-skeleton"></div>' +
-            '<div class="h-3 w-20 bg-surface-container-high/30 rounded mx-2 mt-3 mb-1 ds-skeleton"></div>' +
-            '<div class="h-10 w-full rounded-xl bg-surface-container-high/40 ds-skeleton"></div>' +
-            '<div class="h-10 w-full rounded-xl bg-surface-container-high/40 ds-skeleton"></div>' +
-            '<div class="h-10 w-full rounded-xl bg-surface-container-high/40 ds-skeleton"></div>' +
-          '</div>' +
+          '<nav style="display:flex;flex-direction:column;gap:2px;">' + navHtml + '</nav>' +
         '</div>' +
-        '<div class="px-4 pt-3 border-t border-outline-variant/20">' +
-          '<div class="h-10 w-full rounded-xl bg-surface-container-low border border-outline-variant/20 ds-skeleton"></div>' +
+        '<div style="padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);">' +
+          '<div class="skeleton-pill" style="width:100%;height:38px;display:flex;align-items:center;gap:8px;padding:0 12px;box-sizing:border-box;">' +
+            '<div style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);"></div>' +
+            '<div class="skeleton-line" style="width:80px;height:11px;"></div>' +
+          '</div>' +
         '</div>' +
       '</aside>' +
-      '<div class="w-full md:pl-64 min-h-screen flex flex-col bg-surface flex-1">' +
-        '<header class="fixed top-0 left-0 md:left-64 right-0 h-14 bg-surface/85 backdrop-blur-xl z-40 flex items-center justify-between px-6 border-b border-outline-variant/20">' +
-          '<div class="flex items-center gap-2">' +
-            '<div class="h-7 w-48 rounded-full bg-surface-container-high/60 ds-skeleton"></div>' +
+      '<div class="admin-skeleton-body">' +
+        '<header class="admin-skeleton-topbar">' +
+          '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<div class="skeleton-pill md:hidden" style="width:36px;height:36px;border-radius:10px;"></div>' +
+            '<div class="skeleton-pill" style="width:160px;height:32px;"></div>' +
           '</div>' +
-          '<div class="flex items-center gap-3">' +
-            '<div class="h-7 w-28 rounded-full bg-primary/10 border border-primary/20 hidden lg:block ds-skeleton"></div>' +
-            '<div class="w-9 h-9 rounded-full bg-surface-container-high/60 ds-skeleton"></div>' +
-            '<div class="h-9 w-36 rounded-full bg-surface-container-high/60 ds-skeleton"></div>' +
+          '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<div class="skeleton-pill hidden lg:block" style="width:130px;height:32px;"></div>' +
+            '<div class="skeleton-pill" style="width:36px;height:36px;border-radius:10px;"></div>' +
+            '<div class="skeleton-pill" style="width:150px;height:38px;"></div>' +
           '</div>' +
         '</header>' +
-        '<main class="w-full pt-14 bg-surface min-h-screen flex-1 flex flex-col">' +
-          '<div class="px-gutter md:px-gutter-desktop py-space-lg flex flex-col gap-space-lg max-w-[1560px] mx-auto w-full">' +
-            skeletonSection("overview") +
-          '</div>' +
+        '<main class="admin-skeleton-main">' +
+          skeletonSection(activeSection) +
         '</main>' +
       '</div>' +
     '</div>';
@@ -234,7 +445,7 @@
 
     var isSameShell = currentUi && ctx && ctx.slug === slug && root.contains(currentUi.main) && root.querySelector("#ds-tenant-dashboard");
     if (!isSameShell) {
-      root.innerHTML = skeletonShell();
+      root.innerHTML = skeletonShell(section);
       var tr = await sb.from("tenants").select("*").eq("slug", slug).maybeSingle();
       var t = tr.data, role = null;
       if (t) {
@@ -1291,5 +1502,5 @@
     load();
   }
 
-  D.admin = { render: render, scanQr: scanQr };
+  D.admin = { render: render, scanQr: scanQr, skeletonSection: skeletonSection, skeletonShell: skeletonShell };
 })();
