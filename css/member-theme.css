@@ -347,3 +347,8 @@
 #app #ds-tenant-dashboard #sec .member-clubs-page .myclubs-directory-tools > .club-directory-search { margin:0; padding-block:0; min-height:44px; }
 #app #ds-tenant-dashboard #sec .member-clubs-page .myclubs-directory-tools > .club-directory-filters { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid #ffffff08; }
 #app #ds-tenant-dashboard #sec .member-clubs-page .club-directory-results > span { color:#a3e635; border-color:#a3e63530; background:#a3e6350d; }
+
+/* Club cards use one shared opaque surface across discovery and memberships. */
+#app #ds-tenant-dashboard #sec :is(.member-find-page,.member-clubs-page) { --club-card-surface:#181f24; }
+#app #ds-tenant-dashboard #sec .member-find-page .home-club-card,
+#app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel { background-color:var(--club-card-surface); background-image:none; }
