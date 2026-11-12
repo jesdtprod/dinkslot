@@ -651,9 +651,9 @@
       '<section id="club-courts" class="space-y-4 scroll-mt-20">' +
         '<div class="flex items-center justify-between flex-wrap gap-3"><div><h2 class="text-2xl font-bold text-white font-display m-0">Courts Available</h2>' +
           '<p id="club-avail-note" class="text-xs text-slate-400 m-0"></p></div>' +
-          (courts.length ? '<div class="flex items-center gap-2 text-xs"><span class="flex items-center gap-1.5 text-slate-400"><span class="w-2.5 h-2.5 rounded-full bg-dink-lime"></span> Available</span>' +
-            '<span class="flex items-center gap-1.5 text-slate-400 ml-2"><span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span> Booked</span>' +
-            (tiered ? '<span class="flex items-center gap-1.5 text-slate-400 ml-2"><span class="text-[8px] bg-dink-pinkAccent text-white px-1 rounded-sm uppercase font-bold">Peak</span> Peak Rate</span>' : "") + "</div>" : "") +
+          (courts.length ? '<div class="court-availability-legend" aria-label="Court availability legend"><span class="court-legend-badge available"><span class="court-legend-dot" aria-hidden="true"></span>Available</span>' +
+            '<span class="court-legend-badge booked"><span class="court-legend-dot" aria-hidden="true"></span>Booked</span>' +
+            (tiered ? '<span class="court-legend-badge peak"><span class="material-symbols-outlined" aria-hidden="true">bolt</span>Peak Rate</span>' : "") + "</div>" : "") +
         "</div>" +
         (courts.length ? '<div id="club-courtgrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>'
           : '<div class="bg-dink-surface rounded-2xl border border-dink-border p-8 text-center text-slate-400"><i class="fa-solid fa-table-tennis-paddle-ball text-2xl text-slate-600 mb-2" aria-hidden="true"></i><p class="m-0">This club has not listed its courts yet.</p></div>') +

@@ -4259,3 +4259,11 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 #ds-book-page .checkout-context-badges > div > span { font-size: 11px; line-height: 18px; letter-spacing: 0; }
 #ds-book-page .checkout-context-badges button { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; padding: 0; }
 #ds-book-page .checkout-context-badges button .material-symbols-outlined { font-size: 14px; }
+
+.court-availability-legend { display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+.court-legend-badge { display:inline-flex; align-items:center; gap:6px; min-height:26px; padding:3px 8px; border:1px solid #35434b; border-radius:7px; background:#202a30; color:#a9bac6; font:500 10px/18px "Plus Jakarta Sans",sans-serif; white-space:nowrap; }
+.court-legend-dot { width:6px; height:6px; border-radius:50%; background:#64748b; }
+.court-legend-badge.available { color:#a3e635; background:#a3e6350a; border-color:#a3e63535; }
+.court-legend-badge.available .court-legend-dot { background:currentColor; }
+.court-legend-badge.peak { color:#f9a8d4; background:#ec48990a; border-color:#ec489935; }
+.court-legend-badge .material-symbols-outlined { font-size:14px; line-height:1; }
