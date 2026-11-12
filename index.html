@@ -215,6 +215,30 @@
   <link rel="stylesheet" href="css/map.css" />
   <link rel="stylesheet" href="css/inputs.css?v=406" />
   <link rel="stylesheet" href="css/member-theme.css?v=408" />
+  <style id="mobile-loading-critical">
+    .mobile-home-skeleton { display:none; }
+    @media(max-width:640px) {
+      body.app-booting > :is(header,main,footer) { visibility:hidden; }
+      body.app-booting #app-startup { position:fixed; inset:0; z-index:999; display:block; overflow:hidden; padding:0; background:#10141a; }
+      html:not(.boot-dashboard) #app-startup .home-boot-skeleton { display:none !important; }
+      html:not(.boot-dashboard) #app-startup .mobile-home-skeleton { box-sizing:border-box; display:block; min-height:100dvh; padding:16px; background:#10141a; }
+      .mobile-home-skeleton * { box-sizing:border-box; }
+      .mobile-home-skeleton i { display:block; border-radius:8px; background:linear-gradient(100deg,#202a30 20%,#303d43 40%,#202a30 60%); background-size:200% 100%; animation:mobile-loading-sweep 1.4s linear infinite; }
+      .mobile-home-skeleton .loading-nav { display:flex; justify-content:space-between; align-items:center; gap:12px; height:40px; }
+      .mobile-home-skeleton .loading-nav i:first-child { width:145px; height:36px; } .mobile-home-skeleton .loading-nav i:last-child { width:80px; height:36px; }
+      .mobile-home-skeleton .loading-hero { display:flex; flex-direction:column; align-items:center; gap:14px; padding-top:48px; }
+      .mobile-home-skeleton .loading-hero > i:nth-child(1) { width:85%; height:32px; border-radius:20px; }
+      .mobile-home-skeleton .loading-hero > i:nth-child(2) { width:65%; height:30px; margin-top:8px; }
+      .mobile-home-skeleton .loading-hero > i:nth-child(3) { width:76%; height:30px; }
+      .mobile-home-skeleton .loading-hero > i:nth-child(4) { width:90%; height:32px; }
+      .mobile-home-skeleton .loading-search { display:grid; gap:10px; width:100%; margin-top:6px; padding:14px; border:1px solid #35434b; border-radius:12px; }
+      .mobile-home-skeleton .loading-search i { width:100%; height:46px; }
+      .mobile-home-skeleton .loading-stats { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; margin-top:16px; }
+      .mobile-home-skeleton .loading-stats i { height:48px; }
+    }
+    @keyframes mobile-loading-sweep { to { background-position:-200% 0; } }
+    @media(prefers-reduced-motion:reduce) { .mobile-home-skeleton i { animation:none; } }
+  </style>
   <style id="startup-critical">
     body.app-booting > :is(header,main,footer) { visibility:hidden; }
     #app-startup { display:none; }
@@ -239,6 +263,7 @@
 </head>
 <body class="app-booting bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col">
   <div id="app-startup" role="status" aria-label="Loading page">
+    <div class="mobile-home-skeleton" aria-hidden="true"><div class="loading-nav"><i></i><i></i></div><div class="loading-hero"><i></i><i></i><i></i><i></i><div class="loading-search"><i></i><i></i><i></i><i></i></div><div class="loading-stats"><i></i><i></i><i></i><i></i></div></div></div>
     <!-- DEDICATED HIGH-FIDELITY HOME SKELETON (displayed on public / landing routes) -->
     <div class="home-boot-skeleton" aria-hidden="true">
       <div class="home-skel-glow-1"></div>
