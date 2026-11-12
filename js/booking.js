@@ -1964,6 +1964,7 @@
                 '<svg class="w-4 h-4 text-brand-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm-5 0h3v3h-3v-3zm2 2h2v4h-2v-4zm3 3h3v3h-3v-3zm-5 2h3v1h-3v-1z"/></svg>' +
                 'QR Pass' +
               '</button>' +
+              (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
             '</div>' +
             '<div class="flex items-center gap-2">' +
               (((py && py.proof_path) || (!b.player_id && paymentState === "paid")) ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span></button>' : '') +
@@ -1974,7 +1975,6 @@
                 : '<button class="booking-decision-action cancel" data-cx="' + esc(b.id) + '" type="button" aria-label="Cancel booking" title="Cancel booking"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>') +
             '</div>' +
           '</div>' +
-          (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
           '<p class="msg" role="alert"></p>' +
         '</article>';
       }
