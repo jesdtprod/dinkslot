@@ -1273,7 +1273,7 @@
         { title: 'Upcoming confirmed bookings', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
       ].map(function (group) {
         return '<section class="booking-queue"><header class="booking-queue-heading"><span class="material-symbols-outlined" aria-hidden="true">' + group.icon + '</span><h3>' + group.title + '</h3><span class="booking-count' + (group.decide && group.items.length ? ' needs-attention' : '') + '">' + group.items.length + '</span></header>' +
-          (group.decide ? '<p class="booking-queue-description">Review reservation details and payment proof before approving. Unpaid reservations remain on hold until the payment timer expires.</p>' : '') +
+          (group.decide ? '<p class="booking-queue-description">Review payment proof before approving.</p>' : '') +
           (group.items.length ? '<div class="booking-record-grid">' + group.items.map(function (b) { return row(b, !!group.decide); }).join('') + '</div>' : D.ui.emptyState(group.decide ? 'No pending approvals' : 'No bookings scheduled', group.empty, group.icon)) + '</section>';
       }).join('') + '</div>';
       startTicker();
