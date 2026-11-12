@@ -3538,3 +3538,8 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
   #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside > div:first-child { grid-column: 9 / -1; grid-row: 1; margin-top: 0; }
   #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside > div:not(:first-child) { grid-column: 9 / -1; margin-top: 0; }
 }
+
+.booking-queue-description { margin: 8px 0 0 40px; max-width: 680px; color: #a7b8c2; font: 400 12px/1.65 "Plus Jakarta Sans", sans-serif; }
+.booking-queue .booking-record-grid > .bcard { background: #242e35; border-color: #3a474f; box-shadow: 0 2px 6px #00000012; }
+.booking-queue .booking-record-grid > .bcard:hover { background: #29353d; border-color: #55684f; }
+@media (max-width: 640px) { .booking-queue-description { margin-left: 0; } }
