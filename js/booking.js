@@ -1890,7 +1890,7 @@
           document.body.appendChild(ticket); ticket.showModal();
   }
 
-  async function queue(box, t) {
+  async function queue(box, t, options) {
     var tz = t.timezone || "Asia/Manila", chan = null, poll = null;
     function stop() { if (chan) { sb.removeChannel(chan); chan = null; } if (poll) { clearInterval(poll); poll = null; } }
     function modal(html) {
@@ -1938,6 +1938,7 @@
       var today = dayStr(tz);
       function isPaid(booking) { return Number(booking.amount) === 0 || !!booking.paid_at || (booking.status === "approved" && !!pay[booking.id]); }
       var pending = bs.filter(function (b) { return b.status === "pending" || !isPaid(b); });
+      if (options && options.onCount) options.onCount(pending.length);
       var approved = bs.filter(function (b) { return b.status === "approved" && isPaid(b) && new Date(b.ends_at).getTime() > Date.now(); });
       var todayList = approved.filter(function (b) { return new Date(b.starts_at).toLocaleDateString("en-CA", { timeZone: tz }) === today; });
       var later = approved.filter(function (b) { return todayList.indexOf(b) === -1; });

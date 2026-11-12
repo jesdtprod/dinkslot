@@ -7,6 +7,18 @@
   var ctx = null; // { t: tenant row, role: 'owner'|'staff', slug }
   var currentUi = null; // active layout shell instance
   var statusChan = null; // live club-status subscription for the open dashboard
+  var badgePoll = null;
+  async function approvalCount(tenantId) {
+    var result = await sb.from('bookings').select('id,status,amount,paid_at').eq('tenant_id', tenantId).in('status', ['pending','approved']);
+    if (result.error) throw result.error;
+    var payments = await sb.from('booking_payments').select('booking_id,deleted_at').eq('tenant_id', tenantId);
+    if (payments.error) throw payments.error;
+    var paid = {};
+    (payments.data || []).forEach(function (payment) { if (!payment.deleted_at) paid[payment.booking_id] = true; });
+    return (result.data || []).filter(function (booking) {
+      return booking.status === 'pending' || !(Number(booking.amount) === 0 || booking.paid_at || paid[booking.id]);
+    }).length;
+  }
   var TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
   var MAX_BYTES = 5 * 1024 * 1024;
 
@@ -213,8 +225,7 @@
       }
       ctx = { t: t, role: role, slug: slug };
       var owner = role === "owner";
-      var pendingCount = (await sb.from("bookings").select("id", { count: "exact", head: true })
-        .eq("tenant_id", t.id).eq("status", "pending")).count || 0;
+      var pendingCount = await approvalCount(t.id);
       var base = "#/admin/" + slug;
       var items = [
         { type: "label", label: "Operations" },
@@ -246,7 +257,19 @@
 
       // Live status: when platform admin approves or suspends this club, the dashboard updates itself.
       if (statusChan) { sb.removeChannel(statusChan); statusChan = null; }
+      if (badgePoll) clearInterval(badgePoll);
+      var badgeUi = currentUi;
+      async function refreshBadge() {
+        if (!document.body.contains(badgeUi.main)) { clearInterval(badgePoll); return; }
+        try {
+          var count = await approvalCount(t.id);
+          if (document.body.contains(badgeUi.main)) badgeUi.setBadge('bookings', count);
+        } catch (error) { console.error('Unable to refresh booking badge', error); }
+      }
+      badgePoll = setInterval(refreshBadge, 20000);
       statusChan = sb.channel("tenant-" + t.id + "-" + Date.now())
+        .on("postgres_changes", { event: "*", schema: "public", table: "bookings", filter: "tenant_id=eq." + t.id }, refreshBadge)
+        .on("postgres_changes", { event: "*", schema: "public", table: "booking_payments", filter: "tenant_id=eq." + t.id }, refreshBadge)
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tenants", filter: "id=eq." + t.id }, function (pl) {
           if (!document.body.contains(currentUi.main)) { sb.removeChannel(statusChan); statusChan = null; return; }
           if (pl.new && pl.new.status !== ctx.t.status) { ctx.t.status = pl.new.status; render(slug, section); }
@@ -265,7 +288,7 @@
       if (!D.booking) return;
       sec.innerHTML = '<div id="newbk"></div><div id="queue"></div>';
       D.booking.adminNew(q("#newbk", sec), ctx.t);
-      return D.booking.queue(q("#queue", sec), ctx.t);
+      return D.booking.queue(q("#queue", sec), ctx.t, { onCount: function (count) { ui.setBadge('bookings', count); } });
     }
     if (section === "account") return accountView(sec);
     if (section === "courts") return courtsView(sec);
