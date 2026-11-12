@@ -3862,3 +3862,41 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .ds-toast .ds-toast-dismiss { flex: 0 0 26px; height: 26px; border: 1px solid #ffffff0d; border-radius: 7px; background: #ffffff03; color: #a6b8c3; }
 .ds-toast.is-error { background: #251e21; border-color: #ef444435; }
 .ds-toast.is-error > .material-symbols-outlined { background: #ef444410; border-color: #ef444430; color: #fca5a5; }
+
+/* Three payment sections alongside the original reservation ticket. */
+#ds-book-page .booking-layout:has(#paypanel:not([hidden])) { display: grid; align-items: start; }
+#ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside { display: block; grid-column: 9 / -1; grid-row: 1; }
+#ds-book-page .booking-layout:has(#paypanel:not([hidden])) > .booking-steps { grid-column: 1 / 9; }
+#ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside > div:not(:first-child) { margin-top: 24px; }
+.payment-panel.transfer-payment, .booking-payment-modal .payment-panel.transfer-payment { padding: 0; border: 0; background: transparent; }
+.payment-panel .proof.transfer-form, .booking-payment-modal .payment-panel .proof.transfer-form { display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 0; border: 0; background: transparent; }
+.transfer-payment #qrside { display: flex; flex-direction: column; gap: 16px; }
+.transfer-card { padding: 18px; border: 1px solid #303c43; border-radius: 12px; background: #181f24; }
+.transfer-card > header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.transfer-card > header > .material-symbols-outlined { color: var(--lime); font-size: 20px; }
+.transfer-card header :is(h2,h3) { margin: 0; font-size: 14px; color: #e8eee9; }
+.transfer-card header p { margin: 3px 0 0; color: #91a5b2; font-size: 11px; }
+.transfer-label { display: block; margin: 12px 0 7px; color: #9eafba; font-size: 10px; }
+.transfer-payment .payment-account-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin-bottom: 0; }
+.transfer-payment .qrtab { display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 9px; white-space: normal; }
+.transfer-payment .qrtab small { color: #98aab5; font-size: 10px; margin-top: 3px; }
+.transfer-steps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 16px; padding: 10px; border: 1px solid #a3e63530; border-radius: 9px; background: #a3e63508; font-size: 10px; color: #c9d6ca; }
+.transfer-steps strong { color: var(--lime); }
+.transfer-account-grid { display: grid; grid-template-columns: minmax(0, 210px) minmax(0,1fr); gap: 16px; align-items: center; }
+.transfer-qr { padding: 10px; border-radius: 10px; background: #fff; color: #26333c; }
+.transfer-qr img { display: block; width: 100%; height: auto; border-radius: 7px; }
+.transfer-account-copy { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.transfer-account-copy > div { padding: 12px; border: 1px solid #303c43; border-radius: 9px; background: #11191e; }
+.transfer-account-copy .transfer-label { margin: 0 0 5px; }
+.transfer-account-copy strong { color: #e4ece7; font-size: 12px; overflow-wrap: anywhere; }
+.transfer-account-copy .transfer-number { color: var(--lime); }
+.transfer-copy { display: inline-flex; gap: 4px; align-items: center; margin-top: 8px; padding: 4px 7px; border: 1px solid #ffffff14; border-radius: 6px; background: #202a30; color: #c3d2c9; cursor: pointer; font-size: 10px; }
+.transfer-copy .material-symbols-outlined { font-size: 13px; }
+.transfer-deadline { margin: 0; color: #fcd34d; font-size: 11px; }
+.transfer-instructions { margin-top: 14px; font-size: 11px; color: #a7b8c2; }
+.transfer-instructions p { white-space: pre-line; line-height: 1.7; }
+.transfer-payment .proof .payment-receipt-upload { min-height: 126px; justify-content: center; text-align: center; flex-wrap: wrap; }
+.transfer-receipt .payment-receipt-copy { flex-basis: 100%; }
+.transfer-actions, .booking-payment-modal .payment-panel .proof .transfer-actions { position: static; display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; border: 0; background: transparent; }
+@media(max-width:1023px) { #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > .booking-steps, #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside { grid-column: 1 / -1; grid-row: auto; } }
+@media(max-width:550px) { .transfer-account-grid { grid-template-columns: minmax(0,1fr); } .transfer-qr { width: min(210px,100%); margin-inline: auto; } .transfer-payment .payment-account-options { grid-template-columns: repeat(2,minmax(0,1fr)); } }
