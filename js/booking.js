@@ -350,6 +350,7 @@
 
     el.innerHTML =
       '<div class="dink-payment-container max-w-7xl mx-auto w-full relative grid-dot-pattern mesh-subtle py-4 sm:py-6 text-slate-100">' +
+        '<header class="checkout-page-intro"><span>Pickleball Court Reservation</span><div><h1>Complete your payment</h1><span class="checkout-page-badge">Checkout</span></div><p>Pay your reservation fee and attach your receipt to confirm your court booking.</p></header>' +
         '<!-- Top Breadcrumb & Reference Context Bar -->' +
         '<div class="flex flex-wrap items-center justify-between gap-4 mb-6">' +
           '<nav class="flex items-center gap-2 text-xs font-mono text-zinc-400">' +

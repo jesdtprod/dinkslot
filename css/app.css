@@ -4037,3 +4037,10 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .reservation-payment-status .reservation-customer-phone { margin: 0; gap: 5px; font-size: 11px; line-height: 20px; white-space: nowrap; }
 .reservation-payment-status .reservation-customer-phone .material-symbols-outlined { font-size: 13px; }
 .reservation-review-header .reservation-customer-copy h4 { line-height: 20px; }
+
+.checkout-page-intro { margin-bottom: 24px; }
+.checkout-page-intro > span { color: #a3e635; font: 600 11px/18px "JetBrains Mono",monospace; text-transform: uppercase; letter-spacing: .1em; }
+.checkout-page-intro > div { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 5px 0; }
+.checkout-page-intro h1 { margin: 0; color: #f0f5f1; font: 700 clamp(26px,3vw,36px)/1.2 "Plus Jakarta Sans",sans-serif; letter-spacing: -.025em; }
+.checkout-page-badge { padding: 3px 10px; border: 1px solid #ffffff16; border-radius: 999px; background: #ffffff05; color: #b7c6d0; font-size: 11px; }
+.checkout-page-intro p { margin: 0; max-width: 680px; color: #91a5b2; font-size: 13px; line-height: 1.65; }
