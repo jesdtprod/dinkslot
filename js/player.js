@@ -560,9 +560,13 @@
     var paymentByBooking = {};
     paymentRows.forEach(function (payment) { paymentByBooking[payment.booking_id] = true; });
     var cIds = Array.from(new Set(bs.map(function (b) { return b.court_id; })));
-    var courts = cIds.length ? (await sb.from("public_courts").select("id,name,club_slug,surface,is_indoor,hourly_rate").in("id", cIds)).data || [] : [];
+    var courtResult = cIds.length ? await sb.from("public_courts").select("id,name,club_slug,surface,is_indoor,hourly_rate").in("id", cIds) : {data:[]};
+    if (courtResult.error) throw courtResult.error;
+    var courts = courtResult.data || [];
     var slugs = Array.from(new Set(courts.map(function (c) { return c.club_slug; })));
-    var clubs = slugs.length ? (await sb.from("public_clubs").select("*").in("slug", slugs)).data || [] : [];
+    var clubResult = slugs.length ? await sb.from("public_clubs").select("*").in("slug", slugs) : {data:[]};
+    if (clubResult.error) throw clubResult.error;
+    var clubs = clubResult.data || [];
     var cMap = {}, clMap = {};
     courts.forEach(function (c) { cMap[c.id] = c; });
     clubs.forEach(function (c) { clMap[c.slug] = c; });
