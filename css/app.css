@@ -2559,18 +2559,18 @@ select::picker(select)::-webkit-scrollbar { display: none; width: 0; height: 0; 
 #club-profile-stage > #ds-club-page{position:relative;z-index:1}
 @media(prefers-reduced-motion:reduce){#club-profile-stage::after{animation:none}}
 #ds-club-page{--club-panel:#181f24;--club-inset:#202a30;--club-stroke:#303c43}
-#ds-club-page .club-breadcrumb{display:flex;align-items:center;gap:18px;min-width:0;max-width:100%;font-size:12px;line-height:1.5}
-#ds-club-page .club-back-link{display:inline-flex;align-items:center;justify-content:center;gap:9px;flex:none;min-height:40px;padding:8px 13px;border:1px solid var(--club-stroke);border-radius:11px;background:var(--club-panel);color:#dce6df;font-weight:600;text-decoration:none;transition:background .15s,border-color .15s,color .15s}
-#ds-club-page .club-back-link i{font-size:11px}
+:is(#ds-club-page, #ds-book-page) .club-breadcrumb{display:flex;align-items:center;gap:18px;min-width:0;max-width:100%;font-size:12px;line-height:1.5}
+:is(#ds-club-page, #ds-book-page) .club-back-link{display:inline-flex;align-items:center;justify-content:center;gap:9px;flex:none;min-height:40px;padding:8px 13px;border:1px solid var(--club-stroke);border-radius:11px;background:var(--club-panel);color:#dce6df;font-weight:600;text-decoration:none;transition:background .15s,border-color .15s,color .15s}
+:is(#ds-club-page, #ds-book-page) .club-back-link i{font-size:11px}
 #ds-club-page :is(.club-back-link,.club-live-badge,#club-share){box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;height:32px;min-height:32px;padding:0 11px;border-radius:9px;font-size:12px;line-height:1;font-weight:600;white-space:nowrap}
-#ds-club-page .club-back-link:hover{background:var(--club-inset);border-color:var(--lime);color:var(--lime)}
-#ds-club-page .club-back-link:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
-#ds-club-page .club-breadcrumb-trail{display:flex;align-items:center;flex-wrap:wrap;gap:10px;min-width:0;margin:0;padding:0;list-style:none}
-#ds-club-page .club-breadcrumb-location{display:flex;align-items:center;gap:7px;color:#93a5ae;min-width:0}
-#ds-club-page .club-breadcrumb-location i{font-size:10px;color:#778e7c}
-#ds-club-page .club-breadcrumb-separator{font-size:8px;color:#58686f}
-#ds-club-page .club-breadcrumb-current{font-weight:600;color:#e5eee8;overflow-wrap:anywhere}
-@media(max-width:480px){#ds-club-page .club-breadcrumb{gap:12px;align-items:flex-start}#ds-club-page .club-breadcrumb-trail{gap:6px;padding-top:3px}#ds-club-page .club-breadcrumb-location{flex-basis:100%}#ds-club-page .club-breadcrumb-separator{display:none}}
+:is(#ds-club-page, #ds-book-page) .club-back-link:hover{background:var(--club-inset);border-color:var(--lime);color:var(--lime)}
+:is(#ds-club-page, #ds-book-page) .club-back-link:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+:is(#ds-club-page, #ds-book-page) .club-breadcrumb-trail{display:flex;align-items:center;flex-wrap:wrap;gap:10px;min-width:0;margin:0;padding:0;list-style:none}
+:is(#ds-club-page, #ds-book-page) .club-breadcrumb-location{display:flex;align-items:center;gap:7px;color:#93a5ae;min-width:0}
+:is(#ds-club-page, #ds-book-page) .club-breadcrumb-location i{font-size:10px;color:#778e7c}
+:is(#ds-club-page, #ds-book-page) .club-breadcrumb-separator{font-size:8px;color:#58686f}
+:is(#ds-club-page, #ds-book-page) .club-breadcrumb-current{font-weight:600;color:#e5eee8;overflow-wrap:anywhere}
+@media(max-width:480px){:is(#ds-club-page, #ds-book-page) .club-breadcrumb{gap:12px;align-items:flex-start}:is(#ds-club-page, #ds-book-page) .club-breadcrumb-trail{gap:6px;padding-top:3px}:is(#ds-club-page, #ds-book-page) .club-breadcrumb-location{flex-basis:100%}:is(#ds-club-page, #ds-book-page) .club-breadcrumb-separator{display:none}}
 #ds-club-page .grid{padding-bottom:0}
 #ds-club-page > .space-y-8 > :not([hidden]) ~ :not([hidden]){margin-top:24px}
 #ds-club-page #club-daystrip{padding-bottom:0;gap:10px}
@@ -3407,3 +3407,14 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 @media (max-width: 767px) {
   #ds-book-page :is(input, select) { font-size: 16px; }
 }
+
+/* Public profile navigation treatment for the court booking context row. */
+#ds-book-page { --club-panel: #181f24; --club-inset: #202a30; --club-stroke: #303c43; }
+#ds-book-page [data-purpose="breadcrumbs-context"] { padding: 24px 0 8px; background: transparent; border: 0; }
+#ds-book-page .club-back-link,
+#ds-book-page .club-live-badge { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 32px; padding: 0 11px; border-radius: 9px; font-size: 12px; line-height: 1.5; }
+#ds-book-page .booking-context-status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+#ds-book-page .club-live-badge { border: 1px solid #10b98133; background: #10b9811a; color: #34d399; font-weight: 600; }
+#ds-book-page .booking-live-dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; }
+#ds-book-page .booking-timezone { color: #93a5ae; font-size: 11px; }
+@media (max-width: 640px) { #ds-book-page .booking-context-status { gap: 6px; } #ds-book-page .club-live-badge { height: auto; padding-block: 6px; } }

@@ -242,23 +242,15 @@
 
     root.innerHTML =
       '<div id="ds-book-page" class="book-public w-full min-h-screen text-slate-100 flex flex-col antialiased selection:bg-neon-lime selection:text-black">' +
-        '<!-- BreadcrumbAndStatusHeader -->' +
-        '<section class="border-b border-white/5 bg-carbon-900/50 py-3" data-purpose="breadcrumbs-context">' +
+        '<section class="booking-context" data-purpose="breadcrumbs-context">' +
           '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 text-xs">' +
-            '<div class="flex items-center gap-2 text-slate-400">' +
-              '<a class="inline-flex items-center gap-1.5 hover:text-white transition-colors no-underline text-slate-300" href="#/c/' + esc(slug) + '">' +
-                '<svg class="w-3.5 h-3.5 text-neon-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                esc(club.name) +
-              '</a>' +
-              '<span class="text-slate-600">/</span>' +
-              '<span class="text-slate-200 font-medium">Court Booking</span>' +
-            '</div>' +
-            '<div class="flex items-center gap-3">' +
-              '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium font-mono text-[11px]">' +
-                '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>' +
-                '<span id="book-live-slots">Live Availability: Checking slots...</span>' +
-              '</span>' +
-              '<span class="text-slate-500 text-[11px] hidden sm:inline">Timezone: ' + esc(tz) + ' (PHT)</span>' +
+            '<nav class="club-breadcrumb" aria-label="Breadcrumb">' +
+              '<a class="club-back-link" href="#/c/' + esc(slug) + '"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>' + esc(club.name) + '</span></a>' +
+              '<ol class="club-breadcrumb-trail"><li class="club-breadcrumb-separator" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></li><li class="club-breadcrumb-current" aria-current="page">Court Booking</li></ol>' +
+            '</nav>' +
+            '<div class="booking-context-status">' +
+              '<span class="club-live-badge"><span class="booking-live-dot" aria-hidden="true"></span><span id="book-live-slots">Live Availability: Checking slots...</span></span>' +
+              '<span class="booking-timezone">Timezone: ' + esc(tz) + ' (PHT)</span>' +
             '</div>' +
           '</div>' +
         '</section>' +
