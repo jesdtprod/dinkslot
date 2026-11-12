@@ -1225,7 +1225,7 @@
           ? srcBadge(b)
           : (py
               ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Proof uploaded</span>'
-              : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>No proof</span>');
+              : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>No Proof</span>');
 
         var paymentState = Number(b.amount) === 0 ? "free" : py ? (b.status === "approved" ? "paid" : "review") : "unpaid";
         var paymentLabel = { free: "No payment due", paid: "Paid", review: "Pending verification", unpaid: "Unpaid" }[paymentState];
@@ -1255,7 +1255,7 @@
           '<p class="msg" role="alert"></p>' +
         '</article>';
       }
-      box.innerHTML = '<div class="booking-queues">' + [
+      box.innerHTML = (contacts.error && players.length ? '<div class="booking-contact-warning" role="status">Customer profile details are temporarily unavailable. Showing club registration details.</div>' : '') + '<div class="booking-queues">' + [
         { title: 'Needs approval', description: 'Review payment proof before approving.', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
         { title: "Today's confirmed bookings", description: "Confirmed reservations scheduled for today.", icon: 'today', items: todayList, empty: 'No confirmed bookings today.' },
         { title: 'Upcoming confirmed bookings', description: 'Confirmed reservations for the coming days.', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
