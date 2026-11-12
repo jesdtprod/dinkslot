@@ -29,6 +29,7 @@ const mockClub = {
 };
 
 let updatedRow = null;
+let failActivity = false;
 
 const D = {
   esc: escape,
@@ -78,11 +79,13 @@ const D = {
       const rows = table === 'profiles'
         ? [mockProfile]
         : table === 'club_players'
-        ? [{ id: 'cp-1', user_id: 'usr-89240-abcde', tenant_id: 'club-pickle' }]
+        ? [{ id: 'cp-1', tenant_id: 'club-pickle', status:'active' }, { id:'cp-2', tenant_id:'club-pickle', status:'active' }, { id:'cp-3', tenant_id:'club-other', status:'blocked' }]
         : [mockClub];
+      let countRequest = false, statusFilter = null;
       const query = {
-        select() { return this; },
-        eq() { return this; },
+        select(columns, options) { countRequest = !!(options && options.count); return this; },
+        eq(column, value) { if (column === 'status') statusFilter = value; return this; },
+        gt() { return this; },
         in() { return this; },
         order() { return this; },
         limit() { return this; },
@@ -95,7 +98,7 @@ const D = {
             }
           };
         },
-        then(resolve, reject) { return Promise.resolve({ data: rows }).then(resolve, reject); }
+        then(resolve, reject) { return Promise.resolve({ data: rows, error: countRequest && failActivity ? {message:'Unavailable'} : null, count: countRequest ? (statusFilter === 'approved' ? 1 : 4) : null }).then(resolve, reject); }
       };
       return query;
     },
@@ -207,6 +210,11 @@ function createMockSec() {
   assert.ok(sec.innerHTML.includes('Skill Level'), 'Saved skill classification missing');
   assert.ok(sec.innerHTML.includes('Not Rated'), 'Missing classification should be Not Rated');
   assert.ok(sec.innerHTML.includes('Self-reported'), 'Classification source missing');
+  assert.ok(sec.innerHTML.includes('data-profile-stat="clubs">1</strong>'), 'Joined clubs must count distinct active clubs');
+  assert.ok(sec.innerHTML.includes('data-profile-stat="upcoming">1</strong>'), 'Upcoming must use confirmed upcoming query count');
+  assert.ok(sec.innerHTML.includes('data-profile-stat="bookings">4</strong>'), 'Reservations must use exact booking count');
+  assert.ok(sec.innerHTML.includes('href="#/me/bookings"') && sec.innerHTML.includes('href="#/me/find"'), 'Player quick links missing');
+  assert.ok(!sec.innerHTML.includes('Facial Biometrics Active'), 'Do not imply unverified gate access status');
   for (const sample of ['4.12 Verified', '>4.05<', '>4.18<', '>84%<', 'DUPR Official Rating']) {
     assert.ok(!sec.innerHTML.includes(sample), 'Hardcoded rating must not appear: ' + sample);
   }
@@ -222,6 +230,12 @@ function createMockSec() {
     assert.ok(preview.sec.innerHTML.includes(expected), 'Profile must display saved classification safely');
   }
   D.state.user.user_metadata = {full_name:'Marlon Quinto'};
+  failActivity = true;
+  const unavailable = createMockSec();
+  await D.player.profile(unavailable.sec);
+  assert.ok(unavailable.sec.innerHTML.includes('data-profile-stat="bookings">&mdash;</strong>'), 'Failed counts must not be presented as zero');
+  assert.ok(unavailable.sec.innerHTML.includes('id="mp-name"'), 'Activity failure must not block editing');
+  failActivity = false;
 
   // Removed sidebar cards and section navigation
   for (const content of ['turnstile-speed-pass', 'Turnstile PIN Code', 'VIP Facility Member', '#section-identity', '#section-address', '#section-specs']) {

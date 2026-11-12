@@ -1944,7 +1944,7 @@
       (contacts.data || []).forEach(function (contact) { contactMap[contact.player_id] = contact; });
       players.forEach(function (player) {
         var contact = contactMap[player.id];
-        if (contact) { player.full_name = contact.full_name; player.phone = contact.phone || player.phone; }
+        if (contact) { player.full_name = contact.full_name; player.phone = contact.phone || player.phone; player.avatar_path = contact.avatar_path || null; }
       });
       if (!alive(box)) { stop(); return; }
       var pm = {}, cm = {}, pay = {};
@@ -1958,7 +1958,8 @@
       var later = approved.filter(function (b) { return todayList.indexOf(b) === -1; });
       function row(b, withDecide) {
         var p = pm[b.player_id] || {}, c = cm[b.court_id] || {}, py = pay[b.id];
-        p = { display_name: p.full_name || p.display_name || b.guest_name, phone: p.phone || b.guest_phone };
+        p = { display_name: p.full_name || p.display_name || b.guest_name, phone: p.phone || b.guest_phone, avatar_path: p.avatar_path };
+        var avatarSrc = p.avatar_path ? sb.storage.from("avatars").getPublicUrl(p.avatar_path).data.publicUrl : "";
         var displayName = p.display_name || "Guest";
         var initials = displayName.split(" ").filter(Boolean).map(function (w) { return w[0]; }).slice(0, 2).join("").toUpperCase() || "BK";
 
@@ -1972,7 +1973,7 @@
         var paymentLabel = { free: "No payment due", paid: "Paid", review: "Pending verification", unpaid: "Unpaid" }[paymentState];
         var bookingDate = new Date(b.starts_at).toLocaleDateString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric" });
         return '<article class="bcard reservation-review-card" data-b="' + esc(b.id) + '">' +
-          '<header class="reservation-review-header"><div class="reservation-customer"><span class="reservation-customer-avatar" aria-hidden="true">' + esc(initials) + '</span><div class="reservation-customer-copy"><span class="reservation-customer-type ' + (b.player_id ? 'member' : 'guest') + '">' + (b.player_id ? 'Member' : 'Guest') + '</span><h4>' + esc(displayName) + '</h4></div></div><div class="reservation-payment-status">' + statusBadge + '<div class="reservation-customer-phone"><span class="material-symbols-outlined" aria-hidden="true">call</span><span>' + esc(p.phone || "Phone not provided") + '</span></div></div></header>' +
+          '<header class="reservation-review-header"><div class="reservation-customer"><span class="reservation-customer-avatar" aria-hidden="true">' + (avatarSrc ? '<img src="' + esc(avatarSrc) + '" alt="" loading="lazy">' : esc(initials)) + '</span><div class="reservation-customer-copy"><span class="reservation-customer-type ' + (b.player_id ? 'member' : 'guest') + '">' + (b.player_id ? 'Member' : 'Guest') + '</span><h4>' + esc(displayName) + '</h4></div></div><div class="reservation-payment-status">' + statusBadge + '<div class="reservation-customer-phone"><span class="material-symbols-outlined" aria-hidden="true">call</span><span>' + esc(p.phone || "Phone not provided") + '</span></div></div></header>' +
           '<dl class="reservation-review-details"><div><dt>Court</dt><dd>' + esc(c.name || "Court") + '</dd></div><div><dt>Amount</dt><dd class="reservation-review-amount">' + money(b.amount) + '</dd></div><div><dt>Date</dt><dd>' + esc(bookingDate) + '</dd></div><div><dt>Time</dt><dd>' + esc(timeOf(new Date(b.starts_at), tz) + " \u2013 " + timeOf(new Date(b.ends_at), tz)) + '</dd></div></dl>' +
           '<div class="reservation-review-reference"><span>Reference</span><strong>' + esc(b.reference_code || "Not available") + '</strong></div>' +
           '<div class="reservation-review-reference reservation-review-payment"><span>Payment</span><strong class="payment-state-' + paymentState + '">' + paymentLabel + '</strong></div>' +

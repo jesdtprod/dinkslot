@@ -3592,7 +3592,8 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-queue .booking-record-grid > .reservation-review-card { padding: 16px; border-radius: 12px; }
 .reservation-review-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .reservation-customer { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.reservation-customer-avatar { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border: 1px solid #a3e63530; border-radius: 10px; background: #a3e6350d; color: var(--lime); font-weight: 700; }
+.reservation-customer-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+.reservation-customer-avatar { overflow: hidden; display: grid; place-items: center; flex: 0 0 40px; height: 40px; border: 1px solid #a3e63530; border-radius: 10px; background: #a3e6350d; color: var(--lime); font-weight: 700; }
 .reservation-customer-copy { min-width: 0; }
 .reservation-field-label { color: #91a3ae; font-size: 10px; line-height: 16px; }
 .reservation-customer-copy h4 { margin: 0; color: #eef3ef; font: 600 13px/20px "Plus Jakarta Sans", sans-serif; overflow-wrap: anywhere; }

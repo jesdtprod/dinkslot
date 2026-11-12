@@ -911,8 +911,26 @@
 
   async function profileView(sec) {
     var COLS = "full_name,phone,birth_date,civil_status,avatar_path,street,barangay,city,province,zip_code,address,psgc_province,psgc_city,psgc_barangay";
-    var r = await sb.from("profiles").select(COLS).eq("auth_user_id", D.state.user.id).maybeSingle();
+    var profileResults = await Promise.allSettled([
+      sb.from("profiles").select(COLS).eq("auth_user_id", D.state.user.id).maybeSingle(),
+      sb.from("club_players").select("id,tenant_id,status,deleted_at").eq("user_id", D.state.user.id)
+    ]);
+    var r = profileResults[0].status === 'fulfilled' ? profileResults[0].value : {};
     var p = r.data || {};
+    var memberships = profileResults[1].status === 'fulfilled' ? profileResults[1].value : {error:true};
+    var playerRows = memberships.data || [];
+    var joinedCount = memberships.error ? null : new Set(playerRows.filter(function (row) { return row.status === 'active' && !row.deleted_at; }).map(function (row) { return row.tenant_id; })).size;
+    var reservationCount = memberships.error ? null : 0, nextCount = memberships.error ? null : 0;
+    if (playerRows.length) {
+      var ids = playerRows.map(function (row) { return row.id; });
+      var activity = await Promise.allSettled([
+        sb.from('bookings').select('id', {count:'exact',head:true}).in('player_id',ids),
+        sb.from('bookings').select('id', {count:'exact',head:true}).in('player_id',ids).eq('status','approved').gt('ends_at',new Date().toISOString())
+      ]);
+      var countOf = function (result) { return result.status === 'fulfilled' && !result.value.error && Number.isFinite(result.value.count) ? result.value.count : null; };
+      reservationCount = countOf(activity[0]); nextCount = countOf(activity[1]);
+    }
+    var displayCount = function (count) { return count == null ? '&mdash;' : String(count); };
     var chosen = null, removeFlag = false;
 
     var uid = D.state.user.id || "";
@@ -933,36 +951,19 @@
 
     var headerHtml = '<header class="member-overview-header" data-purpose="profile-header-bar"><div class="member-overview-intro"><span class="member-overview-eyebrow">Your Player Account</span><h1>My Profile</h1><p>Manage your personal details, profile photo, and address.</p></div><div class="member-profile-header-actions"><span class="member-profile-id">Player ID: <strong id="player-id-badge">' + esc(playerId) + '</strong></span><a class="btn ghost" href="#/me"><span class="material-symbols-outlined" aria-hidden="true">dashboard</span>Overview</a></div></header>';
 
-    // Left Column components
+    // Player identity and actual court activity share a compact sidebar card.
     var leftColHtml =
-      '<div class="lg:col-span-4 space-y-6 lg:sticky lg:top-24" data-purpose="athlete-identity-column">' +
-        // Primary Athlete Digital Card
-        '<div class="member-identity-card bg-gradient-to-b from-[#131924] to-[#0c1017] border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden group">' +
-          '<div class="absolute -right-12 -top-12 w-48 h-48 bg-brand-lime/10 rounded-full blur-2xl pointer-events-none group-hover:bg-brand-lime/15 transition-all"></div>' +
-          '<div class="relative flex flex-col items-center text-center">' +
-            '<div class="relative mb-4">' +
-              '<div id="mp-preview" class="w-24 h-24 rounded-full bg-[#161c26] border-2 border-brand-lime flex items-center justify-center text-brand-lime text-3xl font-extrabold font-mono shadow-lg shadow-brand-lime/20 ring-4 ring-brand-lime/10 overflow-hidden">' +
-              '</div>' +
-              '<div class="absolute bottom-0 right-1 w-6 h-6 rounded-full bg-[#0a0e14] border-2 border-[#161c26] flex items-center justify-center" title="Gate Access Facial Biometrics Active">' +
-                '<span class="w-2.5 h-2.5 rounded-full bg-brand-lime animate-pulse glow-dot"></span>' +
-              '</div>' +
-            '</div>' +
-            '<h2 id="card-player-name" class="text-xl font-bold text-white tracking-tight">' + esc(p.full_name || "Athlete") + '</h2>' +
-            '<p class="text-xs text-slate-400 font-mono mt-0.5">Member since ' + esc(memberSince) + '</p>' +
-            '<div class="flex items-center gap-2 mt-4">' +
-              '<label for="mp-photo" class="px-3 py-1.5 rounded-lg bg-[#1a2332] hover:bg-[#222e42] border border-white/10 text-[11px] font-bold text-white uppercase tracking-wider transition-colors cursor-pointer">' +
-                'Change Photo' +
-              '</label>' +
-              '<input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden>' +
-              '<button type="button" id="mp-remove-photo" class="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-[11px] font-semibold transition-colors cursor-pointer" title="Delete Photo" hidden>' +
-                '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-              '</button>' +
-            '</div>' +
-            '<div class="member-profile-skill" aria-label="Player skill level"><div><span>Skill Level</span><small>Self-reported</small></div><strong>' + esc(playerSkill(D.state.user)) + '</strong><p>Your saved registration classification.</p></div>' +
-          '</div>' +
-        '</div>' +
-
-      '</div>';
+      '<aside data-purpose="athlete-identity-column">' +
+        '<section class="member-identity-card profile-player-card">' +
+          '<div class="profile-player-card-heading"><span><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>DINKSLOT PLAYER</span><span class="profile-player-role">Member</span></div>' +
+          '<div class="profile-player-identity"><div id="mp-preview" aria-label="Profile photo"></div><div><h2 id="card-player-name">' + esc(p.full_name || 'Player') + '</h2><p>Member since ' + esc(memberSince) + '</p></div></div>' +
+          '<div class="profile-photo-actions"><label for="mp-photo"><span class="material-symbols-outlined" aria-hidden="true">add_a_photo</span>Change Photo</label><input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden><button type="button" id="mp-remove-photo" title="Delete Photo" aria-label="Delete profile photo" hidden><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></div>' +
+          '<div class="profile-player-skill"><div class="profile-player-section-label"><span class="material-symbols-outlined" aria-hidden="true">sports_score</span><span>Skill Level</span><small>Self-reported</small></div><strong>' + esc(playerSkill(D.state.user)) + '</strong><p>Your saved registration classification.</p></div>' +
+          '<div class="profile-player-activity"><h3>Your DINKSLOT activity</h3><div class="profile-player-metrics"><div><span class="material-symbols-outlined" aria-hidden="true">groups</span><strong data-profile-stat="clubs">' + displayCount(joinedCount) + '</strong><span>Joined clubs</span></div><div><span class="material-symbols-outlined" aria-hidden="true">event_available</span><strong data-profile-stat="upcoming">' + displayCount(nextCount) + '</strong><span>Upcoming</span></div><div><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><strong data-profile-stat="bookings">' + displayCount(reservationCount) + '</strong><span>Reservations</span></div></div></div>' +
+          '<div class="profile-player-links"><a class="btn ghost" href="#/me/bookings"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>My Bookings</a><a class="btn ghost" href="#/me/find"><span class="material-symbols-outlined" aria-hidden="true">search</span>Find a Club</a></div>' +
+          '<p class="profile-player-motto">Book your slot. Own the court.</p>' +
+        '</section>' +
+      '</aside>';
 
     // Right Column components (Form)
     var rightColHtml =
