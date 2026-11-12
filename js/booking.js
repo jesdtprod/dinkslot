@@ -559,30 +559,7 @@
                 '</div>' +
               '</div>' +
 
-              '<!-- Collapsible Club Policies & Cancellation Accordion -->' +
-              '<details class="group bg-surface-container-low rounded-xl border border-outline-variant/30 p-3.5 mt-3 transition">' +
-                '<summary class="flex items-center justify-between cursor-pointer list-none select-none">' +
-                  '<div class="flex items-center gap-2">' +
-                    '<span class="material-symbols-outlined text-primary text-base">policy</span>' +
-                    '<span class="text-xs font-display font-bold text-zinc-200">Club Policies &amp; Cancellation Terms</span>' +
-                  '</div>' +
-                  '<span class="material-symbols-outlined text-zinc-400 group-open:rotate-180 transition-transform text-sm">expand_more</span>' +
-                '</summary>' +
-                '<div class="mt-3 pt-3 border-t border-outline-variant/20 flex flex-col gap-2 text-xs text-zinc-400 font-sans">' +
-                  '<div class="flex items-start gap-2">' +
-                    '<span class="text-primary font-bold">•</span>' +
-                    '<span><strong>Cancellation &amp; Refunds:</strong> Bookings cannot be cancelled and payments are non-refundable, except when weather prevents play.</span>' +
-                  '</div>' +
-                  '<div class="flex items-start gap-2">' +
-                    '<span class="text-primary font-bold">•</span>' +
-                    '<span><strong>Weather Guarantee:</strong> If weather prevents your outdoor session from going ahead, your payment will be refunded.</span>' +
-                  '</div>' +
-                  '<div class="flex items-start gap-2">' +
-                    '<span class="text-primary font-bold">•</span>' +
-                    '<span><strong>Dress Code:</strong> Non-marking athletic court footwear is strictly required on Silica Sand surfaces.</span>' +
-                  '</div>' +
-                '</div>' +
-              '</details>' +
+              '<section class="checkout-club-policies" aria-labelledby="checkout-policy-title"><h4 id="checkout-policy-title"><span class="material-symbols-outlined" aria-hidden="true">policy</span>Club Policies &amp; Cancellation Terms</h4><ul><li><span class="material-symbols-outlined" aria-hidden="true">event_busy</span><span><strong>Cancellation &amp; Refunds:</strong> Bookings cannot be cancelled and payments are non-refundable, except when weather prevents play.</span></li><li><span class="material-symbols-outlined" aria-hidden="true">rainy</span><span><strong>Weather Guarantee:</strong> If weather prevents your outdoor session from going ahead, your payment will be refunded.</span></li><li><span class="material-symbols-outlined" aria-hidden="true">checkroom</span><span><strong>Dress Code:</strong> Wear non-marking athletic court shoes on Silica Sand surfaces.</span></li></ul></section>' +
 
               '<!-- Primary & Secondary Checkout CTAs -->' +
               '<div class="flex flex-col gap-2.5 mt-5">' +

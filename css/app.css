@@ -4091,3 +4091,15 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .payment-club-instructions { margin-top: 10px; padding-top: 10px; }
 .payment-club-instructions h5 { margin-bottom: 7px; }
 .payment-club-instructions ul { gap: 4px; font-size: 11px; line-height: 19px; }
+
+/* Always-visible policies with aligned, purpose-specific icon rows. */
+.checkout-club-policies { margin-top: 14px; padding: 14px; border: 1px solid #303c43; border-radius: 10px; background: #202a30; }
+.checkout-club-policies h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; color: #dce6df; font: 600 12px/18px "Plus Jakarta Sans",sans-serif; }
+.checkout-club-policies h4 .material-symbols-outlined { color: #a3e635; font-size: 18px; }
+.checkout-club-policies ul { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.checkout-club-policies li { display: flex; align-items: flex-start; gap: 8px; color: #aebdc8; font-size: 11px; line-height: 1.7; }
+.checkout-club-policies li .material-symbols-outlined { width: 18px; height: 18px; margin-top: 1px; color: #a3e635; font-size: 16px; }
+.dink-payment-container .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 20; }
+.dink-payment-container button .material-symbols-outlined { font-size: 16px; }
+.dink-payment-container h2 > .material-symbols-outlined { font-size: 20px; }
+.dink-payment-container #drop-zone .material-symbols-outlined { font-size: 24px; }
