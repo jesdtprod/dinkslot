@@ -91,7 +91,9 @@
   gap:24px; padding:0; background:transparent; border-radius:0;
   color:#dce6df; font:400 13px/1.65 "Plus Jakarta Sans",sans-serif;
 }
-.member-workspace-stage { position:relative; isolation:isolate; overflow:hidden; background:#10141a; }
+.member-workspace-stage { position:relative; isolation:isolate; overflow:hidden; background:#10141a; --pattern-opacity:.3; }
+.member-workspace-stage > .shared-auth-glow { display:none; }
+.member-workspace-stage > .auth-pattern { opacity:.3 !important; }
 .member-workspace-stage > #sec { position:relative; z-index:1; }
 .member-workspace-stage > .auth-pattern { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; mask-image:linear-gradient(to bottom,transparent,#000 32px); }
 .member-overview-page > :is(section,header) { position:relative; z-index:1; }
