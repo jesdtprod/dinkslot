@@ -31,31 +31,505 @@
 .member-dashboard .pay { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:20px; }
 .member-dashboard .pay input,.member-dashboard .pay textarea { max-width:100%; border:1px solid #ffffff12; border-radius:8px; background:#20282e; color:#d9e3dc; padding:8px 10px; }
 .member-dashboard .pay label { display:flex; flex-direction:column; gap:3px; margin-bottom:12px; color:#a1b0a6; font-size:11px; }
-.member-skeleton { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 100%; box-sizing: border-box; }
-.member-skeleton-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 24px; border-radius: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); }
-.member-skeleton-intro { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
-.member-skeleton-eyebrow { width: 110px; height: 12px; border-radius: 6px; background: rgba(163, 230, 53, 0.15); }
-.member-skeleton-title { width: 220px; max-width: 70%; height: 28px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); }
-.member-skeleton-sub { width: 320px; max-width: 85%; height: 14px; border-radius: 6px; background: rgba(255, 255, 255, 0.04); }
-.member-skeleton-stats { display: flex; gap: 10px; flex-shrink: 0; }
-.member-skeleton-stat { width: 90px; height: 56px; border-radius: 12px; background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.05); }
-.member-skeleton-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 60px; padding: 0 16px; border-radius: 14px; background: rgba(255, 255, 255, 0.025); border: 1px solid rgba(255, 255, 255, 0.05); }
-.member-skeleton-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.member-skeleton-metric { height: 110px; border-radius: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); }
-.member-skeleton-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.member-skeleton-card { height: 220px; border-radius: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); }
-.member-skeleton-panel { height: 160px; border-radius: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); }
-.member-skeleton-profile { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 20px; }
+/* ==========================================================================
+   MEMBER WORKSPACE SKELETON LOADERS (Unified dark styling)
+   ========================================================================== */
+.member-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.member-skeleton-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.member-skeleton-eyebrow {
+  width: 130px;
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.member-skeleton-title {
+  width: 220px;
+  max-width: 70%;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.member-skeleton-sub {
+  width: 340px;
+  max-width: 85%;
+  height: 14px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.member-skeleton-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+.member-skeleton-btn {
+  width: 120px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-btn.ghost {
+  width: 110px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.member-skeleton-stats {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.member-skeleton-stat {
+  width: 105px;
+  height: 64px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.member-skeleton-metric {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 128px;
+  padding: 16px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-metric .skeleton-metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.member-skeleton-metric .skeleton-metric-val {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+.member-skeleton-metric .skeleton-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.member-skeleton-metric .skeleton-metric-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.member-skeleton-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.member-skeleton-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+}
+.member-skeleton-pills {
+  display: flex;
+  gap: 8px;
+}
+.member-skeleton-reservation {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-reservation .skeleton-res-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.member-skeleton-reservation .skeleton-res-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.member-skeleton-reservation .skeleton-chip {
+  width: 110px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.member-skeleton-reservation .skeleton-res-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+.member-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.member-skeleton-club-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-club-card .skeleton-club-cover {
+  width: 100%;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.member-skeleton-club-card .skeleton-club-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+.member-skeleton-club-card .skeleton-club-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  margin-top: -34px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 3px solid #0d1218;
+}
+.member-skeleton-club-card .skeleton-club-badges {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.member-skeleton-club-card .skeleton-club-btn {
+  width: 100%;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.member-skeleton-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-toolbar .skeleton-tb-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.member-skeleton-toolbar .skeleton-tb-input {
+  flex: 1;
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-toolbar .skeleton-tb-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.member-skeleton-toolbar .skeleton-tb-filter {
+  width: 130px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.member-skeleton-profile {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 20px;
+}
+.member-skeleton-profile-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.member-skeleton-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.skeleton-line {
+  display: block;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.skeleton-pill {
+  display: block;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.skeleton-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================================================
+   BOOKING & CHECKOUT SKELETON LOADERS
+   ========================================================================== */
+.book-skeleton,
+.payment-skeleton {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.book-skeleton-intro,
+.payment-skeleton-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.book-skeleton-context,
+.payment-skeleton-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.book-skeleton-grid {
+  display: grid;
+  grid-template-columns: 8fr 4fr;
+  gap: 28px;
+  align-items: flex-start;
+}
+.book-skeleton-step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.book-skeleton-court-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.book-skeleton-court-card {
+  height: 100px;
+  padding: 14px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.book-skeleton-slots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.book-skeleton-slot {
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.book-skeleton-sidebar,
+.payment-skeleton-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.payment-skeleton-grid {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 24px;
+  align-items: flex-start;
+}
+.payment-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.payment-skeleton-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.payment-skeleton-qr-box {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+.payment-skeleton-dropzone {
+  height: 140px;
+  border-radius: 14px;
+  border: 2px dashed rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Booking QR Pass / Confirmation Skeleton */
+.booking-pass-skeleton {
+  width: min(440px, calc(100vw - 24px));
+  margin: 0 auto;
+  border-radius: 24px;
+  background: #0d1218;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  color: #f1f5f9;
+}
+.booking-pass-skeleton-header {
+  padding: 24px 24px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.booking-pass-skeleton-qr-wrap {
+  padding: 0 24px;
+}
+.booking-pass-skeleton-qr {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 16px;
+  background: #fff;
+  padding: 14px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+.booking-pass-skeleton-qr-inner {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: #0d1218;
+}
+.booking-pass-skeleton-tear {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 18px 0;
+}
+.booking-pass-skeleton-notch-left,
+.booking-pass-skeleton-notch-right {
+  width: 18px;
+  height: 36px;
+  background: rgba(6, 9, 14, 0.95);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.booking-pass-skeleton-notch-left {
+  left: 0;
+  border-radius: 0 18px 18px 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+.booking-pass-skeleton-notch-right {
+  right: 0;
+  border-radius: 18px 0 0 18px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+.booking-pass-skeleton-footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  gap: 10px;
+}
+
 @media (max-width: 1024px) {
   .member-skeleton-header { flex-direction: column; align-items: stretch; gap: 16px; padding: 18px; }
   .member-skeleton-stats { width: 100%; }
   .member-skeleton-stat { flex: 1; }
   .member-skeleton-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .member-skeleton-profile { grid-template-columns: minmax(0, 1fr); }
+  .book-skeleton-grid,
+  .payment-skeleton-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .member-metrics { grid-template-columns: minmax(0, 1fr); }
-  .member-skeleton-metrics { grid-template-columns: minmax(0, 1fr); }
+  .member-skeleton-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .member-skeleton-metric { height: 116px; padding: 12px; }
+  .member-skeleton-grid { grid-template-columns: minmax(0, 1fr); }
+  .member-skeleton-section-head { flex-direction: column; align-items: flex-start; }
   .member-page-heading { align-items: flex-start; flex-wrap: wrap; }
   .member-dashboard .clubrow { flex-wrap: wrap; }
   .member-dashboard .clubrow-actions { width: 100%; justify-content: flex-end; }
@@ -63,12 +537,27 @@
 }
 @media (max-width: 640px) {
   .member-skeleton { gap: 14px; }
-  .member-skeleton-header { padding: 14px; }
-  .member-skeleton-toolbar { height: auto; padding: 14px; flex-direction: column; align-items: stretch; }
-  .member-skeleton-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .member-skeleton-header { padding: 16px; }
+  .member-skeleton-toolbar { padding: 14px; }
+  .member-skeleton-reservation { padding: 16px; }
   .member-dashboard #myprofile .grid2 { grid-template-columns: minmax(0, 1fr); }
   .member-dashboard .brow { flex-direction: column; }
+  .book-skeleton,
+  .payment-skeleton {
+    padding: 20px 12px;
+    gap: 16px;
+  }
+  .book-skeleton-court-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .book-skeleton-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .payment-skeleton-qr-box {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
+
 .member-profile-summary { display:flex; align-items:center; justify-content:space-between; gap:16px; }
 .member-profile-modal { width:min(620px,calc(100vw - 32px)); max-height:calc(100dvh - 40px); margin:auto; padding:20px; overflow-y:auto; border:1px solid #ffffff18; border-top:2px solid #a7d67c; border-radius:14px; background:#192127; color:#dce6de; }
 .member-profile-modal::backdrop { background:#060b10b8; backdrop-filter:blur(5px); }

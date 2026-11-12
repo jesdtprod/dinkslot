@@ -49,7 +49,7 @@
 
   function memberSkeleton(section) {
     var titles = {
-      overview: { eyebrow: "Player Workspace", title: "Overview", sub: "Your bookings, joined clubs, and court schedule.", stats: 3 },
+      overview: { eyebrow: "Pickleball Court Reservation", title: "Overview", sub: "Your bookings, court schedules, and clubs in one place.", stats: 3 },
       find: { eyebrow: "Discover Your Next Court", title: "Find a Club", sub: "Explore clubs, compare courts, and find your next place to play.", stats: 3 },
       clubs: { eyebrow: "Player Workspace", title: "My Clubs", sub: "Your joined clubs, court details, and booking access in one place.", stats: 2 },
       bookings: { eyebrow: "Player Workspace", title: "My Bookings", sub: "Manage your court reservations, payments, and booking passes.", stats: 3 },
@@ -65,6 +65,7 @@
         '<div class="member-skeleton-eyebrow ds-skeleton"></div>' +
         '<div class="member-skeleton-title ds-skeleton"></div>' +
         '<div class="member-skeleton-sub ds-skeleton"></div>' +
+        '<div class="member-skeleton-actions"><div class="member-skeleton-btn ds-skeleton"></div><div class="member-skeleton-btn ghost ds-skeleton"></div></div>' +
       '</div>' +
       '<div class="member-skeleton-stats">' + statHtml + '</div>' +
     '</header>';
@@ -72,41 +73,200 @@
     var body = '';
     if (section === 'overview') {
       body = '<div class="member-skeleton-metrics">' +
-        '<div class="member-skeleton-metric ds-skeleton"></div>' +
-        '<div class="member-skeleton-metric ds-skeleton"></div>' +
-        '<div class="member-skeleton-metric ds-skeleton"></div>' +
+        '<div class="member-skeleton-metric ds-skeleton">' +
+          '<div class="skeleton-metric-top"><span class="skeleton-line" style="width:75px;height:11px;"></span><span class="skeleton-icon ds-skeleton"></span></div>' +
+          '<div class="skeleton-metric-val"><span class="skeleton-line" style="width:40px;height:24px;"></span><span class="skeleton-pill" style="width:46px;height:18px;"></span></div>' +
+          '<div class="skeleton-track ds-skeleton"></div>' +
+          '<div class="skeleton-metric-foot"><span class="skeleton-line" style="width:85px;height:10px;"></span></div>' +
+        '</div>' +
+        '<div class="member-skeleton-metric ds-skeleton">' +
+          '<div class="skeleton-metric-top"><span class="skeleton-line" style="width:80px;height:11px;"></span><span class="skeleton-icon ds-skeleton"></span></div>' +
+          '<div class="skeleton-metric-val"><span class="skeleton-line" style="width:40px;height:24px;"></span><span class="skeleton-pill" style="width:46px;height:18px;"></span></div>' +
+          '<div class="skeleton-track ds-skeleton"></div>' +
+          '<div class="skeleton-metric-foot"><span class="skeleton-line" style="width:85px;height:10px;"></span></div>' +
+        '</div>' +
+        '<div class="member-skeleton-metric ds-skeleton">' +
+          '<div class="skeleton-metric-top"><span class="skeleton-line" style="width:70px;height:11px;"></span><span class="skeleton-icon ds-skeleton"></span></div>' +
+          '<div class="skeleton-metric-val"><span class="skeleton-line" style="width:40px;height:24px;"></span><span class="skeleton-pill" style="width:46px;height:18px;"></span></div>' +
+          '<div class="skeleton-track ds-skeleton"></div>' +
+          '<div class="skeleton-metric-foot"><span class="skeleton-line" style="width:85px;height:10px;"></span></div>' +
+        '</div>' +
+        '<div class="member-skeleton-metric ds-skeleton">' +
+          '<div class="skeleton-metric-top"><span class="skeleton-line" style="width:85px;height:11px;"></span><span class="skeleton-icon ds-skeleton"></span></div>' +
+          '<div class="skeleton-metric-val"><span class="skeleton-line" style="width:40px;height:24px;"></span><span class="skeleton-pill" style="width:46px;height:18px;"></span></div>' +
+          '<div class="skeleton-track ds-skeleton"></div>' +
+          '<div class="skeleton-metric-foot"><span class="skeleton-line" style="width:85px;height:10px;"></span></div>' +
+        '</div>' +
       '</div>' +
-      '<div class="member-skeleton-panel ds-skeleton" style="height:200px;"></div>' +
-      '<div class="member-skeleton-grid">' +
-        '<div class="member-skeleton-card ds-skeleton"></div>' +
-        '<div class="member-skeleton-card ds-skeleton"></div>' +
-        '<div class="member-skeleton-card ds-skeleton"></div>' +
+      '<div class="member-skeleton-section">' +
+        '<div class="member-skeleton-section-head">' +
+          '<div><div class="skeleton-line" style="width:130px;height:11px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:180px;height:22px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:280px;max-width:80%;height:12px;"></div></div>' +
+          '<div class="member-skeleton-pills"><div class="skeleton-pill" style="width:74px;height:28px;"></div><div class="skeleton-pill" style="width:60px;height:28px;"></div><div class="skeleton-pill" style="width:68px;height:28px;"></div></div>' +
+        '</div>' +
+        '<div class="member-skeleton-reservation ds-skeleton">' +
+          '<div class="skeleton-res-head"><div class="skeleton-pill" style="width:110px;height:20px;"></div><div class="skeleton-pill" style="width:80px;height:20px;"></div></div>' +
+          '<div class="skeleton-line" style="width:200px;height:22px;margin:8px 0 6px;"></div>' +
+          '<div class="skeleton-line" style="width:260px;max-width:80%;height:12px;margin-bottom:12px;"></div>' +
+          '<div class="skeleton-res-chips"><div class="skeleton-chip"></div><div class="skeleton-chip"></div><div class="skeleton-chip"></div></div>' +
+          '<div class="skeleton-res-actions"><div class="member-skeleton-btn ds-skeleton"></div><div class="member-skeleton-btn ghost ds-skeleton"></div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="member-skeleton-section">' +
+        '<div class="member-skeleton-section-head">' +
+          '<div><div class="skeleton-line" style="width:140px;height:11px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:160px;height:22px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:260px;max-width:80%;height:12px;"></div></div>' +
+          '<div class="skeleton-pill" style="width:110px;height:32px;"></div>' +
+        '</div>' +
+        '<div class="member-skeleton-grid">' +
+          '<div class="member-skeleton-club-card ds-skeleton">' +
+            '<div class="skeleton-club-cover"></div>' +
+            '<div class="skeleton-club-body">' +
+              '<div class="skeleton-club-avatar"></div>' +
+              '<div class="skeleton-line" style="width:140px;height:18px;margin:10px 0 6px;"></div>' +
+              '<div class="skeleton-line" style="width:180px;max-width:90%;height:12px;margin-bottom:12px;"></div>' +
+              '<div class="skeleton-club-badges"><div class="skeleton-pill" style="width:70px;height:20px;"></div><div class="skeleton-pill" style="width:60px;height:20px;"></div></div>' +
+              '<div class="skeleton-club-btn"></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="member-skeleton-club-card ds-skeleton">' +
+            '<div class="skeleton-club-cover"></div>' +
+            '<div class="skeleton-club-body">' +
+              '<div class="skeleton-club-avatar"></div>' +
+              '<div class="skeleton-line" style="width:150px;height:18px;margin:10px 0 6px;"></div>' +
+              '<div class="skeleton-line" style="width:170px;max-width:90%;height:12px;margin-bottom:12px;"></div>' +
+              '<div class="skeleton-club-badges"><div class="skeleton-pill" style="width:70px;height:20px;"></div><div class="skeleton-pill" style="width:60px;height:20px;"></div></div>' +
+              '<div class="skeleton-club-btn"></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="member-skeleton-club-card ds-skeleton">' +
+            '<div class="skeleton-club-cover"></div>' +
+            '<div class="skeleton-club-body">' +
+              '<div class="skeleton-club-avatar"></div>' +
+              '<div class="skeleton-line" style="width:130px;height:18px;margin:10px 0 6px;"></div>' +
+              '<div class="skeleton-line" style="width:190px;max-width:90%;height:12px;margin-bottom:12px;"></div>' +
+              '<div class="skeleton-club-badges"><div class="skeleton-pill" style="width:70px;height:20px;"></div><div class="skeleton-pill" style="width:60px;height:20px;"></div></div>' +
+              '<div class="skeleton-club-btn"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
       '</div>';
     } else if (section === 'find') {
-      body = '<div class="member-skeleton-toolbar ds-skeleton"></div>' +
+      body = '<div class="member-skeleton-toolbar ds-skeleton">' +
+        '<div class="skeleton-tb-row">' +
+          '<div><div class="skeleton-line" style="width:140px;height:11px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:170px;height:20px;"></div></div>' +
+          '<div class="skeleton-pill" style="width:100px;height:26px;"></div>' +
+        '</div>' +
+        '<div class="skeleton-tb-input"></div>' +
+        '<div class="skeleton-tb-filters">' +
+          '<div class="skeleton-tb-filter"></div>' +
+          '<div class="skeleton-tb-filter"></div>' +
+          '<div class="skeleton-tb-filter"></div>' +
+        '</div>' +
+      '</div>' +
       '<div class="member-skeleton-grid">' +
-        '<div class="member-skeleton-card ds-skeleton"></div>' +
-        '<div class="member-skeleton-card ds-skeleton"></div>' +
-        '<div class="member-skeleton-card ds-skeleton"></div>' +
+        '<div class="member-skeleton-club-card ds-skeleton">' +
+          '<div class="skeleton-club-cover"></div>' +
+          '<div class="skeleton-club-body">' +
+            '<div class="skeleton-club-avatar"></div>' +
+            '<div class="skeleton-line" style="width:140px;height:18px;margin:10px 0 6px;"></div>' +
+            '<div class="skeleton-line" style="width:180px;max-width:90%;height:12px;margin-bottom:12px;"></div>' +
+            '<div class="skeleton-club-badges"><div class="skeleton-pill" style="width:70px;height:20px;"></div><div class="skeleton-pill" style="width:60px;height:20px;"></div></div>' +
+            '<div class="skeleton-club-btn"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="member-skeleton-club-card ds-skeleton">' +
+          '<div class="skeleton-club-cover"></div>' +
+          '<div class="skeleton-club-body">' +
+            '<div class="skeleton-club-avatar"></div>' +
+            '<div class="skeleton-line" style="width:150px;height:18px;margin:10px 0 6px;"></div>' +
+            '<div class="skeleton-line" style="width:170px;max-width:90%;height:12px;margin-bottom:12px;"></div>' +
+            '<div class="skeleton-club-badges"><div class="skeleton-pill" style="width:70px;height:20px;"></div><div class="skeleton-pill" style="width:60px;height:20px;"></div></div>' +
+            '<div class="skeleton-club-btn"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="member-skeleton-club-card ds-skeleton">' +
+          '<div class="skeleton-club-cover"></div>' +
+          '<div class="skeleton-club-body">' +
+            '<div class="skeleton-club-avatar"></div>' +
+            '<div class="skeleton-line" style="width:130px;height:18px;margin:10px 0 6px;"></div>' +
+            '<div class="skeleton-line" style="width:190px;max-width:90%;height:12px;margin-bottom:12px;"></div>' +
+            '<div class="skeleton-club-badges"><div class="skeleton-pill" style="width:70px;height:20px;"></div><div class="skeleton-pill" style="width:60px;height:20px;"></div></div>' +
+            '<div class="skeleton-club-btn"></div>' +
+          '</div>' +
+        '</div>' +
       '</div>';
     } else if (section === 'clubs') {
-      body = '<div class="member-skeleton-toolbar ds-skeleton"></div>' +
+      body = '<div class="member-skeleton-toolbar ds-skeleton">' +
+        '<div class="skeleton-tb-row">' +
+          '<div><div class="skeleton-line" style="width:140px;height:11px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:170px;height:20px;"></div></div>' +
+          '<div class="skeleton-pill" style="width:100px;height:26px;"></div>' +
+        '</div>' +
+        '<div class="skeleton-tb-input"></div>' +
+        '<div class="skeleton-tb-filters">' +
+          '<div class="skeleton-tb-filter"></div>' +
+          '<div class="skeleton-tb-filter"></div>' +
+          '<div class="skeleton-tb-filter"></div>' +
+        '</div>' +
+      '</div>' +
       '<div style="display:flex;flex-direction:column;gap:16px;">' +
-        '<div class="member-skeleton-panel ds-skeleton" style="height:240px;"></div>' +
-        '<div class="member-skeleton-panel ds-skeleton" style="height:240px;"></div>' +
+        '<div class="member-skeleton-reservation ds-skeleton" style="padding:24px;">' +
+          '<div class="skeleton-res-head"><div class="skeleton-pill" style="width:120px;height:22px;"></div><div class="skeleton-pill" style="width:70px;height:22px;"></div></div>' +
+          '<div class="skeleton-line" style="width:220px;height:24px;margin:10px 0 6px;"></div>' +
+          '<div class="skeleton-line" style="width:280px;max-width:85%;height:13px;margin-bottom:14px;"></div>' +
+          '<div class="skeleton-res-chips"><div class="skeleton-chip"></div><div class="skeleton-chip"></div><div class="skeleton-chip"></div></div>' +
+          '<div class="skeleton-res-actions"><div class="member-skeleton-btn ds-skeleton"></div><div class="member-skeleton-btn ghost ds-skeleton"></div></div>' +
+        '</div>' +
+        '<div class="member-skeleton-reservation ds-skeleton" style="padding:24px;">' +
+          '<div class="skeleton-res-head"><div class="skeleton-pill" style="width:130px;height:22px;"></div><div class="skeleton-pill" style="width:70px;height:22px;"></div></div>' +
+          '<div class="skeleton-line" style="width:240px;height:24px;margin:10px 0 6px;"></div>' +
+          '<div class="skeleton-line" style="width:260px;max-width:85%;height:13px;margin-bottom:14px;"></div>' +
+          '<div class="skeleton-res-chips"><div class="skeleton-chip"></div><div class="skeleton-chip"></div><div class="skeleton-chip"></div></div>' +
+          '<div class="skeleton-res-actions"><div class="member-skeleton-btn ds-skeleton"></div><div class="member-skeleton-btn ghost ds-skeleton"></div></div>' +
+        '</div>' +
       '</div>';
     } else if (section === 'bookings') {
-      body = '<div class="member-skeleton-toolbar ds-skeleton"></div>' +
-      '<div class="member-skeleton-panel ds-skeleton" style="height:90px;"></div>' +
+      body = '<div class="member-skeleton-toolbar ds-skeleton">' +
+        '<div class="skeleton-tb-row">' +
+          '<div><div class="skeleton-line" style="width:140px;height:11px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:170px;height:20px;"></div></div>' +
+        '</div>' +
+        '<div class="skeleton-tb-input"></div>' +
+        '<div class="skeleton-tb-filters">' +
+          '<div class="skeleton-pill" style="width:90px;height:32px;"></div>' +
+          '<div class="skeleton-pill" style="width:70px;height:32px;"></div>' +
+          '<div class="skeleton-pill" style="width:80px;height:32px;"></div>' +
+        '</div>' +
+      '</div>' +
       '<div style="display:flex;flex-direction:column;gap:14px;">' +
-        '<div class="member-skeleton-panel ds-skeleton" style="height:140px;"></div>' +
-        '<div class="member-skeleton-panel ds-skeleton" style="height:140px;"></div>' +
-        '<div class="member-skeleton-panel ds-skeleton" style="height:140px;"></div>' +
+        '<div class="member-skeleton-reservation ds-skeleton">' +
+          '<div class="skeleton-res-head"><div class="skeleton-pill" style="width:130px;height:20px;"></div><div class="skeleton-pill" style="width:85px;height:20px;"></div></div>' +
+          '<div class="skeleton-line" style="width:190px;height:22px;margin:10px 0 6px;"></div>' +
+          '<div class="skeleton-line" style="width:240px;max-width:85%;height:12px;margin-bottom:12px;"></div>' +
+          '<div class="skeleton-res-chips"><div class="skeleton-chip"></div><div class="skeleton-chip"></div><div class="skeleton-chip"></div></div>' +
+          '<div class="skeleton-res-actions"><div class="member-skeleton-btn ds-skeleton"></div><div class="member-skeleton-btn ghost ds-skeleton"></div></div>' +
+        '</div>' +
+        '<div class="member-skeleton-reservation ds-skeleton">' +
+          '<div class="skeleton-res-head"><div class="skeleton-pill" style="width:120px;height:20px;"></div><div class="skeleton-pill" style="width:85px;height:20px;"></div></div>' +
+          '<div class="skeleton-line" style="width:180px;height:22px;margin:10px 0 6px;"></div>' +
+          '<div class="skeleton-line" style="width:220px;max-width:85%;height:12px;margin-bottom:12px;"></div>' +
+          '<div class="skeleton-res-chips"><div class="skeleton-chip"></div><div class="skeleton-chip"></div><div class="skeleton-chip"></div></div>' +
+          '<div class="skeleton-res-actions"><div class="member-skeleton-btn ds-skeleton"></div><div class="member-skeleton-btn ghost ds-skeleton"></div></div>' +
+        '</div>' +
       '</div>';
     } else if (section === 'profile') {
       body = '<div class="member-skeleton-profile">' +
-        '<div class="member-skeleton-card ds-skeleton" style="height:440px;"></div>' +
-        '<div class="member-skeleton-card ds-skeleton" style="height:440px;"></div>' +
+        '<div class="member-skeleton-profile-aside ds-skeleton">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="skeleton-pill" style="width:110px;height:20px;"></div><div class="skeleton-pill" style="width:60px;height:20px;"></div></div>' +
+          '<div style="display:flex;align-items:center;gap:14px;margin:12px 0;"><div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.06);flex-shrink:0;"></div><div><div class="skeleton-line" style="width:130px;height:18px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:100px;height:12px;"></div></div></div>' +
+          '<div class="member-skeleton-btn ds-skeleton" style="width:130px;height:34px;"></div>' +
+          '<div style="padding:14px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);margin-top:8px;"><div class="skeleton-line" style="width:90px;height:11px;margin-bottom:8px;"></div><div class="skeleton-line" style="width:70px;height:20px;"></div></div>' +
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;"><div class="skeleton-chip" style="width:100%;height:44px;"></div><div class="skeleton-chip" style="width:100%;height:44px;"></div><div class="skeleton-chip" style="width:100%;height:44px;"></div></div>' +
+        '</div>' +
+        '<div class="member-skeleton-profile-form ds-skeleton">' +
+          '<div><div class="skeleton-line" style="width:140px;height:18px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:240px;max-width:80%;height:12px;"></div></div>' +
+          '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;"><div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:80px;height:11px;"></div><div class="skeleton-tb-input"></div></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:90px;height:11px;"></div><div class="skeleton-tb-input"></div></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:70px;height:11px;"></div><div class="skeleton-tb-input"></div></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:85px;height:11px;"></div><div class="skeleton-tb-input"></div></div></div>' +
+          '<div style="margin-top:10px;"><div class="skeleton-line" style="width:110px;height:18px;margin-bottom:6px;"></div><div class="skeleton-line" style="width:200px;max-width:80%;height:12px;"></div></div>' +
+          '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;"><div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:60px;height:11px;"></div><div class="skeleton-tb-input"></div></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="skeleton-line" style="width:75px;height:11px;"></div><div class="skeleton-tb-input"></div></div></div>' +
+          '<div class="member-skeleton-btn ds-skeleton" style="width:140px;height:42px;margin-top:10px;"></div>' +
+        '</div>' +
       '</div>';
     }
 
@@ -1300,5 +1460,5 @@
     };
   }
 
-  D.player = { render: render };
+  D.player = { render: render, memberSkeleton: memberSkeleton };
 })();
