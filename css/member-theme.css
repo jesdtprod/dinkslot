@@ -669,3 +669,5 @@
 #app #ds-tenant-dashboard #sec :is(.transactions-button,.setup-action) { font:500 11px/18px "Plus Jakarta Sans",sans-serif !important; }
 
 .admin-booking-schedule strong { line-height:16px; }
+
+.admin-booking-club { display:block; margin:1px 0 0 22px; color:#91a5b2; font:400 10px/16px "Plus Jakarta Sans",sans-serif; }
