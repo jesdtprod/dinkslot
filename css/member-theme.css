@@ -457,3 +457,10 @@
 /* Keep reservation details on one row when space permits. */
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta { display:flex; flex-wrap:wrap; justify-content:flex-start; align-items:center; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta > span:first-child { width:auto; flex:0 1 auto; }
+
+/* Equal spacing around metadata and consistent alignment across booking cards. */
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-card { gap:12px; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-card > .clean-booking-main { display:flex; flex:1; flex-direction:column; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-address { margin-bottom:12px; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta { margin-top:auto; padding-block:12px; border-bottom:1px solid #ffffff09; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-card > .clean-booking-actions { margin-top:0; padding-top:0; border-top:0; }
