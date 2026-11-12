@@ -28,8 +28,8 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   const uploaded=box();await D.booking.queue(uploaded,{id:'club'});
   assert.match(uploaded.innerHTML,/Proof uploaded/);
   assert.match(uploaded.innerHTML,/Pending verification/);
-  assert.match(uploaded.innerHTML,/booking-decision-action view-proof[^>]*data-proof="pending"/);
-  assert.doesNotMatch(uploaded.innerHTML,/reservation-view-proof/);
+  assert.match(uploaded.innerHTML,/reservation-view-proof[^>]*data-proof="pending"/);
+  assert.ok(uploaded.innerHTML.indexOf('data-proof="pending"') > uploaded.innerHTML.indexOf('data-ticket="pending"'));
   assert.doesNotMatch(uploaded.innerHTML,/data-ok="pending"[^>]*disabled/);
   payments=[];
   records=[{...pending,id:'guest',player_id:null,source:'walk_in',status:'approved',reference_code:'UNPAID-GUEST',ends_at:'2099-01-01T02:00:00Z'}];
