@@ -226,3 +226,9 @@
 @media(max-width:600px) { .member-overview-page #my-home-club .home-club-cover { height:160px; } }
 
 #ds-tenant-dashboard #sec .member-overview-page .member-overview-header { background:rgb(24 31 36 / 30%); }
+
+/* Tighter welcome text and action rhythm. */
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header { padding-block:20px; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-eyebrow { margin-bottom:4px; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-intro p { margin-top:2px; margin-bottom:12px; }
+@media(max-width:639px) { #ds-tenant-dashboard #sec .member-overview-page .member-overview-header { padding-block:16px; gap:16px; } }
