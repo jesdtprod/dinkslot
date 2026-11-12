@@ -453,3 +453,7 @@
 /* Surface belongs with venue details, separate from reservation status. */
 #ds-tenant-dashboard #sec .member-bookings-page .clean-booking-main > .clean-booking-surface { display:inline-flex; align-items:center; gap:5px; margin:0 0 8px 43px; padding:2px 7px; border:1px solid #35434b; border-radius:6px; background:#202a30; color:#a9bcc7; font:500 10px/16px "Plus Jakarta Sans",sans-serif; }
 .member-bookings-page .clean-booking-surface > .material-symbols-outlined { font-size:14px; }
+
+/* Keep reservation details on one row when space permits. */
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta { display:flex; flex-wrap:wrap; justify-content:flex-start; align-items:center; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta > span:first-child { width:auto; flex:0 1 auto; }
