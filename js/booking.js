@@ -286,7 +286,7 @@
           '<div class="md:col-span-5 flex flex-col items-center bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30">' +
             '<div class="payment-qr-heading w-full flex items-center justify-between mb-2">' +
               '<span class="inline-flex items-center gap-1 text-[10px] font-mono uppercase bg-primary/10 text-primary px-2 py-0.5 rounded">' +
-                '<span class="material-symbols-outlined text-[12px]">qr_code_scanner</span>' +
+                '<span class="material-symbols-outlined text-[12px]">qr_code_2</span>' +
                 esc(labelTitle) +
               '</span>' +
               '<span class="payment-qr-account-label">' + esc(acc.label || activeMethod) + '</span>' +
@@ -324,7 +324,7 @@
               '<div class="hidden text-[11px] font-mono text-primary font-bold mt-1 text-right" id="gcash-toast">Account number copied!</div>' +
             '</div>' +
             '<div class="p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/20 flex items-start gap-2.5 text-xs text-zinc-400">' +
-              '<span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">verified_user</span>' +
+              '<span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">payments</span>' +
               '<span>Zero platform convenience charges applied on direct GCash / InstaPay QR payments.</span>' +
             '</div>' +
           '</div>' +
@@ -407,7 +407,7 @@
                   var isSel = m === activeMethod;
                   return '<button type="button" class="method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 ' +
                     (isSel ? 'bg-primary text-on-primary font-bold shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent') + '" data-method="' + esc(m) + '">' +
-                    (isSel ? '<span class="w-2 h-2 rounded-full bg-on-primary"></span>' : '') +
+                    '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  +
                     esc(m) +
                   '</button>';
                 }).join("") +
@@ -431,7 +431,7 @@
               '<div class="flex items-center justify-between mb-3">' +
                 '<div>' +
                   '<h2 class="text-base font-display font-bold text-white flex items-center gap-2 m-0">' +
-                    '<span class="material-symbols-outlined text-primary text-xl">upload_file</span>' +
+                    '<span class="material-symbols-outlined text-primary text-xl">receipt_long</span>' +
                     'Upload Payment Proof' +
                   '</h2>' +
                   '<p class="text-xs text-zinc-400 mt-0.5 m-0">Attach the transaction screenshot or receipt slip showing reference number.</p>' +
@@ -465,9 +465,9 @@
             '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-2xl relative">' +
               '<!-- Header & Countdown Urgency Pill -->' +
               '<div class="flex items-center justify-between pb-4 border-b border-outline-variant/30">' +
-                '<h3 class="font-display font-bold text-base text-white tracking-tight m-0">Court Reservation</h3>' +
+                '<h3 class="payment-reservation-title font-display font-bold text-base text-white tracking-tight m-0"><span class="material-symbols-outlined" aria-hidden="true">event_available</span>Court Reservation</h3>' +
                 '<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold">' +
-                  '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>' +
+                  '<span class="material-symbols-outlined payment-timer-icon" aria-hidden="true">timer</span>' +
                   '<span id="countdown-val">Calculating...</span>' +
                 '</div>' +
               '</div>' +
@@ -475,7 +475,7 @@
               '<div class="py-4 border-b border-outline-variant/20 flex flex-col gap-3">' +
                 '<div class="flex items-start gap-3">' +
                   '<div class="w-10 h-10 rounded-xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary shrink-0">' +
-                    '<span class="material-symbols-outlined text-xl">sports_tennis</span>' +
+                    '<svg class="payment-court-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18M8 4v16m8-16v16M8 8h8m-8 8h8"/></svg>' +
                   '</div>' +
                   '<div class="flex flex-col">' +
                     '<span class="text-xs font-mono uppercase text-primary font-bold tracking-wider">' + esc(club.name || "The Pickleshot Arena") + '</span>' +
@@ -513,7 +513,7 @@
               '<div class="my-4 bg-gradient-to-r from-primary/15 via-surface-container-low to-primary/10 border-2 border-primary/50 rounded-xl p-4 shadow-lg">' +
                 '<div class="flex items-center justify-between mb-1.5">' +
                   '<div class="flex items-center gap-1.5 text-primary text-xs font-mono font-bold uppercase tracking-wider">' +
-                    '<span class="material-symbols-outlined text-sm font-bold">priority_high</span>' +
+                    '<span class="material-symbols-outlined text-sm font-bold">sticky_note_2</span>' +
                     'Required Payment Note' +
                   '</div>' +
                   '<span class="text-[10px] font-mono bg-primary text-black font-bold px-2 py-0.5 rounded">MANDATORY</span>' +
@@ -587,7 +587,7 @@
               '<!-- Primary & Secondary Checkout CTAs -->' +
               '<div class="flex flex-col gap-2.5 mt-5">' +
                 '<button type="button" class="w-full bg-primary hover:bg-[#b2f746] text-[#121f00] font-display font-extrabold text-base py-3.5 px-6 rounded-xl shadow-neon-lime hover:shadow-neon-lime transition-all flex items-center justify-center gap-2 group cursor-pointer border-0" id="submit-confirm-btn">' +
-                  '<span class="material-symbols-outlined font-bold text-xl group-hover:scale-110 transition-transform">bolt</span>' +
+                  '<span class="material-symbols-outlined font-bold text-xl group-hover:scale-110 transition-transform">task_alt</span>' +
                   '<span>Submit Proof &amp; Confirm Booking</span>' +
                 '</button>' +
                 '<div class="flex items-center justify-between gap-2 pt-1">' +
@@ -753,7 +753,7 @@
           var isSel = b.getAttribute("data-method") === activeMethod;
           b.className = "method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 " +
             (isSel ? "bg-primary text-on-primary font-bold shadow-sm" : "text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent");
-          b.innerHTML = (isSel ? '<span class="w-2 h-2 rounded-full bg-on-primary"></span>' : '') + esc(b.getAttribute("data-method"));
+          b.innerHTML = '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  + esc(b.getAttribute("data-method"));
         });
         wireAccountsAndQr();
       };
@@ -898,7 +898,7 @@
         } catch (err) {
           submitBtn.disabled = false;
           submitBtn.classList.remove("opacity-80", "pointer-events-none");
-          submitBtn.innerHTML = '<span class="material-symbols-outlined font-bold text-xl">bolt</span><span>Submit Proof &amp; Confirm Booking</span>';
+          submitBtn.innerHTML = '<span class="material-symbols-outlined font-bold text-xl">task_alt</span><span>Submit Proof &amp; Confirm Booking</span>';
           if (proofMsg) {
             proofMsg.textContent = nice(err);
             proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold";
