@@ -1068,6 +1068,7 @@
       '</div>';
 
     var ph = D.ph.mount(q("#mp-address", sec), { values: p, manager: false, required: false });
+    var profileControls = null;
 
     function initial() {
       var n = q("#mp-name", sec) ? q("#mp-name", sec).value.trim() : (p.full_name || D.state.user.email || "?");
@@ -1095,8 +1096,13 @@
       q("#mp-photo", sec).value = "";
       paintAvatar(q("#mp-preview", sec), avatarUrl(p.avatar_path));
       q("#mp-remove-photo", sec).hidden = !p.avatar_path;
+      if (profileControls) profileControls.refresh();
     }
     fill();
+    if (D.ui.profileControls) {
+      profileControls = D.ui.profileControls(q("#myprofile", sec));
+      if (ph.ready) ph.ready.then(function () { profileControls.refresh(); });
+    }
 
     // Real-time name card update
     q("#mp-name", sec).oninput = function () {

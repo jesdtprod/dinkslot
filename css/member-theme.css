@@ -524,3 +524,36 @@
 .member-account-page .member-profile-skill > p { margin:4px 0 0; color:#91a5b2; font-size:11px; }
 
 #app #ds-tenant-dashboard #sec .member-account-page #myprofile #mp-birth { padding-left:12px !important; }
+
+/* Profile selects and birthday picker share the member form control format. */
+#app #ds-tenant-dashboard #sec .member-account-page .profile-field-trigger { box-sizing:border-box; display:flex; align-items:center; width:100%; height:44px; min-height:44px; gap:10px; padding:0 12px; border:1px solid #35434b; border-radius:10px !important; background:#202a30; color:#dce6df; box-shadow:none; font:400 13px/20px "Plus Jakarta Sans",sans-serif; text-align:left; cursor:pointer; }
+.member-account-page .profile-field-trigger .material-symbols-outlined { flex:0 0 16px; width:16px; font-size:16px; line-height:1; color:#91a5b2; }
+.member-account-page .profile-field-value { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#app #ds-tenant-dashboard #sec .member-account-page .profile-field-trigger:is(:hover,[aria-expanded="true"]) { border-color:#a3e63580; }
+#app #ds-tenant-dashboard #sec .member-account-page .profile-field-trigger:focus-visible { outline:2px solid #a3e635; outline-offset:2px; }
+#app #ds-tenant-dashboard #sec .member-account-page .profile-field-trigger:disabled { opacity:.5; cursor:not-allowed; }
+#app #ds-tenant-dashboard #sec .member-account-page :is(.member-profile-panel > .grid,.ph-grid) { gap:16px; }
+#app #ds-tenant-dashboard #sec .member-account-page #myprofile .ph-field { margin:0; gap:6px; }
+.profile-control-picker { box-sizing:border-box; position:fixed; inset:auto; margin:0; max-width:calc(100vw - 24px); max-height:min(320px,calc(100dvh - 24px)); padding:6px; overflow-y:auto; border:1px solid #35434b; border-radius:10px; background:#181f24; color:#dce6df; box-shadow:0 12px 32px #0006; font:400 13px/20px "Plus Jakarta Sans",sans-serif; }
+.profile-select-menu { opacity:0; transform:translateY(-4px); transition:opacity .14s,transform .14s,display .14s allow-discrete,overlay .14s allow-discrete; }
+.profile-select-menu:popover-open { opacity:1; transform:translateY(0); }
+@starting-style { .profile-select-menu:popover-open { opacity:0; transform:translateY(-4px); } }
+.profile-control-picker .material-symbols-outlined { font-size:16px; line-height:1; }
+.profile-select-menu [role="option"] { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; min-height:36px; margin:0; padding:8px 10px; border:0; border-radius:7px !important; background:transparent; color:#c8d6df; font:400 12px/18px "Plus Jakarta Sans",sans-serif; text-align:left; cursor:pointer; }
+.profile-select-menu [role="option"]:is(:hover,:focus-visible) { background:#202a30; outline:none; }
+.profile-select-menu [aria-selected="true"] { background:#a3e63514; color:#a3e635; }
+.profile-control-picker button:focus-visible { outline:2px solid #a3e635; outline-offset:-2px; }
+.profile-birthday-menu { max-height:calc(100dvh - 24px); padding:12px; }
+.profile-calendar-heading { display:flex; align-items:center; gap:6px; margin-bottom:12px; }
+.profile-calendar-heading > button { display:inline-flex; align-items:center; justify-content:center; height:32px; padding:0 6px; }
+.profile-calendar-heading > [data-view] { flex:1; gap:6px; font:600 12px/18px "Plus Jakarta Sans",sans-serif; }
+.profile-birthday-menu .datetime-days { gap:4px; }
+.profile-birthday-menu .datetime-days button { height:34px; font:500 12px/18px "Plus Jakarta Sans",sans-serif; }
+.profile-birthday-menu .datetime-days [aria-pressed="true"] { background:#a3e635; color:#142000; }
+.profile-calendar-choices { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.profile-calendar-choices button { min-height:38px; padding:6px; font:500 12px/18px "Plus Jakarta Sans",sans-serif; }
+.profile-birthday-menu button:disabled { opacity:.3; cursor:not-allowed; }
+.profile-birthday-menu .datetime-actions { padding-top:10px; border-top:1px solid #35434b; }
+@media(prefers-reduced-motion:reduce) { .profile-select-menu { transition:none; } }
+
+#app #ds-tenant-dashboard #sec .member-account-page .profile-field-value, .profile-select-menu [role="option"] > span:not(.material-symbols-outlined) { margin:0; color:inherit; font:inherit; text-transform:none; letter-spacing:0; }
