@@ -4554,3 +4554,11 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
   #ds-book-page .checkout-total-due > div:first-child { flex:1 1 auto; }
   #ds-book-page .checkout-total-due > div:last-child > span { font-size:clamp(20px,6vw,26px); }
 }
+
+@media (max-width:639px) {
+  #ds-book-page .dink-payment-container .checkout-page-intro { margin-bottom:24px; }
+  #ds-book-page .dink-payment-container .checkout-page-intro > div { gap:8px; flex-wrap:nowrap; align-items:center; }
+  #ds-book-page .dink-payment-container .checkout-page-intro h1 { min-width:0; font-size:clamp(20px,5.8vw,24px); line-height:1.25; }
+  #ds-book-page .dink-payment-container .checkout-page-badge { flex-shrink:0; padding:3px 7px; font-size:10px; }
+  #ds-book-page .dink-payment-container .checkout-page-intro p { margin-top:6px; font-size:12px; line-height:19px; }
+}
