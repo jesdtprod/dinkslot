@@ -1427,8 +1427,12 @@
       formBox.innerHTML = '<div class="p-8 text-center text-slate-400 font-mono text-xs flex items-center justify-center gap-2"><span class="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>Loading court availability...</div>';
       var courts = (await sb.from("courts").select("id,name,slot_minutes,open_time,close_time,hourly_rate,surface,is_indoor")
         .eq("tenant_id", t.id).eq("status", "active").order("name")).data || [];
-      var players = (await sb.from("club_players").select("id,display_name,phone")
-        .eq("tenant_id", t.id).eq("status", "active").order("display_name")).data || [];
+      var directory = await sb.rpc("club_booking_players", { p_tenant_id: t.id });
+      if (directory.error) {
+        formBox.innerHTML = '<p class="msg err" role="alert">Unable to load registered players. ' + esc(nice(directory.error)) + '</p>';
+        return;
+      }
+      var players = directory.data || [];
       if (!courts.length) {
         formBox.innerHTML = '<div class="p-8 text-center text-slate-400 font-mono text-sm">No active courts configured. Please add a court first on the Courts tab.</div>';
         return;
@@ -1436,7 +1440,9 @@
       var S = { court: courts[0], date: dayStr(tz), slots: [], start: null, count: 1, who: "guest" };
       var playerOpts = function () {
         return '<option value="">Choose a registered player...</option>' + players.map(function (p) {
-          return '<option value="' + esc(p.id) + '">' + esc(p.display_name) + (p.phone ? " (" + esc(p.phone) + ")" : "") + '</option>';
+          var name = p.full_name || p.display_name;
+          var nickname = p.full_name && p.display_name && p.full_name.toLowerCase() !== p.display_name.toLowerCase() ? " (" + p.display_name + ")" : "";
+          return '<option value="' + esc(p.id) + '">' + esc(name + nickname) + (p.phone ? " - " + esc(p.phone) : "") + '</option>';
         }).join('');
       };
 
