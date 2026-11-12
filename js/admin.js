@@ -457,6 +457,7 @@
                 var initial = (p.display_name || "P").charAt(0).toUpperCase();
                 var startFormatted = new Date(b.starts_at).toLocaleTimeString("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
                 var endFormatted = new Date(b.ends_at).toLocaleTimeString("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
+                var statusLabel = String(b.status || "Unknown").replace(/[_-]+/g, " ").replace(/\b[a-z]/g, function (letter) { return letter.toUpperCase(); });
                 return '<tr class="hover:bg-surface-container transition-colors">' +
                   '<td class="py-space-sm px-space-md flex items-center gap-space-sm">' +
                     '<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center font-label-sm text-label-sm font-bold text-primary overflow-hidden shrink-0">' + (p.avatar_path ? '<img src="' + esc(D.avatar.url(p.avatar_path)) + '" alt="" class="w-full h-full object-cover" loading="lazy">' : esc(initial)) + '</div>' +
@@ -471,7 +472,7 @@
                   '<td class="py-space-sm px-space-md text-on-surface">' + esc(c.name || "Court 1") + ' • Match</td>' +
                   '<td class="py-space-sm px-space-md text-on-surface-variant font-label-md text-label-md">' + esc(startFormatted) + ' - ' + esc(endFormatted) + '</td>' +
                   '<td class="py-space-sm px-space-md">' +
-                    '<span class="px-space-xs py-0.5 rounded-full ' + (b.status === "approved" ? "bg-primary/10 text-primary font-semibold" : "bg-error/10 text-error font-semibold") + ' font-label-sm text-label-sm">' + (b.status === "approved" ? "Paid • Confirmed" : esc(b.status)) + '</span>' +
+                    '<span class="px-space-xs py-0.5 rounded-full ' + (b.status === "approved" ? "bg-primary/10 text-primary font-semibold" : "bg-error/10 text-error font-semibold") + ' font-label-sm text-label-sm">' + (b.status === "approved" ? "Paid • Confirmed" : esc(statusLabel)) + '</span>' +
                   '</td>' +
                   '<td class="py-space-sm px-space-md text-right font-label-md text-label-md font-bold text-on-surface">' + money(b.amount) + '</td>' +
                 '</tr>';
