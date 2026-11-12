@@ -41,11 +41,11 @@
     D.setMsg(document.body, text, "");
   }
 
-  function slotEl() { return document.getElementById("dashboard-bellslot") || document.getElementById("bellslot"); }
+  function slots() { return [document.getElementById("dashboard-bellslot"), document.getElementById("bellslot")].filter(Boolean); }
 
-  function paint() {
-    var slot = slotEl();
-    if (!slot) return;
+  function paint() { slots().forEach(paintSlot); }
+
+  function paintSlot(slot) {
     var unread = items.filter(function (n) { return !n.read_at; }).length;
     var visible = items.filter(function (n) { return notificationFilter === "all" || (notificationFilter === "read" ? !!n.read_at : !n.read_at); });
     slot.innerHTML =
