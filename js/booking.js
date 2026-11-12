@@ -1818,6 +1818,9 @@
   // ==================================================== club approval queue
   async function openPass(booking, court, t, player, button) {
     if (!booking || !booking.reference_code) return D.ui.toast('The booking reference is unavailable.', 'err');
+    if (booking.status !== 'approved') return D.ui.toast('QR passes are available only after approval.', 'err');
+    var current = await sb.from('bookings').select('status').eq('id', booking.id).maybeSingle();
+    if (current.error || !current.data || current.data.status !== 'approved') return D.ui.toast('QR passes are available only after approval.', 'err');
     button = button || document.activeElement;
           var ticket = document.createElement('dialog');
           ticket.className = 'booking-ticket-modal';
@@ -2821,6 +2824,20 @@
     var tz = club.timezone || "Asia/Manila";
     var schedule = new Intl.DateTimeFormat("en-PH", { timeZone:tz, dateStyle:"medium", timeStyle:"short" }).format(new Date(b.starts_at));
     root.innerHTML = '<section class="panel guest-booking-status"><h1>Your booking</h1><p>Review your reservation and payment status.</p><dl><div><dt>Status</dt><dd>' + esc(statusText) + '</dd></div><div><dt>Club</dt><dd>' + esc(club.name || "Club") + '</dd></div><div><dt>Court</dt><dd>' + esc(court.name || "Court") + '</dd></div><div><dt>Schedule</dt><dd>' + esc(schedule) + '</dd></div><div><dt>Reference</dt><dd>' + esc(b.reference_code || "") + '</dd></div><div><dt>Payment proof</dt><dd>' + (b.proof_submitted ? 'Submitted' : 'Not submitted') + '</dd></div></dl><p>' + (b.gate_pass_available ? 'Your booking is confirmed.' : 'Your gate pass will be available after approval.') + '</p></section>';
+    if (b.status === "approved" && b.gate_pass_available && b.reference_code) {
+      var panel = root.querySelector(".guest-booking-status");
+      var pass = document.createElement("section");
+      pass.className = "guest-booking-pass";
+      pass.setAttribute("aria-label", "Your booking QR pass");
+      pass.innerHTML = '<h2>Booking QR pass</h2><p>Show this pass at the court.</p><div class="guest-booking-qr"></div>';
+      panel.appendChild(pass);
+      try {
+        if (typeof window.qrcode !== "function") throw new Error("qr_unavailable");
+        pass.querySelector(".guest-booking-qr").innerHTML = bookingQrSvg(b.reference_code, await loadQrLogo());
+      } catch (_) {
+        pass.querySelector(".guest-booking-qr").textContent = "Your QR pass is temporarily unavailable. Please contact the club.";
+      }
+    }
   }
 
     D.booking = { guestBookingStatus: guestBookingStatus, openPayment: openPayment, openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc, bookCourtSkeleton: bookCourtSkeleton, paymentSkeleton: paymentSkeleton, bookingPassSkeleton: bookingPassSkeleton, bookingConfirmSkeleton: bookingConfirmSkeleton };

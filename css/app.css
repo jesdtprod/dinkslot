@@ -4609,3 +4609,8 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-booking-status dl > div { display:flex; justify-content:space-between; gap:16px; }
 .guest-booking-status dt { color:#91a5b2; }
 .guest-booking-status dd { margin:0; text-align:right; overflow-wrap:anywhere; }
+
+.guest-booking-pass { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:20px; padding:16px; border:1px solid #35434b; border-radius:10px; text-align:center; }
+.guest-booking-pass h2,.guest-booking-pass p { margin:0; }
+.guest-booking-qr { width:min(100%,220px); }
+.guest-booking-qr svg { display:block; width:100%; height:auto; border-radius:10px; }
