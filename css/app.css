@@ -4131,3 +4131,6 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 #ds-book-page .booking-context-status .club-live-badge, #ds-book-page .booking-context-status .booking-timezone { min-height: 30px; padding: 5px 10px; border-radius: 999px; font: 500 10px/18px "JetBrains Mono",monospace; }
 #ds-book-page .booking-context-status .club-live-badge { border-color: #a3e63545; background: #a3e6350d; color: #a3e635; }
 #ds-book-page .booking-context-status .booking-timezone { background: #262d33; color: #b8c7cf; border-color: #ffffff12; }
+
+.dink-payment-container .checkout-secondary-actions { align-items: stretch; }
+.dink-payment-container .checkout-secondary-actions > :is(a, button) { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: 40px; min-height: 40px; padding: 8px 12px; border-radius: 9px; font-size: 11px; line-height: 18px; }

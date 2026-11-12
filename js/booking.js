@@ -567,7 +567,7 @@
                   '<span class="material-symbols-outlined font-bold text-xl group-hover:scale-110 transition-transform">task_alt</span>' +
                   '<span>Submit Proof &amp; Confirm Booking</span>' +
                 '</button>' +
-                '<div class="flex items-center justify-between gap-2 pt-1">' +
+                '<div class="checkout-secondary-actions flex items-center justify-between gap-2 pt-1">' +
                   '<a class="flex-1 bg-surface-container-high hover:bg-surface-bright text-zinc-300 text-xs font-semibold py-2.5 px-3 rounded-lg border border-outline-variant/30 transition text-center no-underline" href="#/me/bookings">' +
                     'View My Bookings' +
                   '</a>' +
