@@ -1005,10 +1005,7 @@
               '<div>' +
                 '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-birth">Date of Birth</label>' +
                 '<div class="relative">' +
-                  '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
-                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                  '</span>' +
-                  '<input data-has-icon class="form-input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500 font-mono" id="mp-birth" type="date" min="1900-01-01" autocomplete="bday"/>' +
+                  '<input data-has-icon class="form-input-dark w-full pr-4 py-2.5 rounded-lg text-sm text-white placeholder-slate-500 font-mono" id="mp-birth" type="date" min="1900-01-01" autocomplete="bday"/>' +
                 '</div>' +
               '</div>' +
               // Civil Status
@@ -1016,7 +1013,7 @@
                 '<label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2" for="mp-civil">Civil Status</label>' +
                 '<div class="relative">' +
                   '<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
-                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21v-2a8 8 0 0116 0v2" stroke-linecap="round"></path></svg>' +
                   '</span>' +
                   '<select data-has-icon class="form-input-dark form-select-dark w-full pl-10 pr-10 py-2.5 rounded-lg text-sm text-white appearance-none cursor-pointer" id="mp-civil">' +
                     civilOptions +

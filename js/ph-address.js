@@ -6,8 +6,8 @@
 //   ph.validate()  -> error text or null          ph.get() -> { manager_name, street, province, city, barangay, zip_code, psgc_*, address }
 //
 // Notes
-// * The API has a ZIP for roughly two thirds of the cities/municipalities. Where it has none the ZIP box is
-//   editable (4 digits); where it has one the box is locked to the API value.
+// * ZIP autofill uses the API, then a unique province/city match in the bundled PHLPost directory.
+//   Missing or ambiguous ZIPs stay editable (4 digits); saved ZIPs remain for the saved city.
 // * Metro Manila has no provinces in PSGC: it appears as "Metro Manila (NCR)". Manila's barangays belong to its
 //   districts (Binondo, Quiapo, ...), shown as "City of Manila - Binondo".
 // * If the API cannot be reached the three dropdowns become text boxes, so registration is never blocked.
@@ -17,6 +17,26 @@
   var API = "https://psgc.cloud/api";
   var NCR = { name: "Metro Manila (NCR)", code: "NCR" };
   var mem = {};
+  var postalIndexPromise;
+  function postalName(name) {
+    return clean(name).toLowerCase().replace(/\([^)]*\)/g, '').replace(/^city of\s+|\s+city$/g, '').replace(/[^a-z0-9]/g, '');
+  }
+  function postalIndex() {
+    if (!postalIndexPromise) postalIndexPromise = fetch('assets/ph-zip-codes.json').then(function (r) {
+      if (!r.ok) throw new Error('ZIP lookup unavailable');
+      return r.json();
+    }).then(function (data) {
+      var index = {};
+      data.places.forEach(function (place) {
+        var key = postalName(place[0]) + ':' + postalName(place[1]);
+        var codes = index[key] || (index[key] = []);
+        if (codes.indexOf(place[2]) < 0) codes.push(place[2]);
+      });
+      return index;
+    }).catch(function () { return {}; });
+    return postalIndexPromise;
+  }
+
 
   // The API double-encodes some accents ("Las PiÃ±as"); repair them and trim stray spaces.
   function clean(s) {
@@ -54,6 +74,11 @@
       else if (hasDistricts && /^City of Manila$/i.test(name)) return; // its barangays are listed under the districts
       else out.push({ code: c.code, label: name, city: name, zip: c.zip_code || "" });
     });
+    var postcodes = await postalIndex();
+    out.forEach(function (city) {
+      var codes = postcodes[postalName(prov.name) + ':' + postalName(city.label)];
+      if (!city.zip && codes && codes.length === 1) city.zip = codes[0];
+    });
     return out.sort(function (a, b) { return a.label.localeCompare(b.label, "en"); });
   }
   async function loadBarangays(city) {
@@ -78,9 +103,11 @@
       field("Province", '<select id="ph-prov" class="ph-input ' + I + '"><option value="">Loading...</option></select>') +
       field("City / Municipality", '<select id="ph-city" class="ph-input ' + I + '" disabled><option value="">Choose a province first</option></select>') +
       field("Barangay", '<select id="ph-brgy" class="ph-input ' + I + '" disabled><option value="">Choose a city first</option></select>') +
-      field("ZIP code", input("ph-zip", v.zip_code, 4, "4 digits") + '<small id="ph-zipnote" class="ph-note"></small>') +
+      field("ZIP code", input("ph-zip", v.zip_code, 4, "4 digits")) +
       '</div><p class="ph-status ph-note" id="ph-status"></p>';
     var $ = function (id) { return box.querySelector("#" + id); };
+    $('ph-zip').inputMode = 'numeric';
+    $('ph-zip').autocomplete = 'postal-code';
     var status = function (t) { $("ph-status").textContent = t || ""; };
 
     function options(list, placeholder, valueOf, labelOf) {
@@ -89,9 +116,9 @@
     }
     function setZip(zip) {
       apiZip = zip || "";
-      var z = $("ph-zip"), n = $("ph-zipnote");
-      if (apiZip) { z.value = apiZip; z.readOnly = true; n.textContent = ""; }
-      else { z.readOnly = false; z.value = ""; n.textContent = sel.city ? "No ZIP in the address API for this place. Enter your 4-digit ZIP." : ""; } // never keep another city's ZIP
+      var z = $("ph-zip");
+      if (apiZip) { z.value = apiZip; z.readOnly = true; }
+      else { z.readOnly = false; z.value = ""; } // never keep another city's ZIP
     }
     function toText(id, val, ph) { // a dropdown that cannot be filled becomes a text box
       var s = $(id);

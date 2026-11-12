@@ -522,3 +522,5 @@
 .member-account-page .member-profile-skill small { padding:2px 7px; border:1px solid #35434b; border-radius:6px; background:#202a30; font-size:10px; }
 .member-account-page .member-profile-skill > strong { display:block; margin-top:10px; color:#a3e635; font:600 20px/28px "Plus Jakarta Sans",sans-serif; }
 .member-account-page .member-profile-skill > p { margin:4px 0 0; color:#91a5b2; font-size:11px; }
+
+#app #ds-tenant-dashboard #sec .member-account-page #myprofile #mp-birth { padding-left:12px !important; }
