@@ -321,7 +321,6 @@
                   '<span>Copy</span>' +
                 '</button>' +
               '</div>' +
-              '<div class="hidden text-[11px] font-mono text-primary font-bold mt-1 text-right" id="gcash-toast">Account number copied!</div>' +
             '</div>' +
             '<div class="p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/20 flex items-start gap-2.5 text-xs text-zinc-400">' +
               '<span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">payments</span>' +
@@ -376,7 +375,6 @@
               '<button type="button" class="text-zinc-400 hover:text-primary transition flex items-center border-0 bg-transparent cursor-pointer p-0" id="btn-copy-global-ref" title="Copy Reference ID">' +
                 '<span class="material-symbols-outlined text-sm">content_copy</span>' +
               '</button>' +
-              '<span class="hidden text-[10px] font-mono text-primary font-bold" id="global-ref-toast">Copied!</span>' +
             '</div>' +
             '<span class="bg-primary/10 border border-primary/30 text-primary font-mono text-[11px] px-2.5 py-1 rounded-full font-semibold">Step 3 of 3 • Direct Payment</span>' +
           '</div>' +
@@ -528,7 +526,6 @@
                     'Copy Code' +
                   '</button>' +
                 '</div>' +
-                '<div class="hidden text-[11px] font-mono text-primary font-bold mt-1.5 text-right" id="summary-note-toast">Note reference code copied!</div>' +
               '</div>' +
 
               '<!-- Price Breakdown Ledger -->' +
@@ -609,10 +606,7 @@
       document.body.removeChild(ta);
     }
     function showToast(id) {
-      var t = el.querySelector("#" + id);
-      if (!t) return;
-      t.classList.remove("hidden");
-      setTimeout(function () { if (t) t.classList.add("hidden"); }, 2500);
+      D.ui.toast(id === 'gcash-toast' ? 'Account number copied.' : 'Booking reference copied.', 'ok');
     }
 
     var btnCopyGlobal = el.querySelector("#btn-copy-global-ref");

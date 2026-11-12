@@ -4152,6 +4152,8 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 
 .dink-payment-container .checkout-total-due { align-items: center; gap: 12px; }
 .checkout-total-due > div { min-width: 0; }
+.dink-payment-container :is(#btn-copy-account, #btn-copy-global-ref, #btn-copy-note-ref):focus { outline: none; box-shadow: none; }
+.dink-payment-container :is(#btn-copy-account, #btn-copy-global-ref, #btn-copy-note-ref):focus-visible { outline: none; border-color: #a3e635; box-shadow: inset 0 0 0 1px #a3e635; }
 .checkout-total-due > div:last-child { flex-shrink: 0; display: flex; align-items: center; }
 .checkout-total-due > div:last-child > span { line-height: 1.2; white-space: nowrap; }
 
