@@ -1950,7 +1950,7 @@
     if (!requireUser("/me")) return;
     if (state.managedSlug) return go("/admin/" + state.managedSlug); // owners and staff use the dashboard
     if (state.accountType === "tenant") return go("/club-setup"); // club account: add the club first
-    return window.DS.player.render(section || "overview");
+    return (await ensureViewModule("player")).render(section || "overview");
   }
 
   async function viewPlatform() {
@@ -2039,6 +2039,29 @@
   };
 
   // ----------------------------------------------------------------- router
+  var pendingViewModules = {};
+  async function ensureViewModule(name) {
+    if (window.DS[name]) return window.DS[name];
+    if (!pendingViewModules[name]) {
+      pendingViewModules[name] = new Promise(function (resolve, reject) {
+        var script = document.createElement("script");
+        script.src = "js/" + name + ".js?recover=" + Date.now();
+        script.onload = function () {
+          script.remove();
+          if (window.DS[name]) resolve(window.DS[name]);
+          else reject(new Error("This page could not finish loading. Please retry."));
+        };
+        script.onerror = function () {
+          script.remove();
+          reject(new Error("Unable to load this page. Check your connection and retry."));
+        };
+        document.head.appendChild(script);
+      });
+    }
+    try { return await pendingViewModules[name]; }
+    finally { delete pendingViewModules[name]; }
+  }
+
   async function render() {
     var raw = (location.hash || "#/").slice(1) || "/";
     var qs = raw.indexOf("?"), path = qs === -1 ? raw : raw.slice(0, qs);
@@ -2104,11 +2127,11 @@
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/book$/))) {
         // Booking needs an account: visitors are sent to register (or sign in) for this club first.
         if (!state.user) return go("/auth?mode=up&join=" + m[1] + "&next=" + encodeURIComponent("/c/" + m[1] + "/book"));
-        return await window.DS.booking.renderBook(m[1]);
+        return await (await ensureViewModule("booking")).renderBook(m[1]);
       }
       if ((m = path.match(/^\/admin\/([a-z0-9-]+)(?:\/(courts|settings|bookings|profile|payments|staff|account))?$/))) {
         if (!requireUser(path)) return;
-        return await window.DS.admin.render(m[1], m[2] || "dashboard");
+        return await (await ensureViewModule("admin")).render(m[1], m[2] || "dashboard");
       }
       window.DS.ui.errorPage(app, { icon: "search_off", title: "Page not found", text: "That page does not exist or has moved.", home: true });
     } catch (err) {
