@@ -62,7 +62,7 @@
     for (var k = start; k < start + count; k++) t += (slots[k].rate != null ? slots[k].rate : 0) * step / 60;
     return Math.round(t * 100) / 100;
   }
-  function rateTag(x) { return x.rate != null ? '<small class="slot-rate">' + Math.round(x.rate) + "</small>" : ""; }
+  function rateTag(x) { return x.rate != null ? '<small class="slot-rate">&#8369;' + Math.round(x.rate) + "</small>" : ""; }
   function hhmm(t) { return String(t).slice(0, 5); }
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   // closing time 00:00 means midnight: the end of the day (1440 minutes), so the last slot can end at 12 AM
@@ -697,18 +697,18 @@
         if (x.off) {
           return '<button type="button" class="slot-pill p-3 rounded-xl bg-carbon-950/70 border border-white/5 text-slate-600 cursor-not-allowed opacity-55 text-center" disabled>' +
             '<div class="text-xs font-semibold line-through">' + timeStr + '</div>' +
-            '<div class="text-[11px] font-mono text-slate-600">' + rateNum + '</div>' +
+            '<div class="text-[11px] font-mono text-slate-600">' + '&#8369;' + rateNum + '</div>' +
           '</button>';
         }
         if (inRange) {
           return '<button type="button" aria-pressed="true" class="slot-pill p-3 rounded-xl bg-neon-lime text-carbon-950 font-bold border-2 border-neon-glow shadow-neon text-center transform scale-[1.02] ring-2 ring-neon-lime/30 cursor-pointer" data-i="' + i + '">' +
             '<div class="text-xs font-black tracking-tight text-carbon-950">' + timeStr + '</div>' +
-            '<div class="text-[11px] font-mono font-bold text-carbon-900">' + rateNum + '</div>' +
+            '<div class="text-[11px] font-mono font-bold text-carbon-900">' + '&#8369;' + rateNum + '</div>' +
           '</button>';
         }
         return '<button type="button" class="slot-pill p-3 rounded-xl bg-carbon-850 hover:bg-carbon-700/80 border border-white/10 hover:border-slate-500 text-slate-200 text-center group cursor-pointer" data-i="' + i + '">' +
           '<div class="text-xs font-semibold group-hover:text-white">' + timeStr + '</div>' +
-          '<div class="text-[11px] font-mono ' + (isPeak ? "text-amber-400 group-hover:text-neon-lime font-bold" : "text-slate-400 group-hover:text-neon-lime") + '">' + rateNum + '</div>' +
+          '<div class="text-[11px] font-mono ' + (isPeak ? "text-amber-400 group-hover:text-neon-lime font-bold" : "text-slate-400 group-hover:text-neon-lime") + '">' + '&#8369;' + rateNum + '</div>' +
         '</button>';
       }).join("");
 

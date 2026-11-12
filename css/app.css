@@ -3711,3 +3711,10 @@ dialog.booking-payment-modal[open] { display: flex; flex-direction: column; widt
   @starting-style { .guest-payment-picker select:open::picker(select) { opacity: 0; transform: translateY(-5px); } }
 }
 @media (prefers-reduced-motion: reduce) { .guest-payment-picker select, .guest-payment-picker select::picker(select), .guest-payment-picker select::picker-icon { transition: none; } }
+
+/* Compact time slots with clear peso-denominated rates. */
+#ds-book-page #slots .slot-pill { min-height: 44px; padding: 5px 8px; gap: 1px; }
+#ds-book-page #slots .slot-pill > div { line-height: 16px; }
+dialog#booking-modal #nslots button { min-height: 40px; padding: 4px 3px; line-height: 17px; }
+.booking-new-card #booking-modal #nslots { gap: 8px; }
+dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
