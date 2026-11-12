@@ -671,3 +671,8 @@
 .admin-booking-schedule strong { line-height:16px; }
 
 .admin-booking-club { display:block; margin:1px 0 0 22px; color:#91a5b2; font:400 10px/16px "Plus Jakarta Sans",sans-serif; }
+
+/* Booking customer photos overlay a centered initials fallback. */
+#ds-tenant-dashboard .reservation-customer-avatar { position:relative; display:flex; align-items:center; justify-content:center; box-sizing:border-box; flex:0 0 40px; width:40px; height:40px; overflow:hidden; padding:0; line-height:1; }
+#ds-tenant-dashboard .reservation-avatar-initials { display:flex; align-items:center; justify-content:center; width:100%; height:100%; font:700 13px/1 "Plus Jakarta Sans",sans-serif; }
+#ds-tenant-dashboard .reservation-customer-avatar img { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; }
