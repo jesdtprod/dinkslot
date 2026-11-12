@@ -280,7 +280,7 @@
             '<!-- LEFT / MAIN INTERACTION COLUMN -->' +
             '<div class="lg:col-span-8 space-y-7">' +
               '<!-- Step 1: Choose a court -->' +
-              '<section class="bg-carbon-900/90 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark relative overflow-hidden" data-purpose="step-choose-court">' +
+              '<section class="bg-carbon-900 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark relative overflow-hidden" data-purpose="step-choose-court">' +
                 '<div class="flex items-center justify-between mb-5">' +
                   '<div class="flex items-center gap-3">' +
                     '<span class="w-7 h-7 rounded-lg bg-neon-lime text-carbon-950 font-black text-sm flex items-center justify-center shadow-sm">1</span>' +
@@ -293,7 +293,7 @@
               '</section>' +
 
               '<!-- Step 2: Pick a date and time -->' +
-              '<section id="slotpanel" class="bg-carbon-900/90 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark space-y-6" data-purpose="step-date-time-selection" hidden>' +
+              '<section id="slotpanel" class="bg-carbon-900 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark space-y-6" data-purpose="step-date-time-selection" hidden>' +
                 '<div class="flex items-center justify-between">' +
                   '<div class="flex items-center gap-3">' +
                     '<span class="w-7 h-7 rounded-lg bg-neon-lime text-carbon-950 font-black text-sm flex items-center justify-center shadow-sm">2</span>' +
