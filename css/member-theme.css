@@ -185,3 +185,7 @@
 #ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-grid > .app-empty-state { grid-column:1 / -1; }
 @media(max-width:1100px) { #ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { #ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-grid { grid-template-columns:minmax(0,1fr); } }
+.member-reservation-venue { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.member-reservation-logo { display:grid; place-items:center; flex:0 0 36px; width:36px; height:36px; overflow:hidden; border:1px solid #ffffff18; border-radius:9px; background:#202a30; color:#a3e635; }
+.member-reservation-logo img { display:block; width:100%; height:100%; object-fit:contain; }
+#ds-tenant-dashboard #sec .member-reservation-venue h3 { margin:0; min-width:0; }
