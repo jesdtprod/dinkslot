@@ -4327,3 +4327,27 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   #ds-landing .club-filters { box-sizing:border-box; display:flex; flex-direction:column; align-items:stretch; width:100%; gap:8px; }
   #ds-landing .club-filters .club-tab { flex:none; width:100%; min-height:38px; height:auto; justify-content:center; }
 }
+
+/* Mobile header retains brand and account identity; site footer is desktop-only. */
+@media(max-width:640px) {
+  body > .site-footer { display:none; }
+  .site-header > div { padding-inline:12px; gap:8px; }
+  .site-header .site-brand { min-width:0; gap:5px; }
+  .site-header .site-logo-frame { width:32px; flex:0 0 32px; }
+  .site-header .site-logo { width:32px; }
+  body:has(#nav.member-nav) .site-header .site-brand > div:last-child { display:flex; }
+  .site-header .site-brand > div:last-child > span:first-child { font-size:14px; letter-spacing:.02em; }
+  .site-header .site-brand > div:last-child > span:last-child { display:block; margin-top:3px; font-size:5px; line-height:9px; letter-spacing:0; white-space:nowrap; }
+  #nav.member-nav { flex-shrink:0; gap:6px; }
+  #nav.member-nav .facility-account-text { display:flex; min-width:0; width:82px; max-width:82px; }
+  #nav.member-nav .facility-account-text strong { font-size:10px; line-height:14px; }
+  #nav.member-nav .facility-account-text small { font-size:8px; line-height:11px; }
+  #nav.member-nav .facility-account summary { gap:5px; padding-right:5px; }
+  #nav.member-nav .facility-chevron { width:12px; font-size:14px; }
+  #nav.member-nav .dashboard-bellslot .bellbtn { width:32px; min-width:32px; }
+}
+@media(max-width:360px) {
+  #nav.member-nav .facility-account-text { width:64px; max-width:64px; }
+  .site-header .site-brand > div:last-child > span:first-child { font-size:12px; }
+  .site-header > div { padding-inline:8px; }
+}
