@@ -414,3 +414,7 @@
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta > span:first-child { grid-column:1 / -1; justify-self:start; width:fit-content; max-width:100%; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta > :is(span,strong) { box-sizing:border-box; display:inline-flex; align-items:center; min-height:26px; padding:4px 8px; line-height:16px; }
 #ds-tenant-dashboard #sec .member-bookings-page .clean-booking-main > .booking-payment-timer { display:flex; width:100%; box-sizing:border-box; margin-top:10px; }
+
+/* Remove legacy nested padding so details and actions share the card gutters. */
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-card > .clean-booking-main { width:100%; box-sizing:border-box; margin:0; padding:0; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-card > .clean-booking-actions { width:100%; box-sizing:border-box; padding:12px 0 0; }
