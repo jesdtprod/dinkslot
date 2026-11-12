@@ -118,6 +118,19 @@
     }, 1000);
   }
 
+  function openPayment(booking, onDone) {
+    var dialog = document.createElement("dialog");
+    dialog.className = "booking-payment-modal";
+    dialog.setAttribute("aria-label", "Pay and upload payment proof");
+    dialog.innerHTML = '<header><h2>Complete your payment</h2><button type="button" class="btn ghost" aria-label="Close payment form">Close</button></header><div class="booking-payment-content"></div>';
+    var previousFocus = document.activeElement;
+    document.body.append(dialog);
+    dialog.querySelector("header button").onclick = function () { dialog.close(); };
+    dialog.addEventListener("close", function () { dialog.remove(); if (previousFocus && previousFocus.isConnected) previousFocus.focus(); }, { once: true });
+    dialog.showModal();
+    payPanel(dialog.querySelector(".booking-payment-content"), booking, { onDone: function () { if (onDone) onDone(); } });
+  }
+
   // ======================================================== payment panel
   // Shows amount, QR, instructions, reference code and the proof upload for one booking.
   async function payPanel(el, b, ctx) {
@@ -370,7 +383,7 @@
             '<aside class="lg:col-span-4 lg:sticky lg:top-24 space-y-5" data-purpose="reservation-summary-sidebar">' +
               '<div class="bg-carbon-900 rounded-2xl p-6 border border-white/10 shadow-card-dark relative overflow-hidden">' +
                 '<div class="absolute -top-12 -right-12 w-32 h-32 bg-neon-lime/10 rounded-full blur-2xl pointer-events-none"></div>' +
-                '<div class="flex items-center justify-between pb-4 border-b border-white/10">' +
+                '<div class="flex items-center justify-between pb-5 border-b border-white/10">' +
                   '<div>' +
                     '<span class="text-[11px] font-mono text-neon-lime uppercase tracking-wider font-semibold">Booking Ticket</span>' +
                     '<h3 class="text-xl font-extrabold text-white m-0">Reservation Summary</h3>' +
@@ -380,7 +393,7 @@
                   '</span>' +
                 '</div>' +
 
-                '<div class="py-4 space-y-3.5 border-b border-white/10 text-xs">' +
+                '<div class="py-5 space-y-3.5 border-b border-white/10 text-xs">' +
                   '<div class="flex items-start justify-between">' +
                     '<span class="text-slate-400">Club Venue</span>' +
                     '<span class="text-white font-semibold text-right">' + esc(club.name) + '</span>' +
@@ -406,9 +419,9 @@
                   '</div>' +
                 '</div>' +
 
-                '<div class="py-3.5 space-y-2 border-b border-white/10">' +
-                  '<span class="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Session Inclusions</span>' +
-                  '<div class="grid grid-cols-1 gap-1.5 text-xs text-slate-300">' +
+                '<div class="py-5 space-y-3 border-b border-white/10">' +
+                  '<span class="block text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Session Inclusions</span>' +
+                  '<div class="grid grid-cols-1 gap-2.5 text-xs text-slate-300">' +
                     '<div class="flex items-center gap-2">' +
                       '<svg class="w-3.5 h-3.5 text-neon-lime shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
                       '<span>Automated Smart LED Floodlight System</span>' +
@@ -424,7 +437,7 @@
                   '</div>' +
                 '</div>' +
 
-                '<div class="py-4 space-y-2 text-xs">' +
+                '<div class="py-5 space-y-2.5 text-xs">' +
                   '<div class="flex justify-between text-slate-400">' +
                     '<span id="summary-fee-label">Court Booking Fee</span>' +
                     '<span id="summary-court-fee" class="font-mono text-slate-200">PHP 0.00</span>' +
@@ -437,7 +450,7 @@
                     '<span>Booking Processing Fee</span>' +
                     '<span class="font-mono text-emerald-400">PHP 0.00</span>' +
                   '</div>' +
-                  '<div class="pt-3 border-t border-white/10 flex items-baseline justify-between">' +
+                  '<div class="mt-1 pt-4 border-t border-white/10 flex items-baseline justify-between">' +
                     '<div>' +
                       '<span class="text-sm font-bold text-white">Total Amount</span>' +
                       '<p class="text-[10px] text-slate-400 m-0">All local taxes included</p>' +
@@ -446,19 +459,19 @@
                   '</div>' +
                 '</div>' +
 
-                '<div class="mt-4 space-y-3">' +
+                '<div class="space-y-4">' +
                   '<button id="reserve-sidebar" type="button" class="w-full py-4 px-6 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-neon transition-all hover:scale-[1.02] active:scale-[0.98] border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none" disabled>' +
                     '<svg class="w-4 h-4 text-carbon-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
                     '<span>Confirm &amp; Pay</span>' +
                   '</button>' +
-                  '<div class="p-3 rounded-lg bg-carbon-800/60 border border-white/5 flex items-start gap-2.5 text-[11px] text-slate-300">' +
+                  '<div class="p-3.5 rounded-lg bg-carbon-800/60 border border-white/5 flex items-start gap-2.5 leading-relaxed text-[11px] text-slate-300">' +
                     '<svg class="w-4 h-4 text-neon-lime shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
                     '<span><strong>Flex Cancel:</strong> Free cancellation up to 6 hours before slot. Full credit refund credited to your DINK wallet.</span>' +
                   '</div>' +
                 '</div>' +
 
-                '<div class="mt-5 pt-4 border-t border-white/10 text-center">' +
-                  '<span class="text-[10px] uppercase font-mono tracking-widest text-slate-400 block mb-2">Supported Payment Channels</span>' +
+                '<div class="mt-6 pt-5 border-t border-white/10 text-center">' +
+                  '<span class="text-[10px] uppercase font-mono tracking-widest text-slate-400 block mb-3">Supported Payment Channels</span>' +
                   '<div class="flex items-center justify-center flex-wrap gap-2 text-xs font-mono text-slate-400">' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">GCash</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Maya</span>' +
@@ -1816,5 +1829,5 @@
     }
   }
 
-    D.booking = { openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc };
+    D.booking = { openPayment: openPayment, openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc };
 })();

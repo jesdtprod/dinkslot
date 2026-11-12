@@ -3483,3 +3483,10 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 #ds-book-page #banner-selection-time { font-size: 15px; line-height: 1.5; }
 
 #ds-book-page .court-card .court-price { color: #34d399; font-weight: 600; }
+
+.booking-payment-modal { box-sizing: border-box; width: min(760px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 20px; overflow-y: auto; border: 1px solid #303c43; border-radius: 16px; background: #181f24; color: #dce6df; font: 400 13px/1.65 "Plus Jakarta Sans", sans-serif; }
+.booking-payment-modal::backdrop { background: #03080dcc; backdrop-filter: blur(6px); }
+.booking-payment-modal > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.booking-payment-modal > header h2 { margin: 0; font-size: 18px; }
+.booking-payment-modal .grid { padding-bottom: 0; }
+.booking-payment-modal [class*="shadow-neon"] { box-shadow: none; }

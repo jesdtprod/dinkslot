@@ -607,6 +607,9 @@
       bs = (await sb.from("bookings").select("*").in("player_id", playerIds).order("starts_at", { ascending: false }).limit(60)).data || [];
     }
 
+    var paymentRows = bs.length ? (await sb.from("booking_payments").select("booking_id").in("booking_id", bs.map(function (b) { return b.id; }))).data || [] : [];
+    var paymentByBooking = {};
+    paymentRows.forEach(function (payment) { paymentByBooking[payment.booking_id] = true; });
     var cIds = Array.from(new Set(bs.map(function (b) { return b.court_id; })));
     var courts = cIds.length ? (await sb.from("public_courts").select("id,name,club_slug,surface,is_indoor,hourly_rate").in("id", cIds)).data || [] : [];
     var slugs = Array.from(new Set(courts.map(function (c) { return c.club_slug; })));
@@ -745,7 +748,9 @@
         var isApproved = b.status === "approved";
         var isPending = b.status === "pending";
         var isCancelled = b.status === "cancelled" || b.status === "rejected";
-        var statusLabel = isApproved ? "Confirmed" : (isPending ? "Pending Approval" : (b.status === "rejected" ? "Declined" : "Cancelled"));
+        var paymentSent = !!paymentByBooking[b.id];
+        var canPay = isPending && !paymentSent && club.payment_enabled !== false && endD.getTime() > Date.now() && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now());
+        var statusLabel = isApproved ? "Confirmed" : (isPending ? (paymentSent ? "Payment submitted" : "Pending Approval") : (b.status === "rejected" ? "Declined" : "Cancelled"));
         var statusClass = isApproved
           ? "bg-brand-neon/15 text-brand-neon border border-brand-neon/40 shadow-neon-glow"
           : (isPending ? "bg-amber-400/15 text-amber-300 border border-amber-400/30" : "bg-rose-500/15 text-rose-400 border border-rose-500/30");
@@ -757,7 +762,7 @@
           '<h3>' + esc(club.name || 'Club unavailable') + ' &middot; ' + esc(court.name || 'Court unavailable') + '</h3>' +
           '<p class="clean-booking-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span>' + esc(addressStr || 'Location not provided') + '</p>' +
           '<div class="member-reservation-meta"><span><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>' + esc(whenStr) + '</span><span><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + minutes + ' minutes</span>' + (b.amount != null ? '<strong>' + money(b.amount) + '</strong>' : '') + '</div></div>' +
-          '<div class="clean-booking-actions">' + (isApproved ? '<button type="button" data-ticket="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>View Digital Pass</button>' : '') +
+          '<div class="clean-booking-actions">' + (canPay ? '<button type="button" data-pay="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">upload_file</span>Pay / Upload proof</button>' : '') + (isApproved ? '<button type="button" data-ticket="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>View Digital Pass</button>' : '') +
           '<div><button type="button" data-cal="' + esc(b.id) + '" class="btn ghost"><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>Calendar</button>' + (isLive ? '<button type="button" data-cancel="' + esc(b.id) + '" class="btn ghost"><span class="material-symbols-outlined" aria-hidden="true">close</span>Cancel Booking</button>' : '') + '</div></div></article>';
       }).join('');
 
@@ -768,6 +773,13 @@
       var allMatches = bs.slice();
       var byId = {};
       allMatches.forEach(function (b) { byId[b.id] = b; });
+
+      sec.querySelectorAll("[data-pay]").forEach(function (btn) {
+        btn.onclick = function () {
+          var booking = byId[btn.getAttribute("data-pay")];
+          if (booking && D.booking && D.booking.openPayment) D.booking.openPayment(booking, function () { bookingsView(sec); });
+        };
+      });
 
       // View Digital Pass
       sec.querySelectorAll("[data-ticket]").forEach(function (btn) {
