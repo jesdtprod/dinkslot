@@ -3718,3 +3718,16 @@ dialog.booking-payment-modal[open] { display: flex; flex-direction: column; widt
 dialog#booking-modal #nslots button { min-height: 40px; padding: 4px 3px; line-height: 17px; }
 .booking-new-card #booking-modal #nslots { gap: 8px; }
 dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
+
+/* Receipt upload fills the card width without an extra reference field. */
+#ds-book-page #paypanel > .payment-panel > .proof { margin-top: 18px; padding-top: 18px; }
+.payment-panel .proof .payment-receipt-upload { position: relative; display: flex; flex-direction: row; align-items: center; gap: 12px; min-height: 78px; padding: 14px; border: 1px dashed #52634f; border-radius: 10px; background: #a3e63505; cursor: pointer; }
+.payment-panel .proof .payment-receipt-upload input { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
+.payment-receipt-upload:has(input:focus-visible) { outline: 2px solid var(--lime); outline-offset: 3px; }
+.payment-receipt-upload:hover { border-color: var(--lime); }
+.payment-panel .proof .payment-receipt-icon { display: grid; place-items: center; flex: 0 0 36px; height: 36px; border: 1px solid #a3e63525; border-radius: 9px; background: #a3e6350c; color: var(--lime); font-size: 21px; }
+.payment-receipt-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.payment-receipt-name { color: #dce6df; font-size: 12px; line-height: 18px; overflow-wrap: anywhere; }
+.payment-receipt-copy small { color: #91a5b2; font-size: 10px; line-height: 16px; }
+.payment-panel .proof .payment-receipt-browse { padding: 6px 10px; border: 1px solid #ffffff16; border-radius: 7px; background: #202a30; color: #c2d0d8; font-size: 11px; white-space: nowrap; }
+@media(max-width:480px) { .payment-panel .proof .payment-receipt-upload { flex-wrap: wrap; } .payment-panel .proof .payment-receipt-browse { margin-left: 48px; } }

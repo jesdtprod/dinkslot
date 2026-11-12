@@ -196,10 +196,7 @@
         '</div>' +
         '<form class="proof pt-4 border-t border-white/10 space-y-4">' +
           '<h3 class="text-base font-bold text-white tracking-tight m-0">Upload Payment Proof</h3>' +
-          '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
-            '<label class="block space-y-1.5"><span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Payment Reference Number</span><input id="pref" data-has-icon="true" class="w-full px-3.5 py-3 rounded-xl bg-carbon-850 border border-white/10 text-white text-sm focus:outline-none focus:border-neon-lime font-mono" maxlength="60" required placeholder="Payment transaction reference" minlength="3"></label>' +
-            '<label class="block space-y-1.5"><span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Payment Screenshot</span><input id="pfile" class="w-full px-3.5 py-2.5 rounded-xl bg-carbon-850 border border-white/10 text-white text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-neon-lime file:text-carbon-950 hover:file:bg-neon-glow cursor-pointer" type="file" accept="image/jpeg,image/png,image/webp" required></label>' +
-          '</div>' +
+          '<label class="payment-receipt-upload"><input id="pfile" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload payment screenshot" aria-describedby="payment-receipt-hint" required><span class="payment-receipt-icon material-symbols-outlined" aria-hidden="true">upload_file</span><span class="payment-receipt-copy"><strong class="payment-receipt-name">Upload payment screenshot</strong><small id="payment-receipt-hint">JPG, PNG or WebP, up to 5 MB</small></span><span class="payment-receipt-browse">Browse file</span></label>' +
           '<p class="msg" role="alert"></p>' +
           '<div class="flex items-center gap-3 pt-2">' +
             '<button class="px-6 py-3.5 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-black text-sm uppercase tracking-wider shadow-neon transition-all hover:scale-[1.02] border-0 cursor-pointer" type="submit">Submit proof &amp; Confirm</button>' +
@@ -224,6 +221,23 @@
       });
     }
     bindTabs();
+    q("#pfile", el).onchange = function () {
+      var file = this.files[0];
+      var name = el.querySelector(".payment-receipt-name");
+      var browse = el.querySelector(".payment-receipt-browse");
+      if (!file) { name.textContent = "Upload payment screenshot"; browse.textContent = "Browse file"; return; }
+      try {
+        checkImage(file);
+        name.textContent = file.name;
+        browse.textContent = "Change file";
+        msg(q("form.proof", el), "", "");
+      } catch (error) {
+        this.value = "";
+        name.textContent = "Upload payment screenshot";
+        browse.textContent = "Browse file";
+        msg(q("form.proof", el), nice(error), "err");
+      }
+    };
     q("form.proof", el).onsubmit = async function (e) {
       e.preventDefault();
       var f = this, btn = q("button", f);
@@ -235,7 +249,7 @@
         var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
         if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
         var r = await sb.rpc("attach_payment_proof", { p_booking_id: b.id, p_proof_path: path,
-          p_payer_reference: q("#pref", f).value.trim(), p_idempotency_key: attemptKey, p_method: method });
+          p_payer_reference: null, p_idempotency_key: attemptKey, p_method: method });
         if (r.error) throw r.error;
         el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-emerald-500/30 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div><h3 class="text-xl font-bold text-white">Proof Submitted Successfully!</h3><p class="text-sm text-slate-300">The club has received your payment proof and will verify your reservation. You can track status anytime in My Bookings.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm shadow-neon no-underline" href="#/me">View My Bookings</a></div>';
         if (ctx && ctx.onDone) ctx.onDone();
@@ -854,7 +868,7 @@
         var c = cMap[b.court_id] || {}, cl = clMap[c.club_slug] || {}, tz = cl.timezone || "Asia/Manila", pay = pMap[b.id];
         var live = (b.status === "pending" || b.status === "approved") && new Date(b.ends_at).getTime() > now;
         var note = "";
-        if (b.status === "pending" && pay) note = "Proof sent (ref " + esc(pay.payer_reference) + "). Waiting for the club to approve.";
+        if (b.status === "pending" && pay) note = "Proof sent" + (pay.payer_reference ? " (ref " + esc(pay.payer_reference) + ")" : "") + ". Waiting for the club to approve.";
         else if (b.status === "pending" && b.expires_at) note = 'Pay within <b class="timer" data-exp="' + esc(b.expires_at) + '"></b>';
         else if (b.status === "pending") note = "Waiting for the club to approve.";
         else if (b.status === "rejected") note = "Reason: " + esc(b.reject_reason || "not given");
@@ -1290,7 +1304,7 @@
           var dialog = document.createElement("dialog");
           dialog.className = "confirmation-modal guest-payment-dialog";
           dialog.setAttribute("aria-label", "Record guest payment");
-          var paymentMethods = [["cash", "Cash", "payments"], ["gcash", "GCash", "account_balance_wallet"], ["maya", "Maya", "wallet"], ["bank", "Bank transfer", "account_balance"]];
+          var paymentMethods = [["cash", "Cash", "payments"], ["gcash", "GCash", "account_balance_wallet"], ["maya", "Maya", "wallet"], ["bank", "Bank Transfer", "account_balance"]];
           dialog.innerHTML = '<form><header class="guest-payment-header"><div><span class="guest-payment-eyebrow">Guest reservation</span><h2>Record payment</h2></div><button type="button" class="guest-payment-close" data-close aria-label="Close payment dialog"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="guest-payment-summary"><span>Amount received</span><strong>' + money(booking.amount) + '</strong><div><span>Reference</span><b>' + esc(booking.reference_code) + '</b></div></div><label class="guest-payment-picker" for="guest-payment-method">Payment method<select id="guest-payment-method" name="method" required>' + paymentMethods.map(function (method, index) {
             return '<option value="' + method[0] + '"' + (index === 0 ? ' selected' : '') + '>' + method[1] + '</option>';
           }).join("") + '</select></label><p class="guest-payment-note">Record only payments you have received. This marks the reservation as paid.</p><p class="msg" role="alert"></p><div class="guest-payment-actions"><button type="button" class="btn ghost" data-close>Cancel</button><button type="submit" class="btn">Confirm payment</button></div></form>';
