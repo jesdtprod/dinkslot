@@ -510,3 +510,9 @@
 #app #ds-tenant-dashboard #sec .member-account-page .member-address .ph-field { gap:6px; }
 #app #ds-tenant-dashboard #sec .member-account-page .member-address .ph-field > span { color:#a9bcc7; font:600 11px/16px "Plus Jakarta Sans",sans-serif; letter-spacing:0; text-transform:none; }
 #app #ds-tenant-dashboard #sec .member-account-page .member-address .ds-input-icon { padding-left:36px !important; }
+
+/* Keep photo actions level, including the icon-only delete control. */
+#app #ds-tenant-dashboard #sec .member-account-page :is(label[for="mp-photo"],#mp-remove-photo) { box-sizing:border-box; height:38px !important; min-height:38px !important; margin:0; border-radius:10px !important; }
+#app #ds-tenant-dashboard #sec .member-account-page #mp-remove-photo { width:38px; min-width:38px; padding:0 !important; }
+#app #ds-tenant-dashboard #sec .member-account-page #mp-remove-photo:not([hidden]) { display:inline-flex; align-items:center; justify-content:center; }
+#app #ds-tenant-dashboard #sec .member-account-page #mp-remove-photo svg { width:16px; height:16px; }
