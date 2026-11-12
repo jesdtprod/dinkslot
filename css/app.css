@@ -4997,3 +4997,10 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   .bell .belllist { max-height:calc(100dvh - 200px); overflow-y:auto; overscroll-behavior:contain; }
 }
 
+
+@media(max-width:767px) {
+  #ds-landing .landing-court-filter-row { align-items:stretch; }
+  #ds-landing .landing-court-filter-options { display:flex !important; flex-direction:column !important; align-items:stretch !important; width:100%; gap:8px; }
+  #ds-landing .landing-court-filter-options > span { align-self:flex-start; }
+  #ds-landing .landing-court-filter-options > button { box-sizing:border-box; display:flex; width:100%; justify-content:center; }
+}
