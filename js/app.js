@@ -227,9 +227,13 @@
       } else {
         h += '<a class="auth-nav-switch" href="#/auth?mode=in">' + authIcon("login") + '<span>Sign in</span></a>';
       }
-      if (authPath !== "/register-club") h += '<a href="#/register-club" class="pill">Register your club</a>';
+      if (authPath !== "/register-club") h += '<a href="#/register-club" class="pill mobile-icon-nav" aria-label="Register your club" title="Register your club"><span class="material-symbols-outlined" aria-hidden="true">add</span><span>Register your club</span></a>';
     }
     nav.innerHTML = h;
+    nav.querySelectorAll('.auth-nav-switch').forEach(function (link) {
+      var label = link.querySelector('span:last-child');
+      if (label) { link.setAttribute('aria-label', label.textContent); link.title = label.textContent; }
+    });
     var accountMenu = nav.querySelector(".facility-account");
     if (accountMenu) {
       accountMenu.addEventListener("keydown", function (event) {
