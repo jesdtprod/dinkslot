@@ -1188,8 +1188,15 @@
           '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
         '</div>';
       }
-      var bs = (await sb.from("bookings").select("*").eq("tenant_id", t.id).in("status", ["pending", "approved"])
-        .gte("ends_at", new Date().toISOString()).order("starts_at")).data || [];
+      // Pending decisions must stay visible independently of the scheduled end time.
+      var bookingsResult = await sb.from("bookings").select("*").eq("tenant_id", t.id)
+        .or("status.eq.pending,and(status.eq.approved,ends_at.gte." + new Date().toISOString() + ")").order("starts_at");
+      if (bookingsResult.error) {
+        box.innerHTML = '<div class="booking-queue-error" role="alert"><h3>Unable to load reservations</h3><p>' + esc(nice(bookingsResult.error)) + '</p><button type="button" class="btn ghost" data-retry-queue>Retry</button></div>';
+        box.querySelector("[data-retry-queue]").onclick = load;
+        return;
+      }
+      var bs = bookingsResult.data || [];
       var players = (await sb.from("club_players").select("id,display_name,phone").eq("tenant_id", t.id)).data || [];
       var courts = (await sb.from("courts").select("id,name,is_indoor").eq("tenant_id", t.id)).data || [];
       var pays = bs.length ? (await sb.from("booking_payments").select("*").eq("tenant_id", t.id).in("booking_id", bs.map(function (b) { return b.id; }))).data || [] : [];
