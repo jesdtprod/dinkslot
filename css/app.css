@@ -3863,7 +3863,7 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 @media(max-width:700px) { .checkout-payment .proof.checkout-form { grid-template-columns: minmax(0,1fr); gap: 16px; } .checkout-payment-left { gap: 16px; } .checkout-payment .checkout-card { padding: 16px; } }
 
 /* Notifications share the booking charcoal palette and aligned icon rhythm. */
-.ds-toast { gap: 12px; padding: 14px; border-color: #36424a; border-radius: 12px; background: #181f24; color: #dce6df; }
+.ds-toast { align-items: center; gap: 12px; padding: 14px; border-color: #36424a; border-radius: 12px; background: #181f24; color: #dce6df; }
 .ds-toast > .material-symbols-outlined { display: grid; place-items: center; flex: 0 0 30px; width: 30px; height: 30px; margin: 0; border: 1px solid #a3e63525; border-radius: 8px; background: #a3e6350a; color: #a3e635; font-size: 18px; line-height: 1; }
 .ds-toast-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .ds-toast-title { color: #e7eee9; font-size: 12px; font-weight: 600; line-height: 18px; }
