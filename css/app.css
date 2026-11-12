@@ -3418,3 +3418,14 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 #ds-book-page .booking-live-dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; }
 #ds-book-page .booking-timezone { color: #93a5ae; font-size: 11px; }
 @media (max-width: 640px) { #ds-book-page .booking-context-status { gap: 6px; } #ds-book-page .club-live-badge { height: auto; padding-block: 6px; } }
+
+/* Match the public profile's 24px card rhythm and 12px inset-card gaps. */
+#ds-book-page .booking-layout { gap: 24px; }
+#ds-book-page .booking-steps > :not([hidden]) ~ :not([hidden]),
+#ds-book-page [data-purpose="reservation-summary-sidebar"] > :not([hidden]) ~ :not([hidden]) { margin-top: 24px; }
+#ds-book-page .booking-steps > section.bg-carbon-900,
+#ds-book-page #paypanel > .bg-carbon-900,
+#ds-book-page [data-purpose="reservation-summary-sidebar"] > .bg-carbon-900 { padding: 24px; }
+#ds-book-page #courtcards { gap: 12px; }
+#ds-book-page [data-purpose="step-choose-court"] > div:first-child { margin-bottom: 16px; }
+#ds-book-page .booking-steps > section.space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 24px; }

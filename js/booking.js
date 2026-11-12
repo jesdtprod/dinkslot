@@ -268,9 +268,9 @@
             '<p class="text-sm text-slate-400 mt-1 max-w-2xl m-0">Select your preferred outdoor court, time slot, and lock in your reservation with instant turnstile access.</p>' +
           '</div>' +
 
-          '<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">' +
+          '<div class="booking-layout grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">' +
             '<!-- LEFT / MAIN INTERACTION COLUMN -->' +
-            '<div class="lg:col-span-8 space-y-7">' +
+            '<div class="booking-steps lg:col-span-8 space-y-7">' +
               '<!-- Step 1: Choose a court -->' +
               '<section class="bg-carbon-900 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark relative overflow-hidden" data-purpose="step-choose-court">' +
                 '<div class="flex items-center justify-between mb-5">' +
