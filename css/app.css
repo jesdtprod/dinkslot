@@ -3337,3 +3337,27 @@ body:has(#club-profile-stage) > .site-footer { margin-top: 0; }
   mask-image: linear-gradient(to bottom, transparent, #000 32px);
   -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px);
 }
+
+/* Keep booking actions in their original compact header position. */
+#ds-club-page .club-booking-actions { min-width: 0; }
+#ds-club-page .club-booking-buttons { justify-content: flex-end; width: 100%; }
+#ds-club-page .club-booking-buttons > :is(a, button) { min-height: 48px; white-space: nowrap; }
+#ds-club-page .club-booking-actions .club-account-prompt {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  gap: 2px 8px;
+  font-size: 11px;
+  line-height: 18px;
+}
+#ds-club-page .club-account-signin { padding: 0; }
+@media (min-width: 1024px) {
+  #ds-club-page .club-booking-actions { width: 380px; flex: 0 0 380px; }
+}
+@media (max-width: 767px) {
+  #ds-club-page .club-booking-buttons { justify-content: flex-start; }
+  #ds-club-page .club-booking-actions .club-account-prompt { flex-direction: row; }
+}

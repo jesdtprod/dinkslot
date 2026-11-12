@@ -617,8 +617,8 @@
                 "</div>" +
               "</div>" +
             "</div>" +
-            '<div class="flex flex-col gap-2 self-stretch lg:self-end lg:items-end">' +
-              '<div class="flex flex-wrap sm:flex-nowrap items-center gap-3">' +
+            '<div class="club-booking-actions flex flex-col gap-2 self-stretch lg:self-end lg:items-end">' +
+              '<div class="club-booking-buttons flex flex-wrap sm:flex-nowrap items-center gap-3">' +
                 '<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[12px] font-bold text-black bg-dink-lime hover:bg-dink-limeHover active:scale-95 transition shadow-neon-lime font-display text-sm uppercase tracking-wider no-underline" href="#club-courts" data-scroll="club-courts">' +
                   '<i class="fa-solid fa-bolt-lightning text-sm" aria-hidden="true"></i>' + (state.user ? "Book a court" : "Sign up to book") + "</a>" +
                 '<button type="button" data-scroll="club-dates" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-[12px] font-semibold text-slate-200 bg-dink-surfaceLight hover:bg-slate-700/80 border border-dink-border hover:border-slate-500 transition text-sm">' +
