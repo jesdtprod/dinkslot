@@ -3498,7 +3498,7 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-payment-modal > header button { min-height: 34px; padding: 6px 12px; border-radius: 8px; font-size: 12px; }
 .booking-payment-content { padding: 20px; }
 .payment-panel { padding: 20px; border: 1px solid #303c43; border-radius: 12px; background: #181f24; font: 400 12px/1.65 "Plus Jakarta Sans", sans-serif; box-shadow: none; }
-.booking-payment-modal .payment-panel { padding: 0; border: 0; background: transparent; }
+.booking-payment-modal .payment-panel { padding: 20px; border: 1px solid #303c43; background: #181f24; }
 .payment-panel > :not([hidden]) ~ :not([hidden]) { margin-top: 20px; }
 .payment-panel > div:first-child { align-items: center; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; }
 .payment-panel h2 { font-size: 16px; line-height: 1.5; }
