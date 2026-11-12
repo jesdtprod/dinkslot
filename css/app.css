@@ -3543,3 +3543,12 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-queue .booking-record-grid > .bcard { background: #242e35; border-color: #3a474f; box-shadow: 0 2px 6px #00000012; }
 .booking-queue .booking-record-grid > .bcard:hover { background: #29353d; border-color: #55684f; }
 @media (max-width: 640px) { .booking-queue-description { margin-left: 0; } }
+
+.booking-decision-action { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 1px solid transparent; border-radius: 9px; cursor: pointer; box-shadow: none; }
+.booking-decision-action .material-symbols-outlined { font-size: 19px; }
+.booking-decision-action.approve { background: var(--lime); color: #182200; }
+.booking-decision-action.approve:hover { background: var(--lime-bright); }
+.booking-decision-action.reject { background: #ef444414; color: #fca5a5; border-color: #ef444440; }
+.booking-decision-action.reject:hover { background: #ef444426; }
+.booking-decision-action:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+.booking-decision-action:disabled { opacity: .5; cursor: not-allowed; }
