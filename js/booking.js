@@ -383,9 +383,9 @@
         '</div>' +
 
         '<!-- 2 Columns Checkout Architecture (7 cols Left, 5 cols Right) -->' +
-        '<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">' +
+        '<div class="checkout-balanced-grid grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">' +
           '<!-- LEFT COLUMN: Payment & Transfer Method (7 cols) -->' +
-          '<div class="lg:col-span-7 flex flex-col gap-5">' +
+          '<div class="checkout-method-column lg:col-span-7 flex flex-col gap-5">' +
             '<!-- Payment Gateway Switcher Card -->' +
             '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl">' +
               '<div class="flex items-center justify-between mb-3">' +
@@ -461,7 +461,7 @@
           '</div>' +
 
           '<!-- RIGHT COLUMN: Order & Court Summary Card (5 cols) -->' +
-          '<div class="lg:col-span-5 flex flex-col gap-5">' +
+          '<div class="checkout-ticket-column lg:col-span-5 flex flex-col gap-5">' +
             '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-2xl relative">' +
               '<!-- Header & Countdown Urgency Pill -->' +
               '<div class="flex items-center justify-between pb-4 border-b border-outline-variant/30">' +
