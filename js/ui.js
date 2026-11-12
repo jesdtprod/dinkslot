@@ -268,7 +268,7 @@
             '<div class="facility-brand-row">' +
               '<a href="#/" class="facility-brand" aria-label="DINKSLOT home">' +
                 '<img src="assets/dinkslot-logo.png" alt="" width="42" height="42" />' +
-                '<span class="facility-brand-copy"><strong>DINKSLOT</strong><span>' + esc(o.workspace || "Tenant Workspace") + '</span></span>' +
+                '<span class="facility-brand-copy"><strong>DINK<span style="color:#a3e635">SLOT</span></strong><span>' + esc(o.workspace || "Tenant Workspace") + '</span></span>' +
               '</a>' +
             '</div>' +
             '<nav class="flex flex-col gap-space-xs px-space-sm" aria-label="Facility menu">' + items + '</nav>' +
