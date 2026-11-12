@@ -3526,3 +3526,15 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-payment-timer { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 10px; border: 1px solid #fbbf2433; border-radius: 8px; background: #fbbf240d; color: #fcd34d; font: 600 11px/18px "Plus Jakarta Sans", sans-serif; font-variant-numeric: tabular-nums; }
 .booking-payment-timer .material-symbols-outlined { font-size: 15px; }
 .booking-payment-timer.is-expired { color: #fca5a5; border-color: #f8717133; background: #f871710d; }
+
+/* Align the payment form and reservation ticket as equal-height desktop cards. */
+@media (min-width: 1024px) {
+  #ds-book-page .booking-layout:has(#paypanel:not([hidden])) { align-items: stretch; }
+  #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > .booking-steps { display: flex; flex-direction: column; grid-row: 1; }
+  #ds-book-page #paypanel:not([hidden]) { display: flex; flex-direction: column; flex: 1; margin-top: 0; }
+  #ds-book-page #paypanel > .payment-panel { display: flex; flex-direction: column; flex: 1; }
+  #ds-book-page #paypanel > .payment-panel > .proof { margin-top: auto; padding-top: 20px; }
+  #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside { display: contents; }
+  #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside > div:first-child { grid-column: 9 / -1; grid-row: 1; margin-top: 0; }
+  #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside > div:not(:first-child) { grid-column: 9 / -1; margin-top: 0; }
+}
