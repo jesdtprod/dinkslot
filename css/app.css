@@ -4428,3 +4428,11 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   #ds-landing .landing-search-controls > div:not(.landing-search-action) { min-height:48px; }
   #ds-landing .landing-search-action button { min-height:44px; }
 }
+
+/* Three equal surface filter columns on mobile. */
+@media(max-width:767px) {
+  #ds-landing .landing-court-filter-options { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  #ds-landing .landing-court-filter-options > span { grid-column:1 / -1; }
+  #ds-landing .landing-court-filter-options > button { min-width:0; padding:7px 4px !important; gap:4px !important; font-size:10px !important; white-space:normal; text-align:center; }
+  #ds-landing .landing-court-filter-options > button .material-symbols-outlined { flex-shrink:0; font-size:15px !important; }
+}
