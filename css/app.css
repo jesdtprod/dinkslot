@@ -4452,3 +4452,6 @@ body > .site-header::after { inset:0 0 -8px; background:#10141a; background-imag
 
 /* Translucent, straight-edged public header. */
 body > .site-header::after { inset:0; background:rgb(16 20 26 / 80%); background-image:none; mask-image:none; -webkit-mask-image:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+
+/* Subtle divider fading toward both ends of the public header. */
+body > .site-header::before { content:""; position:absolute; left:0; right:0; bottom:0; height:1px; background:linear-gradient(90deg,transparent,#a3e63538 25%,#91a5b230 55%,transparent); pointer-events:none; }
