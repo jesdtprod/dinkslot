@@ -224,3 +224,5 @@
 
 .member-overview-page #my-home-club .home-club-cover { height:180px; }
 @media(max-width:600px) { .member-overview-page #my-home-club .home-club-cover { height:160px; } }
+
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header { background:rgb(24 31 36 / 30%); }
