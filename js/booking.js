@@ -1955,7 +1955,7 @@
               '</button>' +
             '</div>' +
             '<div class="flex items-center gap-2">' +
-              (!b.player_id && py && py.proof_path ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span></button>' : '') +
+              (py && py.proof_path ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span></button>' : '') +
               (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now()) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span></button>' : '') +
               (b.status === "pending"
                 ? '<button class="booking-decision-action approve" data-ok="' + esc(b.id) + '" type="button" aria-label="Approve reservation" title="' + (py && py.proof_path ? 'Approve reservation' : 'Attach payment proof before approving') + '"' + (py && py.proof_path ? '' : ' disabled aria-disabled="true"') + '><span class="material-symbols-outlined" aria-hidden="true">check</span></button>' +
@@ -1963,7 +1963,6 @@
                 : '<button class="booking-decision-action cancel" data-cx="' + esc(b.id) + '" type="button" aria-label="Cancel booking" title="Cancel booking"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>') +
             '</div>' +
           '</div>' +
-          (b.player_id && py && py.proof_path ? '<button type="button" class="reservation-view-proof" data-proof="' + esc(b.id) + '"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>View Payment Proof</button>' : '') +
           '<p class="msg" role="alert"></p>' +
         '</article>';
       }
