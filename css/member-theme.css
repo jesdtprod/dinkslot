@@ -640,3 +640,24 @@
   .admin-overview-summary > div { padding:10px 8px; gap:6px; }
   .admin-overview-summary > div > span { font-size:8px; }
 }
+
+/* Booking-focused facility overview table. */
+#ds-tenant-dashboard .admin-booking-table { min-width:850px; }
+#ds-tenant-dashboard .admin-booking-table th { padding:12px 20px; color:#91a5b2; font:600 10px/16px "Plus Jakarta Sans",sans-serif; letter-spacing:.04em; }
+#ds-tenant-dashboard .admin-booking-table td { padding:14px 20px; vertical-align:middle; border-bottom:1px solid #91a5b214; font:400 12px/18px "Plus Jakarta Sans",sans-serif; }
+.admin-booking-table tr:last-child td { border-bottom:0; }
+.admin-booking-customer { display:flex; align-items:center; gap:10px; }
+.admin-booking-avatar { display:grid; place-items:center; flex:0 0 32px; width:32px; height:32px; overflow:hidden; border:1px solid #a3e63530; border-radius:9px; background:#a3e6350d; color:#a3e635; font-weight:600; }
+.admin-booking-avatar img { width:100%; height:100%; object-fit:cover; }
+.admin-booking-customer strong,.admin-booking-schedule strong { display:block; color:#dce6df; font-weight:600; font-size:12px; }
+.admin-booking-customer small { display:block; margin-top:3px; color:#91a5b2; font:400 9px/15px "JetBrains Mono",monospace; }
+.admin-booking-schedule small { display:block; margin-top:3px; color:#91a5b2; font-size:11px; white-space:nowrap; }
+.admin-booking-court { display:inline-flex; align-items:center; gap:6px; color:#c8d6df; white-space:nowrap; }
+.admin-booking-court .material-symbols-outlined { color:#91a5b2; font-size:16px; }
+.admin-booking-duration { display:inline-block; padding:3px 7px; border:1px solid #35434b; border-radius:6px; color:#a9bcc7; font-size:11px; white-space:nowrap; }
+.admin-booking-status { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid #94a3b830; border-radius:7px; background:#94a3b80d; color:#a9bcc7; font:600 10px/16px "Plus Jakarta Sans",sans-serif; white-space:nowrap; }
+.admin-booking-status > span { width:5px; height:5px; border-radius:50%; background:currentColor; }
+.admin-booking-status.is-confirmed { background:#a3e6350d; border-color:#a3e63530; color:#a3e635; }
+.admin-booking-status.is-pending { background:#fbbf240d; border-color:#fbbf2430; color:#fbbf24; }
+.admin-booking-status.is-negative { background:#fca5a50d; border-color:#fca5a530; color:#fca5a5; }
+.admin-booking-amount { color:#a3e635; font-size:12px; font-weight:600; white-space:nowrap; font-variant-numeric:tabular-nums; }

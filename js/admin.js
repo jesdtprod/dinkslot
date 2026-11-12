@@ -95,49 +95,69 @@
   // ----------------------------------------------------------------- skeletons
   function skeletonSection(sec) {
     if (sec === "courts") {
-      return '<div class="space-y-6">' +
+      return '<div class="space-y-6" aria-label="Loading courts" role="status">' +
         '<div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">' +
-          '<div class="h-8 w-44 rounded-lg bg-surface-container-high/70 ds-skeleton"></div>' +
+          '<div class="space-y-2">' +
+            '<div class="h-8 w-44 rounded-lg bg-surface-container-high/70 ds-skeleton"></div>' +
+            '<div class="h-4 w-64 rounded bg-surface-container-high/40 ds-skeleton"></div>' +
+          '</div>' +
           '<div class="h-10 w-36 rounded-full bg-primary/20 ds-skeleton"></div>' +
         '</div>' +
         '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">' +
-          '<div class="h-56 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-          '<div class="h-56 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-          '<div class="h-56 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
+          '<div class="rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col gap-4">' +
+            '<div class="h-28 rounded-xl bg-surface-container-high ds-skeleton"></div>' +
+            '<div class="space-y-2"><div class="h-5 w-36 rounded bg-surface-container-high ds-skeleton"></div><div class="h-4 w-24 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
+            '<div class="pt-3 border-t border-outline-variant/15 flex items-center justify-between"><div class="h-5 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-8 w-20 rounded-lg bg-surface-container-high/60 ds-skeleton"></div></div>' +
+          '</div>' +
+          '<div class="rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col gap-4">' +
+            '<div class="h-28 rounded-xl bg-surface-container-high ds-skeleton"></div>' +
+            '<div class="space-y-2"><div class="h-5 w-40 rounded bg-surface-container-high ds-skeleton"></div><div class="h-4 w-20 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
+            '<div class="pt-3 border-t border-outline-variant/15 flex items-center justify-between"><div class="h-5 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-8 w-20 rounded-lg bg-surface-container-high/60 ds-skeleton"></div></div>' +
+          '</div>' +
+          '<div class="rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col gap-4">' +
+            '<div class="h-28 rounded-xl bg-surface-container-high ds-skeleton"></div>' +
+            '<div class="space-y-2"><div class="h-5 w-32 rounded bg-surface-container-high ds-skeleton"></div><div class="h-4 w-28 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
+            '<div class="pt-3 border-t border-outline-variant/15 flex items-center justify-between"><div class="h-5 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-8 w-20 rounded-lg bg-surface-container-high/60 ds-skeleton"></div></div>' +
+          '</div>' +
         '</div></div>';
     }
     if (sec === "bookings") {
-      return '<div class="space-y-6">' +
+      return '<div class="space-y-6" aria-label="Loading bookings" role="status">' +
         '<div class="flex items-center justify-between pb-4 border-b border-outline-variant/20">' +
-          '<div class="h-8 w-56 rounded-lg bg-surface-container-high/70 ds-skeleton"></div>' +
-          '<div class="h-5 w-28 rounded bg-surface-container-high/40 ds-skeleton"></div>' +
+          '<div class="space-y-2">' +
+            '<div class="h-8 w-56 rounded-lg bg-surface-container-high/70 ds-skeleton"></div>' +
+            '<div class="h-4 w-72 rounded bg-surface-container-high/40 ds-skeleton"></div>' +
+          '</div>' +
+          '<div class="h-8 w-28 rounded-full bg-surface-container-high/50 ds-skeleton"></div>' +
         '</div>' +
-        '<div class="space-y-4">' +
-          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
+        '<div class="h-14 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-3 flex items-center gap-3 ds-skeleton"></div>' +
+        '<div class="space-y-3">' +
+          '<div class="h-24 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
+          '<div class="h-24 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
+          '<div class="h-24 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
         '</div></div>';
     }
     if (sec === "profile" || sec === "payments" || sec === "staff") {
-      return '<div class="space-y-6">' +
+      return '<div class="space-y-6" aria-label="Loading ' + sec + '" role="status">' +
         '<div class="flex items-center gap-3 pb-4 border-b border-outline-variant/20">' +
-          '<div class="h-8 w-24 rounded-full bg-surface-container-high/60 ds-skeleton"></div>' +
-          '<div class="h-8 w-28 rounded-full bg-surface-container-high/40 ds-skeleton"></div>' +
-          '<div class="h-8 w-24 rounded-full bg-surface-container-high/40 ds-skeleton"></div>' +
+          '<div class="h-9 w-28 rounded-full bg-surface-container-high/70 ds-skeleton"></div>' +
+          '<div class="h-9 w-28 rounded-full bg-surface-container-high/40 ds-skeleton"></div>' +
+          '<div class="h-9 w-24 rounded-full bg-surface-container-high/40 ds-skeleton"></div>' +
         '</div>' +
         '<div class="h-96 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 flex flex-col gap-4 ds-skeleton"></div>' +
       '</div>';
     }
     if (sec === "account") {
-      return '<div class="space-y-6">' +
+      return '<div class="space-y-6" aria-label="Loading account" role="status">' +
         '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
         '<div class="h-72 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
       '</div>';
     }
-    return '<div class="space-y-6">' +
+    return '<div class="space-y-6" aria-label="Loading dashboard" role="status">' +
       '<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-outline-variant/15">' +
         '<div class="flex flex-col gap-2">' +
           '<div class="h-7 w-56 bg-surface-container-high/70 rounded-lg ds-skeleton"></div>' +
-          '<div class="h-4 w-80 bg-surface-container-high/40 rounded ds-skeleton"></div>' +
+          '<div class="h-4 w-80 max-w-full bg-surface-container-high/40 rounded ds-skeleton"></div>' +
         '</div>' +
         '<div class="flex items-center gap-3">' +
           '<div class="h-9 w-28 rounded-full bg-surface-container-high/50 ds-skeleton"></div>' +
@@ -145,16 +165,16 @@
         '</div>' +
       '</div>' +
       '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">' +
-        '<div class="h-28 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
-        '<div class="h-28 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
-        '<div class="h-28 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
-        '<div class="h-28 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 ds-skeleton"></div>' +
+        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col justify-between"><div class="flex items-center justify-between"><div class="h-4 w-24 rounded bg-surface-container-high ds-skeleton"></div><div class="h-7 w-7 rounded-lg bg-surface-container-high ds-skeleton"></div></div><div class="h-8 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-3 w-32 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
+        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col justify-between"><div class="flex items-center justify-between"><div class="h-4 w-28 rounded bg-surface-container-high ds-skeleton"></div><div class="h-7 w-7 rounded-lg bg-surface-container-high ds-skeleton"></div></div><div class="h-8 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-3 w-32 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
+        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col justify-between"><div class="flex items-center justify-between"><div class="h-4 w-24 rounded bg-surface-container-high ds-skeleton"></div><div class="h-7 w-7 rounded-lg bg-surface-container-high ds-skeleton"></div></div><div class="h-8 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-3 w-32 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
+        '<div class="h-32 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 flex flex-col justify-between"><div class="flex items-center justify-between"><div class="h-4 w-28 rounded bg-surface-container-high ds-skeleton"></div><div class="h-7 w-7 rounded-lg bg-surface-container-high ds-skeleton"></div></div><div class="h-8 w-20 rounded bg-surface-container-high ds-skeleton"></div><div class="h-3 w-32 rounded bg-surface-container-high/50 ds-skeleton"></div></div>' +
       '</div>' +
       '<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">' +
-        '<div class="lg:col-span-7 h-96 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
-        '<div class="lg:col-span-5 h-96 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
+        '<div class="lg:col-span-7 h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
+        '<div class="lg:col-span-5 h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
       '</div>' +
-      '<div class="h-64 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
+      '<div class="h-56 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-6 ds-skeleton"></div>' +
     '</div>';
   }
 
@@ -331,7 +351,7 @@
       count(function (b) { return b.eq("status", "approved").gte("starts_at", dayEnd.toISOString()).lt("starts_at", seventyTwoHours.toISOString()); }),
       sb.from("courts").select("*").eq("tenant_id", t.id).order("name"),
       sb.from("tenant_settings").select("*").eq("tenant_id", t.id).maybeSingle(),
-      sb.from("bookings").select("id,starts_at,ends_at,amount,reference_code,status,player_id,court_id,created_at").eq("tenant_id", t.id).order("created_at", { ascending: false }).limit(8)
+      sb.from("bookings").select("id,starts_at,ends_at,amount,reference_code,status,player_id,court_id,guest_name,created_at").eq("tenant_id", t.id).order("created_at", { ascending: false }).limit(8)
     ]);
 
     var pending = res[0];
@@ -384,10 +404,10 @@
       overviewHeader(t, {active:activeCourtsCount,total:courtsCount,today:todayN,pending:pending}) +
 
       '<section class="overview-metrics" aria-label="Facility summary">' + [
-        { label: 'Needs approval', value: pending, unit: 'pending slips', icon: 'inbox', badge: pending ? 'Action required' : 'All clear', alert: pending > 0, foot: pending ? 'Review payment slips' : 'No pending approvals', href: '/bookings' },
-        { label: "Today's schedule", value: todayN, unit: 'active slots', icon: 'calendar_today', badge: 'Today', foot: 'View today?s bookings', href: '/bookings' },
-        { label: 'Upcoming matches', value: upcoming, unit: 'reservations', icon: 'event_upcoming', badge: 'Next 72 hours', foot: upcoming ? 'View upcoming bookings' : 'Schedule open', href: '/bookings' },
-        { label: 'Court inventory', value: courtsCount, unit: courtsCount === 1 ? 'court configured' : 'courts configured', icon: 'sports_tennis', badge: courtsCount ? 'Configured' : 'Setup needed', foot: courtsCount ? firstCourt.name : 'Add your first court', href: '/courts' }
+        { label: 'Needs Approval', value: pending, unit: 'pending slips', icon: 'inbox', badge: pending ? 'Action required' : 'All clear', alert: pending > 0, foot: pending ? 'Review payment slips' : 'No pending approvals', href: '/bookings' },
+        { label: "Today's Schedule", value: todayN, unit: 'active slots', icon: 'calendar_today', badge: 'Today', foot: 'View today?s bookings', href: '/bookings' },
+        { label: 'Upcoming Matches', value: upcoming, unit: 'reservations', icon: 'event_upcoming', badge: 'Next 72 hours', foot: upcoming ? 'View upcoming bookings' : 'Schedule open', href: '/bookings' },
+        { label: 'Court Inventory', value: courtsCount, unit: courtsCount === 1 ? 'court configured' : 'courts configured', icon: 'sports_tennis', badge: courtsCount ? 'Configured' : 'Setup needed', foot: courtsCount ? firstCourt.name : 'Add your first court', href: '/courts' }
       ].map(function (metric) {
         return '<a class="metric-card' + (metric.alert ? ' needs-attention' : '') + '" href="#/admin/' + esc(ctx.slug) + metric.href + '">' +
           '<div class="metric-heading"><span class="metric-icon material-symbols-outlined" aria-hidden="true">' + metric.icon + '</span><span class="metric-badge">' + esc(metric.badge) + '</span></div>' +
@@ -427,8 +447,8 @@
       '<section class="transactions-card">' +
         '<div class="transactions-header">' +
           '<div>' +
-            '<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Booking Transactions</h3>' +
-            '<p class="font-body-sm text-body-sm text-on-surface-variant">Your latest reservations, payment statuses, and booking details.</p>' +
+            '<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Bookings</h3>' +
+            '<p class="font-body-sm text-body-sm text-on-surface-variant">Your latest court reservations and booking status.</p>' +
           '</div>' +
           '<div class="transactions-actions">' +
             '<button id="export-csv-btn" class="transactions-button" type="button"><span class="material-symbols-outlined" aria-hidden="true">download</span>Export CSV</button>' +
@@ -436,60 +456,33 @@
           '</div>' +
         '</div>' +
         '<div class="transactions-scroll">' +
-          '<table class="w-full text-left font-body-sm text-body-sm">' +
-            '<thead>' +
-              '<tr class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider bg-surface-container/60">' +
-                '<th class="py-space-sm px-space-md rounded-l-DEFAULT">Player / Member</th>' +
-                '<th class="py-space-sm px-space-md">DUPR Rating</th>' +
-                '<th class="py-space-sm px-space-md">Court &amp; Format</th>' +
-                '<th class="py-space-sm px-space-md">Time Slot</th>' +
-                '<th class="py-space-sm px-space-md">Status</th>' +
-                '<th class="py-space-sm px-space-md rounded-r-DEFAULT text-right">Fee</th>' +
-              '</tr>' +
-            '</thead>' +
-            '<tbody class="divide-y divide-surface-container-high">' +
-              (recentBookings.length ? recentBookings.map(function (b) {
-                var p = playersMap[b.player_id] || {};
-                var c = courtsMap[b.court_id] || {};
-                var initial = (p.display_name || "P").charAt(0).toUpperCase();
-                var startFormatted = new Date(b.starts_at).toLocaleTimeString("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
-                var endFormatted = new Date(b.ends_at).toLocaleTimeString("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
-                var statusLabel = String(b.status || "Unknown").replace(/[_-]+/g, " ").replace(/\b[a-z]/g, function (letter) { return letter.toUpperCase(); });
-                return '<tr class="hover:bg-surface-container transition-colors">' +
-                  '<td class="py-space-sm px-space-md flex items-center gap-space-sm">' +
-                    '<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center font-label-sm text-label-sm font-bold text-primary overflow-hidden shrink-0">' + (p.avatar_path ? '<img src="' + esc(D.avatar.url(p.avatar_path)) + '" alt="" class="w-full h-full object-cover" loading="lazy">' : esc(initial)) + '</div>' +
-                    '<div class="flex flex-col">' +
-                      '<span class="font-body-md text-body-md text-on-surface font-semibold">' + esc(p.display_name || "Guest Player") + '</span>' +
-                      '<span class="font-label-sm text-label-sm text-on-surface-variant">' + esc(b.reference_code) + '</span>' +
-                    '</div>' +
-                  '</td>' +
-                  '<td class="py-space-sm px-space-md">' +
-                    '<span class="font-label-md text-label-md text-primary font-bold">4.25</span>' +
-                  '</td>' +
-                  '<td class="py-space-sm px-space-md text-on-surface">' + esc(c.name || "Court 1") + ' • Match</td>' +
-                  '<td class="py-space-sm px-space-md text-on-surface-variant font-label-md text-label-md">' + esc(startFormatted) + ' - ' + esc(endFormatted) + '</td>' +
-                  '<td class="py-space-sm px-space-md">' +
-                    '<span class="px-space-xs py-0.5 rounded-full ' + (b.status === "approved" ? "bg-primary/10 text-primary font-semibold" : "bg-error/10 text-error font-semibold") + ' font-label-sm text-label-sm">' + (b.status === "approved" ? "Paid • Confirmed" : esc(statusLabel)) + '</span>' +
-                  '</td>' +
-                  '<td class="py-space-sm px-space-md text-right font-label-md text-label-md font-bold text-on-surface">' + money(b.amount) + '</td>' +
-                '</tr>';
-              }).join("") :
-              '<tr><td colspan="6" class="transactions-empty"><div><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><div><strong>No bookings yet</strong><p>New reservations will appear here.</p></div></div></td></tr>') +
-            '</tbody>' +
-          '</table>' +
+          '<table class="admin-booking-table"><thead><tr><th scope="col">Customer &amp; Reference</th><th scope="col">Court</th><th scope="col">Date &amp; Time</th><th scope="col">Duration</th><th scope="col">Booking Status</th><th scope="col">Amount</th></tr></thead><tbody>' +
+          (recentBookings.length ? recentBookings.map(function (b) {
+            var player = playersMap[b.player_id] || {}, court = courtsMap[b.court_id] || {};
+            var name = player.display_name || b.guest_name || 'Guest';
+            var initial = name.trim().charAt(0).toUpperCase();
+            var starts = new Date(b.starts_at), ends = new Date(b.ends_at);
+            var date = starts.toLocaleDateString('en-US', {timeZone:tz,month:'short',day:'numeric',year:'numeric'});
+            var clock = function (value) {return value.toLocaleTimeString('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true});};
+            var labels = {approved:'Confirmed',pending:'Pending Approval',completed:'Completed',expired:'Expired',rejected:'Rejected',cancelled:'Cancelled'};
+            var status = labels[b.status] || 'Unknown';
+            var tone = b.status === 'approved' ? 'confirmed' : b.status === 'pending' ? 'pending' : ['rejected','cancelled'].includes(b.status) ? 'negative' : 'neutral';
+            return '<tr><td><div class="admin-booking-customer"><span class="admin-booking-avatar">' + (player.avatar_path ? '<img src="' + esc(D.avatar.url(player.avatar_path)) + '" alt="" loading="lazy">' : esc(initial)) + '</span><div><strong>' + esc(name) + '</strong><small>' + esc(b.reference_code || 'No reference') + '</small></div></div></td><td><span class="admin-booking-court"><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>' + esc(court.name || 'Court unavailable') + '</span></td><td><div class="admin-booking-schedule"><strong>' + esc(date) + '</strong><small>' + esc(clock(starts)) + ' &ndash; ' + esc(clock(ends)) + '</small></div></td><td><span class="admin-booking-duration">' + Math.round((ends-starts)/60000) + ' min</span></td><td><span class="admin-booking-status is-' + tone + '"><span aria-hidden="true"></span>' + status + '</span></td><td><strong class="admin-booking-amount">' + money(b.amount) + '</strong></td></tr>';
+          }).join('') : '<tr><td colspan="6" class="transactions-empty"><div><span class="material-symbols-outlined" aria-hidden="true">event_note</span><div><strong>No bookings yet</strong><p>New reservations will appear here.</p></div></div></td></tr>') +
+          '</tbody></table>' +
         '</div>' +
       '</section>';
 
     var csvBtn = q("#export-csv-btn", sec);
     if (csvBtn) {
       csvBtn.onclick = function () {
-        var rows = [["Reference Code", "Player", "Court", "Start Time", "End Time", "Status", "Amount PHP"]];
+        var rows = [["Reference Code", "Player", "Court", "Start Time", "End Time", "Duration Minutes", "Status", "Amount PHP"]];
         recentBookings.forEach(function (b) {
           var p = playersMap[b.player_id] || {};
           var c = courtsMap[b.court_id] || {};
-          rows.push([b.reference_code, p.display_name || "Guest", c.name || "Court", b.starts_at, b.ends_at, b.status, b.amount]);
+          rows.push([b.reference_code, p.display_name || b.guest_name || "Guest", c.name || "Court", b.starts_at, b.ends_at, Math.round((new Date(b.ends_at) - new Date(b.starts_at)) / 60000), b.status, b.amount]);
         });
-        var csvContent = "data:text/csv;charset=utf-8," + rows.map(function (e) { return e.join(","); }).join("\n");
+        var csvContent = "data:text/csv;charset=utf-8," + rows.map(function (e) { return e.map(function (cell) { return '"' + String(cell == null ? "" : cell).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
         var encodedUri = encodeURI(csvContent);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
