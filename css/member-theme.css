@@ -586,7 +586,6 @@
 .profile-player-metrics strong { color:#dce6df; font:600 22px/28px "Plus Jakarta Sans",sans-serif; }
 .profile-player-metrics > div > span:last-child { color:#91a5b2; font-size:9px; line-height:15px; }
 .profile-player-links { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-#app #ds-tenant-dashboard #sec .member-account-page .profile-player-links .btn { min-width:0; padding:8px 6px; gap:5px; font-size:11px !important; }
 .profile-player-motto { margin:0; padding-top:12px; border-top:1px solid #91a5b21c; color:#8297a5; text-align:center; font-size:10px; }
 @media(max-width:639px) { #app #ds-tenant-dashboard #sec .member-account-page .profile-player-card { padding:16px; gap:16px; } }
 
@@ -603,8 +602,14 @@
 .profile-player-metrics > div > .material-symbols-outlined { position:absolute; top:10px; right:9px; display:grid; place-items:center; width:24px; height:24px; border:1px solid #91a5b224; border-radius:7px; background:#10141a66; color:var(--stat-accent); font-size:14px; }
 .profile-player-metrics strong { margin-top:18px; color:var(--stat-accent); font:600 28px/34px "Plus Jakarta Sans",sans-serif; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
 .profile-player-metrics > div > span:last-child { margin-top:auto; color:#a9bcc7; font:500 10px/16px "Plus Jakarta Sans",sans-serif; }
-#app #ds-tenant-dashboard #sec .member-account-page .profile-player-links .btn { justify-content:flex-start; gap:8px !important; min-height:58px; padding:10px !important; border-color:#35434b; background:#202a304d; text-align:left; text-decoration:none; }
-#app #ds-tenant-dashboard #sec .member-account-page .profile-player-links .btn > .material-symbols-outlined { display:grid; place-items:center; flex:0 0 24px; width:24px; height:28px; color:#a3e635; font-size:18px; }
-.profile-player-links .btn > span:last-child { min-width:0; font:600 11px/18px "Plus Jakarta Sans",sans-serif; }
-.profile-player-links small { display:block; overflow:hidden; color:#8297a5; font:400 9px/15px "Plus Jakarta Sans",sans-serif; white-space:nowrap; text-overflow:ellipsis; }
-@media(hover:hover) and (pointer:fine) { #app #ds-tenant-dashboard #sec .member-account-page .profile-player-links .btn:hover { border-color:#a3e63566; background:#202a30; } }
+
+/* Compact, equal-sized profile navigation actions. */
+#app #ds-tenant-dashboard #sec .member-account-page .profile-shortcut { box-sizing:border-box; display:flex; align-items:center; justify-content:flex-start; gap:8px; min-width:0; min-height:46px; padding:10px; border:1px solid #35434b; border-radius:10px; background:#202a304d; color:#dce6df; font:600 11px/18px "Plus Jakarta Sans",sans-serif; text-decoration:none; transition:background .15s,border-color .15s; }
+#app #ds-tenant-dashboard #sec .member-account-page .profile-shortcut-bookings { border-color:#a3e63545; background:#a3e6350d; color:#c9ed95; }
+.profile-shortcut > .material-symbols-outlined { flex:0 0 18px; width:18px; font-size:18px; color:#91a5b2; }
+.profile-shortcut-bookings > .material-symbols-outlined { color:#a3e635; }
+.profile-shortcut > span:nth-child(2) { min-width:0; white-space:nowrap; }
+.profile-shortcut > .profile-shortcut-arrow { flex-basis:14px; width:14px; margin-left:auto; font-size:16px; opacity:.65; }
+#app #ds-tenant-dashboard #sec .member-account-page .profile-shortcut:focus-visible { outline:2px solid #a3e635; outline-offset:2px; }
+@media(hover:hover) and (pointer:fine) { #app #ds-tenant-dashboard #sec .member-account-page .profile-shortcut:hover { border-color:#a3e63580; background:#a3e63514; } }
+@media(prefers-reduced-motion:reduce) { .profile-shortcut { transition:none !important; } }
