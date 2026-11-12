@@ -1017,6 +1017,17 @@
     sec.innerHTML = '<div class="settings-page settings-account">' +
       '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">My Account</h1><p class="font-body-md text-on-surface-variant">Your personal staff credentials and private match history.</p></div>' +
       '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
+        '<div class="flex items-center gap-space-md">' +
+          '<div id="mp-preview" class="w-20 h-20 rounded-full bg-surface-container-high border-2 border-primary flex items-center justify-center text-primary text-2xl font-bold overflow-hidden shrink-0"></div>' +
+          '<div class="flex flex-col gap-space-xs"><span class="font-label-md text-on-surface font-semibold">Profile photo</span>' +
+            '<span class="font-body-sm text-on-surface-variant">JPG, PNG or WebP, up to 2 MB. Shown in your account menu.</span>' +
+            '<div class="flex items-center gap-space-sm">' +
+              '<label for="mp-photo" class="px-space-md py-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/30 text-on-surface font-label-sm font-bold uppercase cursor-pointer">Change Photo</label>' +
+              '<input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden>' +
+              '<button type="button" id="mp-remove-photo" class="px-space-md py-1.5 rounded-full bg-transparent border border-outline-variant/30 text-on-surface-variant font-label-sm font-bold uppercase cursor-pointer" hidden>Remove</button>' +
+            '</div><p class="msg" id="mp-photo-msg" role="alert"></p></div>' +
+        '</div></div>' +
+      '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
         '<form id="myprofile" class="flex flex-col gap-space-md">' +
           '<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">' +
             '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Full Name<input id="mp-name" maxlength="80" autocomplete="name" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
@@ -1045,6 +1056,31 @@
         .eq("auth_user_id", D.state.user.id);
       btn.disabled = false;
       setMsg(f, x.error ? friendly(x.error) : "Profile saved.", x.error ? "err" : "ok");
+    };
+    var paintPhoto = function () {
+      var url = D.avatar.mine(), nm = (r.data && r.data.full_name) || D.state.user.email || "?";
+      q("#mp-preview", sec).innerHTML = url ? '<img src="' + esc(url) + '" alt="Profile photo" class="w-full h-full object-cover">' : esc(nm.trim().charAt(0).toUpperCase() || "?");
+      q("#mp-remove-photo", sec).hidden = !url;
+    };
+    paintPhoto();
+    q("#mp-photo", sec).onchange = async function () {
+      var input = this, file = input.files[0], pm = q("#mp-photo-msg", sec);
+      if (!file) return;
+      setMsg(pm, "", "");
+      q("#mp-preview", sec).style.opacity = "0.5";
+      try { await D.avatar.upload(file); setMsg(pm, "Photo updated.", "ok"); }
+      catch (err) { setMsg(pm, err.message || "Could not upload the photo.", "err"); }
+      q("#mp-preview", sec).style.opacity = "";
+      input.value = "";
+      paintPhoto();
+    };
+    q("#mp-remove-photo", sec).onclick = async function () {
+      var pm = q("#mp-photo-msg", sec);
+      this.disabled = true;
+      try { await D.avatar.remove(); setMsg(pm, "Photo removed.", "ok"); }
+      catch (err) { setMsg(pm, err.message || "Could not remove the photo.", "err"); }
+      this.disabled = false;
+      paintPhoto();
     };
     if (D.booking) D.booking.myBookings(q("#mybookings", sec));
   }

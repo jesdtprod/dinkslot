@@ -193,12 +193,11 @@ function createMockSec() {
 
   // 1. Header Bar
   assert.ok(sec.innerHTML.includes('data-purpose="profile-header-bar"'), 'Header bar missing');
-  assert.ok(sec.innerHTML.includes('ATHLETE HUB • IDENTITY &amp; SETTINGS'), 'Eyebrow badge missing');
-  assert.ok(sec.innerHTML.includes('Player Profile'), 'Title missing');
-  assert.ok(sec.innerHTML.includes('DUPR PRO VERIFIED'), 'DUPR Pro verified badge missing');
+  assert.ok(sec.innerHTML.includes('Your Player Account'), 'Eyebrow badge missing');
+  assert.ok(sec.innerHTML.includes('My Profile'), 'Title missing');
   assert.ok(sec.innerHTML.includes('Player ID:'), 'Player ID label missing');
   assert.ok(sec.innerHTML.includes('DS-PL-'), 'DS-PL prefix missing');
-  assert.ok(sec.innerHTML.includes('Public View'), 'Public view link missing');
+  assert.ok(sec.innerHTML.includes('href="#/me"'), 'Overview link missing');
 
   // 2. Left Column: Athlete Identity Hub
   assert.ok(sec.innerHTML.includes('data-purpose="athlete-identity-column"'), 'Athlete identity column missing');

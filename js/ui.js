@@ -1,4 +1,4 @@
-// Shared layout helpers. DS.ui.dash() renders the modern sidebar dashboard shell used by the club
+﻿// Shared layout helpers. DS.ui.dash() renders the modern sidebar dashboard shell used by the club
 // dashboard and the super admin console. Icons are Material Symbols (loaded in index.html).
 (function () {
   "use strict";
@@ -104,13 +104,50 @@
     enhanceInputs(document);
   }
 
+  // The signed-in person's own profile photo (profiles.avatar_path, public "avatars" bucket).
+  // Used by every account menu (public nav, player, club admin) and refreshed live after an upload.
+  var AV_TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+  D.avatar = {
+    // Validates, uploads and saves a new photo immediately. Resolves to the new path; rejects with an Error whose message is user-friendly.
+    upload: async function (file) {
+      if (!AV_TYPES[file.type]) throw new Error("Only JPG, PNG or WebP images are allowed.");
+      if (file.size > 2 * 1024 * 1024) throw new Error("The photo must be 2 MB or smaller.");
+      var uid = D.state.user.id, old = D.state.avatarPath;
+      var path = uid + "/avatar-" + Date.now() + "." + AV_TYPES[file.type];
+      var up = await D.sb.storage.from("avatars").upload(path, file, { contentType: file.type, upsert: false });
+      if (up.error) throw new Error(D.friendly ? D.friendly(up.error) : up.error.message);
+      var x = await D.sb.from("profiles").update({ avatar_path: path }).eq("auth_user_id", uid);
+      if (x.error) { D.sb.storage.from("avatars").remove([path]).catch(function () {}); throw new Error(D.friendly ? D.friendly(x.error) : x.error.message); }
+      if (old && old !== path) D.sb.storage.from("avatars").remove([old]).catch(function () {});
+      D.avatar.set(path);
+      return path;
+    },
+    remove: async function () {
+      var uid = D.state.user.id, old = D.state.avatarPath;
+      var x = await D.sb.from("profiles").update({ avatar_path: null }).eq("auth_user_id", uid);
+      if (x.error) throw new Error(D.friendly ? D.friendly(x.error) : x.error.message);
+      if (old) D.sb.storage.from("avatars").remove([old]).catch(function () {});
+      D.avatar.set(null);
+    },
+    url: function (path) { return path ? D.sb.storage.from("avatars").getPublicUrl(path).data.publicUrl : ""; },
+    mine: function () { return D.avatar.url(D.state && D.state.avatarPath); },
+    set: function (path) {
+      D.state.avatarPath = path || null;
+      var url = D.avatar.mine();
+      document.querySelectorAll(".facility-avatar, .facility-menu-header-avatar").forEach(function (el) {
+        var name = ((D.state && D.state.user && D.state.user.user_metadata && (D.state.user.user_metadata.full_name || D.state.user.user_metadata.name)) || (D.state && D.state.user && D.state.user.email) || "?");
+        el.innerHTML = url ? '<img src="' + esc(url) + '" alt="">' : esc(String(el.dataset.initial || name).trim().charAt(0).toUpperCase() || "?");
+      });
+    }
+  };
+
   // Shared account card for the public navigation and facility dashboard.
   function renderAccountMenu(h, signoutId) {
     h = h || {};
     var initial = esc((h.initial || h.title || "?").charAt(0).toUpperCase());
     return '<div class="facility-menu-header">' +
       '<div class="facility-menu-header-top">' +
-        '<div class="facility-menu-header-avatar">' + (h.img ? '<img src="' + esc(h.img) + '" alt="">' : initial) + '</div>' +
+        '<div class="facility-menu-header-avatar">' + ((D.avatar.mine() || h.img) ? '<img src="' + esc(D.avatar.mine() || h.img) + '" alt="">' : initial) + '</div>' +
         '<div class="facility-menu-header-info">' +
           '<span class="facility-menu-header-name">' + esc(h.title || "Facility") + '</span>' +
           '<span class="facility-menu-header-role">' + esc(h.sub || "Director") + '</span>' +
@@ -272,7 +309,7 @@
               '<span id="dashboard-bellslot" class="dashboard-bellslot"></span>' +
               '<details class="facility-account"><summary aria-label="Account menu">' +
                 '<div class="facility-avatar-wrap">' +
-                  '<span class="facility-avatar">' + (h.img ? '<img src="' + esc(h.img) + '" alt="">' : accountInitial) + '</span>' +
+                  '<span class="facility-avatar" data-initial="' + esc(accountInitial) + '">' + ((D.avatar.mine() || h.img) ? '<img src="' + esc(D.avatar.mine() || h.img) + '" alt="">' : accountInitial) + '</span>' +
                   '<span class="facility-status-dot" aria-hidden="true"></span>' +
                 '</div>' +
                 '<span class="facility-account-text">' +

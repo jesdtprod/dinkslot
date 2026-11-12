@@ -13,7 +13,7 @@
       if (!menu.contains(event.target)) menu.open = false;
     });
   });
-  var state = { user: null, isPlatform: false, managedSlug: null, accountType: null };
+  var state = { avatarPath: null, user: null, isPlatform: false, managedSlug: null, accountType: null };
   var liveChannel = null, livePoll = null;
   var cleanupAuthPattern = function () {};
   function stopLive() {
@@ -167,10 +167,12 @@
     state.isPlatform = false;
     state.managedSlug = null;
     state.accountType = null;
+    state.avatarPath = null;
     if (state.user) {
       // Filter to our own row: a platform admin can read every profile, so maybeSingle() alone would fail.
-      var p = await sb.from("profiles").select("is_platform_admin,account_type").eq("auth_user_id", state.user.id).maybeSingle();
+      var p = await sb.from("profiles").select("is_platform_admin,account_type,avatar_path").eq("auth_user_id", state.user.id).maybeSingle();
       state.isPlatform = !!(p.data && p.data.is_platform_admin);
+      state.avatarPath = (p.data && p.data.avatar_path) || null;
       state.accountType = (p.data && p.data.account_type) || null; // 'player' | 'tenant' | null (not chosen yet)
       if (!state.isPlatform) {
         // Club owners and staff go straight to their dashboard instead of a separate account page.
@@ -201,7 +203,7 @@
       // Club owners and staff go straight to their dashboard; everyone else keeps My account.
       var acctLabel = state.managedSlug ? "Facility Director" : state.accountType === "tenant" ? "Club Account" : "Player";
       h += '<span id="bellslot" class="dashboard-bellslot"></span>' +
-        '<details class="facility-account"><summary aria-label="Account menu"><span class="facility-avatar">' + esc(initial) + '</span>' +
+        '<details class="facility-account"><summary aria-label="Account menu"><span class="facility-avatar" data-initial="' + esc(initial) + '">' + (window.DS.avatar.mine() ? '<img src="' + esc(window.DS.avatar.mine()) + '" alt="">' : esc(initial)) + '</span>' +
         '<span class="facility-account-text"><strong>' + esc(profileName) + '</strong><small>' + acctLabel + '</small></span>' +
         '<span class="material-symbols-outlined facility-chevron" aria-hidden="true">expand_more</span></summary>' +
         '<div class="facility-account-menu public-account-menu">' + window.DS.ui.accountMenu({
