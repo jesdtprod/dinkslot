@@ -410,7 +410,7 @@
                   return '<button type="button" class="method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 ' +
                     (isSel ? 'bg-primary text-on-primary font-bold shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent') + '" data-method="' + esc(m) + '">' +
                     '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  +
-                    esc(m) +
+                    esc(m === "Bank Transfer" ? "Bank" : m) +
                   '</button>';
                 }).join("") +
               '</div>' +
@@ -729,7 +729,7 @@
           var isSel = b.getAttribute("data-method") === activeMethod;
           b.className = "method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 " +
             (isSel ? "bg-primary text-on-primary font-bold shadow-sm" : "text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent");
-          b.innerHTML = '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  + esc(b.getAttribute("data-method"));
+          b.innerHTML = '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  + esc(m === "Bank Transfer" ? "Bank" : m);
         });
         wireAccountsAndQr();
       };
