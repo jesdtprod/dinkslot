@@ -267,4 +267,4 @@
 #ds-tenant-dashboard #sec .member-overview-page #next-booking-card-slot .member-reservation-card[class*="booking-tone-"] { border:1px solid #35434b; border-top:2px solid var(--booking-accent); background:linear-gradient(rgba(var(--booking-accent-rgb),.035),rgba(var(--booking-accent-rgb),.035)),#181f24; }
 #ds-tenant-dashboard #sec .member-reservation-card .reservation-status-badge { border:1px solid rgba(var(--booking-accent-rgb),.25); background:rgba(var(--booking-accent-rgb),.1); color:var(--booking-accent); }
 
-#ds-tenant-dashboard #sec .member-overview-page #next-booking { margin-top:16px; }
+#ds-tenant-dashboard #sec .member-overview-page :is(#next-booking,#my-home-club) { margin-top:16px; }
