@@ -30,6 +30,9 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.match(uploaded.innerHTML,/Proof uploaded/);
   assert.match(uploaded.innerHTML,/Pending verification/);
   assert.match(uploaded.innerHTML,/booking-decision-action view-proof[^>]*data-proof="pending"/);
+  assert.match(uploaded.innerHTML,/booking-decision-action qr-pass[^>]*data-ticket="pending"[^>]*aria-label="View QR pass"/);
+  assert.ok(uploaded.innerHTML.indexOf('data-ticket="pending"') < uploaded.innerHTML.indexOf('data-proof="pending"'));
+  assert.ok(uploaded.innerHTML.indexOf('data-proof="pending"') < uploaded.innerHTML.indexOf('reservation-decision-actions'));
   assert.ok(uploaded.innerHTML.indexOf('data-proof="pending"') < uploaded.innerHTML.indexOf('data-ok="pending"'));
   assert.doesNotMatch(uploaded.innerHTML,/reservation-view-proof/);
   assert.doesNotMatch(uploaded.innerHTML,/data-ok="pending"[^>]*disabled/);

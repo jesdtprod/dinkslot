@@ -1960,14 +1960,11 @@
           '<div class="reservation-review-reference reservation-review-payment"><span>Payment</span><strong class="payment-state-' + paymentState + '">' + paymentLabel + '</strong></div>' +
           '<div class="reservation-card-actions mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
             '<div class="booking-pass-actions">' +
-              '<button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-brand-lime/15 text-slate-300 hover:text-brand-lime border border-white/10 hover:border-brand-lime/30 text-xs font-display font-semibold transition-all cursor-pointer" data-ticket="' + esc(b.id) + '">' +
-                '<svg class="w-4 h-4 text-brand-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm-5 0h3v3h-3v-3zm2 2h2v4h-2v-4zm3 3h3v3h-3v-3zm-5 2h3v1h-3v-1z"/></svg>' +
-                'QR Pass' +
-              '</button>' +
+              '<button type="button" class="booking-decision-action qr-pass" data-ticket="' + esc(b.id) + '" aria-label="View QR pass" title="View QR Pass"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span></button>' +
+              (((py && py.proof_path) || (!b.player_id && paymentState === "paid")) ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>' : '') +
               (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
             '</div>' +
             '<div class="reservation-decision-actions flex items-center gap-2">' +
-              (((py && py.proof_path) || (!b.player_id && paymentState === "paid")) ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>' : '') +
               (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now()) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span></button>' : '') +
               (b.status === "pending"
                 ? '<button class="booking-decision-action approve" data-ok="' + esc(b.id) + '" type="button" aria-label="Approve reservation" title="' + (py && py.proof_path ? 'Approve reservation' : 'Attach payment proof before approving') + '"' + (py && py.proof_path ? '' : ' disabled aria-disabled="true"') + '><span class="material-symbols-outlined" aria-hidden="true">check</span></button>' +
