@@ -1164,13 +1164,14 @@
                   '</div>' +
                 '</div>' +
 
-                '<div class="mt-6 pt-5 border-t border-white/10 text-center">' +
+                '<div class="booking-summary-footer"><div class="mt-6 pt-5 border-t border-white/10 text-center">' +
                   '<span class="text-[10px] uppercase font-mono tracking-widest text-slate-400 block mb-3">Supported Payment Channels</span>' +
                   '<div class="booking-payment-channels flex items-center justify-center gap-2 text-xs font-mono text-slate-400">' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">GCash</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Maya</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Visa / Mastercard</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-neon-lime">Court Credits</span>' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Cash</span>' +
                   '</div>' +
                 '</div>' +
 
@@ -1187,6 +1188,7 @@
                 (club.contact_phone ? '<a href="tel:' + esc(club.contact_phone) + '" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors border border-white/10 no-underline">Call Support</a>'
                   : club.contact_email ? '<a href="mailto:' + esc(club.contact_email) + '" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors border border-white/10 no-underline">Email</a>'
                   : '<span class="text-xs text-slate-500">Support</span>') +
+              '</div>' +
               '</div>' +
               '</div>' +
             '</aside>' +

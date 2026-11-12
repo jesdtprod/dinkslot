@@ -4290,3 +4290,10 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 #ds-book-page .booking-channel-support > div > div:first-child { flex-shrink:0; }
 #ds-book-page .booking-channel-support > a { flex-shrink:0; white-space:nowrap; }
 @media(min-width:1024px) and (max-width:1200px) { #ds-book-page .booking-channel-support { flex-wrap:wrap; } #ds-book-page .booking-channel-support > a { margin-left:42px; } }
+
+#ds-book-page .booking-payment-channels > span { padding-inline:5px; font-size:8px; }
+@media(min-width:1024px) {
+  #ds-book-page .booking-layout:has(#slotpanel:not([hidden])) > aside > div:first-child { display:flex; flex-direction:column; align-self:stretch; }
+  #ds-book-page .booking-summary-footer { margin-top:auto; }
+  #ds-book-page .booking-channel-support { margin-bottom:0; }
+}
