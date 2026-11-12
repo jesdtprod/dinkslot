@@ -464,3 +464,8 @@
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-address { margin-bottom:12px; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta { margin-top:auto; padding-block:12px; border-bottom:1px solid #ffffff09; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-card > .clean-booking-actions { margin-top:0; padding-top:0; border-top:0; }
+
+/* One control size for payment, pass, calendar, cancel, and hold timer. */
+#app #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions :is(button,.booking-payment-timer) { box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; height:40px !important; min-height:40px !important; max-height:40px; padding:0 10px !important; border-width:1px; border-radius:10px !important; font:600 12px/18px "Plus Jakarta Sans",sans-serif !important; gap:6px !important; }
+#app #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions .material-symbols-outlined { font-size:16px; line-height:1; }
+#app #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions .booking-payment-timer { font-size:11px !important; }
