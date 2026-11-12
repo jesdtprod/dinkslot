@@ -591,3 +591,20 @@
 @media(max-width:639px) { #app #ds-tenant-dashboard #sec .member-account-page .profile-player-card { padding:16px; gap:16px; } }
 
 .profile-control-picker { transition:opacity .14s,transform .14s; }
+
+/* Refined activity tiles with a clear number, label and compact icon. */
+.profile-activity-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+#app #ds-tenant-dashboard #sec .member-account-page .profile-activity-heading h3 { margin:0; color:#dce6df; font:600 13px/20px "Plus Jakarta Sans",sans-serif; }
+.profile-activity-heading > span { color:#8297a5; font:500 8px/14px "JetBrains Mono",monospace; letter-spacing:.1em; }
+.profile-player-metrics { gap:8px; }
+.profile-player-metrics > div { --stat-accent:#7dd3fc; position:relative; gap:4px; min-height:108px; padding:12px 10px; border:1px solid #35434b; border-radius:10px; background:#202a304d; }
+.profile-player-metrics > div:nth-child(2) { --stat-accent:#a3e635; }
+.profile-player-metrics > div:nth-child(3) { --stat-accent:#c4b5fd; }
+.profile-player-metrics > div > .material-symbols-outlined { position:absolute; top:10px; right:9px; display:grid; place-items:center; width:24px; height:24px; border:1px solid #91a5b224; border-radius:7px; background:#10141a66; color:var(--stat-accent); font-size:14px; }
+.profile-player-metrics strong { margin-top:18px; color:var(--stat-accent); font:600 28px/34px "Plus Jakarta Sans",sans-serif; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+.profile-player-metrics > div > span:last-child { margin-top:auto; color:#a9bcc7; font:500 10px/16px "Plus Jakarta Sans",sans-serif; }
+#app #ds-tenant-dashboard #sec .member-account-page .profile-player-links .btn { justify-content:flex-start; gap:8px !important; min-height:58px; padding:10px !important; border-color:#35434b; background:#202a304d; text-align:left; text-decoration:none; }
+#app #ds-tenant-dashboard #sec .member-account-page .profile-player-links .btn > .material-symbols-outlined { display:grid; place-items:center; flex:0 0 24px; width:24px; height:28px; color:#a3e635; font-size:18px; }
+.profile-player-links .btn > span:last-child { min-width:0; font:600 11px/18px "Plus Jakarta Sans",sans-serif; }
+.profile-player-links small { display:block; overflow:hidden; color:#8297a5; font:400 9px/15px "Plus Jakarta Sans",sans-serif; white-space:nowrap; text-overflow:ellipsis; }
+@media(hover:hover) and (pointer:fine) { #app #ds-tenant-dashboard #sec .member-account-page .profile-player-links .btn:hover { border-color:#a3e63566; background:#202a30; } }
