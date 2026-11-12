@@ -586,7 +586,9 @@
 .profile-player-metrics strong { color:#dce6df; font:600 22px/28px "Plus Jakarta Sans",sans-serif; }
 .profile-player-metrics > div > span:last-child { color:#91a5b2; font-size:9px; line-height:15px; }
 .profile-player-links { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-.profile-player-motto { margin:0; padding-top:12px; border-top:1px solid #91a5b21c; color:#8297a5; text-align:center; font-size:10px; }
+.profile-player-motto { display:flex; align-items:center; justify-content:center; gap:6px; margin:0; padding-top:12px; border-top:1px solid #91a5b21c; color:#91a5b2; font:400 10px/18px "Plus Jakarta Sans",sans-serif; white-space:nowrap; }
+.profile-player-motto > .material-symbols-outlined { flex:0 0 16px; width:16px; color:#a3e635; font-size:16px; }
+@media(max-width:360px) { .profile-player-motto { gap:4px; font-size:9px; } }
 @media(max-width:639px) { #app #ds-tenant-dashboard #sec .member-account-page .profile-player-card { padding:16px; gap:16px; } }
 
 .profile-control-picker { transition:opacity .14s,transform .14s; }
