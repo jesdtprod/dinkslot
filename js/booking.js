@@ -197,10 +197,13 @@
       var file = this.files[0];
       var name = el.querySelector(".payment-receipt-name");
       var browse = el.querySelector(".payment-receipt-browse");
+      var hint = el.querySelector("#payment-receipt-hint");
+      hint.textContent = "JPG, PNG or WebP, up to 5 MB";
       if (!file) { name.textContent = "Upload payment screenshot"; browse.textContent = "Browse file"; return; }
       try {
         checkImage(file);
         name.textContent = file.name;
+        hint.textContent = "Attached locally. Upload starts when you submit and confirm.";
         browse.textContent = "Change file";
         msg(q("form.proof", el), "", "");
       } catch (error) {
@@ -213,19 +216,23 @@
     q("form.proof", el).onsubmit = async function (e) {
       e.preventDefault();
       var f = this, btn = q('button[type="submit"]', f);
-      btn.disabled = true; msg(f, "Uploading payment proof...", "");
+      if (btn.disabled) return;
+      var originalLabel = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Uploading receipt...";
       try {
         var file = q("#pfile", f).files[0];
         checkImage(file);
         var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
         var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
         if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
+        btn.textContent = "Submitting payment proof...";
         var r = await sb.rpc("attach_payment_proof", { p_booking_id: b.id, p_proof_path: path,
           p_payer_reference: null, p_idempotency_key: attemptKey, p_method: method });
         if (r.error) throw r.error;
         el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-emerald-500/30 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div><h3 class="text-xl font-bold text-white">Proof Submitted Successfully!</h3><p class="text-sm text-slate-300">The club has received your payment proof and will verify your reservation. You can track status anytime in My Bookings.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm shadow-neon no-underline" href="#/me">View My Bookings</a></div>';
         if (ctx && ctx.onDone) ctx.onDone();
-      } catch (err) { btn.disabled = false; msg(f, nice(err), "err"); }
+      } catch (err) { btn.disabled = false; btn.textContent = originalLabel; msg(f, nice(err), "err"); }
     };
   }
 
