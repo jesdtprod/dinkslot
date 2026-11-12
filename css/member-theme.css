@@ -268,3 +268,17 @@
 #ds-tenant-dashboard #sec .member-reservation-card .reservation-status-badge { border:1px solid rgba(var(--booking-accent-rgb),.25); background:rgba(var(--booking-accent-rgb),.1); color:var(--booking-accent); }
 
 #ds-tenant-dashboard #sec .member-overview-page :is(#next-booking,#my-home-club) { margin-top:16px; }
+
+/* Subtle card feedback for pointer and keyboard navigation. */
+#ds-tenant-dashboard #sec .member-overview-page :is(.home-club-card,.member-reservation-card) { transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+.member-overview-page .home-club-cover { overflow:hidden; }
+.member-overview-page .home-club-cover > img { transition:transform .3s ease; }
+@media(hover:hover) and (pointer:fine) {
+  #ds-tenant-dashboard #sec .member-overview-page :is(.home-club-card,.member-reservation-card):hover { transform:translateY(-3px); border-color:var(--booking-accent,#a3e635); box-shadow:0 10px 20px #00000026; }
+  .member-overview-page .home-club-card:hover .home-club-cover > img { transform:scale(1.035); }
+}
+#ds-tenant-dashboard #sec .member-overview-page :is(.home-club-card,.member-reservation-card):focus-within { border-color:var(--booking-accent,#a3e635); box-shadow:0 0 0 1px var(--booking-accent,#a3e635); }
+@media(prefers-reduced-motion:reduce) {
+  #ds-tenant-dashboard #sec .member-overview-page :is(.home-club-card,.member-reservation-card), .member-overview-page .home-club-cover > img { transition:none; }
+  #ds-tenant-dashboard #sec .member-overview-page :is(.home-club-card,.member-reservation-card):hover, .member-overview-page .home-club-card:hover .home-club-cover > img { transform:none; }
+}
