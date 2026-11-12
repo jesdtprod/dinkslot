@@ -899,20 +899,24 @@
     var cancelReleaseBtn = el.querySelector("#cancel-release-btn");
     if (cancelReleaseBtn) {
       cancelReleaseBtn.onclick = async function () {
-        if (!confirm("Are you sure you want to cancel and release " + (court.name || "Court") + " back to the booking pool?")) return;
+        if (cancelReleaseBtn.disabled) return;
+        var confirmed = await D.ui.confirmAction("Release your unpaid hold for " + (court.name || "this court") + "? The time slot will become available to other players.", { title: "Cancel & Release Slot", confirmText: "Release slot" });
+        if (!confirmed) return;
         cancelReleaseBtn.disabled = true;
         cancelReleaseBtn.textContent = "Releasing...";
-        var r = await sb.rpc("cancel_booking", {
+        var r;
+        try { r = await sb.rpc("cancel_booking", {
           p_booking_id: b.id,
           p_reason: "Player released slot from checkout",
           p_idempotency_key: uuid()
-        });
+        }); } catch (error) { r = { error: error }; }
         if (r.error) {
           cancelReleaseBtn.disabled = false;
           cancelReleaseBtn.textContent = "Cancel & Release Slot";
-          alert("Could not cancel: " + nice(r.error));
+          D.ui.toast("Could not release slot: " + nice(r.error), "err");
           return;
         }
+        D.ui.toast("Your hold was released. The time slot is available again.", "ok");
         if (ctx && ctx.onBack) {
           ctx.onBack();
         } else {
