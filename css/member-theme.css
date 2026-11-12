@@ -84,14 +84,16 @@
 
 /* Overview follows Book a Court: shared backdrop, lime accent, and flat surfaces. */
 #ds-tenant-dashboard #sec .member-overview-page {
-  width:100%; max-width:none; margin-inline:0; box-sizing:border-box;
+  width:100%; max-width:1280px; margin-inline:auto; box-sizing:border-box;
   --member-accent:#a3e635; --lime:#a3e635; --member-panel:#181f24;
   --member-inset:#202a30; --member-border:#303c43;
   position:relative; isolation:isolate; display:flex; flex-direction:column;
-  gap:24px; padding:24px; background:#10141a; border-radius:12px;
+  gap:24px; padding:0; background:transparent; border-radius:0;
   color:#dce6df; font:400 13px/1.65 "Plus Jakarta Sans",sans-serif;
 }
-#ds-tenant-dashboard.member-dashboard #sec:has(> .member-overview-page) { max-width:none; }
+.member-workspace-stage { position:relative; isolation:isolate; overflow:hidden; background:#10141a; }
+.member-workspace-stage > #sec { position:relative; z-index:1; }
+.member-workspace-stage > .auth-pattern { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; mask-image:linear-gradient(to bottom,transparent,#000 32px); }
 .member-overview-page > :is(section,header) { position:relative; z-index:1; }
 .member-overview-page > .auth-pattern { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; mask-image:linear-gradient(to bottom,transparent,#000 32px); }
 #ds-tenant-dashboard #sec .member-overview-page .member-overview-header { grid-template-columns:minmax(0,1fr) auto; gap:24px; padding:0 0 8px; border:0; }
@@ -128,7 +130,7 @@
 .member-overview-page :is(a,button):focus-visible { outline:2px solid #a3e635; outline-offset:3px; }
 @media(max-width:1200px) { #ds-tenant-dashboard #sec .member-overview-page .member-overview-header { grid-template-columns:1fr; } .member-overview-page .overview-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:639px) {
-  #ds-tenant-dashboard #sec .member-overview-page { padding:16px 0; gap:16px; }
+  #ds-tenant-dashboard #sec .member-overview-page { padding:0; gap:16px; }
   #ds-tenant-dashboard #sec .member-overview-page .member-overview-intro h1 { font-size:28px; line-height:34px; }
   #ds-tenant-dashboard #sec .member-overview-page .member-overview-stats { width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); }
   .member-overview-page :is(#next-booking,#my-home-club) { padding:16px; }

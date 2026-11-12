@@ -62,6 +62,9 @@
     });
     root.querySelector('#ds-tenant-dashboard').classList.add('member-dashboard');
     var sec = ui.main;
+    var workspaceStage = sec.parentElement;
+    workspaceStage.classList.add("member-workspace-stage");
+    if (D.mountPublicBackdrop) D.mountPublicBackdrop(workspaceStage);
     sec.innerHTML = '<div class="member-skeleton" aria-label="Loading page"><div class="ds-skeleton"></div><div class="ds-skeleton"></div><div class="ds-skeleton"></div></div>';
     if (section === "find") await findView(sec);
     else if (section === "clubs") await clubsView(sec);
@@ -241,8 +244,6 @@
       nextBookingHtml +
       homeClubHtml +
     '</div>';
-
-    if (D.mountPublicBackdrop) D.mountPublicBackdrop(sec.querySelector(".member-overview-page"));
 
     // Wire interactive buttons in Overview
     var inviteBtn = q("#btn-invite-partner", sec);
