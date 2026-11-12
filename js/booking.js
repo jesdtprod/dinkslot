@@ -447,7 +447,7 @@
                   '<span class="material-symbols-outlined text-primary text-lg shrink-0">check_circle</span>' +
                   '<span class="text-xs font-mono font-medium text-white truncate" id="file-display-name">receipt.png</span>' +
                 '</div>' +
-                '<button type="button" class="text-xs text-rose-400 hover:text-rose-300 font-semibold underline shrink-0 border-0 bg-transparent cursor-pointer ml-2" id="btn-clear-file">Remove</button>' +
+                '<button type="button" class="receipt-remove-button" id="btn-clear-file" aria-label="Remove attached receipt" title="Remove attached receipt"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button>' +
               '</div>' +
               '<p class="msg mt-3 text-xs" role="alert" id="proof-msg"></p>' +
             '</div>' +

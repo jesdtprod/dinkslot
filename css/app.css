@@ -4156,6 +4156,12 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 
 .dink-payment-container .checkout-total-due { align-items: center; gap: 12px; }
 .checkout-total-due > div { min-width: 0; }
+.dink-payment-container #file-status-indicator { gap: 12px; padding: 8px 10px 8px 12px; border: 1px solid #a3e63535; border-radius: 10px; background: #a3e63508; }
+.dink-payment-container #file-display-name { font: 500 12px/18px "Plus Jakarta Sans",sans-serif; }
+.dink-payment-container .receipt-remove-button { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 32px; width: 32px; height: 32px; padding: 0; border: 1px solid #f8717125; border-radius: 8px; background: #f8717108; color: #fca5a5; cursor: pointer; }
+.dink-payment-container .receipt-remove-button .material-symbols-outlined { font-size: 18px; }
+.dink-payment-container .receipt-remove-button:hover { background: #f8717118; border-color: #f8717160; }
+.dink-payment-container .receipt-remove-button:focus-visible { outline: 2px solid #fca5a5; outline-offset: 2px; }
 .dink-payment-container :is(#btn-copy-account, #btn-copy-global-ref, #btn-copy-note-ref):focus { outline: none; box-shadow: none; }
 .dink-payment-container :is(#btn-copy-account, #btn-copy-global-ref, #btn-copy-note-ref):focus-visible { outline: none; border-color: #a3e635; box-shadow: inset 0 0 0 1px #a3e635; }
 .checkout-total-due > div:last-child { flex-shrink: 0; display: flex; align-items: center; }
