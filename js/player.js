@@ -198,9 +198,11 @@
     var nextBookingHtml =
       '<section class="space-y-4" data-purpose="next-booking-section" id="next-booking">' +
         '<div class="overview-booking-toolbar">' +
+          '<div class="overview-booking-heading"><span class="overview-booking-eyebrow">Your Court Schedule</span>' +
             '<h2 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-2">' +
               '<span>Next booking</span>' +
             '</h2>' +
+          '<p>Track your reservations, review pending bookings, and plan your next game.</p></div>' +
           '<div class="overview-booking-controls">' +
             '<div class="inline-flex items-center bg-[#131b26] p-1 rounded-xl border border-[#212f42]" role="tablist" aria-label="Booking filter">' +
               '<button class="px-3 py-1 text-xs font-bold rounded-lg bg-[#a3e635] text-black shadow-sm cursor-pointer transition-colors" type="button" data-bfilter="upcoming">Upcoming (' + up + ')</button>' +
