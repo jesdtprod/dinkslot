@@ -4473,3 +4473,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
   #ds-landing .open-play-list p { gap:3px 6px; line-height:18px; }
   #ds-landing .open-play-list > div > :is(a,button) { align-self:stretch; justify-content:center; width:100%; min-height:38px; }
 }
+
+/* Remove the backdrop fade directly beneath the public header. */
+#ds-auth-screen .auth-stage::before { content:none; }
+#ds-auth-screen .auth-stage > .auth-pattern, #club-signup-screen > .auth-pattern, #club-profile-stage > .auth-pattern { mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 32px),transparent); -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 32px),transparent); }
