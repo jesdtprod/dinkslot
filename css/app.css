@@ -5011,3 +5011,8 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 }
 
 @media(max-width:767px) { body .site-header .site-brand > div:last-child > span:only-child { margin:0; font-size:20px !important; line-height:24px !important; letter-spacing:.02em; } }
+
+/* Center the account popup within the mobile viewport. */
+@media(max-width:767px) {
+  .facility-account .facility-account-menu { position:fixed; top:72px; left:12px; right:12px; width:auto; max-width:none; max-height:calc(100dvh - 84px); box-sizing:border-box; overflow-y:auto; }
+}
