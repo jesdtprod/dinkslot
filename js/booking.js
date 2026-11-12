@@ -580,7 +580,7 @@
               '<!-- Trust Sub-badge inside card -->' +
               '<div class="payment-access-note mt-4 pt-3 border-t border-outline-variant/20">' +
                 '<span class="material-symbols-outlined" aria-hidden="true">door_front</span>' +
-                '<span>Gate access after booking confirmation</span>' +
+                '<span>Your gate access pass is ready once your booking is confirmed.</span>' +
               '</div>' +
             '</div>' +
           '</div>' +

@@ -4134,3 +4134,7 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 
 .dink-payment-container .checkout-secondary-actions { align-items: stretch; }
 .dink-payment-container .checkout-secondary-actions > :is(a, button) { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: 40px; min-height: 40px; padding: 8px 12px; border-radius: 9px; font-size: 11px; line-height: 18px; }
+
+.payment-access-note { gap: 6px; font-size: clamp(8px, .75vw, 10px); white-space: nowrap; }
+.payment-access-note > span:last-child { min-width: 0; }
+@media(max-width:480px) { .payment-access-note { font-size: 8px; gap: 4px; } .payment-access-note .material-symbols-outlined { font-size: 13px; } }
