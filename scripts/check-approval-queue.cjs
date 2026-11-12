@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 let failure = false, statusFilter = [], records = null, payments = [];
-const pending = {id:'pending',tenant_id:'club',court_id:'court',player_id:'player',status:'pending',reference_code:'NEEDS-REVIEW',starts_at:'2020-01-01T01:00:00Z',ends_at:'2020-01-01T02:00:00Z',amount:200,guest_name:'Guest'};
+const pending = {id:'pending',tenant_id:'club',court_id:'court',player_id:'player',status:'pending',reference_code:'NEEDS-REVIEW',starts_at:'2020-01-01T01:00:00Z',ends_at:'2020-01-01T02:00:00Z',expires_at:'2099-01-01T02:00:00Z',amount:200,guest_name:'Guest'};
 const D = {friendly:error=>error.message,state:{user:{id:'staff'}},esc:x=>String(x).replace(/</g,'&lt;'),ui:{emptyState:(title)=>title},sb:{
   from(table) {
     const query={select(){return this;},eq(){return this;},in(column,values){if(column==='status')statusFilter=values;return this;},or(value){filter=value;return this;},order(){return this;},then(resolve,reject){return Promise.resolve(table==='bookings'?{data:failure?null:(records || [pending]),error:failure?{message:'Network unavailable'}:null}:{data:table==='club_players'?[{id:'player',display_name:'NICKNAME'}]:[]}).then(resolve,reject);}};
@@ -23,13 +23,15 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.match(normal.innerHTML,/Needs approval/);
   assert.match(normal.innerHTML,/Unpaid/);
   assert.match(normal.innerHTML,/data-ok="pending"[^>]*disabled/);
+  assert.ok(normal.innerHTML.indexOf('reservation-review-hold') > normal.innerHTML.indexOf('data-ticket="pending"'));
   assert.doesNotMatch(normal.innerHTML,/AM \? /);
   payments=[{booking_id:'pending',proof_path:'club/proofs/receipt.png'}];
   const uploaded=box();await D.booking.queue(uploaded,{id:'club'});
   assert.match(uploaded.innerHTML,/Proof uploaded/);
   assert.match(uploaded.innerHTML,/Pending verification/);
-  assert.match(uploaded.innerHTML,/reservation-view-proof[^>]*data-proof="pending"/);
-  assert.ok(uploaded.innerHTML.indexOf('data-proof="pending"') > uploaded.innerHTML.indexOf('data-ticket="pending"'));
+  assert.match(uploaded.innerHTML,/booking-decision-action view-proof[^>]*data-proof="pending"/);
+  assert.ok(uploaded.innerHTML.indexOf('data-proof="pending"') < uploaded.innerHTML.indexOf('data-ok="pending"'));
+  assert.doesNotMatch(uploaded.innerHTML,/reservation-view-proof/);
   assert.doesNotMatch(uploaded.innerHTML,/data-ok="pending"[^>]*disabled/);
   payments=[];
   records=[{...pending,id:'guest',player_id:null,source:'walk_in',status:'approved',reference_code:'UNPAID-GUEST',ends_at:'2099-01-01T02:00:00Z'}];
