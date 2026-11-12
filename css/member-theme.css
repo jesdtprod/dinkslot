@@ -664,3 +664,6 @@
 
 /* Admin summary counts use the shared lime accent in every state. */
 #ds-tenant-dashboard #sec .overview-metrics .metric-card .metric-reading strong { color:#a3e635; }
+
+/* Setup and recent-booking actions share one text scale. */
+#app #ds-tenant-dashboard #sec :is(.transactions-button,.setup-action) { font:500 11px/18px "Plus Jakarta Sans",sans-serif !important; }
