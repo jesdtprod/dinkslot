@@ -450,8 +450,8 @@
 #app #ds-tenant-dashboard #sec .member-bookings-page :is(.booking-search-tools,.booking-countdown) { border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
 @media(max-width:639px) { #app #ds-tenant-dashboard #sec .member-bookings-page .booking-search-tools { padding:16px; } .member-bookings-page .booking-search-tools::before { left:16px; } }
 
-/* Surface belongs with venue details, separate from reservation status. */
-#ds-tenant-dashboard #sec .member-bookings-page .clean-booking-main > .clean-booking-surface { display:inline-flex; align-items:center; gap:5px; margin:0 0 8px 43px; padding:2px 7px; border:1px solid #35434b; border-radius:6px; background:#202a30; color:#a9bcc7; font:500 10px/16px "Plus Jakarta Sans",sans-serif; }
+/* Surface follows the reference in the reservation summary row. */
+#ds-tenant-dashboard #sec .member-bookings-page .clean-booking-status > .clean-booking-surface { display:inline-flex; align-items:center; gap:5px; margin:0; padding:2px 7px; border:1px solid #35434b; border-radius:6px; background:#202a30; color:#a9bcc7; font:500 10px/16px "Plus Jakarta Sans",sans-serif; }
 .member-bookings-page .clean-booking-surface > .material-symbols-outlined { font-size:14px; }
 
 /* Keep reservation details on one row when space permits. */
