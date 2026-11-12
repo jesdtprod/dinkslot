@@ -3618,3 +3618,13 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .guest-payment-dialog select { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid #36424a; border-radius: 9px; background: #202a30; color: #e3ece6; }
 .guest-payment-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 14px; border-top: 1px solid #ffffff12; }
 .guest-payment-dialog .msg:empty { display: none; }
+
+/* Restore the payment panel's original deep-carbon palette. */
+.payment-panel,
+.booking-payment-modal .payment-panel,
+#ds-book-page #paypanel > .payment-panel { background: #0c1017; border-color: #ffffff1a; }
+.payment-panel .payment-method-groups { background: #070a0e; border-color: #ffffff1a; }
+.payment-panel .qrtab { background: #161c27; border-color: #ffffff1a; color: #cbd5e1; }
+.payment-panel .payment-group[aria-pressed="true"],
+.payment-panel .qrtab[aria-pressed="true"] { background: #a3e6351a; border-color: #a3e6354d; color: #a3e635; }
+.payment-panel .proof input { background: #111620; border-color: #ffffff1a; color: #f1f5f9; }
