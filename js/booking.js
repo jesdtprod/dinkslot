@@ -972,10 +972,7 @@
 
         '<section class="booking-context" data-purpose="breadcrumbs-context">' +
           '<div class="flex flex-wrap items-center justify-between gap-3 text-xs">' +
-            '<nav class="club-breadcrumb" aria-label="Breadcrumb">' +
-              '<a class="club-back-link" href="#/c/' + esc(slug) + '"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>' + esc(club.name) + '</span></a>' +
-              '<ol class="club-breadcrumb-trail"><li class="club-breadcrumb-separator" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></li><li class="club-breadcrumb-current" aria-current="page">Court Booking</li></ol>' +
-            '</nav>' +
+            '<nav class="booking-checkout-breadcrumb" aria-label="Breadcrumb"><a href="#/c/' + esc(slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Back to club</a><span aria-hidden="true">/</span><span>' + esc(club.name) + '</span><span aria-hidden="true">/</span><strong aria-current="page">Book a court</strong></nav>' +
             '<div class="booking-context-status">' +
               '<span class="club-live-badge"><span class="booking-live-dot" aria-hidden="true"></span><span id="book-live-slots">Live Availability: Checking slots...</span></span>' +
               '<span class="booking-timezone">Timezone: ' + esc(tz) + ' (PHT)</span>' +

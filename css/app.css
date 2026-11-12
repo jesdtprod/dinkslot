@@ -4120,3 +4120,14 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .payment-instructions-body { padding: 16px; }
 .payment-instructions-body .payment-howto { margin: 0; }
 .payment-help-trigger:focus-visible, .payment-instructions-modal button:focus-visible { outline: 2px solid #a3e635; outline-offset: 3px; }
+
+/* Booking navigation uses checkout's compact breadcrumb and pill styling. */
+.booking-checkout-breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; color: #a1afb8; font: 500 11px/20px "JetBrains Mono",monospace; }
+.booking-checkout-breadcrumb a { display: inline-flex; align-items: center; gap: 5px; color: #a1afb8; text-decoration: none; }
+.booking-checkout-breadcrumb a:hover { color: #a3e635; }
+.booking-checkout-breadcrumb a:focus-visible { outline: 2px solid #a3e635; outline-offset: 3px; }
+.booking-checkout-breadcrumb .material-symbols-outlined { font-size: 14px; }
+.booking-checkout-breadcrumb strong { color: #a3e635; font-weight: 600; }
+#ds-book-page .booking-context-status .club-live-badge, #ds-book-page .booking-context-status .booking-timezone { min-height: 30px; padding: 5px 10px; border-radius: 999px; font: 500 10px/18px "JetBrains Mono",monospace; }
+#ds-book-page .booking-context-status .club-live-badge { border-color: #a3e63545; background: #a3e6350d; color: #a3e635; }
+#ds-book-page .booking-context-status .booking-timezone { background: #262d33; color: #b8c7cf; border-color: #ffffff12; }
