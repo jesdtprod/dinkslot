@@ -19,6 +19,8 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.match(normal.innerHTML,/09171234567/);
   assert.doesNotMatch(normal.innerHTML,/NICKNAME/);
   assert.match(normal.innerHTML,/Needs approval/);
+  assert.match(normal.innerHTML,/Unpaid/);
+  assert.doesNotMatch(normal.innerHTML,/AM \? /);
   failure=true;const failed=box();await D.booking.queue(failed,{id:'club'});
   assert.match(failed.innerHTML,/Unable to load reservations/);
   assert.doesNotMatch(failed.innerHTML,/No pending approvals/);
