@@ -118,17 +118,13 @@
     }, 1000);
   }
 
-  function openPayment(booking, onDone) {
-    var dialog = document.createElement("dialog");
-    dialog.className = "booking-payment-modal";
-    dialog.setAttribute("aria-label", "Pay and upload payment proof");
-    dialog.innerHTML = '<header><div class="complete-payment-heading"><span class="complete-payment-mode">Payment confirmation</span><h2>Complete your payment</h2><p>Choose an account, pay, and upload your receipt.</p></div><button type="button" class="complete-payment-close" aria-label="Close payment form"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="booking-payment-content"></div>';
-    var previousFocus = document.activeElement;
-    document.body.append(dialog);
-    dialog.querySelector("header button").onclick = function () { dialog.close(); };
-    dialog.addEventListener("close", function () { dialog.remove(); if (previousFocus && previousFocus.isConnected) previousFocus.focus(); }, { once: true });
-    dialog.showModal();
-    payPanel(dialog.querySelector(".booking-payment-content"), booking, { onDone: function () { if (onDone) onDone(); } });
+  async function openPayment(booking) {
+    try {
+      var result = await sb.from("public_tenants").select("slug").eq("id", booking.tenant_id).maybeSingle();
+      if (result.error) throw result.error;
+      if (!result.data || !result.data.slug) throw new Error("The club checkout is unavailable. Please try again.");
+      location.hash = "#/c/" + encodeURIComponent(result.data.slug) + "/book?booking=" + encodeURIComponent(booking.id);
+    } catch (error) { D.ui.toast(nice(error), "err"); }
   }
 
   // ======================================================== payment panel

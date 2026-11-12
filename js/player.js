@@ -789,9 +789,12 @@
       allMatches.forEach(function (b) { byId[b.id] = b; });
 
       sec.querySelectorAll("[data-pay]").forEach(function (btn) {
-        btn.onclick = function () {
+        btn.onclick = async function () {
           var booking = byId[btn.getAttribute("data-pay")];
-          if (booking && D.booking && D.booking.openPayment) D.booking.openPayment(booking, function () { bookingsView(sec); });
+          if (booking && D.booking && D.booking.openPayment) {
+            btn.disabled = true;
+            try { await D.booking.openPayment(booking); } finally { btn.disabled = false; }
+          }
         };
       });
 
