@@ -183,12 +183,12 @@
 
     // Account totals use the same compact card system as court booking.
     var metricsHtml = '<section class="overview-metrics" data-purpose="overview-summary-grid" aria-label="Booking summary">' + [
-      { label: 'Confirmed upcoming', value: up, icon: 'event_available', note: 'Ready for your next game', href: '#/me/bookings' },
-      { label: 'Pending reservations', value: pending, icon: 'pending_actions', note: 'Payment or approval needed', href: '#/me/bookings' },
-      { label: 'Clubs joined', value: mc.clubs.length, icon: 'groups', note: 'Your places to play', href: '#/me/clubs' },
-      { label: 'Total reservations', value: total, icon: 'receipt_long', note: 'Across your booking history', href: '#/me/bookings' }
+      { label: 'Confirmed upcoming', value: up, icon: 'event_available', share: total ? up / total * 100 : 0, note: 'Of ' + total + ' total reservations', href: '#/me/bookings' },
+      { label: 'Pending reservations', value: pending, icon: 'pending_actions', share: total ? pending / total * 100 : 0, note: 'Of ' + total + ' total reservations', href: '#/me/bookings' },
+      { label: 'Clubs joined', value: mc.clubs.length, icon: 'groups', badge: 'Joined', note: 'Your places to play', href: '#/me/clubs' },
+      { label: 'Total reservations', value: total, icon: 'receipt_long', badge: 'All time', note: 'Across your booking history', href: '#/me/bookings' }
     ].map(function (metric) {
-      return '<article class="overview-metric"><div class="overview-metric-heading"><span class="material-symbols-outlined" aria-hidden="true">' + metric.icon + '</span><span>' + metric.label + '</span></div><strong>' + metric.value + '</strong><div class="overview-metric-footer"><span>' + metric.note + '</span><a href="' + metric.href + '" aria-label="View ' + metric.label.toLowerCase() + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a></div></article>';
+      return '<article class="overview-metric"><div class="overview-metric-heading"><span>' + metric.label + '</span><span class="material-symbols-outlined" aria-hidden="true">' + metric.icon + '</span></div><div class="overview-metric-value"><strong>' + metric.value + '</strong><span class="overview-metric-badge">' + (metric.share != null ? metric.share.toFixed(1) + '%' : metric.badge) + '</span></div><div class="overview-metric-track" aria-hidden="true"><span style="width:' + (metric.share != null ? Math.min(100, metric.share) + '%' : '24px') + '"></span></div><div class="overview-metric-footer"><span>' + metric.note + '</span><a href="' + metric.href + '" aria-label="View ' + metric.label.toLowerCase() + '"><span class="material-symbols-outlined" aria-hidden="true">north_east</span></a></div></article>';
     }).join('') + '</section>';
 
     // 3. NEXT BOOKING / LIVE COURT SCHEDULE CARD

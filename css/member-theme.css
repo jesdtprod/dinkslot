@@ -142,3 +142,16 @@
   .member-overview-page .home-clubs-heading { align-items:flex-start; flex-wrap:wrap; }
 }
 @media(max-width:359px) { .member-overview-page .overview-metrics { grid-template-columns:1fr; } }
+
+/* Compact overview stats mirror the reference count cards. */
+#ds-tenant-dashboard #sec .member-overview-page .overview-metric { gap:6px; padding:12px; background:#1b2429; border-color:#303c43; }
+.member-overview-page .overview-metric-heading { justify-content:space-between; align-items:center; gap:8px; color:#aec7db; font-size:11px; line-height:18px; font-weight:500; }
+.member-overview-page .overview-metric-heading .material-symbols-outlined { flex:0 0 24px; width:24px; height:24px; border-radius:7px; font-size:16px; }
+.overview-metric-value { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.overview-metric-value > strong { color:#a3e635; font:600 28px/34px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
+.overview-metric-badge { padding:2px 6px; border:1px solid #a3e63530; border-radius:5px; background:#a3e63510; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; }
+.overview-metric-track { height:4px; margin-top:2px; overflow:hidden; border-radius:999px; background:#29343a; }
+.overview-metric-track > span { display:block; height:100%; border-radius:inherit; background:#a3e635; }
+.member-overview-page .overview-metric-footer { padding:0; border:0; align-items:center; font-size:10px; line-height:16px; }
+.member-overview-page .overview-metric-footer a { flex:0 0 20px; height:20px; background:none; color:#8fa7b5; }
+.member-overview-page .overview-metric-footer .material-symbols-outlined { font-size:13px; }
