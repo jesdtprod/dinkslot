@@ -4351,3 +4351,9 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   .site-header .site-brand > div:last-child > span:first-child { font-size:12px; }
   .site-header > div { padding-inline:8px; }
 }
+
+/* Mobile account entry uses the avatar only. */
+@media(max-width:640px) {
+  #nav.member-nav .facility-account-text, #nav.member-nav .facility-chevron { display:none; }
+  #nav.member-nav .facility-account summary { justify-content:center; width:40px; min-width:40px; height:40px; padding:5px; }
+}
