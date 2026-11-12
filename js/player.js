@@ -334,7 +334,7 @@
       return closes <= opens ? now >= opens || now < closes : now >= opens && now < closes;
     }
     // Use the same compact header and account summary as Member Overview.
-    var heroHtml = '<section class="member-overview-header" data-purpose="page-hero-banner"><div class="member-overview-intro"><span class="member-overview-eyebrow">Player Workspace</span><h1>Find a Club</h1><p>Explore clubs, compare courts, and find your next place to play.</p></div>' +
+    var heroHtml = '<section class="member-overview-header" data-purpose="page-hero-banner"><div class="member-overview-intro"><span class="member-overview-eyebrow">Discover Your Next Court</span><h1>Find a Club</h1><p>Explore clubs, compare courts, and find your next place to play.</p></div>' +
       '<div class="member-overview-stats"><div><span class="member-overview-stat-label">Clubs</span><span class="member-overview-stat-value">' + all.length + '</span><small>Available to explore</small></div><div><span class="member-overview-stat-label">Active Courts</span><span class="member-overview-stat-value">' + allCourts.length + '</span><small>Across the network</small></div><div><span class="member-overview-stat-label">My Clubs</span><span class="member-overview-stat-value">' + mc.clubs.length + '</span><small>Joined memberships</small></div></div></section>';
 
     var filterBarHtml = '<section class="club-directory-tools" data-purpose="search-and-filter-bar">' +

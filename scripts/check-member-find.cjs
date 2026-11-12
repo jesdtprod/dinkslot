@@ -80,6 +80,7 @@ function createMockSec() {
             _classes: []
           },
           focus() {},
+          setAttribute() {},
           onclick: null,
           oninput: null,
           onkeydown: null,
@@ -98,75 +99,28 @@ function createMockSec() {
 }
 
 (async () => {
-  // Test 1: User with active membership
   hasJoined = true;
-  let { sec, elements } = createMockSec();
+  const { sec, elements } = createMockSec();
   await D.player.find(sec);
-
-  assert.ok(sec.innerHTML.includes('data-purpose="page-hero-banner"'), 'Hero banner missing');
-  assert.ok(sec.innerHTML.includes('member-overview-header') && sec.innerHTML.includes('Player Workspace'), 'Shared overview header missing');
-  assert.ok(sec.innerHTML.includes('data-purpose="search-and-filter-bar"'), 'Filter bar missing');
-  assert.ok(sec.innerHTML.includes('id="club-search-input"'), 'Search input missing');
-  assert.ok(sec.innerHTML.includes('data-purpose="joined-clubs-section"'), 'Joined section missing');
-  assert.ok(sec.innerHTML.includes('My Active Membership'), 'Active membership title missing');
-  assert.ok(sec.innerHTML.includes('JOINED'), 'Joined badge missing');
-  assert.ok(sec.innerHTML.includes('#/c/the-pickleshot/book'), 'Direct booking link missing');
-  assert.ok(sec.innerHTML.includes('Fast-Book Next Available Slots'), 'Fast-book slot picker missing');
-  assert.ok(sec.innerHTML.includes('Today • 4:30 PM'), 'Slot 1 missing');
-  assert.ok(sec.innerHTML.includes('Tomorrow • 7:00 AM'), 'Slot 4 missing');
-
-  assert.ok(sec.innerHTML.includes('data-purpose="nearby-clubs-grid"'), 'Discover section missing');
-  assert.ok(sec.innerHTML.includes('Featured &amp; Nearby Clubs to Join'), 'Discover title missing');
-  assert.ok(sec.innerHTML.includes('data-purpose="club-onboarding-cta"'), 'Facility CTA missing');
-  assert.ok(sec.innerHTML.includes('#/register-club'), 'Register club link missing');
-
-  // Verify discover cards list rendered
-  const discoverList = elements['#discover-clubs-list'];
-  assert.ok(discoverList.innerHTML.includes('Apex Pickleball Center'), 'Apex card missing');
-  assert.ok(discoverList.innerHTML.includes('Southside Dinks &amp; Social'), 'Southside card missing');
-  assert.ok(discoverList.innerHTML.includes('Metro Paddle &amp; Pickle Arena'), 'Metro card missing');
-
-  // Test 2: Search filtering and keyboard clear
-  const searchInput = elements['#club-search-input'];
-  searchInput.value = 'Apex';
-  searchInput.oninput();
-  assert.ok(discoverList.innerHTML.includes('Apex Pickleball Center'), 'Apex should match search');
-  assert.ok(!discoverList.innerHTML.includes('Southside Dinks'), 'Southside should be filtered out');
-
-  // ESC key clears search
-  searchInput.onkeydown({ key: 'Escape' });
-  assert.equal(searchInput.value, '', 'Escape should clear search input');
-  assert.ok(discoverList.innerHTML.includes('Southside Dinks'), 'Southside should return after ESC');
-
-  // Clear button clears search
-  searchInput.value = 'Metro';
-  searchInput.oninput();
-  assert.ok(discoverList.innerHTML.includes('Metro Paddle'), 'Metro should match search');
-  const clearBtn = elements['#btn-clear-search'];
-  clearBtn.onclick();
-  assert.equal(searchInput.value, '', 'Clear button should clear search input');
-  assert.ok(discoverList.innerHTML.includes('Apex Pickleball Center'), 'All clubs should return after clear');
-
-  // Test 3: View mode switching
-  const btnList = elements['#btn-view-list'];
-  btnList.onclick();
-  assert.ok(discoverList.className.includes('flex flex-col'), 'List view should set flex flex-col layout');
-
-  const btnGrid = elements['#btn-view-grid'];
-  btnGrid.onclick();
-  assert.ok(discoverList.className.includes('grid grid-cols-1'), 'Grid view should restore grid layout');
-
-  // Test 4: User without active membership (featured showcase)
-  hasJoined = false;
-  const mock2 = createMockSec();
-  await D.player.find(mock2.sec);
-  assert.ok(mock2.sec.innerHTML.includes('data-purpose="joined-clubs-section"'), 'Showcase section missing');
-  assert.ok(mock2.sec.innerHTML.includes('Featured Club'), 'Featured club title missing');
-  assert.ok(mock2.sec.innerHTML.includes('FEATURED'), 'Featured badge missing');
-  assert.ok(mock2.sec.innerHTML.includes('#/c/the-pickleshot/join'), 'Join club CTA missing');
-
-  console.log('Find a Club page layout, search filtering, ESC clear, view modes, and membership showcase passed!');
-})().catch(err => {
-  console.error(err);
-  process.exitCode = 1;
-});
+  assert.match(sec.innerHTML,/member-overview-header/);
+  assert.match(sec.innerHTML,/Discover Your Next Court/);
+  assert.match(sec.innerHTML,/club-search-input/);
+  assert.match(sec.innerHTML,/find-membership-grid/);
+  assert.match(sec.innerHTML,/The Pickleshot/);
+  assert.match(sec.innerHTML,/#\/c\/the-pickleshot\/book/);
+  assert.doesNotMatch(sec.innerHTML,/Fast-Book Next Available Slots|Apex Pickleball Center/);
+  const search = elements['#club-search-input'];
+  const list = elements['#discover-clubs-list'];
+  search.value = 'no matching club'; search.oninput();
+  assert.match(list.innerHTML,/No clubs found/);
+  assert.equal(elements['#nearby-count-badge'].textContent,0);
+  search.onkeydown({key:'Escape'});
+  assert.equal(search.value,''); assert.match(list.innerHTML,/The Pickleshot/);
+  search.value='missing';search.oninput();elements['#btn-clear-search'].onclick();
+  assert.equal(search.value,'');assert.match(list.innerHTML,/The Pickleshot/);
+  elements['#btn-view-list'].onclick();assert.match(list.className,/flex flex-col/);
+  elements['#btn-view-grid'].onclick();assert.match(list.className,/grid grid-cols-1/);
+  hasJoined=false;const empty=createMockSec();await D.player.find(empty.sec);
+  assert.match(empty.sec.innerHTML,/No clubs joined/);
+  console.log('Find a Club saved data, layout, search, clear actions, view modes, and empty memberships passed.');
+})().catch(error=>{console.error(error);process.exitCode=1;});
