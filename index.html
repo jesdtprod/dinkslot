@@ -207,7 +207,7 @@
       }
     };
   </script>
-  <link rel="stylesheet" href="css/app.css?v=435" />
+  <link rel="stylesheet" href="css/app.css?v=436" />
   <link rel="stylesheet" href="css/member.css?v=406" />
   <link rel="stylesheet" href="css/ticket.css?v=406" />
   <link rel="stylesheet" href="css/booking-grid.css?v=406" />
@@ -220,7 +220,7 @@
     #app-startup .home-skeleton, #app-startup .boot-skeleton { display:none; }
     html:not(.boot-dashboard) body.app-booting #app-startup .home-skeleton { display:block; }
     html.boot-dashboard body.app-booting #app-startup .boot-skeleton { display:flex; }
-    .home-skeleton { --hs-bg:#10141a; --hs-panel:#1a2026; --hs-line:#ffffff10; --hs-a:#222b31; --hs-b:#313d44; box-sizing:border-box; min-height:100dvh; background:var(--hs-bg) radial-gradient(#a3e63512 1px,transparent 1px) 0 0/24px 24px; overflow:hidden; }
+    .home-skeleton { --hs-bg:#0a0e14; --hs-panel:#1a2026; --hs-line:#ffffff10; --hs-a:#222b31; --hs-b:#313d44; box-sizing:border-box; min-height:100dvh; background:var(--hs-bg) radial-gradient(#a3e63512 1px,transparent 1px) 0 0/24px 24px; overflow:hidden; }
     .home-skeleton *, .home-skeleton *::before { box-sizing:border-box; }
     .home-skeleton i { display:block; flex:none; height:14px; border-radius:8px; background:linear-gradient(100deg,var(--hs-a) 20%,var(--hs-b) 40%,var(--hs-a) 60%) 0 0/200% 100%; animation:hs-sweep 1.4s linear infinite; }
     .home-skeleton i.hs-accent { --hs-a:#a3e63540; --hs-b:#a3e63570; }
@@ -231,23 +231,24 @@
     .home-skeleton .hs-links { display:none; }
     .home-skeleton .hs-actions { display:flex; gap:6px; }
     .home-skeleton .hs-actions i { width:40px; height:40px; border-radius:10px; }
+    .home-skeleton .hs-actions i:last-child { border-radius:9999px; }
     .home-skeleton .hs-hero { display:flex; flex-direction:column; align-items:center; padding:24px 20px; }
-    .home-skeleton .hs-eyebrow { width:100%; height:44px; border-radius:22px; }
-    .home-skeleton .hs-h1 { width:92%; height:36px; margin-top:24px; }
-    .home-skeleton .hs-h1 + .hs-h1 { width:56%; margin-top:10px; }
-    .home-skeleton .hs-sub { width:96%; margin-top:20px; }
-    .home-skeleton .hs-sub + .hs-sub { width:88%; margin-top:10px; } .home-skeleton .hs-sub + .hs-sub + .hs-sub { width:70%; }
-    .home-skeleton .hs-panel { width:100%; margin-top:24px; padding:16px 8px; border:1px solid var(--hs-line); border-radius:16px; background:var(--hs-panel); }
-    .home-skeleton .hs-controls { display:grid; gap:24px; }
-    .home-skeleton .hs-controls i { height:52px; border-radius:10px; }
-    .home-skeleton .hs-controls i.hs-accent { height:40px; margin-top:-14px; }
-    .home-skeleton .hs-filters { display:grid; gap:8px; margin-top:16px; padding:0 8px; }
+    .home-skeleton .hs-eyebrow { width:min(350px,100%); height:44px; border-radius:9999px; }
+    .home-skeleton .hs-h1 { width:92%; height:36px; margin-top:20px; }
+    .home-skeleton .hs-h1 + .hs-h1 { width:56%; height:36px; margin-top:10px; }
+    .home-skeleton .hs-sub { width:96%; margin-top:16px; }
+    .home-skeleton .hs-sub + .hs-sub { width:88%; margin-top:8px; } .home-skeleton .hs-sub + .hs-sub + .hs-sub { width:70%; }
+    .home-skeleton .hs-panel { width:100%; margin-top:24px; padding:8px; border:1px solid var(--hs-line); border-radius:16px; background:var(--hs-panel); }
+    .home-skeleton .hs-controls { display:grid; gap:8px; }
+    .home-skeleton .hs-controls i { height:48px; border-radius:12px; }
+    .home-skeleton .hs-controls i.hs-accent { height:44px; margin-top:0; }
+    .home-skeleton .hs-filters { display:grid; gap:8px; margin-top:10px; padding:10px 8px 6px; border-top:1px solid var(--hs-line); }
     .home-skeleton .hs-filters i { height:38px; border-radius:10px; }
-    .home-skeleton .hs-filters i:first-child { width:70px; height:14px; margin-bottom:6px; }
-    .home-skeleton .hs-filters i:last-child { width:180px; height:12px; margin-top:6px; }
+    .home-skeleton .hs-filters i:first-child { width:56px; height:14px; margin:0; }
+    .home-skeleton .hs-filters i:last-child { width:200px; height:12px; margin:4px 0 0; }
     .home-skeleton .hs-stats { display:grid; grid-template-columns:1fr 1fr; gap:24px; width:100%; margin-top:24px; }
-    .home-skeleton .hs-stats span { display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .home-skeleton .hs-stats i { width:72%; height:32px; } .home-skeleton .hs-stats i + i { width:84%; height:10px; }
+    .home-skeleton .hs-stats span { display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .home-skeleton .hs-stats i { width:72%; height:32px; } .home-skeleton .hs-stats i + i { width:84%; height:12px; }
     .home-skeleton .hs-inventory { padding:24px 20px; }
     .home-skeleton .hs-inv-head > div:first-child i { width:160px; height:12px; }
     .home-skeleton .hs-inv-head > div:first-child i + i { width:90%; height:30px; margin-top:16px; }
@@ -267,17 +268,18 @@
       .home-skeleton .hs-logo { width:48px; height:48px; }
       .home-skeleton .hs-name { width:100px; height:20px; }
       .home-skeleton .hs-actions { gap:16px; align-items:center; }
-      .home-skeleton .hs-actions i { width:92px; height:36px; } .home-skeleton .hs-actions i + i { width:160px; height:38px; }
+      .home-skeleton .hs-actions i { width:92px; height:36px; border-radius:10px; } .home-skeleton .hs-actions i + i { width:160px; height:38px; border-radius:9999px; }
       .home-skeleton .hs-hero { padding:40px; }
       .home-skeleton .hs-eyebrow { width:434px; height:28px; border-radius:14px; }
       .home-skeleton .hs-h1 { width:390px; height:52px; margin-top:28px; }
-      .home-skeleton .hs-h1 + .hs-h1 { width:390px; margin-top:12px; }
+      .home-skeleton .hs-h1 + .hs-h1 { width:390px; height:52px; margin-top:12px; }
       .home-skeleton .hs-sub { width:min(672px,100%); height:16px; margin-top:22px; }
       .home-skeleton .hs-sub + .hs-sub { width:min(580px,90%); margin-top:14px; } .home-skeleton .hs-sub + .hs-sub + .hs-sub { display:none; }
       .home-skeleton .hs-panel { max-width:1280px; margin-top:40px; padding:16px; }
       .home-skeleton .hs-controls { grid-template-columns:4fr 3fr 3fr 2fr; gap:8px; }
+      .home-skeleton .hs-controls i { height:52px; border-radius:10px; }
       .home-skeleton .hs-controls i.hs-accent { height:52px; margin-top:0; }
-      .home-skeleton .hs-filters { display:flex; align-items:center; gap:8px; margin-top:10px; padding:10px 8px 0; }
+      .home-skeleton .hs-filters { display:flex; align-items:center; gap:8px; margin-top:10px; padding:10px 8px 0; border-top:1px solid var(--hs-line); }
       .home-skeleton .hs-filters i { width:120px; } .home-skeleton .hs-filters i:nth-child(3) { width:135px; } .home-skeleton .hs-filters i:nth-child(4) { width:148px; }
       .home-skeleton .hs-filters i:first-child { width:56px; margin:0; } .home-skeleton .hs-filters i:last-child { width:200px; margin:0 0 0 auto; }
       .home-skeleton .hs-stats { grid-template-columns:repeat(4,1fr); max-width:896px; margin-top:40px; }
@@ -322,9 +324,9 @@
     <!-- Landing skeleton: mirrors header, hero, search panel, stats and club cards at every breakpoint -->
     <div class="home-skeleton" aria-hidden="true">
       <div class="hs-nav"><div class="hs-brand"><i class="hs-logo"></i><i class="hs-name"></i></div><div class="hs-links"><i></i><i></i><i></i></div><div class="hs-actions"><i></i><i class="hs-accent"></i></div></div>
-      <div class="hs-hero"><i class="hs-eyebrow"></i><i class="hs-h1"></i><i class="hs-h1"></i><i class="hs-sub"></i><i class="hs-sub"></i><i class="hs-sub"></i>
-        <div class="hs-panel"><div class="hs-controls"><i></i><i></i><i></i><i class="hs-accent"></i></div><div class="hs-filters"><i></i><i></i><i></i><i></i><i></i></div></div>
-        <div class="hs-stats"><span><i></i><i></i></span><span><i></i><i></i></span><span><i></i><i></i></span><span><i></i><i></i></span></div>
+      <div class="hs-hero"><i class="hs-eyebrow"></i><i class="hs-h1"></i><i class="hs-h1 hs-accent"></i><i class="hs-sub"></i><i class="hs-sub"></i><i class="hs-sub"></i>
+        <div class="hs-panel"><div class="hs-controls"><i></i><i></i><i></i><i class="hs-accent"></i></div><div class="hs-filters"><i></i><i class="hs-accent"></i><i></i><i></i><i></i></div></div>
+        <div class="hs-stats"><span><i class="hs-accent"></i><i></i></span><span><i></i><i></i></span><span><i class="hs-accent"></i><i></i></span><span><i></i><i></i></span></div>
       </div>
       <div class="hs-inventory"><div class="hs-inv-head"><div><i></i><i></i><i></i></div><div class="hs-tabs"><i></i><i></i><i></i></div></div><i class="hs-badge"></i>
         <div class="hs-cards"><div class="hs-card"><i></i><div><i></i><i></i><i></i><p><i></i><i class="hs-accent"></i></p></div></div><div class="hs-card"><i></i><div><i></i><i></i><i></i><p><i></i><i class="hs-accent"></i></p></div></div><div class="hs-card"><i></i><div><i></i><i></i><i></i><p><i></i><i class="hs-accent"></i></p></div></div><div class="hs-card"><i></i><div><i></i><i></i><i></i><p><i></i><i class="hs-accent"></i></p></div></div></div>
