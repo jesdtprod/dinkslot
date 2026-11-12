@@ -75,12 +75,13 @@
   function mountCaptcha(container) {
     var h = { token: null, id: null };
     var tries = 0;
+    var challengeRetries = 0, retryTimer;
     var dismissCaptchaToast = function () {};
     function showCaptchaError(text) {
       if (!container.isConnected) return;
       dismissCaptchaToast = setMsg(app, text, "err", {
         label: "Retry check",
-        run: function () { h.reset(); arm(); }
+        run: function () { challengeRetries = 0; h.reset(); }
       }) || function () {};
     }
     var slow;
@@ -90,17 +91,24 @@
         if (!h.token) showCaptchaError("The human check is taking longer than expected.");
       }, 20000);
     }
-    (function wait() {
+    function wait() {
       if (!container.isConnected) return;
       if (window.turnstile) {
         h.id = window.turnstile.render(container, {
           sitekey: cfg.TURNSTILE_SITE_KEY,
           theme: "dark",
           size: "flexible",
-          callback: function (t) { h.token = t; dismissCaptchaToast(); clearTimeout(slow); },
+          retry: "never",
+          callback: function (t) { h.token = t; challengeRetries = 0; dismissCaptchaToast(); clearTimeout(slow); clearTimeout(retryTimer); },
           "expired-callback": function () { h.token = null; },
           "error-callback": function (code) {
             h.token = null; clearTimeout(slow);
+            if (/^(300|600|200)/.test(String(code)) && challengeRetries < 2) {
+              challengeRetries++;
+              clearTimeout(retryTimer);
+              retryTimer = setTimeout(function () { if (container.isConnected) h.reset(); }, challengeRetries * 1500);
+              return true;
+            }
             showCaptchaError("Human check error" + (code ? " (" + code + ")" : "") + ". Check your connection or disable ad blockers for this site, then retry.");
             return true;
           }
@@ -111,8 +119,14 @@
       } else {
         showCaptchaError("The human check could not load. Check your connection and try again.");
       }
-    })();
-    h.reset = function () { h.token = null; if (window.turnstile && h.id != null) window.turnstile.reset(h.id); else location.reload(); };
+    }
+    h.reset = function () {
+      h.token = null; clearTimeout(slow); clearTimeout(retryTimer); dismissCaptchaToast();
+      if (!container.isConnected) return;
+      if (window.turnstile && h.id != null) { window.turnstile.remove(h.id); h.id = null; }
+      tries = 0; wait();
+    };
+    wait();
     return h;
   }
 
