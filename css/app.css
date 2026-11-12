@@ -3608,6 +3608,11 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .reservation-review-hold .material-symbols-outlined { font-size: 15px; }
 .reservation-card-actions .booking-pass-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .reservation-card-actions .reservation-review-hold { box-sizing: border-box; flex: 0 0 auto; width: auto; height: 36px; min-height: 36px; margin: 0; padding: 0 8px; border-radius: var(--ui-radius, 10px); font-size: 10px; line-height: 18px; white-space: nowrap; }
+/* A single geometry rule wins over shared button padding and size defaults. */
+html body #ds-tenant-dashboard #sec .reservation-card-actions { display:flex; align-items:center; gap:8px; }
+html body #ds-tenant-dashboard #sec .reservation-card-actions > :is(.booking-pass-actions,.reservation-decision-actions) { display:flex; align-items:center; gap:8px; }
+html body #ds-tenant-dashboard #sec .reservation-card-actions :is(button,.reservation-review-hold) { box-sizing:border-box !important; height:36px !important; min-height:36px !important; max-height:36px !important; padding-top:0 !important; padding-bottom:0 !important; margin-top:0; margin-bottom:0; border-radius:10px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; vertical-align:middle; transform:none !important; }
+html body #ds-tenant-dashboard #sec .reservation-card-actions .booking-decision-action { width:36px !important; min-width:36px !important; max-width:36px !important; padding:0 !important; }
 .reservation-review-card .msg:empty { display: none; }
 
 .reservation-payment-status { display: flex; flex-wrap: wrap; align-items: flex-end; flex-direction: column; gap: 5px; }
