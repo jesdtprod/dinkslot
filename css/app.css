@@ -3900,3 +3900,36 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .transfer-actions, .booking-payment-modal .payment-panel .proof .transfer-actions { position: static; display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; border: 0; background: transparent; }
 @media(max-width:1023px) { #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > .booking-steps, #ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside { grid-column: 1 / -1; grid-row: auto; } }
 @media(max-width:550px) { .transfer-account-grid { grid-template-columns: minmax(0,1fr); } .transfer-qr { width: min(210px,100%); margin-inline: auto; } .transfer-payment .payment-account-options { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+
+/* Independent payment cards: no enclosing background, border, or inset spacing. */
+#ds-book-page #paypanel,
+#ds-book-page #paypanel > .payment-panel.transfer-payment,
+.booking-payment-modal .payment-panel.transfer-payment { padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+#ds-book-page #paypanel > .payment-panel.transfer-payment > .proof.transfer-form { padding: 0; margin: 0; border: 0; background: transparent; }
+.transfer-payment .transfer-card { padding: 16px; border-radius: 12px; background: #1c2026; border-color: #ffffff0d; }
+.transfer-payment .transfer-card > header { margin-bottom: 12px; gap: 8px; }
+.transfer-payment .transfer-card header :is(h2,h3) { font-size: 13px; font-weight: 600; line-height: 20px; }
+.transfer-payment .transfer-card header p { font-size: 10px; line-height: 16px; }
+.transfer-payment .payment-method-groups { padding: 3px; gap: 4px; border: 1px solid #ffffff08; border-radius: 8px; background: #0a0e14; }
+.transfer-payment .payment-group { min-height: 32px; font-size: 11px; border-radius: 6px; }
+.transfer-payment .payment-group[aria-pressed="true"] { background: #ccff80; border-color: #ccff80; color: #213600; }
+.transfer-payment .transfer-label { font-size: 9px; line-height: 15px; }
+.transfer-method > .transfer-label { margin: 12px 0 8px; padding-top: 10px; border-top: 1px solid #ffffff0a; text-transform: uppercase; letter-spacing: .04em; }
+.transfer-payment .qrtab { min-height: 48px; padding: 8px; border-radius: 8px; background: #181c22; border-color: #ffffff12; }
+.transfer-payment .qrtab > strong { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; font-size: 10px; }
+.transfer-payment .qrtab small { font-size: 10px; }
+.receiver-check { visibility: hidden; font-size: 13px; }
+.qrtab[aria-pressed="true"] .receiver-check { visibility: visible; }
+.transfer-payment .qrtab[aria-pressed="true"] { background: #ccff8010; border-color: #ccff80; color: #ccff80; }
+.transfer-account-grid { grid-template-columns: minmax(0,190px) minmax(0,1fr); }
+.transfer-qr-block { padding: 10px; border-radius: 10px; background: #0a0e14; min-width: 0; }
+.transfer-qr-label { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; color: #ccff80; font-size: 9px; }
+.transfer-qr-label .material-symbols-outlined { font-size: 14px; }
+.transfer-qr { padding: 8px; border-radius: 9px; }
+.transfer-save-qr { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 6px; margin-top: 8px; border: 1px solid #ffffff12; border-radius: 6px; color: #c5d2da; background: #262a31; font-size: 10px; text-decoration: none; }
+.transfer-save-qr .material-symbols-outlined { font-size: 14px; }
+.transfer-account-copy > div { background: #181c22; border-color: #ffffff0a; }
+.transfer-payment .transfer-steps { font-size: 10px; line-height: 17px; }
+.transfer-receipt .payment-receipt-upload { background: #181c22; border-color: #424936; border-radius: 10px; }
+.transfer-receipt .payment-receipt-name { font-size: 11px; }
+@media(max-width:550px) { .transfer-account-grid { grid-template-columns: minmax(0,1fr); } .transfer-qr-block { width: min(210px,100%); margin-inline: auto; } }
