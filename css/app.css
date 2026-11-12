@@ -4592,3 +4592,14 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 #ds-book-page .payment-success-card > div:nth-child(3) > div { display:grid; grid-template-columns:72px minmax(0,1fr); align-items:start; gap:12px; line-height:18px; }
 #ds-book-page .payment-success-card > div:nth-child(3) > div + div { margin-top:8px; }
 #ds-book-page .payment-success-card > div:nth-child(3) > div > span:last-child { min-width:0; text-align:right; overflow-wrap:anywhere; }
+
+#ds-book-page .payment-success-card { display:flex; flex-direction:column; align-items:stretch; gap:20px; padding:32px 28px; }
+#ds-book-page .payment-success-card > :not([hidden]) ~ :not([hidden]) { margin-top:0; }
+#ds-book-page .payment-success-card > div:nth-child(2) { display:flex; flex-direction:column; align-items:center; gap:8px; }
+#ds-book-page .payment-success-card h2, #ds-book-page .payment-success-card p { margin:0; }
+#ds-book-page .payment-success-card > div:nth-child(3) { width:100%; box-sizing:border-box; }
+#ds-book-page .payment-success-card > div:last-child { gap:10px; padding-top:0; }
+@media (max-width:639px) {
+  #ds-book-page .payment-success-card { padding:24px 16px; gap:16px; }
+  #ds-book-page .payment-success-card > div:last-child > a { box-sizing:border-box; min-height:42px; display:flex; align-items:center; justify-content:center; padding:10px 12px; }
+}
