@@ -23,8 +23,8 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.match(normal.innerHTML,/Needs approval/);
   assert.match(normal.innerHTML,/Unpaid/);
   assert.match(normal.innerHTML,/data-ok="pending"[^>]*disabled/);
-  assert.match(normal.innerHTML,/data-ticket="pending"[^>]*disabled/);
-  assert.ok(normal.innerHTML.indexOf('reservation-review-hold') > normal.innerHTML.indexOf('data-ticket="pending"'));
+  assert.doesNotMatch(normal.innerHTML,/data-ticket="pending"/);
+  assert.match(normal.innerHTML,/reservation-review-hold/);
   assert.match(normal.innerHTML,/data-exp="[^"]+">\d+:\d{2}<\/b>/);
   assert.doesNotMatch(normal.innerHTML,/data-exp="[^"]+"><\/b>/);
   assert.doesNotMatch(normal.innerHTML,/AM \? /);
@@ -33,8 +33,7 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.match(uploaded.innerHTML,/Proof uploaded/);
   assert.match(uploaded.innerHTML,/Pending verification/);
   assert.match(uploaded.innerHTML,/booking-decision-action view-proof[^>]*data-proof="pending"/);
-  assert.match(uploaded.innerHTML,/booking-decision-action qr-pass[^>]*data-ticket="pending"[^>]*aria-label="View QR pass"/);
-  assert.ok(uploaded.innerHTML.indexOf('data-ticket="pending"') < uploaded.innerHTML.indexOf('data-proof="pending"'));
+  assert.doesNotMatch(uploaded.innerHTML,/data-ticket="pending"/);
   assert.ok(uploaded.innerHTML.indexOf('data-proof="pending"') < uploaded.innerHTML.indexOf('reservation-decision-actions'));
   assert.ok(uploaded.innerHTML.indexOf('data-proof="pending"') < uploaded.innerHTML.indexOf('data-ok="pending"'));
   assert.doesNotMatch(uploaded.innerHTML,/reservation-view-proof/);
