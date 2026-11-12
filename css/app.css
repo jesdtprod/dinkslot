@@ -4291,7 +4291,7 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 #ds-book-page .booking-channel-support > a { flex-shrink:0; white-space:nowrap; }
 @media(min-width:1024px) and (max-width:1200px) { #ds-book-page .booking-channel-support { flex-wrap:wrap; } #ds-book-page .booking-channel-support > a { margin-left:42px; } }
 
-#ds-book-page .booking-payment-channels > span { display:flex; align-items:center; justify-content:center; min-width:0; padding:6px 3px; font-size:9px; }
+#ds-book-page .booking-payment-channels > span { display:flex; align-items:center; justify-content:center; min-width:0; padding:6px 3px; font:500 11px/18px "Plus Jakarta Sans",sans-serif; }
 @media(min-width:1024px) {
   #ds-book-page .booking-layout:has(#slotpanel:not([hidden])) > aside > div:first-child { display:flex; flex-direction:column; align-self:stretch; }
   #ds-book-page .booking-summary-footer { margin-top:auto; }
