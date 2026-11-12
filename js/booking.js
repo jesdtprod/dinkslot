@@ -1253,7 +1253,7 @@
               (py ? '<button type="button" class="proof-icon-action" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">payments</span></button>' : '') +
             '</div>' +
             '<div class="flex items-center gap-2">' +
-              (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">payments</span></button>' : '') +
+              (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now()) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">payments</span></button>' : '') +
               (b.status === "pending"
                 ? '<button class="booking-decision-action approve" data-ok="' + esc(b.id) + '" type="button" aria-label="Approve reservation" title="Approve reservation"><span class="material-symbols-outlined" aria-hidden="true">check</span></button>' +
                   '<button class="booking-decision-action reject" data-no="' + esc(b.id) + '" type="button" aria-label="Reject reservation" title="Reject reservation"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>'
