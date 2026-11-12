@@ -4175,3 +4175,9 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 .payment-instructions-modal > footer > .material-symbols-outlined { font-size: 17px; color: #a3e635; }
 .payment-instructions-modal footer button { margin-left: auto; min-height: 36px; padding: 8px 16px; border: 0; border-radius: 9px; background: #a3e635; color: #182200; font: 600 12px/20px "Plus Jakarta Sans",sans-serif; cursor: pointer; white-space: nowrap; }
 @media(max-width:480px) { .payment-instructions-modal > footer > span:not(.material-symbols-outlined) { font-size: 10px; } }
+
+/* Checkout inherits booking's outer padding; headings share the same rhythm. */
+.checkout-page-intro { margin: 0 0 32px; }
+.checkout-page-intro > span { display: block; margin-bottom: 6px; font-size: 12px; line-height: 16px; }
+.checkout-page-intro > div { margin: 0; gap: 12px; }
+.checkout-page-intro p { margin-top: 4px; }

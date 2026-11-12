@@ -355,7 +355,7 @@
       return '<section class="payment-club-instructions"><h5>Instructions from the club</h5><ul>' + lines.map(function (line) { return '<li>' + esc(line) + '</li>'; }).join("") + '</ul></section>';
     }
     el.innerHTML =
-      '<div class="dink-payment-container max-w-7xl mx-auto w-full relative py-4 sm:py-6 text-slate-100">' +
+      '<div class="dink-payment-container max-w-7xl mx-auto w-full relative text-slate-100">' +
         '<header class="checkout-page-intro"><span>Pickleball Court Reservation</span><div><h1>Complete your payment</h1><span class="checkout-page-badge">Checkout</span></div><p>Pay your reservation fee and attach your receipt to confirm your court booking.</p></header>' +
         '<!-- Top Breadcrumb & Reference Context Bar -->' +
         '<div class="flex flex-wrap items-center justify-between gap-4 mb-6">' +
