@@ -1229,13 +1229,13 @@
 
         var paymentState = Number(b.amount) === 0 ? "free" : py ? (b.status === "approved" ? "paid" : "review") : "unpaid";
         var paymentLabel = { free: "No payment due", paid: "Paid", review: "Pending verification", unpaid: "Unpaid" }[paymentState];
-        var paymentBadge = '<span class="reservation-paid-badge ' + paymentState + '">' + paymentLabel + '</span>';
         var bookingDate = new Date(b.starts_at).toLocaleDateString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric" });
         return '<article class="bcard reservation-review-card" data-b="' + esc(b.id) + '">' +
-          '<header class="reservation-review-header"><div class="reservation-customer"><span class="reservation-customer-avatar" aria-hidden="true">' + esc(initials) + '</span><div class="reservation-customer-copy"><span class="reservation-field-label">Customer</span><h4>' + esc(displayName) + '</h4></div></div><div class="reservation-payment-status">' + paymentBadge + statusBadge + '</div></header>' +
+          '<header class="reservation-review-header"><div class="reservation-customer"><span class="reservation-customer-avatar" aria-hidden="true">' + esc(initials) + '</span><div class="reservation-customer-copy"><span class="reservation-field-label">Customer</span><h4>' + esc(displayName) + '</h4></div></div><div class="reservation-payment-status">' + statusBadge + '</div></header>' +
           '<div class="reservation-customer-phone"><span class="material-symbols-outlined" aria-hidden="true">call</span><span>' + esc(p.phone || "Phone not provided") + '</span></div>' +
           '<dl class="reservation-review-details"><div><dt>Court</dt><dd>' + esc(c.name || "Court") + '</dd></div><div><dt>Amount</dt><dd class="reservation-review-amount">' + money(b.amount) + '</dd></div><div><dt>Date</dt><dd>' + esc(bookingDate) + '</dd></div><div><dt>Time</dt><dd>' + esc(timeOf(new Date(b.starts_at), tz) + " \u2013 " + timeOf(new Date(b.ends_at), tz)) + '</dd></div></dl>' +
           '<div class="reservation-review-reference"><span>Reference</span><strong>' + esc(b.reference_code || "Not available") + '</strong></div>' +
+          '<div class="reservation-review-reference reservation-review-payment"><span>Payment</span><strong class="payment-state-' + paymentState + '">' + paymentLabel + '</strong></div>' +
           (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
           '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
             '<div class="booking-pass-actions">' +

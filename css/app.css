@@ -3606,3 +3606,8 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .reservation-paid-badge.review { color: #fcd34d; border-color: #fbbf2435; background: #fbbf2410; }
 
 .booking-contact-warning { margin-bottom: 12px; padding: 10px 12px; border: 1px solid #fbbf2433; border-radius: 9px; background: #fbbf240d; color: #e8ce87; font: 400 12px/18px "Plus Jakarta Sans", sans-serif; }
+
+.reservation-review-payment { margin-top: 7px; }
+.reservation-review-payment .payment-state-unpaid { color: #fca5a5; }
+.reservation-review-payment .payment-state-review { color: #fcd34d; }
+.reservation-review-payment :is(.payment-state-paid, .payment-state-free) { color: #6ee7b7; }
