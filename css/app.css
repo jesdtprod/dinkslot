@@ -4507,3 +4507,6 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 
 /* Compact spacing between public authentication actions. */
 #nav:has(.auth-nav-switch) { gap:8px; }
+
+/* Equal dimensions for public authentication actions. */
+#nav:has(.auth-nav-switch) :is(.auth-nav-switch,.mobile-icon-nav) { box-sizing:border-box; height:38px; min-height:38px; border-radius:10px !important; }
