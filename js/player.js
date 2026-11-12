@@ -16,6 +16,13 @@
 
   function q(sel, root) { return (root || D.root()).querySelector(sel); }
   function money(n) { return "PHP " + Number(n).toFixed(2); }
+  function playerSkill(user) {
+    var meta = (user && user.user_metadata) || {};
+    var raw = meta.dupr_classification || meta.skill_level || 'unrated';
+    var labels = {unrated:'Not Rated', novice:'Novice', intermediate:'Intermediate', advanced:'Advanced', professional:'Professional'};
+    return labels[String(raw).toLowerCase()] || String(raw).replace(/^dupr\s*/i, '');
+  }
+
   function lowRate(c) { return c.rate_min != null ? Number(c.rate_min) : (c.hourly_rate == null ? NaN : Number(c.hourly_rate)); } // cheapest rate across time bands
 
   function reservationCard(b, court, club) {
@@ -133,9 +140,7 @@
     var user = D.state.user || {};
     var fullName = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email || "Player").split("@")[0];
     var initials = fullName.split(/\s+/).map(function (w) { return w.charAt(0).toUpperCase(); }).slice(0, 2).join("") || "JB";
-    var rawDupr = (user.user_metadata && (user.user_metadata.dupr_classification || user.user_metadata.skill_level)) || 'unrated';
-    var skillLabels = {unrated:'Not Rated', novice:'Novice', intermediate:'Intermediate', advanced:'Advanced', professional:'Professional'};
-    var duprVal = skillLabels[String(rawDupr).toLowerCase()] || String(rawDupr).replace(/^dupr\s*/i, '');
+    var duprVal = playerSkill(user);
     var activeCourtsResult = await sb.from('public_courts').select('id', {count:'exact', head:true});
     if (activeCourtsResult.error) throw activeCourtsResult.error;
     var activeCourtsCount = activeCourtsResult.count;
@@ -953,29 +958,7 @@
                 '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
               '</button>' +
             '</div>' +
-            '<div class="w-full mt-6 pt-5 border-t border-white/10 text-left">' +
-              '<div class="flex items-center justify-between mb-3">' +
-                '<span class="text-[11px] uppercase font-bold tracking-wider text-slate-400">DUPR Official Rating</span>' +
-                '<span class="text-xs font-mono font-bold text-brand-lime flex items-center gap-1">' +
-                  '<span class="w-1.5 h-1.5 rounded-full bg-brand-lime glow-dot"></span>' +
-                  '4.12 Verified' +
-                '</span>' +
-              '</div>' +
-              '<div class="grid grid-cols-3 gap-2 bg-[#090d13] p-2.5 rounded-xl border border-white/5 font-mono text-center">' +
-                '<div class="p-1.5">' +
-                  '<span class="text-[9px] text-slate-500 uppercase block font-sans font-semibold">Singles</span>' +
-                  '<span class="text-sm font-bold text-white">4.05</span>' +
-                '</div>' +
-                '<div class="p-1.5 border-x border-white/10">' +
-                  '<span class="text-[9px] text-slate-500 uppercase block font-sans font-semibold">Doubles</span>' +
-                  '<span class="text-sm font-bold text-brand-lime">4.18</span>' +
-                '</div>' +
-                '<div class="p-1.5">' +
-                  '<span class="text-[9px] text-slate-500 uppercase block font-sans font-semibold">Reliability</span>' +
-                  '<span class="text-sm font-bold text-emerald-400">84%</span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
+            '<div class="member-profile-skill" aria-label="Player skill level"><div><span>Skill Level</span><small>Self-reported</small></div><strong>' + esc(playerSkill(D.state.user)) + '</strong><p>Your saved registration classification.</p></div>' +
           '</div>' +
         '</div>' +
 

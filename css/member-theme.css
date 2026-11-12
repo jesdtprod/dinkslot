@@ -516,3 +516,9 @@
 #app #ds-tenant-dashboard #sec .member-account-page #mp-remove-photo { width:38px; min-width:38px; padding:0 !important; }
 #app #ds-tenant-dashboard #sec .member-account-page #mp-remove-photo:not([hidden]) { display:inline-flex; align-items:center; justify-content:center; }
 #app #ds-tenant-dashboard #sec .member-account-page #mp-remove-photo svg { width:16px; height:16px; }
+
+.member-account-page .member-profile-skill { width:100%; margin-top:20px; padding-top:16px; border-top:1px solid #91a5b21c; text-align:left; }
+.member-account-page .member-profile-skill > div { display:flex; align-items:center; justify-content:space-between; gap:8px; color:#91a5b2; font-size:11px; }
+.member-account-page .member-profile-skill small { padding:2px 7px; border:1px solid #35434b; border-radius:6px; background:#202a30; font-size:10px; }
+.member-account-page .member-profile-skill > strong { display:block; margin-top:10px; color:#a3e635; font:600 20px/28px "Plus Jakarta Sans",sans-serif; }
+.member-account-page .member-profile-skill > p { margin:4px 0 0; color:#91a5b2; font-size:11px; }

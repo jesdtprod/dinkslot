@@ -204,9 +204,24 @@ function createMockSec() {
   assert.ok(sec.innerHTML.includes('id="mp-preview"'), 'Avatar preview missing');
   assert.ok(sec.innerHTML.includes('id="card-player-name"'), 'Card player name missing');
   assert.ok(sec.innerHTML.includes('Member since'), 'Member since text missing');
-  assert.ok(sec.innerHTML.includes('DUPR Official Rating'), 'DUPR official rating label missing');
-  assert.ok(sec.innerHTML.includes('4.12 Verified'), 'DUPR 4.12 score missing');
-  assert.ok(sec.innerHTML.includes('Singles') && sec.innerHTML.includes('Doubles'), 'Singles/Doubles ratings missing');
+  assert.ok(sec.innerHTML.includes('Skill Level'), 'Saved skill classification missing');
+  assert.ok(sec.innerHTML.includes('Not Rated'), 'Missing classification should be Not Rated');
+  assert.ok(sec.innerHTML.includes('Self-reported'), 'Classification source missing');
+  for (const sample of ['4.12 Verified', '>4.05<', '>4.18<', '>84%<', 'DUPR Official Rating']) {
+    assert.ok(!sec.innerHTML.includes(sample), 'Hardcoded rating must not appear: ' + sample);
+  }
+  for (const [metadata, expected] of [
+    [{dupr_classification:'intermediate'}, 'Intermediate'],
+    [{skill_level:'novice'}, 'Novice'],
+    [{dupr_classification:'advanced', skill_level:'novice'}, 'Advanced'],
+    [{dupr_classification:'<script>alert(1)</script>'}, '&lt;script&gt;alert(1)&lt;/script&gt;']
+  ]) {
+    D.state.user.user_metadata = metadata;
+    const preview = createMockSec();
+    await D.player.profile(preview.sec);
+    assert.ok(preview.sec.innerHTML.includes(expected), 'Profile must display saved classification safely');
+  }
+  D.state.user.user_metadata = {full_name:'Marlon Quinto'};
 
   // Removed sidebar cards and section navigation
   for (const content of ['turnstile-speed-pass', 'Turnstile PIN Code', 'VIP Facility Member', '#section-identity', '#section-address', '#section-specs']) {
