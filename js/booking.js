@@ -1913,7 +1913,7 @@
         box.querySelector("[data-retry-queue]").onclick = load;
         return;
       }
-      var pays = paymentResult.data || [];
+      var pays = (paymentResult.data || []).filter(function (payment) { return !payment.deleted_at; });
       // The scoped RPC supplies real profile names without granting access to profile rows.
       var contacts = typeof sb.rpc === "function" ? await sb.rpc("club_player_contacts", { p_tenant_id: t.id }) : { data: [] };
       var contactMap = {};
@@ -1950,6 +1950,7 @@
           '<dl class="reservation-review-details"><div><dt>Court</dt><dd>' + esc(c.name || "Court") + '</dd></div><div><dt>Amount</dt><dd class="reservation-review-amount">' + money(b.amount) + '</dd></div><div><dt>Date</dt><dd>' + esc(bookingDate) + '</dd></div><div><dt>Time</dt><dd>' + esc(timeOf(new Date(b.starts_at), tz) + " \u2013 " + timeOf(new Date(b.ends_at), tz)) + '</dd></div></dl>' +
           '<div class="reservation-review-reference"><span>Reference</span><strong>' + esc(b.reference_code || "Not available") + '</strong></div>' +
           '<div class="reservation-review-reference reservation-review-payment"><span>Payment</span><strong class="payment-state-' + paymentState + '">' + paymentLabel + '</strong></div>' +
+          (py && py.proof_path ? '<button type="button" class="reservation-view-proof proof-icon-action" data-proof="' + esc(b.id) + '"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>View Payment Proof</button>' : '') +
           (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
           '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
             '<div class="booking-pass-actions">' +
@@ -1957,7 +1958,6 @@
                 '<svg class="w-4 h-4 text-brand-lime" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v3h-3v-3zm-5 0h3v3h-3v-3zm2 2h2v4h-2v-4zm3 3h3v3h-3v-3zm-5 2h3v1h-3v-1z"/></svg>' +
                 'QR Pass' +
               '</button>' +
-              (py ? '<button type="button" class="proof-icon-action" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">payments</span></button>' : '') +
             '</div>' +
             '<div class="flex items-center gap-2">' +
               (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now()) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span></button>' : '') +
@@ -2099,7 +2099,9 @@
       });
     }
     await load();
-    chan = sb.channel("queue-" + t.id).on("postgres_changes", { event: "*", schema: "public", table: "bookings", filter: "tenant_id=eq." + t.id }, function () { load(); }).subscribe();
+    chan = sb.channel("queue-" + t.id)
+      .on("postgres_changes", { event: "*", schema: "public", table: "bookings", filter: "tenant_id=eq." + t.id }, function () { load(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "booking_payments", filter: "tenant_id=eq." + t.id }, function () { load(); }).subscribe();
     poll = setInterval(load, 20000);
   }
 
