@@ -1483,6 +1483,9 @@
         return;
       }
       var b = r.data;
+      var checkoutParams = new URLSearchParams();
+      checkoutParams.set("booking", b.id);
+      history.replaceState(null, "", location.pathname + location.search + "#/c/" + slug + "/book?" + checkoutParams.toString());
       var step12 = q("#booking-step1-2-wrapper", root);
       if (step12) step12.hidden = true;
       var step3 = q("#booking-step3-wrapper", root);
@@ -1495,6 +1498,7 @@
             if (btn2) btn2.parentElement.innerHTML = '<p class="text-xs text-emerald-400 font-semibold text-center">Proof uploaded. View status in <a class="underline text-neon-lime" href="#/me">My Bookings</a></p>';
           },
           onBack: function () {
+            history.replaceState(null, "", location.pathname + location.search + "#/c/" + slug + "/book");
             step3.hidden = true;
             if (step12) step12.hidden = false;
             drawSlots();
@@ -1515,14 +1519,17 @@
     if (reserveSidebarBtn) reserveSidebarBtn.onclick = doReserve;
 
     drawCourtCards();
-    var pc = pre.get("court");
-    if (pc && courts.some(function (c) { return c.id === pc; })) pickCourt(pc);
-    else if (courts.length > 0) pickCourt(courts[0].id);
-
     var pendingBookingId = pre.get("booking");
+    var pc = pre.get("court");
+    if (!pendingBookingId && pc && courts.some(function (c) { return c.id === pc; })) pickCourt(pc);
+    else if (!pendingBookingId && courts.length > 0) pickCourt(courts[0].id);
     if (pendingBookingId) {
-      var bkRes = await sb.from("bookings").select("*").eq("id", pendingBookingId).maybeSingle();
-      if (bkRes.data && bkRes.data.status === "pending") {
+      var bkRes = await sb.from("bookings").select("*").eq("id", pendingBookingId).eq("tenant_id", club.id).eq("player_id", me.id).maybeSingle();
+      if (bkRes.error || !bkRes.data) {
+        root.innerHTML = '<div class="max-w-xl mx-auto py-12 text-center"><h2>Unable to restore checkout</h2><p>Your reservation could not be loaded. Open My Bookings to check its status.</p><a class="btn" href="#/me/bookings">My Bookings</a></div>';
+        return;
+      }
+      if (bkRes.data) {
         var step12 = q("#booking-step1-2-wrapper", root);
         if (step12) step12.hidden = true;
         var step3 = q("#booking-step3-wrapper", root);
@@ -1532,6 +1539,8 @@
             club: club,
             court: courts.find(function(c) { return c.id === bkRes.data.court_id; }),
             onBack: function () {
+              history.replaceState(null, "", location.pathname + location.search + "#/c/" + slug + "/book");
+              if (!S.court && courts.length) pickCourt(courts[0].id);
               step3.hidden = true;
               if (step12) step12.hidden = false;
               drawSlots();
