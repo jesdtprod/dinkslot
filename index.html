@@ -215,91 +215,741 @@
   <link rel="stylesheet" href="css/map.css" />
   <link rel="stylesheet" href="css/inputs.css?v=406" />
   <link rel="stylesheet" href="css/member-theme.css?v=455" />
-  <script>document.documentElement.classList.toggle('boot-dashboard', /^#\/(admin|platform|me)(\/|\?|$)/.test(location.hash));</script>
+<script>
+    (function () {
+      var h = location.hash || "", raw = h.slice(1), qs = raw.indexOf("?");
+      var path = (qs === -1 ? raw : raw.slice(0, qs)) || "/";
+      var mode = new URLSearchParams(qs === -1 ? "" : raw.slice(qs + 1)).get("mode");
+      var cl = document.documentElement.classList;
+      cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club");
+      if (/^\/(admin|platform|me)(\/|\?|$)/.test(path)) cl.add("boot-dashboard");
+      else if (path === "/register-club" || path === "/club-setup") cl.add("boot-club");
+      else if (path === "/auth") cl.add(mode === "up" ? "boot-signup" : "boot-signin");
+      else cl.add("boot-home");
+    })();
+  </script>
   <style id="home-skeleton-critical">
-    #app-startup .home-skeleton, #app-startup .boot-skeleton { display:none; }
-    html:not(.boot-dashboard) body.app-booting #app-startup .home-skeleton { display:block; }
-    html.boot-dashboard body.app-booting #app-startup .boot-skeleton { display:flex; }
-    .home-skeleton { --hs-bg:#0a0e14; --hs-panel:#1a2026; --hs-line:#ffffff10; --hs-a:#222b31; --hs-b:#313d44; box-sizing:border-box; min-height:100dvh; background:var(--hs-bg) radial-gradient(#a3e63512 1px,transparent 1px) 0 0/24px 24px; overflow:hidden; }
-    .home-skeleton *, .home-skeleton *::before { box-sizing:border-box; }
-    .home-skeleton i { display:block; flex:none; height:14px; border-radius:8px; background:linear-gradient(100deg,var(--hs-a) 20%,var(--hs-b) 40%,var(--hs-a) 60%) 0 0/200% 100%; animation:hs-sweep 1.4s linear infinite; }
-    .home-skeleton i.hs-accent { --hs-a:#a3e63540; --hs-b:#a3e63570; }
-    .home-skeleton .hs-nav { display:flex; align-items:center; justify-content:space-between; height:64px; padding:0 12px; }
-    .home-skeleton .hs-brand { display:flex; align-items:center; gap:8px; }
-    .home-skeleton .hs-logo { width:40px; height:40px; border-radius:10px; }
-    .home-skeleton .hs-name { width:95px; height:22px; }
-    .home-skeleton .hs-links { display:none; }
-    .home-skeleton .hs-actions { display:flex; gap:6px; }
-    .home-skeleton .hs-actions i { width:40px; height:40px; border-radius:10px; }
-    .home-skeleton .hs-actions i:last-child { border-radius:9999px; }
-    .home-skeleton .hs-hero { display:flex; flex-direction:column; align-items:center; padding:24px 20px; }
-    .home-skeleton .hs-eyebrow { width:min(350px,100%); height:44px; border-radius:9999px; }
-    .home-skeleton .hs-h1 { width:92%; height:36px; margin-top:20px; }
-    .home-skeleton .hs-h1 + .hs-h1 { width:56%; height:36px; margin-top:10px; }
-    .home-skeleton .hs-sub { width:96%; margin-top:16px; }
-    .home-skeleton .hs-sub + .hs-sub { width:88%; margin-top:8px; } .home-skeleton .hs-sub + .hs-sub + .hs-sub { width:70%; }
-    .home-skeleton .hs-panel { width:100%; margin-top:36px; padding:8px; border:1px solid var(--hs-line); border-radius:16px; background:var(--hs-panel); }
-    .home-skeleton .hs-controls { display:grid; gap:8px; }
-    .home-skeleton .hs-controls i { height:48px; border-radius:12px; }
-    .home-skeleton .hs-controls i.hs-accent { height:44px; margin-top:0; }
-    .home-skeleton .hs-filters { display:grid; gap:8px; margin-top:10px; padding:10px 8px 6px; border-top:1px solid var(--hs-line); }
-    .home-skeleton .hs-filters i { height:38px; border-radius:10px; }
-    .home-skeleton .hs-filters i:first-child { width:56px; height:14px; margin:0; }
-    .home-skeleton .hs-filters i:last-child { width:200px; height:12px; margin:4px 0 0; }
-    .home-skeleton .hs-stats { display:grid; grid-template-columns:1fr 1fr; gap:24px; width:100%; margin-top:24px; }
-    .home-skeleton .hs-stats span { display:flex; flex-direction:column; align-items:center; gap:8px; }
-    .home-skeleton .hs-stats i { width:72%; height:32px; } .home-skeleton .hs-stats i + i { width:84%; height:12px; }
-    .home-skeleton .hs-inventory { padding:24px 20px; }
-    .home-skeleton .hs-inv-head > div:first-child i { width:160px; height:12px; }
-    .home-skeleton .hs-inv-head > div:first-child i + i { width:90%; height:30px; margin-top:16px; }
-    .home-skeleton .hs-inv-head > div:first-child i + i + i { width:60%; margin-top:10px; }
-    .home-skeleton .hs-tabs { display:grid; gap:8px; margin-top:16px; }
-    .home-skeleton .hs-tabs i { height:38px; border-radius:10px; }
-    .home-skeleton .hs-badge { width:190px; height:26px; margin-top:16px; border-radius:13px; }
-    .home-skeleton .hs-cards { display:grid; gap:24px; margin-top:16px; }
-    .home-skeleton .hs-card { overflow:hidden; border:1px solid var(--hs-line); border-radius:16px; background:var(--hs-panel); }
-    .home-skeleton .hs-card > i { height:192px; border-radius:0; }
-    .home-skeleton .hs-card div { display:flex; flex-direction:column; gap:12px; padding:24px; }
-    .home-skeleton .hs-card div > i:nth-child(1) { width:45%; } .home-skeleton .hs-card div > i:nth-child(2) { width:75%; height:22px; } .home-skeleton .hs-card div > i:nth-child(3) { width:55%; }
-    .home-skeleton .hs-card p { display:flex; justify-content:space-between; align-items:center; margin:12px 0 0; padding-top:16px; border-top:1px solid var(--hs-line); }
-    .home-skeleton .hs-card p i:first-child { width:90px; height:22px; } .home-skeleton .hs-card p i:last-child { width:110px; height:38px; border-radius:10px; }
-    @media(min-width:768px) {
-      .home-skeleton .hs-nav { padding:0 24px; }
-      .home-skeleton .hs-logo { width:48px; height:48px; }
-      .home-skeleton .hs-name { width:100px; height:20px; }
-      .home-skeleton .hs-actions { gap:16px; align-items:center; }
-      .home-skeleton .hs-actions i { width:92px; height:36px; border-radius:10px; } .home-skeleton .hs-actions i + i { width:160px; height:38px; border-radius:9999px; }
-      .home-skeleton .hs-hero { padding:40px; }
-      .home-skeleton .hs-eyebrow { width:434px; height:28px; border-radius:14px; }
-      .home-skeleton .hs-h1 { width:390px; height:52px; margin-top:28px; }
-      .home-skeleton .hs-h1 + .hs-h1 { width:390px; height:52px; margin-top:12px; }
-      .home-skeleton .hs-sub { width:min(672px,100%); height:16px; margin-top:22px; }
-      .home-skeleton .hs-sub + .hs-sub { width:min(580px,90%); margin-top:14px; } .home-skeleton .hs-sub + .hs-sub + .hs-sub { display:none; }
-      .home-skeleton .hs-panel { max-width:1280px; margin-top:40px; padding:16px; }
-      .home-skeleton .hs-controls { grid-template-columns:4fr 3fr 3fr 2fr; gap:8px; }
-      .home-skeleton .hs-controls i { height:52px; border-radius:10px; }
-      .home-skeleton .hs-controls i.hs-accent { height:52px; margin-top:0; }
-      .home-skeleton .hs-filters { display:flex; align-items:center; gap:8px; margin-top:10px; padding:10px 8px 0; border-top:1px solid var(--hs-line); }
-      .home-skeleton .hs-filters i { width:120px; } .home-skeleton .hs-filters i:nth-child(3) { width:135px; } .home-skeleton .hs-filters i:nth-child(4) { width:148px; }
-      .home-skeleton .hs-filters i:first-child { width:56px; margin:0; } .home-skeleton .hs-filters i:last-child { width:200px; margin:0 0 0 auto; }
-      .home-skeleton .hs-stats { grid-template-columns:repeat(4,1fr); max-width:896px; margin-top:40px; }
-      .home-skeleton .hs-inventory { max-width:1360px; margin:0 auto; padding:40px; }
-      .home-skeleton .hs-inv-head { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; }
-      .home-skeleton .hs-inv-head > div:first-child { flex:1; }
-      .home-skeleton .hs-inv-head > div:first-child i + i { width:min(520px,100%); height:40px; }
-      .home-skeleton .hs-inv-head > div:first-child i + i + i { display:none; }
-      .home-skeleton .hs-tabs { display:flex; margin:0; padding:5px; border:1px solid var(--hs-line); border-radius:12px; }
-      .home-skeleton .hs-tabs i { width:102px; height:36px; } .home-skeleton .hs-tabs i + i { width:135px; } .home-skeleton .hs-tabs i + i + i { width:148px; }
-      .home-skeleton .hs-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    #app-startup > div { display: none; }
+    html.boot-home body.app-booting #app-startup .home-skeleton { display: block; }
+    html.boot-signin body.app-booting #app-startup .signin-skeleton { display: block; }
+    html.boot-signup body.app-booting #app-startup .signup-skeleton { display: block; }
+    html.boot-club body.app-booting #app-startup .club-skeleton { display: block; }
+    html.boot-dashboard body.app-booting #app-startup .boot-skeleton { display: flex; }
+    html:not(.boot-dashboard):not(.boot-signin):not(.boot-signup):not(.boot-club) body.app-booting #app-startup .home-skeleton { display: block; }
+
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) {
+      box-sizing: border-box;
+      min-height: 100dvh;
+      text-align: left;
+      background: #0a0e14;
+      color: transparent;
+      overflow-x: hidden;
     }
-    @media(max-width:767px) {
-      .home-skeleton .hs-controls, .home-skeleton .hs-filters, .home-skeleton .hs-tabs { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
-      .home-skeleton .hs-controls > i, .home-skeleton .hs-filters > i:not(:first-child):not(:last-child), .home-skeleton .hs-tabs > i { width:100%; }
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) *,
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) *::before,
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) *::after {
+      box-sizing: border-box;
     }
-    @media(min-width:1024px) { .home-skeleton .hs-cards { grid-template-columns:repeat(4,minmax(0,1fr)); } }
-    @media(min-width:1200px) { .home-skeleton .hs-links { display:flex; gap:24px; margin:0 auto 0 40px; } .home-skeleton .hs-links i { width:72px; } .home-skeleton .hs-links i + i { width:94px; } .home-skeleton .hs-links i + i + i { width:104px; } }
-    @keyframes hs-sweep { to { background-position:-200% 0; } }
-    @media(prefers-reduced-motion:reduce) { .home-skeleton i { animation:none; } }
+
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) :is(i, b) {
+      display: block;
+      position: relative;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      border: none;
+      font-style: normal;
+      font-weight: normal;
+    }
+
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) :is(i, b)::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+      transform: translateX(-100%);
+      animation: boot-shimmer 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes boot-shimmer {
+      to { transform: translateX(100%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) :is(i, b)::after {
+        animation: none;
+        display: none;
+      }
+    }
+
+    /* Shared Navigation Skeleton */
+    .skel-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: #0a0e14;
+    }
+    .skel-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .skel-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
+    .skel-name {
+      width: 96px;
+      height: 20px;
+      border-radius: 6px;
+    }
+    .skel-links {
+      display: none;
+    }
+    .skel-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .skel-btn-pill {
+      height: 34px;
+      border-radius: 9999px !important;
+    }
+    .skel-actions .skel-btn-pill {
+      width: 100px;
+    }
+
+    @media (min-width: 768px) {
+      .skel-nav { padding: 0 32px; }
+      .skel-logo { width: 40px; height: 40px; }
+      .skel-name { width: 110px; height: 22px; }
+      .skel-actions .skel-btn-pill { width: 120px; height: 36px; }
+    }
+    @media (min-width: 1024px) {
+      .skel-links { display: flex; align-items: center; gap: 24px; margin-left: 36px; margin-right: auto; }
+      .skel-links i:nth-child(1) { width: 84px; height: 16px; border-radius: 6px; }
+      .skel-links i:nth-child(2) { width: 96px; height: 16px; border-radius: 6px; }
+      .skel-links i:nth-child(3) { width: 110px; height: 16px; border-radius: 6px; }
+      .skel-actions i.skel-act-sec { display: block; width: 88px; height: 36px; border-radius: 8px; }
+    }
+    @media (max-width: 1023px) {
+      .skel-actions i.skel-act-sec { display: none; }
+    }
+
+    /* 1. HOME SKELETON */
+    .home-skeleton .skel-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      max-width: 1280px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .skel-eyebrow {
+      width: min(280px, 85%);
+      height: 26px;
+      border-radius: 9999px !important;
+    }
+    .skel-h1 {
+      width: 90%;
+      max-width: 580px;
+      height: 34px;
+      margin-top: 18px;
+      border-radius: 8px;
+    }
+    .skel-h1-short {
+      width: 60%;
+      max-width: 400px;
+      margin-top: 8px;
+    }
+    .skel-sub {
+      width: 94%;
+      max-width: 640px;
+      height: 14px;
+      margin-top: 16px;
+      border-radius: 6px;
+    }
+    .skel-sub-short {
+      width: 72%;
+      max-width: 480px;
+      margin-top: 8px;
+    }
+    .skel-search-panel {
+      width: 100%;
+      max-width: 1080px;
+      margin-top: 28px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .skel-search-inputs {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr;
+    }
+    .skel-search-inputs i {
+      height: 44px;
+      border-radius: 12px;
+    }
+    .skel-search-inputs .skel-btn-pill {
+      height: 44px;
+      width: 100%;
+    }
+    .skel-search-pills {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      flex-wrap: wrap;
+    }
+    .skel-search-pills i {
+      height: 28px;
+      border-radius: 9999px;
+      width: 84px;
+    }
+    .skel-search-pills i:first-child { width: 56px; }
+    .skel-search-pills i:nth-child(2) { width: 92px; }
+    .skel-search-pills i:nth-child(3) { width: 102px; }
+    .skel-search-pills i:nth-child(4) { width: 110px; }
+
+    .skel-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 1080px;
+      margin-top: 24px;
+    }
+    .skel-stat-card {
+      padding: 16px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .skel-stat-card b {
+      width: 54px;
+      height: 26px;
+      border-radius: 6px;
+    }
+    .skel-stat-card i {
+      width: 90px;
+      max-width: 90%;
+      height: 12px;
+      border-radius: 4px;
+    }
+
+    .skel-inventory {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 28px 16px 48px;
+    }
+    .skel-inv-head {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .skel-inv-title {
+      width: 220px;
+      max-width: 80%;
+      height: 26px;
+      border-radius: 8px;
+    }
+    .skel-inv-sub {
+      width: 320px;
+      max-width: 95%;
+      height: 14px;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+    .skel-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .skel-tabs i {
+      width: 98px;
+      height: 34px;
+      border-radius: 10px;
+    }
+    .skel-tabs i:nth-child(2) { width: 114px; }
+    .skel-tabs i:nth-child(3) { width: 122px; }
+
+    .skel-club-grid {
+      display: grid;
+      gap: 18px;
+      margin-top: 20px;
+      grid-template-columns: 1fr;
+    }
+    .skel-club-card {
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+    }
+    .skel-card-img {
+      width: 100%;
+      height: 180px;
+      border-radius: 0 !important;
+    }
+    .skel-card-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .skel-line-sub {
+      width: 40%;
+      height: 12px;
+      border-radius: 4px;
+    }
+    .skel-line-title {
+      width: 75%;
+      height: 20px;
+      border-radius: 6px;
+    }
+    .skel-line-detail {
+      width: 55%;
+      height: 12px;
+      border-radius: 4px;
+    }
+    .skel-card-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .skel-card-foot i {
+      width: 76px;
+      height: 18px;
+      border-radius: 6px;
+    }
+    .skel-card-foot .skel-btn-pill {
+      width: 96px;
+      height: 34px;
+    }
+
+    @media (min-width: 640px) {
+      .skel-club-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 768px) {
+      .home-skeleton .skel-hero { padding: 44px 24px; }
+      .skel-eyebrow { width: 360px; height: 28px; }
+      .skel-h1 { height: 48px; margin-top: 24px; }
+      .skel-h1-short { height: 48px; }
+      .skel-sub { height: 16px; margin-top: 20px; }
+      .skel-sub-short { height: 16px; }
+      .skel-search-panel { padding: 14px; margin-top: 36px; }
+      .skel-search-inputs { grid-template-columns: 4fr 3fr 3fr 2fr; gap: 10px; }
+      .skel-search-inputs i, .skel-search-inputs .skel-btn-pill { height: 50px; }
+      .skel-stats-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 36px; }
+      .skel-stat-card { padding: 20px 16px; }
+      .skel-stat-card b { height: 32px; width: 68px; }
+      .skel-inventory { padding: 40px 32px 64px; }
+      .skel-inv-head { flex-direction: row; justify-content: space-between; align-items: flex-end; }
+      .skel-inv-title { height: 32px; width: 280px; }
+    }
+    @media (min-width: 1024px) {
+      .skel-club-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    }
+
+    /* 2. SIGN IN SKELETON */
+    .skel-auth-main {
+      padding: 24px 16px 40px;
+      min-height: calc(100dvh - 64px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .skel-signin-card {
+      width: 100%;
+      max-width: 980px;
+      margin: auto;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .skel-auth-story {
+      display: none;
+      padding: 36px 32px;
+      background: rgba(255, 255, 255, 0.015);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .skel-auth-brand-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .skel-auth-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+    .skel-auth-t1 {
+      width: 100px;
+      height: 18px;
+      border-radius: 6px;
+    }
+    .skel-auth-t2 {
+      width: 140px;
+      height: 12px;
+      margin-top: 6px;
+      border-radius: 4px;
+    }
+    .skel-auth-h1 {
+      width: 88%;
+      height: 28px;
+      margin-top: 22px;
+      border-radius: 6px;
+    }
+    .skel-auth-h1-s {
+      width: 62%;
+      height: 28px;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+    .skel-auth-p {
+      width: 95%;
+      height: 13px;
+      margin-top: 16px;
+      border-radius: 4px;
+    }
+    .skel-auth-p-s {
+      width: 78%;
+      height: 13px;
+      margin-top: 6px;
+      border-radius: 4px;
+    }
+    .skel-auth-photo {
+      width: 100%;
+      height: 160px;
+      border-radius: 16px;
+    }
+    .skel-auth-form {
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: center;
+    }
+    .skel-kicker {
+      width: 90px;
+      height: 12px;
+      border-radius: 4px;
+    }
+    .skel-title {
+      width: 240px;
+      max-width: 85%;
+      height: 28px;
+      margin-top: 8px;
+      border-radius: 8px;
+    }
+    .skel-subtitle {
+      width: 300px;
+      max-width: 95%;
+      height: 13px;
+      margin-top: 8px;
+      border-radius: 4px;
+    }
+    .skel-input-pill {
+      border-radius: 9999px !important;
+      height: 46px;
+      width: 100%;
+    }
+    .skel-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.05);
+      margin: 4px 0;
+    }
+    .skel-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skel-label {
+      width: 88px;
+      height: 12px;
+      border-radius: 4px;
+    }
+    .skel-label-split {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .skel-link {
+      width: 96px;
+      height: 12px;
+      border-radius: 4px;
+    }
+    .skel-btn-submit {
+      height: 48px;
+      border-radius: 9999px !important;
+      margin-top: 4px;
+      width: 100%;
+    }
+    .skel-auth-switch {
+      width: 180px;
+      height: 13px;
+      border-radius: 4px;
+      margin: 6px auto 0;
+    }
+
+    @media (min-width: 992px) {
+      .skel-signin-card { grid-template-columns: 5fr 7fr; }
+      .skel-auth-story { display: flex; }
+      .skel-auth-form { padding: 48px 40px; gap: 18px; }
+      .skel-title { height: 32px; }
+    }
+
+    /* 3. CREATE ACCOUNT SKELETON */
+    .skel-signup-wrap {
+      width: 100%;
+      max-width: 640px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .skel-signup-head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+    .skel-badge {
+      width: 170px;
+      height: 24px;
+      border-radius: 9999px !important;
+    }
+    .skel-signup-title {
+      width: 88%;
+      max-width: 440px;
+      height: 30px;
+      border-radius: 8px;
+    }
+    .skel-signup-title-s {
+      width: 60%;
+      max-width: 300px;
+      margin-top: 4px;
+    }
+    .skel-signup-sub {
+      width: 92%;
+      max-width: 400px;
+      height: 13px;
+      border-radius: 4px;
+    }
+    .skel-signup-card {
+      padding: 24px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .skel-perks-banner {
+      width: 100%;
+      height: 42px;
+      border-radius: 12px;
+    }
+    .skel-dual-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .skel-input {
+      height: 44px;
+      border-radius: 12px;
+      width: 100%;
+    }
+    .skel-skill-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .skel-skill-pills i {
+      width: 72px;
+      height: 32px;
+      border-radius: 9999px;
+    }
+    @media (min-width: 640px) {
+      .skel-signup-wrap { gap: 24px; }
+      .skel-signup-card { padding: 36px 32px; gap: 18px; }
+      .skel-dual-row { grid-template-columns: 1fr 1fr; gap: 16px; }
+      .skel-signup-title { height: 36px; }
+    }
+
+    /* 4. REGISTER A CLUB SKELETON */
+    .skel-club-main {
+      padding: 24px 16px 48px;
+      min-height: calc(100dvh - 64px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .skel-club-layout {
+      width: 100%;
+      max-width: 1140px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .skel-club-story {
+      display: none;
+      padding: 36px 32px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.02);
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+    }
+    .skel-club-h1 {
+      width: 85%;
+      height: 32px;
+      margin-top: 18px;
+      border-radius: 8px;
+    }
+    .skel-club-h1-s {
+      width: 60%;
+      height: 32px;
+      margin-top: 8px;
+      border-radius: 8px;
+    }
+    .skel-club-p {
+      width: 95%;
+      height: 13px;
+      margin-top: 14px;
+      border-radius: 4px;
+    }
+    .skel-club-p-s {
+      width: 76%;
+      height: 13px;
+      margin-top: 6px;
+      border-radius: 4px;
+    }
+    .skel-club-features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .skel-club-feat-card {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .skel-feat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .skel-feat-text {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .skel-feat-h {
+      width: 140px;
+      height: 14px;
+      border-radius: 4px;
+    }
+    .skel-feat-sub {
+      width: 220px;
+      max-width: 90%;
+      height: 11px;
+      border-radius: 3px;
+    }
+    .skel-club-quote {
+      padding: 16px;
+      border-radius: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skel-quote-head {
+      width: 140px;
+      height: 12px;
+      border-radius: 4px;
+    }
+    .skel-quote-body {
+      width: 95%;
+      height: 12px;
+      border-radius: 4px;
+    }
+    .skel-quote-foot {
+      width: 110px;
+      height: 11px;
+      border-radius: 3px;
+    }
+    .skel-club-form {
+      padding: 28px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .skel-club-form-title {
+      width: 240px;
+      max-width: 80%;
+      height: 28px;
+      margin-top: 6px;
+      border-radius: 8px;
+    }
+    .skel-club-form-sub {
+      width: 320px;
+      max-width: 95%;
+      height: 13px;
+      margin-top: 6px;
+      border-radius: 4px;
+    }
+    .skel-club-switch {
+      width: 190px;
+      height: 12px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+    .skel-btn-google {
+      height: 44px;
+      border-radius: 12px;
+      width: 100%;
+    }
+
+    @media (min-width: 992px) {
+      .skel-club-layout { grid-template-columns: 5fr 7fr; gap: 32px; }
+      .skel-club-story { display: flex; }
+      .skel-club-form { padding: 40px; gap: 18px; }
+      .skel-club-form-title { height: 32px; }
+    }
   </style>
   <style id="startup-critical">
     body.app-booting > :is(header,main,footer) { visibility:hidden; }
@@ -353,20 +1003,175 @@
   </style>
 </head>
 <body class="app-booting bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col">
-  <div id="app-startup" role="status" aria-label="Loading page">
-    <!-- Landing skeleton: mirrors header, hero, search panel, stats and club cards at every breakpoint -->
+<div id="app-startup" role="status" aria-label="Loading page">
+    <!-- 1. HOME SKELETON -->
     <div class="home-skeleton" aria-hidden="true">
-      <div class="hs-nav"><div class="hs-brand"><i class="hs-logo"></i><i class="hs-name"></i></div><div class="hs-links"><i></i><i></i><i></i></div><div class="hs-actions"><i></i><i class="hs-accent"></i></div></div>
-      <div class="hs-hero"><i class="hs-eyebrow"></i><i class="hs-h1"></i><i class="hs-h1 hs-accent"></i><i class="hs-sub"></i><i class="hs-sub"></i><i class="hs-sub"></i>
-        <div class="hs-panel"><div class="hs-controls"><i></i><i></i><i></i><i class="hs-accent"></i></div><div class="hs-filters"><i></i><i class="hs-accent"></i><i></i><i></i><i></i></div></div>
-        <div class="hs-stats"><span><i class="hs-accent"></i><i></i></span><span><i></i><i></i></span><span><i class="hs-accent"></i><i></i></span><span><i></i><i></i></span></div>
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-links"><i></i><i></i><i></i></div>
+        <div class="skel-actions"><i class="skel-act-sec"></i><b class="skel-btn-pill"></b></div>
+      </header>
+      <div class="skel-hero">
+        <i class="skel-eyebrow"></i>
+        <i class="skel-h1"></i>
+        <i class="skel-h1 skel-h1-short"></i>
+        <i class="skel-sub"></i>
+        <i class="skel-sub skel-sub-short"></i>
+        <div class="skel-search-panel">
+          <div class="skel-search-inputs"><i></i><i></i><i></i><b class="skel-btn-pill"></b></div>
+          <div class="skel-search-pills"><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="skel-stats-grid">
+          <div class="skel-stat-card"><b></b><i></i></div>
+          <div class="skel-stat-card"><b></b><i></i></div>
+          <div class="skel-stat-card"><b></b><i></i></div>
+          <div class="skel-stat-card"><b></b><i></i></div>
+        </div>
       </div>
-      <div class="hs-inventory"><div class="hs-inv-head"><div><i></i><i></i><i></i></div><div class="hs-tabs"><i></i><i></i><i></i></div></div><i class="hs-badge"></i>
-        <div class="hs-cards"><div class="hs-card"><i></i><div><i></i><i></i><i></i><p><i></i><i class="hs-accent"></i></p></div></div><div class="hs-card"><i></i><div><i></i><i></i><i></i><p><i></i><i class="hs-accent"></i></p></div></div><div class="hs-card"><i></i><div><i></i><i></i><i></i><p><i></i><i class="hs-accent"></i></p></div></div><div class="hs-card"><i></i><div><i></i><i></i><i></i><p><i></i><i class="hs-accent"></i></p></div></div></div>
+      <div class="skel-inventory">
+        <div class="skel-inv-head">
+          <div><i class="skel-inv-title"></i><i class="skel-inv-sub"></i></div>
+          <div class="skel-tabs"><i></i><i></i><i></i></div>
+        </div>
+        <div class="skel-club-grid">
+          <div class="skel-club-card"><b class="skel-card-img"></b><div class="skel-card-body"><i class="skel-line-sub"></i><i class="skel-line-title"></i><i class="skel-line-detail"></i><div class="skel-card-foot"><i></i><b class="skel-btn-pill"></b></div></div></div>
+          <div class="skel-club-card"><b class="skel-card-img"></b><div class="skel-card-body"><i class="skel-line-sub"></i><i class="skel-line-title"></i><i class="skel-line-detail"></i><div class="skel-card-foot"><i></i><b class="skel-btn-pill"></b></div></div></div>
+          <div class="skel-club-card"><b class="skel-card-img"></b><div class="skel-card-body"><i class="skel-line-sub"></i><i class="skel-line-title"></i><i class="skel-line-detail"></i><div class="skel-card-foot"><i></i><b class="skel-btn-pill"></b></div></div></div>
+          <div class="skel-club-card"><b class="skel-card-img"></b><div class="skel-card-body"><i class="skel-line-sub"></i><i class="skel-line-title"></i><i class="skel-line-detail"></i><div class="skel-card-foot"><i></i><b class="skel-btn-pill"></b></div></div></div>
+        </div>
       </div>
     </div>
 
-    <!-- DASHBOARD SKELETON (displayed on admin / platform / me routes) -->
+    <!-- 2. SIGN IN SKELETON -->
+    <div class="signin-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-actions"><b class="skel-btn-pill"></b></div>
+      </header>
+      <main class="skel-auth-main">
+        <div class="skel-signin-card">
+          <div class="skel-auth-story">
+            <div class="skel-auth-story-top">
+              <i class="skel-badge"></i>
+              <div class="skel-auth-brand-row">
+                <i class="skel-auth-icon"></i>
+                <div><i class="skel-auth-t1"></i><i class="skel-auth-t2"></i></div>
+              </div>
+              <i class="skel-auth-h1"></i>
+              <i class="skel-auth-h1-s"></i>
+              <i class="skel-auth-p"></i>
+              <i class="skel-auth-p-s"></i>
+            </div>
+            <b class="skel-auth-photo"></b>
+          </div>
+          <div class="skel-auth-form">
+            <div class="skel-auth-form-head">
+              <i class="skel-kicker"></i>
+              <i class="skel-title"></i>
+              <i class="skel-subtitle"></i>
+            </div>
+            <b class="skel-input-pill"></b>
+            <div class="skel-divider"></div>
+            <div class="skel-field">
+              <i class="skel-label"></i>
+              <b class="skel-input-pill"></b>
+            </div>
+            <div class="skel-field">
+              <div class="skel-label-split">
+                <i class="skel-label"></i>
+                <i class="skel-link"></i>
+              </div>
+              <b class="skel-input-pill"></b>
+            </div>
+            <b class="skel-btn-submit"></b>
+            <i class="skel-auth-switch"></i>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 3. CREATE ACCOUNT SKELETON -->
+    <div class="signup-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-actions"><b class="skel-btn-pill"></b></div>
+      </header>
+      <main class="skel-auth-main">
+        <div class="skel-signup-wrap">
+          <div class="skel-signup-head">
+            <i class="skel-badge"></i>
+            <i class="skel-signup-title"></i>
+            <i class="skel-signup-title-s"></i>
+            <i class="skel-signup-sub"></i>
+          </div>
+          <div class="skel-signup-card">
+            <b class="skel-perks-banner"></b>
+            <b class="skel-input-pill"></b>
+            <div class="skel-divider"></div>
+            <div class="skel-dual-row">
+              <div class="skel-field"><i class="skel-label"></i><b class="skel-input"></b></div>
+              <div class="skel-field"><i class="skel-label"></i><b class="skel-input"></b></div>
+            </div>
+            <div class="skel-field"><i class="skel-label"></i><b class="skel-input"></b></div>
+            <div class="skel-field"><i class="skel-label"></i><b class="skel-input"></b></div>
+            <div class="skel-field">
+              <i class="skel-label"></i>
+              <div class="skel-skill-pills"><i></i><i></i><i></i><i></i></div>
+            </div>
+            <b class="skel-btn-submit"></b>
+            <i class="skel-auth-switch"></i>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 4. REGISTER A CLUB SKELETON -->
+    <div class="club-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-actions"><b class="skel-btn-pill"></b></div>
+      </header>
+      <main class="skel-club-main">
+        <div class="skel-club-layout">
+          <div class="skel-club-story">
+            <div>
+              <i class="skel-badge"></i>
+              <i class="skel-club-h1"></i>
+              <i class="skel-club-h1-s"></i>
+              <i class="skel-club-p"></i>
+              <i class="skel-club-p-s"></i>
+              <div class="skel-club-features">
+                <div class="skel-club-feat-card"><i class="skel-feat-icon"></i><div class="skel-feat-text"><i class="skel-feat-h"></i><i class="skel-feat-sub"></i></div></div>
+                <div class="skel-club-feat-card"><i class="skel-feat-icon"></i><div class="skel-feat-text"><i class="skel-feat-h"></i><i class="skel-feat-sub"></i></div></div>
+                <div class="skel-club-feat-card"><i class="skel-feat-icon"></i><div class="skel-feat-text"><i class="skel-feat-h"></i><i class="skel-feat-sub"></i></div></div>
+              </div>
+            </div>
+            <div class="skel-club-quote">
+              <i class="skel-quote-head"></i>
+              <i class="skel-quote-body"></i>
+              <i class="skel-quote-foot"></i>
+            </div>
+          </div>
+          <div class="skel-club-form">
+            <i class="skel-badge"></i>
+            <i class="skel-club-form-title"></i>
+            <i class="skel-club-form-sub"></i>
+            <i class="skel-club-switch"></i>
+            <div class="skel-dual-row" style="margin-top:6px;">
+              <div class="skel-field"><i class="skel-label"></i><b class="skel-input"></b></div>
+              <div class="skel-field"><i class="skel-label"></i><b class="skel-input"></b></div>
+            </div>
+            <div class="skel-field"><i class="skel-label"></i><b class="skel-input"></b></div>
+            <div class="skel-field"><i class="skel-label"></i><b class="skel-input"></b></div>
+            <b class="skel-btn-submit" style="margin-top:6px;"></b>
+            <b class="skel-btn-google"></b>
+            <i class="skel-auth-switch"></i>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 5. DASHBOARD SKELETON (displayed on admin / platform / me routes) -->
     <div class="boot-skeleton" aria-hidden="true"><aside><i></i><b></b><b></b><b></b><b></b><b></b></aside><div class="boot-skeleton-page"><header><i></i><b></b></header><main><i class="boot-title"></i><i class="boot-subtitle"></i><div class="boot-metrics"><b></b><b></b><b></b><b></b></div><div class="boot-panels"><b></b><b></b></div><b class="boot-table"></b></main></div></div>
   </div>
   <header class="site-header fixed top-0 w-full z-50">
@@ -456,8 +1261,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <script src="js/config.js"></script>
-  <script src="js/landing.js?v=440"></script>
-  <script src="js/app.js?v=453"></script>
+  <script src="js/landing.js?v=441"></script>
+  <script src="js/app.js?v=454"></script>
   <script src="js/ui.js?v=461"></script>
   <script src="js/profile-controls.js?v=392"></script>
   <script src="js/notify.js?v=429"></script>

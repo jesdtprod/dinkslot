@@ -2104,10 +2104,20 @@
     finally { delete pendingViewModules[name]; }
   }
 
+  function syncBootRouteClass(path, mode) {
+    var cl = document.documentElement.classList;
+    cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club");
+    if (/^\/(admin|platform|me)(\/|\?|$)/.test(path)) cl.add("boot-dashboard");
+    else if (path === "/register-club" || path === "/club-setup") cl.add("boot-club");
+    else if (path === "/auth") cl.add(mode === "up" ? "boot-signup" : "boot-signin");
+    else cl.add("boot-home");
+  }
+
   async function render() {
     var raw = (location.hash || "#/").slice(1) || "/";
     var qs = raw.indexOf("?"), path = qs === -1 ? raw : raw.slice(0, qs);
     var q = new URLSearchParams(qs === -1 ? "" : raw.slice(qs + 1));
+    syncBootRouteClass(path, q.get("mode"));
     var m;
     // Restore the current cross-tab session before rendering public account forms.
     if (path === "/auth" || path === "/register-club" || path === "/club-setup") {
