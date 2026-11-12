@@ -116,3 +116,10 @@ Deno.test("MIME with an inline image: multipart/related, Content-ID, bytes intac
   if (bytes.length !== png.length || bytes.some((v, i) => v !== png[i])) throw new Error("image bytes changed");
   if (!mime.trim().endsWith("--REL--")) throw new Error("closing boundary");
 });
+
+Deno.test('player booking emails identify the club in the subject', () => {
+  for (const status of ['pending', 'approved', 'rejected', 'cancelled', 'expired']) {
+    const mail = planEmails(ctx({ status }), false).find((item) => item.to === 'player@x.com');
+    if (!mail || !mail.subject.includes('The Pickleshot')) throw new Error('missing club for ' + status);
+  }
+});

@@ -81,7 +81,7 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
   const toPlayer = (template: string, subject: string, heading: string, lines: string[], cta?: { label: string; url: string }, qr?: string) => {
     if (!ctx.playerEmail) return;
     const { text, html } = layout(ctx, heading, [`Hi ${ctx.playerName},`, ...lines], cta, qr);
-    out.push({ template, to: ctx.playerEmail, subject, text, html, key, ...(qr ? { qr } : {}) });
+    out.push({ template, to: ctx.playerEmail, subject: `${subject} - ${ctx.clubName}`, text, html, key, ...(qr ? { qr } : {}) });
   };
   const toAdmins = (template: string, subject: string, heading: string, lines: string[]) => {
     const { text, html } = layout(ctx, heading, lines, { label: "Open the approval queue", url: queue });
