@@ -319,7 +319,7 @@
 
 /* My Clubs uses the discovery visual system in two desktop columns. */
 #app #ds-tenant-dashboard #sec .member-clubs-page { --member-accent:#a3e635; --member-panel:#181f24; --member-inset:#202a30; --member-border:#303c43; }
-#ds-tenant-dashboard #sec .member-clubs-page #my-joined-clubs-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; align-items:stretch; }
+#ds-tenant-dashboard #sec .member-clubs-page #my-joined-clubs-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; align-items:stretch; }
 #app #ds-tenant-dashboard #sec .member-clubs-page .club-directory-tools { position:relative; overflow:hidden; padding:20px 28px; background:rgb(24 31 36 / 30%); border:1px solid #91a5b22b; border-radius:10px; backdrop-filter:blur(6px); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
 .member-clubs-page .club-directory-tools::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; }
 #app #ds-tenant-dashboard #sec .member-clubs-page :is(.club-directory-search,.club-directory-filters select) { background-color:#202a30; border-color:#35434b; }
@@ -337,6 +337,7 @@
 #app #ds-tenant-dashboard #sec .member-clubs-page #myclubs-clear:not([hidden]) { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; padding:0; align-self:center; }
 #app #ds-tenant-dashboard #sec .member-clubs-page #myclubs-clear .material-symbols-outlined { font-size:22px; line-height:1; }
 #ds-tenant-dashboard #sec .member-clubs-page #my-joined-clubs-list > .app-empty-state { grid-column:1 / -1; }
+@media(max-width:1100px) { #ds-tenant-dashboard #sec .member-clubs-page #my-joined-clubs-list { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:700px) { #ds-tenant-dashboard #sec .member-clubs-page #my-joined-clubs-list { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:639px) { #app #ds-tenant-dashboard #sec .member-clubs-page .club-directory-tools { padding:16px; } .member-clubs-page .club-directory-tools::before { left:16px; } #app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel { padding:16px; } }
 .member-clubs-page .membership-panel { transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
