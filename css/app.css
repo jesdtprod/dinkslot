@@ -4160,6 +4160,7 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 
 .dink-payment-container .checkout-secondary-actions { align-items: stretch; }
 .dink-payment-container .checkout-secondary-actions > :is(a, button) { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: 40px; min-height: 40px; padding: 8px 12px; border-radius: 9px; font-size: 11px; line-height: 18px; }
+.dink-payment-container .checkout-secondary-actions > :is(a, button) { font:600 12px/18px "Plus Jakarta Sans",sans-serif !important; letter-spacing:0; text-transform:none; }
 
 .payment-access-note { gap: 6px; font-size: clamp(8px, .75vw, 10px); white-space: nowrap; }
 .payment-access-note > span:last-child { min-width: 0; }
