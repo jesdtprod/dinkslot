@@ -3,7 +3,7 @@
 (function () {
   "use strict";
   var D = window.DS, sb = D.sb, esc = D.esc;
-  var items = [], tenants = {}, chan = null, poll = null, uid = null, openMenu = false;
+  var items = [], tenants = {}, chan = null, poll = null, uid = null, openMenu = false, notificationFilter = "all";
 
   function ago(iso) {
     var s = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
@@ -47,18 +47,31 @@
     var slot = slotEl();
     if (!slot) return;
     var unread = items.filter(function (n) { return !n.read_at; }).length;
+    var visible = items.filter(function (n) { return notificationFilter === "all" || (notificationFilter === "read" ? !!n.read_at : !n.read_at); });
     slot.innerHTML =
       '<div class="bell"><button type="button" class="bellbtn" aria-label="Notifications' + (unread ? ", " + unread + " unread" : "") + '" aria-expanded="' + openMenu + '">' +
       '<span class="mi">notifications</span><span class="bellbadge"' + (unread ? "" : " hidden") + ">" + (unread > 9 ? "9+" : unread) + "</span></button>" +
       '<div class="bellmenu"' + (openMenu ? "" : " hidden") + '><div class="bellhead"><b>Notifications</b>' +
       (unread ? '<button type="button" class="linkbtn" id="markall"><span class="mi" aria-hidden="true">done_all</span>Mark All Read</button>' : "") + "</div>" +
-      '<div class="belllist">' + (items.length ? items.map(function (n) {
+      '<div class="notification-filters" role="group" aria-label="Filter notifications">' + [["all", "All", items.length], ["unread", "Unread", unread], ["read", "Read", items.length - unread]].map(function (filter) {
+        return '<button type="button" class="notification-filter" data-notification-filter="' + filter[0] + '" aria-pressed="' + (notificationFilter === filter[0]) + '">' + filter[1] + '<span>' + filter[2] + '</span></button>';
+      }).join("") + '</div>' +
+      '<div class="belllist">' + (visible.length ? visible.map(function (n) {
         var d = describe(n);
         return '<button type="button" class="nitem' + (n.read_at ? "" : " unread") + '" data-id="' + esc(n.id) + '"><span class="mi">' + esc(d.icon) + "</span>" +
           '<span class="ntext">' + esc(d.text) + '<small>' + esc(ago(n.created_at)) + "</small></span></button>";
-      }).join("") : D.ui.emptyState("You're all caught up", 'New notifications will appear here.', 'notifications_none')) + "</div></div></div>";
+      }).join("") : D.ui.emptyState(notificationFilter === "read" ? "No read notifications" : notificationFilter === "unread" ? "No unread notifications" : "You're all caught up", notificationFilter === "read" ? "Notifications you read will appear here." : 'New notifications will appear here.', 'notifications_none')) + "</div></div></div>";
 
     slot.querySelector(".bellbtn").onclick = function (e) { e.stopPropagation(); openMenu = !openMenu; paint(); };
+    Array.prototype.forEach.call(slot.querySelectorAll("[data-notification-filter]"), function (button) {
+      button.onclick = function (event) {
+        event.stopPropagation();
+        notificationFilter = button.getAttribute("data-notification-filter");
+        paint();
+        var active = slot.querySelector('[data-notification-filter="' + notificationFilter + '"]');
+        if (active) active.focus();
+      };
+    });
     var all = slot.querySelector("#markall");
     if (all) all.onclick = function (e) { e.stopPropagation(); markRead(items.filter(function (n) { return !n.read_at; }).map(function (n) { return n.id; })); };
     Array.prototype.forEach.call(slot.querySelectorAll(".nitem"), function (b) {
@@ -90,7 +103,7 @@
   function teardown() {
     if (chan) { sb.removeChannel(chan); chan = null; }
     if (poll) { clearInterval(poll); poll = null; }
-    items = []; tenants = {}; uid = null; openMenu = false;
+    items = []; tenants = {}; uid = null; openMenu = false; notificationFilter = "all";
   }
 
   async function mount() {

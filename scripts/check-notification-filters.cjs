@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const slot = {innerHTML:'',querySelector(){return {};},querySelectorAll(){return [];}};
+const D = {state:{},sb:{},esc:String,ui:{emptyState:title=>title}};
+const source=fs.readFileSync('js/notify.js','utf8').replace('D.notify = { mount: mount };','D.notify = {mount:mount,test:function(rows,filter){items=rows;notificationFilter=filter;paint();}};');
+vm.runInNewContext(source,{window:{DS:D},document:{getElementById:()=>slot,addEventListener(){}},Date,console});
+const rows=[{id:'1',type:'booking_requested',message:'UNREAD-REF',created_at:new Date().toISOString()},{id:'2',type:'booking_approved',message:'READ-REF',read_at:'2026-11-12',created_at:new Date().toISOString()}];
+D.notify.test(rows,'unread');assert.match(slot.innerHTML,/UNREAD-REF/);assert.doesNotMatch(slot.innerHTML,/READ-REF is confirmed/);
+D.notify.test(rows,'read');assert.match(slot.innerHTML,/READ-REF is confirmed/);assert.doesNotMatch(slot.innerHTML,/UNREAD-REF/);
+D.notify.test(rows,'all');assert.match(slot.innerHTML,/UNREAD-REF/);assert.match(slot.innerHTML,/READ-REF is confirmed/);
+D.notify.test([],'read');assert.match(slot.innerHTML,/No read notifications/);
+console.log('Read, unread, all notification filters and empty state passed.');
