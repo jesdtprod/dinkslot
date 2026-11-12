@@ -328,14 +328,10 @@
                 '<div id="quick-days" aria-label="Quick booking dates"></div>' +
 
                 '<!-- Slots Time Matrix Grid -->' +
-                '<div class="space-y-3 pt-2">' +
+                '<div class="booking-time-section">' +
                   '<div class="flex items-center justify-between text-xs text-slate-400">' +
                     '<span class="font-medium text-slate-300">Select Available Start Time</span>' +
-                    '<span class="flex items-center gap-2">' +
-                      '<span class="inline-block w-2.5 h-2.5 rounded bg-neon-lime"></span> Selected' +
-                      '<span class="inline-block w-2.5 h-2.5 rounded bg-carbon-800 border border-white/10 ml-2"></span> Open' +
-                      '<span class="inline-block w-2.5 h-2.5 rounded bg-carbon-950/80 border border-white/5 opacity-50 ml-2"></span> Booked' +
-                    '</span>' +
+                    '<div class="booking-slot-legend" aria-label="Time slot status"><span class="slot-status selected">Selected</span><span class="slot-status open">Open</span><span class="slot-status booked">Booked</span></div>' +
                   '</div>' +
                   '<div id="slots" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">' +
                   '</div>' +
@@ -536,14 +532,14 @@
       for (var i = 0; i < maxDays; i++) {
         var ymd = addDays(today, i);
         var dateObj = new Date(ymd + "T12:00:00Z");
-        var dayName = i === 0 ? "Today" : dateObj.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "short" });
+        var dayName = dateObj.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "short" });
         var monthDay = dateObj.toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric" });
-        var label = i === 0 ? (dayName + ", " + monthDay + " (Today)") : (dayName + ", " + monthDay);
+        var label = dayName + ", " + monthDay;
         var active = ymd === S.date;
         html.push(
           '<button type="button" class="quick-day-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ' +
           (active ? "bg-neon-lime/10 border border-neon-lime/30 text-neon-lime font-bold shadow-sm" : "bg-carbon-800 border border-white/5 text-slate-300 hover:text-white hover:bg-carbon-700") +
-          '" data-date="' + ymd + '">' + esc(label) + '</button>'
+          '" data-today="' + (i === 0) + '" aria-pressed="' + active + '" data-date="' + ymd + '">' + esc(label) + '</button>'
         );
       }
       box.innerHTML = html.join("");
@@ -671,7 +667,7 @@
           '</button>';
         }
         if (inRange) {
-          return '<button type="button" class="slot-pill p-3 rounded-xl bg-neon-lime text-carbon-950 font-bold border-2 border-neon-glow shadow-neon text-center transform scale-[1.02] ring-2 ring-neon-lime/30 cursor-pointer" data-i="' + i + '">' +
+          return '<button type="button" aria-pressed="true" class="slot-pill p-3 rounded-xl bg-neon-lime text-carbon-950 font-bold border-2 border-neon-glow shadow-neon text-center transform scale-[1.02] ring-2 ring-neon-lime/30 cursor-pointer" data-i="' + i + '">' +
             '<div class="text-xs font-black tracking-tight text-carbon-950">' + timeStr + '</div>' +
             '<div class="text-[11px] font-mono font-bold text-carbon-900">' + rateNum + '</div>' +
           '</button>';
