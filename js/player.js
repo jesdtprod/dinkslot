@@ -4,6 +4,7 @@
 (function () {
   "use strict";
   var D = window.DS, sb = D.sb, esc = D.esc, setMsg = D.setMsg, friendly = D.friendly;
+  var stopOverviewLive = null;
 
   var SECTIONS = {
     overview: ["Overview", "Your bookings and clubs at a glance."],
@@ -38,6 +39,7 @@
   }
 
   async function render(section) {
+    if (stopOverviewLive) { stopOverviewLive(); stopOverviewLive = null; }
     document.body.classList.add("tenant-dashboard-mode");
     var root = D.root();
     if (!SECTIONS[section]) section = "overview";
@@ -94,6 +96,7 @@
   }
 
   async function overviewView(sec) {
+    var selectedFilter = sec.__overviewFilter || 'upcoming';
     var mc = await myClubs();
     var pids = mc.players.map(function (p) { return p.id; });
     var up = 0, pending = 0, total = 0, next = null, courtName = "", clubName = "", clubSlug = "", tz = "Asia/Manila";
@@ -238,6 +241,7 @@
           detailHtml + '<div class="home-club-actions"><a class="btn ghost" href="#/c/' + esc(club.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>View Club</a><a class="btn" href="#/c/' + esc(club.slug) + '/book"><span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>Book a Court</a></div></div></article>';
       }).join('') : D.ui.emptyState('No clubs joined', 'Find a club to start booking courts.', 'groups', {href:'#/me/find',label:'Find a Club'})) + '</div></section>';
 
+    if (sec.isConnected === false) return;
     sec.innerHTML = '<div class="member-overview-page member-profile-theme" data-purpose="player-dashboard">' +
       heroHtml +
       metricsHtml +
@@ -265,12 +269,34 @@
         });
         btn.className = "px-3 py-1 text-xs font-bold rounded-lg bg-[#a3e635] text-black shadow-sm cursor-pointer transition-colors";
         var filter = btn.getAttribute('data-bfilter');
+        sec.__overviewFilter = filter;
         var slot = q('#next-booking-card-slot', sec);
         slot.innerHTML = bookingResults(filter);
         slot.setAttribute('aria-label', filter + ' bookings');
         sec.querySelectorAll('[data-bfilter]').forEach(function (tab) { tab.setAttribute('aria-selected', String(tab === btn)); });
       };
+      if (btn.getAttribute('data-bfilter') === selectedFilter && selectedFilter !== 'upcoming') btn.onclick();
     });
+    if (!sec.__overviewLive && typeof sb.channel === 'function') {
+      sec.__overviewLive = true;
+      var stopped = false, refreshing = false, rerun = false;
+      async function refreshOverview() {
+        if (stopped || !sec.isConnected) { stop(); return; }
+        if (refreshing) { rerun = true; return; }
+        refreshing = true;
+        try { await overviewView(sec); }
+        catch (error) { console.error('Unable to refresh overview bookings', error); }
+        finally { refreshing = false; if (rerun && !stopped) { rerun = false; refreshOverview(); } }
+      }
+      var channel = sb.channel('player-overview-' + D.state.user.id)
+        .on('postgres_changes', {event:'*',schema:'public',table:'bookings'}, refreshOverview).subscribe();
+      var poll = setInterval(refreshOverview, 20000);
+      function stop() {
+        if (stopped) return;
+        stopped = true; clearInterval(poll); sb.removeChannel(channel);
+      }
+      stopOverviewLive = stop;
+    }
   }
 
   async function findView(sec) {

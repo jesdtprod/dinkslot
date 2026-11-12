@@ -18,7 +18,7 @@ const D = {esc:escape,state:{user:{id:'user',email:'a@example.com'}},mediaUrl:x=
   return query;
 }}};
 const source = fs.readFileSync('js/player.js','utf8').replace('D.player = { render: render };','D.player = { render: render, overview: overviewView };');
-vm.runInNewContext(source,{window:{DS:D},console,Date,Set});
+vm.runInNewContext(source,{window:{DS:D},console,Date,Set,setInterval:()=>1,clearInterval(){}});
 function section(){
   const slot={innerHTML:'',setAttribute(){}};
   const tabs=['upcoming','recent','pending'].map(filter=>({className:'',setAttribute(){},getAttribute(){return filter;}}));
@@ -50,5 +50,17 @@ function section(){
   bookings=[]; sec=section(); await D.player.overview(sec);
   assert.match(sec.innerHTML,/No upcoming bookings/); assert.doesNotMatch(sec.innerHTML,/member-reservation-card/);
   sec.tabs[2].onclick(); assert.match(sec.slot.innerHTML,/No pending bookings/);
+  let onChange, subscriptions=0;
+  D.sb.channel=()=>({on(event,config,callback){assert.equal(config.table,'bookings');onChange=callback;return this;},subscribe(){subscriptions++;return this;}});
+  D.sb.removeChannel=()=>{};
+  bookings=[{tenant_id:'club',court_id:'court',status:'pending',reference_code:'LIVE-123',starts_at:future,ends_at:end,amount:200}];
+  sec=section();sec.isConnected=true;await D.player.overview(sec);sec.tabs[2].onclick();
+  assert.match(sec.slot.innerHTML,/LIVE-123/);
+  bookings[0].status='approved';await onChange();
+  assert.match(sec.slot.innerHTML,/No pending bookings/);
+  assert.match(sec.innerHTML,/Upcoming \(1\)/);
+  assert.equal(sec.__overviewFilter,'pending');assert.equal(subscriptions,1);
+  bookings[0].status='cancelled';await onChange();assert.match(sec.innerHTML,/Upcoming \(0\)/);
+  bookings[0].status='rejected';await onChange();assert.match(sec.innerHTML,/Pending \(0\)/);
   console.log('Member booking records, location, duration, filters and empty states passed.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
