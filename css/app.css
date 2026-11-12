@@ -4322,3 +4322,8 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   #ds-landing .landing-court-filter-options > span { align-self:flex-start; }
   #ds-landing .landing-court-filter-options > button { width:100%; justify-content:center; }
 }
+
+@media(max-width:639px) {
+  #ds-landing .club-filters { box-sizing:border-box; display:flex; flex-direction:column; align-items:stretch; width:100%; gap:8px; }
+  #ds-landing .club-filters .club-tab { flex:none; width:100%; min-height:38px; height:auto; justify-content:center; }
+}
