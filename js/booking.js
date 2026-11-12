@@ -742,9 +742,9 @@
       var dialog = document.createElement("dialog");
       dialog.className = "payment-instructions-modal";
       dialog.setAttribute("aria-labelledby", "payment-instructions-title");
-      dialog.innerHTML = '<header><h2 id="payment-instructions-title">Payment instructions</h2><button type="button" aria-label="Close payment instructions"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="payment-instructions-body"></div>';
+      dialog.innerHTML = '<header><div><span class="payment-guide-badge"><span class="material-symbols-outlined" aria-hidden="true">help</span>Payment guide</span><h2 id="payment-instructions-title">Payment instructions</h2><p>Follow the payment steps and review the club guidelines.</p></div><button type="button" data-close-guide aria-label="Close payment instructions"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="payment-instructions-body"></div><footer><span class="material-symbols-outlined" aria-hidden="true">info</span><span>Return to checkout to upload your receipt.</span><button type="button" data-close-guide>Got it</button></footer>';
       dialog.querySelector(".payment-instructions-body").append(el.querySelector("#payment-help-content").content.cloneNode(true));
-      dialog.querySelector("header button").onclick = function () { dialog.close(); };
+      dialog.querySelectorAll("[data-close-guide]").forEach(function (button) { button.onclick = function () { dialog.close(); }; });
       dialog.addEventListener("close", function () { dialog.remove(); if (trigger.isConnected) trigger.focus(); }, { once: true });
       document.body.append(dialog);
       dialog.showModal();

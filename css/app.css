@@ -4158,3 +4158,20 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .booking-checkout-breadcrumb strong { font-weight: 700; }
 #ds-book-page .booking-context-status .club-live-badge,
 #ds-book-page .booking-context-status .booking-timezone { font-size: 11px; line-height: 16px; font-weight: 600; }
+
+/* Payment guide follows the staff booking dialog's header/body/footer system. */
+dialog.payment-instructions-modal[open] { display: flex; flex-direction: column; width: min(700px,calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow: hidden; background: #192127; border-radius: 12px; }
+.payment-instructions-modal::before { content: ""; flex: 0 0 2px; background: #a7d67c; }
+.payment-instructions-modal > header { flex-shrink: 0; align-items: center; padding: 16px 20px; }
+.payment-guide-badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; margin-bottom: 6px; border: 1px solid #a3e63535; border-radius: 6px; background: #a3e6350d; color: #a3e635; font: 600 10px/16px "Plus Jakarta Sans",sans-serif; }
+.payment-guide-badge .material-symbols-outlined { font-size: 13px; }
+.payment-instructions-modal h2 { margin: 0; font: 600 19px/26px "Plus Jakarta Sans",sans-serif; }
+.payment-instructions-modal header p { margin: 3px 0 0; color: #91a5b2; font-size: 12px; line-height: 18px; }
+.payment-instructions-modal .payment-instructions-body { min-height: 0; padding: 18px 20px; overflow-y: auto; overscroll-behavior: contain; background: #10151c; scrollbar-width: thin; }
+.payment-instructions-modal .payment-howto { padding: 14px; border: 1px solid #ffffff0c; border-radius: 10px; background: #ffffff02; }
+.payment-instructions-modal .payment-howto > h4 { font-size: 12px; }
+.payment-instructions-modal .payment-club-instructions { padding: 14px; margin-top: 14px; border: 1px solid #ffffff0c; border-radius: 9px; background: #11191e; }
+.payment-instructions-modal > footer { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding: 14px 20px; border-top: 1px solid #ffffff12; background: #192127; color: #91a5b2; font-size: 11px; }
+.payment-instructions-modal > footer > .material-symbols-outlined { font-size: 17px; color: #a3e635; }
+.payment-instructions-modal footer button { margin-left: auto; min-height: 36px; padding: 8px 16px; border: 0; border-radius: 9px; background: #a3e635; color: #182200; font: 600 12px/20px "Plus Jakarta Sans",sans-serif; cursor: pointer; white-space: nowrap; }
+@media(max-width:480px) { .payment-instructions-modal > footer > span:not(.material-symbols-outlined) { font-size: 10px; } }
