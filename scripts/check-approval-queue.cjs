@@ -21,6 +21,7 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.doesNotMatch(normal.innerHTML,/NICKNAME/);
   assert.match(normal.innerHTML,/Needs approval/);
   assert.match(normal.innerHTML,/Unpaid/);
+  assert.match(normal.innerHTML,/data-ok="pending"[^>]*disabled/);
   assert.doesNotMatch(normal.innerHTML,/AM \? /);
   records=[{...pending,id:'guest',player_id:null,source:'walk_in',status:'approved',reference_code:'UNPAID-GUEST',ends_at:'2099-01-01T02:00:00Z'}];
   const guest=box();await D.booking.queue(guest,{id:'club'});
