@@ -4080,3 +4080,14 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .dink-payment-container .payment-timer-icon { font-size: 14px; }
 .dink-payment-container .payment-method-icon { font-size: 16px; }
 .dink-payment-container #btn-open-app { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+
+/* Compact payment guidance while keeping each step readable. */
+.dink-payment-container .payment-howto { padding: 12px 14px; }
+.payment-howto > h4 { margin-bottom: 10px; }
+.payment-howto > ol { gap: 6px; }
+.payment-howto > ol > li { min-height: 20px; padding-left: 27px; font-size: 11px; line-height: 20px; }
+.payment-howto > ol > li::before { width: 19px; height: 19px; font-size: 9px; }
+.payment-howto > p { margin-top: 10px; padding: 7px 9px; line-height: 16px; }
+.payment-club-instructions { margin-top: 10px; padding-top: 10px; }
+.payment-club-instructions h5 { margin-bottom: 7px; }
+.payment-club-instructions ul { gap: 4px; font-size: 11px; line-height: 19px; }
