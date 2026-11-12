@@ -3933,3 +3933,18 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .transfer-receipt .payment-receipt-upload { background: #181c22; border-color: #424936; border-radius: 10px; }
 .transfer-receipt .payment-receipt-name { font-size: 11px; }
 @media(max-width:550px) { .transfer-account-grid { grid-template-columns: minmax(0,1fr); } .transfer-qr-block { width: min(210px,100%); margin-inline: auto; } }
+
+/* Balance the receipt confirmation with its reservation summary. */
+.payment-submitted-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px 24px; }
+.payment-submitted-card > :not([hidden]) ~ :not([hidden]) { margin-top: 0; }
+.payment-submitted-card > p { max-width: 440px; font-size: 13px; line-height: 1.75; }
+.payment-submitted-card > h3 { font-size: 18px; line-height: 1.5; }
+@media(min-width:1024px) {
+  #ds-book-page .booking-layout:has(.payment-submitted-card) { display: grid; align-items: stretch; }
+  #ds-book-page .booking-layout:has(.payment-submitted-card) > .booking-steps { display: flex; flex-direction: column; grid-column: 1 / 9; grid-row: 1; }
+  #ds-book-page .booking-layout:has(.payment-submitted-card) #paypanel { display: flex; flex: 1; }
+  #ds-book-page .booking-layout:has(.payment-submitted-card) .payment-submitted-card { flex: 1; }
+  #ds-book-page .booking-layout:has(.payment-submitted-card) > aside { display: contents; }
+  #ds-book-page .booking-layout:has(.payment-submitted-card) > aside > div:first-child { grid-column: 9 / -1; grid-row: 1; margin-top: 0; }
+  #ds-book-page .booking-layout:has(.payment-submitted-card) > aside > div:not(:first-child) { grid-column: 9 / -1; margin-top: 0; }
+}
