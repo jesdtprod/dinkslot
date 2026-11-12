@@ -4203,3 +4203,11 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 #ds-book-page .shared-booking-breadcrumb .material-symbols-outlined { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; font-size: 14px; line-height: 1; }
 #ds-book-page .booking-context, #ds-book-page .checkout-context-row { margin: 0 0 24px; padding: 0; min-height: 32px; }
 #ds-book-page .booking-context > div, #ds-book-page .checkout-context-row { align-items: center; }
+
+/* Both screen intros use exactly the same block and line metrics. */
+#ds-book-page .checkout-page-intro { display: block; padding: 0; margin: 0 0 32px; }
+#ds-book-page .checkout-page-intro > span { display: block; margin: 0 0 6px; font: 600 12px/16px "JetBrains Mono",monospace; letter-spacing: .1em; }
+#ds-book-page .checkout-page-intro > div { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 0; padding: 0; }
+#ds-book-page .checkout-page-intro h1 { margin: 0; font: 700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing: -.025em; }
+#ds-book-page .checkout-page-intro p { margin: 4px 0 0; padding: 0; font: 400 13px/21px "Plus Jakarta Sans",sans-serif; }
+@media(max-width:639px) { #ds-book-page .checkout-page-intro h1 { font-size: 28px; line-height: 34px; } }

@@ -960,16 +960,7 @@
         '<!-- BookingMainLayout -->' +
         '<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">' +
           '<div id="booking-step1-2-wrapper">' +
-          '<div class="mb-8">' +
-            '<div class="flex items-center gap-2 text-neon-lime text-xs font-mono font-semibold uppercase tracking-widest mb-1.5">' +
-              'Pickleball Court Reservation' +
-            '</div>' +
-            '<h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3 m-0">' +
-              'Book a court' +
-              '<span class="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 font-normal">Fast Checkout</span>' +
-            '</h1>' +
-            '<p class="text-sm text-slate-400 mt-1 max-w-2xl m-0">Choose your court and time, then confirm your reservation.</p>' +
-          '</div>' +
+          '<header class="checkout-page-intro"><span>Pickleball Court Reservation</span><div><h1>Book a court</h1><span class="checkout-page-badge">Fast Checkout</span></div><p>Choose your court and time, then confirm your reservation.</p></header>' +
 
         '<section class="booking-context" data-purpose="breadcrumbs-context">' +
           '<div class="flex flex-wrap items-center justify-between gap-3 text-xs">' +
