@@ -4526,3 +4526,8 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 @media (max-width:400px) {
   #ds-book-page .booking-date-length { grid-template-columns:minmax(0,1fr); }
 }
+
+@media (max-width:639px) {
+  #ds-book-page #quick-days { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #ds-book-page #quick-days > button:nth-child(n+7) { display:none; }
+}
