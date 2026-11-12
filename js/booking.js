@@ -1277,9 +1277,9 @@
         '</article>';
       }
       box.innerHTML = (contacts.error && players.length ? '<div class="booking-contact-warning" role="status">Customer profile details are temporarily unavailable. Showing club registration details.</div>' : '') + '<div class="booking-queues">' + [
-        { title: 'Needs approval', description: 'Review payments and unpaid reservations.', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
-        { title: "Today's confirmed bookings", description: "Confirmed reservations scheduled for today.", icon: 'today', items: todayList, empty: 'No confirmed bookings today.' },
-        { title: 'Upcoming confirmed bookings', description: 'Confirmed reservations for the coming days.', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
+        { title: 'Needs Approval', description: 'Review payments and unpaid reservations.', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
+        { title: "Today's Confirmed Bookings", description: "Confirmed reservations scheduled for today.", icon: 'today', items: todayList, empty: 'No confirmed bookings today.' },
+        { title: 'Upcoming Confirmed Bookings', description: 'Confirmed reservations for the coming days.', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
       ].map(function (group) {
         return '<section class="booking-queue"><header class="booking-queue-heading"><span class="material-symbols-outlined" aria-hidden="true">' + group.icon + '</span><div class="booking-queue-heading-copy"><h3>' + group.title + '</h3>' + '<p class="booking-queue-description">' + esc(group.description) + '</p>'  + '</div><span class="booking-count' + (group.decide && group.items.length ? ' needs-attention' : '') + '">' + group.items.length + '</span></header>' +
           (group.items.length ? '<div class="booking-record-grid">' + group.items.map(function (b) { return row(b, !!group.decide); }).join('') + '</div>' : D.ui.emptyState(group.decide ? 'No pending approvals' : 'No bookings scheduled', group.empty, group.icon)) + '</section>';

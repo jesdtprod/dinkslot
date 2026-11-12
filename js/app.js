@@ -1821,7 +1821,10 @@
       var clubName = $("#oclub") ? $("#oclub").value.trim() : "";
       if (!name || !email || pw.length < 6) return setMsg(app, "Enter your name, your email and a password of at least 6 characters.", "err");
       if (!cap.token) return setMsg(app, MESSAGES.captcha_required, "err");
-      var btn = $("#go"); btn.disabled = true; setMsg(app, "Creating your club account...", "");
+      var btn = $("#go");
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span><span>Creating Club Account...</span>';
+      setMsg(app, "", "");
       var res = await sb.auth.signUp({
         email: email,
         password: pw,
@@ -1831,8 +1834,12 @@
           data: { account_type: "tenant", full_name: name, club_name: clubName }
         }
       });
-      cap.reset(); btn.disabled = false;
-      if (res.error) return setMsg(app, friendly(res.error), "err");
+      cap.reset();
+      btn.disabled = false;
+      if (res.error) {
+        btn.innerHTML = '<span>Create club account</span><i class="fa-solid fa-arrow-right text-xs"></i>';
+        return setMsg(app, friendly(res.error), "err");
+      }
       $("#f").reset();
       if (pwInput) pwInput.type = "password";
       var passwordIcon = $("#pw-toggle-icon");
@@ -1927,7 +1934,9 @@
       if (addrErr) return setMsg(app, addrErr, "err");
       if (!cap.token) return setMsg(app, MESSAGES.captcha_required, "err");
       var ad = phc.get();
-      $("#go").disabled = true; setMsg(app, "Submitting...", "");
+      $("#go").disabled = true;
+      $("#go").innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span><span>Submitting Profile...</span>';
+      setMsg(app, "", "");
       var v = await sb.functions.invoke("verify-turnstile", { body: { token: cap.token, purpose: "register_club" } });
       if (v.error || !v.data || !v.data.success) {
         var why = "";
@@ -1936,7 +1945,9 @@
           why = body ? (body.error || "") + (body.codes && body.codes.length ? " [" + body.codes.join(", ") + "]" : "") +
             (body.detail ? ": " + body.detail : "") + (body.message ? ": " + body.message : "") : "";
         } catch (_) { why = (v.error && v.error.message) || ""; }
-        cap.reset(); $("#go").disabled = false;
+        cap.reset();
+        $("#go").disabled = false;
+        $("#go").innerHTML = '<span>Submit for approval</span><i class="fa-solid fa-arrow-right text-xs"></i>';
         return setMsg(app, MESSAGES.captcha_failed + (why ? " (" + why + ")" : ""), "err");
       }
       var r = await sb.rpc("register_club", {
@@ -1944,7 +1955,9 @@
         p_address: ad.address, p_city: ad.city,
         p_contact_email: $("#cemail").value.trim() || null, p_contact_phone: $("#cphone").value.trim() || null
       });
-      cap.reset(); $("#go").disabled = false;
+      cap.reset();
+      $("#go").disabled = false;
+      $("#go").innerHTML = '<span>Submit for approval</span><i class="fa-solid fa-arrow-right text-xs"></i>';
       if (r.error) return setMsg(app, friendly(r.error), "err");
       // the registration function takes the basic fields; the full Philippine address is saved on the new club right after
       await sb.from("tenants").update({ manager_name: ad.manager_name, street: ad.street, barangay: ad.barangay, province: ad.province,

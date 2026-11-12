@@ -47,6 +47,72 @@
       (location ? '<a class="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(location) + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">location_on</span>View Location</a>' : '') + '</div></article>';
   }
 
+  function memberSkeleton(section) {
+    var titles = {
+      overview: { eyebrow: "Player Workspace", title: "Overview", sub: "Your bookings, joined clubs, and court schedule.", stats: 3 },
+      find: { eyebrow: "Discover Your Next Court", title: "Find a Club", sub: "Explore clubs, compare courts, and find your next place to play.", stats: 3 },
+      clubs: { eyebrow: "Player Workspace", title: "My Clubs", sub: "Your joined clubs, court details, and booking access in one place.", stats: 2 },
+      bookings: { eyebrow: "Player Workspace", title: "My Bookings", sub: "Manage your court reservations, payments, and booking passes.", stats: 3 },
+      profile: { eyebrow: "Your Player Account", title: "My Profile", sub: "Manage your personal details, profile photo, and address.", stats: 1 }
+    };
+    var meta = titles[section] || titles.overview;
+    var statHtml = '';
+    for (var i = 0; i < meta.stats; i++) {
+      statHtml += '<div class="member-skeleton-stat ds-skeleton"></div>';
+    }
+    var header = '<header class="member-skeleton-header" aria-hidden="true">' +
+      '<div class="member-skeleton-intro">' +
+        '<div class="member-skeleton-eyebrow ds-skeleton"></div>' +
+        '<div class="member-skeleton-title ds-skeleton"></div>' +
+        '<div class="member-skeleton-sub ds-skeleton"></div>' +
+      '</div>' +
+      '<div class="member-skeleton-stats">' + statHtml + '</div>' +
+    '</header>';
+
+    var body = '';
+    if (section === 'overview') {
+      body = '<div class="member-skeleton-metrics">' +
+        '<div class="member-skeleton-metric ds-skeleton"></div>' +
+        '<div class="member-skeleton-metric ds-skeleton"></div>' +
+        '<div class="member-skeleton-metric ds-skeleton"></div>' +
+      '</div>' +
+      '<div class="member-skeleton-panel ds-skeleton" style="height:200px;"></div>' +
+      '<div class="member-skeleton-grid">' +
+        '<div class="member-skeleton-card ds-skeleton"></div>' +
+        '<div class="member-skeleton-card ds-skeleton"></div>' +
+        '<div class="member-skeleton-card ds-skeleton"></div>' +
+      '</div>';
+    } else if (section === 'find') {
+      body = '<div class="member-skeleton-toolbar ds-skeleton"></div>' +
+      '<div class="member-skeleton-grid">' +
+        '<div class="member-skeleton-card ds-skeleton"></div>' +
+        '<div class="member-skeleton-card ds-skeleton"></div>' +
+        '<div class="member-skeleton-card ds-skeleton"></div>' +
+      '</div>';
+    } else if (section === 'clubs') {
+      body = '<div class="member-skeleton-toolbar ds-skeleton"></div>' +
+      '<div style="display:flex;flex-direction:column;gap:16px;">' +
+        '<div class="member-skeleton-panel ds-skeleton" style="height:240px;"></div>' +
+        '<div class="member-skeleton-panel ds-skeleton" style="height:240px;"></div>' +
+      '</div>';
+    } else if (section === 'bookings') {
+      body = '<div class="member-skeleton-toolbar ds-skeleton"></div>' +
+      '<div class="member-skeleton-panel ds-skeleton" style="height:90px;"></div>' +
+      '<div style="display:flex;flex-direction:column;gap:14px;">' +
+        '<div class="member-skeleton-panel ds-skeleton" style="height:140px;"></div>' +
+        '<div class="member-skeleton-panel ds-skeleton" style="height:140px;"></div>' +
+        '<div class="member-skeleton-panel ds-skeleton" style="height:140px;"></div>' +
+      '</div>';
+    } else if (section === 'profile') {
+      body = '<div class="member-skeleton-profile">' +
+        '<div class="member-skeleton-card ds-skeleton" style="height:440px;"></div>' +
+        '<div class="member-skeleton-card ds-skeleton" style="height:440px;"></div>' +
+      '</div>';
+    }
+
+    return '<div class="member-skeleton" aria-label="Loading ' + (meta.title || 'page') + '" role="status">' + header + body + '</div>';
+  }
+
   async function render(section) {
     if (stopOverviewLive) { stopOverviewLive(); stopOverviewLive = null; }
     document.body.classList.add("tenant-dashboard-mode");
@@ -75,7 +141,7 @@
     var workspaceStage = sec.parentElement;
     workspaceStage.classList.add("member-workspace-stage");
     if (D.mountPublicBackdrop) D.mountPublicBackdrop(workspaceStage);
-    sec.innerHTML = '<div class="member-skeleton" aria-label="Loading page"><div class="ds-skeleton"></div><div class="ds-skeleton"></div><div class="ds-skeleton"></div></div>';
+    sec.innerHTML = memberSkeleton(section);
     if (section === "find") await findView(sec);
     else if (section === "clubs") await clubsView(sec);
     else if (section === "bookings") await bookingsView(sec);

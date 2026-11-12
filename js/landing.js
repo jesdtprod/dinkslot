@@ -129,11 +129,79 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
         <span>Discovering premier pickleball venues...</span>
       </div>
     </div>
-    <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg">
-      <div class="h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col gap-3 ds-skeleton"></div>
-      <div class="h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col gap-3 ds-skeleton"></div>
-      <div class="h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col gap-3 ds-skeleton"></div>
-      <div class="h-80 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-4 flex flex-col gap-3 ds-skeleton"></div>
+    <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg" aria-label="Loading clubs">
+      <!-- Skeleton Club Card 1 -->
+      <article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg border border-outline-variant/15" aria-hidden="true">
+        <div class="relative h-48 w-full bg-surface-container ds-skeleton">
+          <div class="absolute top-3 left-3 w-24 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+          <div class="absolute top-3 right-3 w-14 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+        </div>
+        <div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+          <div class="flex flex-col gap-2.5">
+            <div class="h-3.5 w-28 rounded bg-surface-container-highest/70 ds-skeleton"></div>
+            <div class="h-5 w-44 rounded-md bg-surface-container-highest ds-skeleton"></div>
+            <div class="h-3.5 w-36 rounded bg-surface-container-highest/60 ds-skeleton"></div>
+          </div>
+          <div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">
+            <div class="h-5 w-20 rounded bg-surface-container-highest/80 ds-skeleton"></div>
+            <div class="h-9 w-28 rounded-full bg-primary/20 ds-skeleton"></div>
+          </div>
+        </div>
+      </article>
+      <!-- Skeleton Club Card 2 -->
+      <article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg border border-outline-variant/15" aria-hidden="true">
+        <div class="relative h-48 w-full bg-surface-container ds-skeleton">
+          <div class="absolute top-3 left-3 w-28 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+          <div class="absolute top-3 right-3 w-14 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+        </div>
+        <div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+          <div class="flex flex-col gap-2.5">
+            <div class="h-3.5 w-32 rounded bg-surface-container-highest/70 ds-skeleton"></div>
+            <div class="h-5 w-40 rounded-md bg-surface-container-highest ds-skeleton"></div>
+            <div class="h-3.5 w-32 rounded bg-surface-container-highest/60 ds-skeleton"></div>
+          </div>
+          <div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">
+            <div class="h-5 w-20 rounded bg-surface-container-highest/80 ds-skeleton"></div>
+            <div class="h-9 w-28 rounded-full bg-primary/20 ds-skeleton"></div>
+          </div>
+        </div>
+      </article>
+      <!-- Skeleton Club Card 3 -->
+      <article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg border border-outline-variant/15" aria-hidden="true">
+        <div class="relative h-48 w-full bg-surface-container ds-skeleton">
+          <div class="absolute top-3 left-3 w-24 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+          <div class="absolute top-3 right-3 w-14 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+        </div>
+        <div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+          <div class="flex flex-col gap-2.5">
+            <div class="h-3.5 w-24 rounded bg-surface-container-highest/70 ds-skeleton"></div>
+            <div class="h-5 w-48 rounded-md bg-surface-container-highest ds-skeleton"></div>
+            <div class="h-3.5 w-36 rounded bg-surface-container-highest/60 ds-skeleton"></div>
+          </div>
+          <div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">
+            <div class="h-5 w-20 rounded bg-surface-container-highest/80 ds-skeleton"></div>
+            <div class="h-9 w-28 rounded-full bg-primary/20 ds-skeleton"></div>
+          </div>
+        </div>
+      </article>
+      <!-- Skeleton Club Card 4 -->
+      <article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg border border-outline-variant/15" aria-hidden="true">
+        <div class="relative h-48 w-full bg-surface-container ds-skeleton">
+          <div class="absolute top-3 left-3 w-24 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+          <div class="absolute top-3 right-3 w-14 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+        </div>
+        <div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+          <div class="flex flex-col gap-2.5">
+            <div class="h-3.5 w-28 rounded bg-surface-container-highest/70 ds-skeleton"></div>
+            <div class="h-5 w-36 rounded-md bg-surface-container-highest ds-skeleton"></div>
+            <div class="h-3.5 w-32 rounded bg-surface-container-highest/60 ds-skeleton"></div>
+          </div>
+          <div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">
+            <div class="h-5 w-20 rounded bg-surface-container-highest/80 ds-skeleton"></div>
+            <div class="h-9 w-28 rounded-full bg-primary/20 ds-skeleton"></div>
+          </div>
+        </div>
+      </article>
     </div>
   </div>
 </section>
