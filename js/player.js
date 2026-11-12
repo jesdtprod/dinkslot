@@ -241,7 +241,7 @@
       (tr.data || []).forEach(function (t) { bookingClubs[t.id] = t; });
     }
     function bookingResults(filter) {
-      var list = filter === 'recent' ? recentList : filter === 'pending' ? pendingList : upcomingList;
+      var list = filter === 'recent' ? recentList.slice(0, 12) : filter === 'pending' ? pendingList : upcomingList;
       var titles = { upcoming: 'No upcoming bookings', recent: 'No past bookings', pending: 'No pending bookings' };
       return list.length ? list.map(function (b) {
         return reservationCard(b, bookingCourts[b.court_id], bookingClubs[b.tenant_id]);
