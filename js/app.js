@@ -577,7 +577,7 @@
     app.innerHTML =
       '<div id="club-profile-stage"><div id="ds-club-page" class="club-public w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 text-slate-100">' +
       // breadcrumbs
-      '<section class="pt-6 pb-2"><div class="flex items-center justify-between flex-wrap gap-3">' +
+      '<section class="club-page-context pt-6 pb-2"><div class="flex items-center justify-between flex-wrap gap-3">' +
         '<nav class="club-breadcrumb" aria-label="Breadcrumb">' +
           '<a class="club-back-link" href="#/"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>All clubs</span></a>' +
           '<ol class="club-breadcrumb-trail">' +
