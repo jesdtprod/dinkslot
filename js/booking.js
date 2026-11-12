@@ -445,11 +445,11 @@
                 '<p class="text-sm font-semibold text-white group-hover:text-primary transition m-0" id="file-name-label">' +
                   'Drag &amp; drop your receipt screenshot here, or <span class="text-primary underline">browse</span>' +
                 '</p>' +
-                '<p class="text-xs text-zinc-500 mt-1 m-0">Instant automatic optical verification via DINKSLOT bot</p>' +
+                '<p class="text-xs text-zinc-500 mt-1 m-0" id="file-attachment-hint">Your receipt uploads when you select Submit Proof &amp; Confirm Booking.</p>' +
               '</div>' +
               '<div class="hidden flex items-center justify-between bg-primary/10 border border-primary/30 px-3.5 py-2.5 rounded-xl mt-3" id="file-status-indicator">' +
                 '<div class="flex items-center gap-2.5 min-w-0">' +
-                  '<span class="material-symbols-outlined text-primary text-lg shrink-0">check_circle</span>' +
+                  '<span class="material-symbols-outlined text-primary text-lg shrink-0" aria-hidden="true">attach_file</span>' +
                   '<span class="text-xs font-mono font-medium text-white truncate" id="file-display-name">receipt.png</span>' +
                 '</div>' +
                 '<button type="button" class="receipt-remove-button" id="btn-clear-file" aria-label="Remove attached receipt" title="Remove attached receipt"><span class="material-symbols-outlined" aria-hidden="true">delete</span></button>' +
@@ -758,7 +758,7 @@
       if (!file) return;
       try {
         checkImage(file);
-        if (fileNameLabel) fileNameLabel.textContent = "Attached: " + file.name;
+        if (fileNameLabel) fileNameLabel.textContent = "Ready to upload: " + file.name;
         if (fileDisplayName) fileDisplayName.textContent = file.name;
         if (fileStatus) fileStatus.classList.remove("hidden");
         if (proofMsg) { proofMsg.textContent = ""; proofMsg.className = "msg mt-3 text-xs"; }
@@ -833,12 +833,13 @@
 
         submitBtn.disabled = true;
         submitBtn.classList.add("opacity-80", "pointer-events-none");
-        submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Verifying Slip &amp; Locking Court...</span>';
+        submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Uploading receipt...</span>';
 
         try {
           var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
           var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
           if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
+          submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Submitting payment proof...</span>';
 
           var curAccounts = getAccountsForMethod(activeMethod);
           var curAccount = curAccounts[activeAccountIndex] || curAccounts[0];
