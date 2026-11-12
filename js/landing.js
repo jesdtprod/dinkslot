@@ -133,72 +133,120 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
       <!-- Skeleton Club Card 1 -->
       <article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg border border-outline-variant/15" aria-hidden="true">
         <div class="relative h-48 w-full bg-surface-container ds-skeleton">
-          <div class="absolute top-3 left-3 w-24 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
-          <div class="absolute top-3 right-3 w-14 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+          <div class="absolute top-3 left-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> 3 Pro Courts
+          </div>
+          <div class="absolute top-3 right-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-on-surface flex items-center gap-1">
+            <span class="material-symbols-outlined text-primary text-label-sm" style="font-variation-settings: 'FILL' 1;">star</span> 4.9
+          </div>
         </div>
         <div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
-          <div class="flex flex-col gap-2.5">
-            <div class="h-3.5 w-28 rounded bg-surface-container-highest/70 ds-skeleton"></div>
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+              <span class="material-symbols-outlined text-label-md">pin_drop</span>
+              <span class="h-3.5 w-28 rounded bg-surface-container-highest/70 ds-skeleton inline-block"></span>
+            </div>
             <div class="h-5 w-44 rounded-md bg-surface-container-highest ds-skeleton"></div>
-            <div class="h-3.5 w-36 rounded bg-surface-container-highest/60 ds-skeleton"></div>
+            <div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+              <span class="material-symbols-outlined text-primary text-label-md">schedule</span>
+              <span class="h-3.5 w-36 rounded bg-surface-container-highest/60 ds-skeleton inline-block"></span>
+            </div>
           </div>
           <div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">
-            <div class="h-5 w-20 rounded bg-surface-container-highest/80 ds-skeleton"></div>
-            <div class="h-9 w-28 rounded-full bg-primary/20 ds-skeleton"></div>
+            <div class="flex items-baseline gap-1">
+              <span class="font-headline-sm text-on-surface">PHP 800</span><span class="font-label-sm text-outline">/hr</span>
+            </div>
+            <div class="px-space-md py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-[0_0_12px_rgba(163,230,53,0.25)]">Instant Book</div>
           </div>
         </div>
       </article>
       <!-- Skeleton Club Card 2 -->
       <article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg border border-outline-variant/15" aria-hidden="true">
         <div class="relative h-48 w-full bg-surface-container ds-skeleton">
-          <div class="absolute top-3 left-3 w-28 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
-          <div class="absolute top-3 right-3 w-14 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+          <div class="absolute top-3 left-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> 3 Pro Courts
+          </div>
+          <div class="absolute top-3 right-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-on-surface flex items-center gap-1">
+            <span class="material-symbols-outlined text-primary text-label-sm" style="font-variation-settings: 'FILL' 1;">star</span> 4.9
+          </div>
         </div>
         <div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
-          <div class="flex flex-col gap-2.5">
-            <div class="h-3.5 w-32 rounded bg-surface-container-highest/70 ds-skeleton"></div>
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+              <span class="material-symbols-outlined text-label-md">pin_drop</span>
+              <span class="h-3.5 w-32 rounded bg-surface-container-highest/70 ds-skeleton inline-block"></span>
+            </div>
             <div class="h-5 w-40 rounded-md bg-surface-container-highest ds-skeleton"></div>
-            <div class="h-3.5 w-32 rounded bg-surface-container-highest/60 ds-skeleton"></div>
+            <div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+              <span class="material-symbols-outlined text-primary text-label-md">schedule</span>
+              <span class="h-3.5 w-32 rounded bg-surface-container-highest/60 ds-skeleton inline-block"></span>
+            </div>
           </div>
           <div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">
-            <div class="h-5 w-20 rounded bg-surface-container-highest/80 ds-skeleton"></div>
-            <div class="h-9 w-28 rounded-full bg-primary/20 ds-skeleton"></div>
+            <div class="flex items-baseline gap-1">
+              <span class="font-headline-sm text-on-surface">PHP 750</span><span class="font-label-sm text-outline">/hr</span>
+            </div>
+            <div class="px-space-md py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-[0_0_12px_rgba(163,230,53,0.25)]">Instant Book</div>
           </div>
         </div>
       </article>
       <!-- Skeleton Club Card 3 -->
       <article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg border border-outline-variant/15" aria-hidden="true">
         <div class="relative h-48 w-full bg-surface-container ds-skeleton">
-          <div class="absolute top-3 left-3 w-24 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
-          <div class="absolute top-3 right-3 w-14 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+          <div class="absolute top-3 left-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> 4 Pro Courts
+          </div>
+          <div class="absolute top-3 right-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-on-surface flex items-center gap-1">
+            <span class="material-symbols-outlined text-primary text-label-sm" style="font-variation-settings: 'FILL' 1;">star</span> 4.9
+          </div>
         </div>
         <div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
-          <div class="flex flex-col gap-2.5">
-            <div class="h-3.5 w-24 rounded bg-surface-container-highest/70 ds-skeleton"></div>
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+              <span class="material-symbols-outlined text-label-md">pin_drop</span>
+              <span class="h-3.5 w-24 rounded bg-surface-container-highest/70 ds-skeleton inline-block"></span>
+            </div>
             <div class="h-5 w-48 rounded-md bg-surface-container-highest ds-skeleton"></div>
-            <div class="h-3.5 w-36 rounded bg-surface-container-highest/60 ds-skeleton"></div>
+            <div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+              <span class="material-symbols-outlined text-primary text-label-md">schedule</span>
+              <span class="h-3.5 w-36 rounded bg-surface-container-highest/60 ds-skeleton inline-block"></span>
+            </div>
           </div>
           <div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">
-            <div class="h-5 w-20 rounded bg-surface-container-highest/80 ds-skeleton"></div>
-            <div class="h-9 w-28 rounded-full bg-primary/20 ds-skeleton"></div>
+            <div class="flex items-baseline gap-1">
+              <span class="font-headline-sm text-on-surface">PHP 900</span><span class="font-label-sm text-outline">/hr</span>
+            </div>
+            <div class="px-space-md py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-[0_0_12px_rgba(163,230,53,0.25)]">Instant Book</div>
           </div>
         </div>
       </article>
       <!-- Skeleton Club Card 4 -->
       <article class="group flex flex-col rounded-2xl bg-surface-container-high overflow-hidden shadow-lg border border-outline-variant/15" aria-hidden="true">
         <div class="relative h-48 w-full bg-surface-container ds-skeleton">
-          <div class="absolute top-3 left-3 w-24 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
-          <div class="absolute top-3 right-3 w-14 h-6 rounded-full bg-surface-container-lowest/70 backdrop-blur-md"></div>
+          <div class="absolute top-3 left-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-primary font-semibold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> 2 Pro Courts
+          </div>
+          <div class="absolute top-3 right-3 px-space-sm py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md font-label-sm text-label-sm text-on-surface flex items-center gap-1">
+            <span class="material-symbols-outlined text-primary text-label-sm" style="font-variation-settings: 'FILL' 1;">star</span> 4.9
+          </div>
         </div>
         <div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
-          <div class="flex flex-col gap-2.5">
-            <div class="h-3.5 w-28 rounded bg-surface-container-highest/70 ds-skeleton"></div>
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+              <span class="material-symbols-outlined text-label-md">pin_drop</span>
+              <span class="h-3.5 w-28 rounded bg-surface-container-highest/70 ds-skeleton inline-block"></span>
+            </div>
             <div class="h-5 w-36 rounded-md bg-surface-container-highest ds-skeleton"></div>
-            <div class="h-3.5 w-32 rounded bg-surface-container-highest/60 ds-skeleton"></div>
+            <div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+              <span class="material-symbols-outlined text-primary text-label-md">schedule</span>
+              <span class="h-3.5 w-32 rounded bg-surface-container-highest/60 ds-skeleton inline-block"></span>
+            </div>
           </div>
           <div class="pt-space-md flex items-center justify-between border-t border-outline-variant/20">
-            <div class="h-5 w-20 rounded bg-surface-container-highest/80 ds-skeleton"></div>
-            <div class="h-9 w-28 rounded-full bg-primary/20 ds-skeleton"></div>
+            <div class="flex items-baseline gap-1">
+              <span class="font-headline-sm text-on-surface">PHP 650</span><span class="font-label-sm text-outline">/hr</span>
+            </div>
+            <div class="px-space-md py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-[0_0_12px_rgba(163,230,53,0.25)]">Instant Book</div>
           </div>
         </div>
       </article>
