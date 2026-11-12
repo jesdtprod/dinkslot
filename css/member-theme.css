@@ -221,3 +221,6 @@
 @media(max-width:639px) { #ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-heading { padding:20px 16px; } }
 
 #ds-tenant-dashboard #sec .member-overview-page .home-club-avatar { border-color:#202a30; }
+
+.member-overview-page #my-home-club .home-club-cover { height:180px; }
+@media(max-width:600px) { .member-overview-page #my-home-club .home-club-cover { height:160px; } }
