@@ -4145,7 +4145,9 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
   .checkout-method-column, .checkout-ticket-column { min-width: 0; }
   .checkout-ticket-column > div:first-child { display: flex; flex-direction: column; flex: 1; }
   .checkout-ticket-column .payment-access-note { margin-top: auto; padding-top: 16px; }
-  .checkout-method-column .payment-help-trigger { margin-top: auto; }
+  .checkout-method-column .checkout-proof-card { display: flex; flex-direction: column; flex: 1; }
+  .checkout-proof-card #drop-zone { flex: 1; min-height: 150px; }
+  .checkout-proof-card #proof-msg:empty { display: none; }
 }
 
 .dink-payment-container .checkout-total-due { align-items: center; gap: 12px; }

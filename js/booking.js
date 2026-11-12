@@ -427,7 +427,7 @@
             '</div>' +
 
             '<!-- Upload Payment Proof Section -->' +
-            '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl">' +
+            '<div class="checkout-proof-card bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl">' +
               '<div class="flex items-center justify-between mb-3">' +
                 '<div>' +
                   '<h2 class="text-base font-display font-bold text-white flex items-center gap-2 m-0">' +
