@@ -301,11 +301,11 @@
 .member-find-page .club-directory-tools::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; border-radius:0 0 2px 2px; }
 @media(max-width:639px) { #ds-tenant-dashboard #sec .member-find-page .club-directory-tools { padding:16px; } .member-find-page .club-directory-tools::before { left:16px; } }
 
-#ds-tenant-dashboard #sec :is(.member-find-page,.member-clubs-page) .club-search-heading { margin-bottom:16px; }
-#ds-tenant-dashboard #sec :is(.member-find-page,.member-clubs-page) .club-search-heading h2 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
-:is(.member-find-page,.member-clubs-page) .club-search-heading p { margin:2px 0 0; color:#91a5b2; font:400 13px/21px "Plus Jakarta Sans",sans-serif; }
+#ds-tenant-dashboard #sec :is(.member-find-page,.member-clubs-page,.member-bookings-page) .club-search-heading { margin-bottom:16px; }
+#ds-tenant-dashboard #sec :is(.member-find-page,.member-clubs-page,.member-bookings-page) .club-search-heading h2 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
+:is(.member-find-page,.member-clubs-page,.member-bookings-page) .club-search-heading p { margin:2px 0 0; color:#91a5b2; font:400 13px/21px "Plus Jakarta Sans",sans-serif; }
 #ds-tenant-dashboard #sec .member-find-page .club-directory-tools > .club-directory-search { margin-top:0; padding-top:0; }
-@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-find-page,.member-clubs-page) .club-search-heading h2 { font-size:28px; line-height:34px; } }
+@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-find-page,.member-clubs-page,.member-bookings-page) .club-search-heading h2 { font-size:28px; line-height:34px; } }
 
 /* Center discovery search controls and use clearly legible symbols. */
 #ds-tenant-dashboard #sec .member-find-page .club-directory-search { align-items:center; }
