@@ -3246,3 +3246,40 @@ body.club-registration-page > .site-footer { display: none; }
   #club-signup-screen::after,
   #club-profile-stage::after { animation: none; }
 }
+
+/* Account guidance beneath public club booking actions. */
+#ds-club-page .club-account-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px 14px;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #ffffff0d;
+  border-radius: 10px;
+  background: #ffffff03;
+  color: #a8b7c3;
+  font: 400 12px/1.65 "Plus Jakarta Sans", sans-serif;
+}
+#ds-club-page .club-account-returning {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+#ds-club-page .club-account-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0;
+  color: var(--lime);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+#ds-club-page .club-account-signin:hover { text-decoration: underline; text-underline-offset: 3px; }
+#ds-club-page .club-account-signin:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; border-radius: 3px; }
+@media (max-width: 767px) {
+  #ds-club-page .club-account-prompt { justify-content: flex-start; flex-direction: column; align-items: flex-start; }
+}
