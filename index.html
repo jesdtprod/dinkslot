@@ -233,7 +233,246 @@
   </style>
 </head>
 <body class="app-booting bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col">
-  <div id="app-startup" role="status" aria-label="Loading page"><div class="boot-skeleton" aria-hidden="true"><aside><i></i><b></b><b></b><b></b><b></b><b></b></aside><div class="boot-skeleton-page"><header><i></i><b></b></header><main><i class="boot-title"></i><i class="boot-subtitle"></i><div class="boot-metrics"><b></b><b></b><b></b><b></b></div><div class="boot-panels"><b></b><b></b></div><b class="boot-table"></b></main></div></div></div>
+  <div id="app-startup" role="status" aria-label="Loading page">
+    <!-- DEDICATED HIGH-FIDELITY HOME SKELETON (displayed on public / landing routes) -->
+    <div class="home-boot-skeleton" aria-hidden="true">
+      <div class="home-skel-glow-1"></div>
+      <div class="home-skel-glow-2"></div>
+
+      <!-- Top Navigation Bar -->
+      <div class="home-skel-nav">
+        <div class="home-skel-nav-brand">
+          <div class="home-skel-logo-frame">
+            <img src="assets/dinkslot-logo.png" alt="" />
+          </div>
+          <div class="home-skel-brand-text">
+            <span class="home-skel-brand-title">DINKSLOT</span>
+            <span class="home-skel-brand-slogan">Book Your Slot. Own the Court.</span>
+          </div>
+        </div>
+        <div class="home-skel-nav-links">
+          <span class="home-skel-pill">Find Courts</span>
+          <span class="home-skel-pill">Why DINKSLOT</span>
+          <span class="home-skel-pill">For Club Owners</span>
+        </div>
+        <div class="home-skel-nav-actions">
+          <span class="home-skel-pill">Log In</span>
+          <span class="home-skel-cta">Sign Up</span>
+        </div>
+      </div>
+
+      <!-- Hero Section -->
+      <div class="home-skel-hero">
+        <!-- Eyebrow Pill -->
+        <div class="home-skel-eyebrow">
+          <span class="home-skel-dot"></span>
+          <span>THE #1 PICKLEBALL RESERVATION &amp; DUPR READY COMMUNITY</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="home-skel-headline">
+          <span>Book Your Slot.</span>
+          <span class="home-skel-highlight">Own the Court.</span>
+        </h1>
+
+        <!-- Subheadline -->
+        <p class="home-skel-subheadline">
+          Discover premier indoor &amp; outdoor pickleball courts, book hourly slots in seconds, and connect with a DUPR Ready pickleball community.
+        </p>
+
+        <!-- Modern Quick Search Bar Card -->
+        <div class="home-skel-search-panel">
+          <div class="home-skel-search-controls">
+            <!-- Venue Field -->
+            <div class="home-skel-search-field">
+              <span class="material-symbols-outlined skel-icon-lime">search</span>
+              <div class="skel-field-col">
+                <span class="skel-field-lbl">SEARCH VENUE</span>
+                <span class="skel-field-val">Club name, venue, or zip...</span>
+              </div>
+            </div>
+            <!-- City Field -->
+            <div class="home-skel-search-field">
+              <span class="material-symbols-outlined skel-icon-lime">location_on</span>
+              <div class="skel-field-col">
+                <span class="skel-field-lbl">CITIES</span>
+                <span class="skel-field-val">All Cities <span class="material-symbols-outlined skel-icon-inline">expand_more</span></span>
+              </div>
+            </div>
+            <!-- Schedule Field -->
+            <div class="home-skel-search-field">
+              <span class="material-symbols-outlined skel-icon-lime">calendar_month</span>
+              <div class="skel-field-col">
+                <span class="skel-field-lbl">SCHEDULE</span>
+                <span class="skel-field-val">Today • Prime Slots</span>
+              </div>
+              <span class="material-symbols-outlined skel-icon-inline text-outline">schedule</span>
+            </div>
+            <!-- Find Courts Button -->
+            <div class="home-skel-btn-find">
+              <span>Find Courts</span>
+              <span class="material-symbols-outlined skel-icon-inline">arrow_forward</span>
+            </div>
+          </div>
+
+          <!-- Filter Pills Sub-Bar -->
+          <div class="home-skel-search-footer">
+            <div class="home-skel-filter-pills">
+              <span class="skel-lbl">Surface:</span>
+              <span class="skel-pill active"><span class="material-symbols-outlined skel-icon-inline">check_circle</span> All Courts</span>
+              <span class="skel-pill"><span class="material-symbols-outlined skel-icon-inline">arrow_forward</span> Indoor Courts</span>
+              <span class="skel-pill"><span class="material-symbols-outlined skel-icon-inline">arrow_forward</span> Outdoor Courts</span>
+            </div>
+            <div class="home-skel-lock-status">
+              <span class="material-symbols-outlined skel-icon-lime">bolt</span> Real-time instant lock activated
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust Proof Stats (4 Columns) -->
+        <div class="home-skel-stats">
+          <div class="home-skel-stat-item">
+            <span class="skel-stat-num text-primary">500+</span>
+            <span class="skel-stat-lbl">VERIFIED CLUBS</span>
+          </div>
+          <div class="home-skel-stat-item">
+            <span class="skel-stat-num text-white">45,000+</span>
+            <span class="skel-stat-lbl">ACTIVE PLAYERS</span>
+          </div>
+          <div class="home-skel-stat-item">
+            <span class="skel-stat-num text-primary">99.8%</span>
+            <span class="skel-stat-lbl">BOOKING RELIABILITY</span>
+          </div>
+          <div class="home-skel-stat-item">
+            <span class="skel-stat-num text-secondary">DUPR Ready</span>
+            <span class="skel-stat-lbl">PLAY AT YOUR LEVEL</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Court Inventory Section Header -->
+      <div class="home-skel-inventory">
+        <div class="home-skel-inventory-header">
+          <div>
+            <span class="skel-sec-eyebrow">REAL-TIME COURT INVENTORY</span>
+            <h2 class="skel-sec-title">Trending Pickleball Clubs Near You</h2>
+            <div class="home-skel-clubs-badge">
+              <span class="home-skel-dot"></span>
+              <span>Discovering premier pickleball venues...</span>
+            </div>
+          </div>
+          <div class="home-skel-category-tabs">
+            <span class="skel-tab active"><span class="material-symbols-outlined skel-icon-inline">grid_view</span> All Clubs</span>
+            <span class="skel-tab"><span class="material-symbols-outlined skel-icon-inline">roofing</span> Indoor Courts</span>
+            <span class="skel-tab"><span class="material-symbols-outlined skel-icon-inline">wb_sunny</span> Outdoor Courts</span>
+          </div>
+        </div>
+
+        <!-- 4 Realistic Shimmer Skeleton Cards Grid -->
+        <div class="home-skel-cards-grid">
+          <!-- Card 1 -->
+          <div class="home-skel-card">
+            <div class="home-skel-card-media ds-skeleton">
+              <div class="home-skel-badge-left"><span class="home-skel-dot"></span> 3 Pro Courts</div>
+              <div class="home-skel-badge-right"><span class="material-symbols-outlined skel-icon-star">star</span> 4.9</div>
+            </div>
+            <div class="home-skel-card-body">
+              <div class="home-skel-card-meta">
+                <span class="material-symbols-outlined skel-icon-meta">pin_drop</span>
+                <span class="home-skel-line w-28"></span>
+              </div>
+              <div class="home-skel-line-title w-48"></div>
+              <div class="home-skel-card-meta">
+                <span class="material-symbols-outlined skel-icon-meta text-primary">schedule</span>
+                <span class="home-skel-line w-36"></span>
+              </div>
+              <div class="home-skel-card-foot">
+                <div class="home-skel-price-wrap">
+                  <span class="home-skel-price">PHP 800</span><span class="home-skel-unit">/hr</span>
+                </div>
+                <div class="home-skel-btn-book">Instant Book</div>
+              </div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="home-skel-card">
+            <div class="home-skel-card-media ds-skeleton">
+              <div class="home-skel-badge-left"><span class="home-skel-dot"></span> 3 Pro Courts</div>
+              <div class="home-skel-badge-right"><span class="material-symbols-outlined skel-icon-star">star</span> 4.9</div>
+            </div>
+            <div class="home-skel-card-body">
+              <div class="home-skel-card-meta">
+                <span class="material-symbols-outlined skel-icon-meta">pin_drop</span>
+                <span class="home-skel-line w-32"></span>
+              </div>
+              <div class="home-skel-line-title w-40"></div>
+              <div class="home-skel-card-meta">
+                <span class="material-symbols-outlined skel-icon-meta text-primary">schedule</span>
+                <span class="home-skel-line w-32"></span>
+              </div>
+              <div class="home-skel-card-foot">
+                <div class="home-skel-price-wrap">
+                  <span class="home-skel-price">PHP 750</span><span class="home-skel-unit">/hr</span>
+                </div>
+                <div class="home-skel-btn-book">Instant Book</div>
+              </div>
+            </div>
+          </div>
+          <!-- Card 3 -->
+          <div class="home-skel-card">
+            <div class="home-skel-card-media ds-skeleton">
+              <div class="home-skel-badge-left"><span class="home-skel-dot"></span> 4 Pro Courts</div>
+              <div class="home-skel-badge-right"><span class="material-symbols-outlined skel-icon-star">star</span> 4.9</div>
+            </div>
+            <div class="home-skel-card-body">
+              <div class="home-skel-card-meta">
+                <span class="material-symbols-outlined skel-icon-meta">pin_drop</span>
+                <span class="home-skel-line w-24"></span>
+              </div>
+              <div class="home-skel-line-title w-44"></div>
+              <div class="home-skel-card-meta">
+                <span class="material-symbols-outlined skel-icon-meta text-primary">schedule</span>
+                <span class="home-skel-line w-36"></span>
+              </div>
+              <div class="home-skel-card-foot">
+                <div class="home-skel-price-wrap">
+                  <span class="home-skel-price">PHP 900</span><span class="home-skel-unit">/hr</span>
+                </div>
+                <div class="home-skel-btn-book">Instant Book</div>
+              </div>
+            </div>
+          </div>
+          <!-- Card 4 -->
+          <div class="home-skel-card">
+            <div class="home-skel-card-media ds-skeleton">
+              <div class="home-skel-badge-left"><span class="home-skel-dot"></span> 2 Pro Courts</div>
+              <div class="home-skel-badge-right"><span class="material-symbols-outlined skel-icon-star">star</span> 4.9</div>
+            </div>
+            <div class="home-skel-card-body">
+              <div class="home-skel-card-meta">
+                <span class="material-symbols-outlined skel-icon-meta">pin_drop</span>
+                <span class="home-skel-line w-28"></span>
+              </div>
+              <div class="home-skel-line-title w-36"></div>
+              <div class="home-skel-card-meta">
+                <span class="material-symbols-outlined skel-icon-meta text-primary">schedule</span>
+                <span class="home-skel-line w-32"></span>
+              </div>
+              <div class="home-skel-card-foot">
+                <div class="home-skel-price-wrap">
+                  <span class="home-skel-price">PHP 650</span><span class="home-skel-unit">/hr</span>
+                </div>
+                <div class="home-skel-btn-book">Instant Book</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD SKELETON (displayed on admin / platform / me routes) -->
+    <div class="boot-skeleton" aria-hidden="true"><aside><i></i><b></b><b></b><b></b><b></b><b></b></aside><div class="boot-skeleton-page"><header><i></i><b></b></header><main><i class="boot-title"></i><i class="boot-subtitle"></i><div class="boot-metrics"><b></b><b></b><b></b><b></b></div><div class="boot-panels"><b></b><b></b></div><b class="boot-table"></b></main></div></div>
+  </div>
   <script>document.documentElement.classList.toggle('boot-dashboard', /^#\/(admin|platform|me)(\/|\?|$)/.test(location.hash));</script>
   <header class="site-header fixed top-0 w-full z-50">
     <div class="h-16 w-full px-gutter lg:px-gutter-desktop flex items-center justify-between">

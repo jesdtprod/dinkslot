@@ -4997,5 +4997,3 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   .bell .belllist { max-height:calc(100dvh - 200px); overflow-y:auto; overscroll-behavior:contain; }
 }
 
-/* Keep the unfinished landing skeleton hidden while the styled loading shell is used. */
-#app-startup .home-boot-skeleton { display:none; }
