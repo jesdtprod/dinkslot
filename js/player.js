@@ -197,21 +197,21 @@
     // 3. NEXT BOOKING / LIVE COURT SCHEDULE CARD
     var nextBookingHtml =
       '<section class="space-y-4" data-purpose="next-booking-section" id="next-booking">' +
-        '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">' +
-          '<div class="flex items-center gap-3 flex-wrap">' +
+        '<div class="overview-booking-toolbar">' +
             '<h2 class="text-2xl font-bold font-display tracking-tight text-white flex items-center gap-2">' +
               '<span>Next booking</span>' +
             '</h2>' +
+          '<div class="overview-booking-controls">' +
             '<div class="inline-flex items-center bg-[#131b26] p-1 rounded-xl border border-[#212f42]" role="tablist" aria-label="Booking filter">' +
               '<button class="px-3 py-1 text-xs font-bold rounded-lg bg-[#a3e635] text-black shadow-sm cursor-pointer transition-colors" type="button" data-bfilter="upcoming">Upcoming (' + up + ')</button>' +
               '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="recent">Past Bookings (' + recentList.length + ')</button>' +
               '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="pending">Pending (' + pending + ')</button>' +
             '</div>' +
-          '</div>' +
           '<a class="btn ghost overview-calendar-button self-end sm:self-auto" href="#/me/bookings">' +
-            '<span>Calendar View</span>' +
-            '<span class="material-symbols-outlined text-sm" aria-hidden="true">calendar_month</span>' +
+            '<span class="material-symbols-outlined text-sm" aria-hidden="true">event_note</span>' +
+            '<span>My Bookings</span>' +
           '</a>' +
+          '</div>' +
         '</div>' +
         '<div id="next-booking-card-slot" class="space-y-3" role="tabpanel" aria-label="Upcoming bookings">' + bookingResults('upcoming') + '</div>' +
       '</section>';
