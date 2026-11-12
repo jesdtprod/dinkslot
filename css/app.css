@@ -4511,3 +4511,18 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 #nav:has(.auth-nav-switch) :is(.auth-nav-switch,.mobile-icon-nav) { box-sizing:border-box; height:38px; min-height:38px; border-radius:10px !important; }
 
 @media(max-width:767px) { html body #ds-tenant-dashboard header .dashboard-mobile-brand { font-size:20px !important; line-height:24px; letter-spacing:.02em; } }
+
+@media (max-width:639px) {
+  #ds-book-page > main { box-sizing:border-box; padding:24px 12px; }
+  #ds-book-page .booking-context { margin-bottom:20px; }
+  #ds-book-page .booking-context > div { align-items:flex-start; gap:10px; }
+  #ds-book-page .booking-context-status { width:100%; gap:8px; }
+  #ds-book-page .booking-context-status > span { max-width:100%; height:auto; min-height:32px; }
+  #ds-book-page .booking-steps > section { padding:16px; }
+  #ds-book-page #quick-days { grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+  #ds-book-page #quick-days > button { min-height:48px; padding:6px 2px; overflow-wrap:normal; }
+  #ds-book-page .booking-date-length { gap:10px; }
+}
+@media (max-width:400px) {
+  #ds-book-page .booking-date-length { grid-template-columns:minmax(0,1fr); }
+}
