@@ -629,7 +629,7 @@
     }
 
     sec.innerHTML =
-      '<div class="member-bookings-page" data-purpose="player-bookings-dashboard">' +
+      '<div class="member-bookings-page member-profile-theme" data-purpose="player-bookings-dashboard">' +
         headerHtml +
         filterToolbarHtml +
         reservationsSectionHtml +
