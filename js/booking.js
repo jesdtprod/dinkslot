@@ -1166,16 +1166,15 @@
 
                 '<div class="mt-6 pt-5 border-t border-white/10 text-center">' +
                   '<span class="text-[10px] uppercase font-mono tracking-widest text-slate-400 block mb-3">Supported Payment Channels</span>' +
-                  '<div class="flex items-center justify-center flex-wrap gap-2 text-xs font-mono text-slate-400">' +
+                  '<div class="booking-payment-channels flex items-center justify-center gap-2 text-xs font-mono text-slate-400">' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">GCash</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Maya</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Visa / Mastercard</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-neon-lime">Court Credits</span>' +
                   '</div>' +
                 '</div>' +
-              '</div>' +
 
-              '<div class="p-4 rounded-xl bg-carbon-900/60 border border-white/5 flex items-center justify-between text-xs text-slate-400">' +
+              '<div class="booking-channel-support p-4 rounded-xl bg-carbon-900/60 border border-white/5 flex items-center justify-between text-xs text-slate-400">' +
                 '<div class="flex items-center gap-2.5">' +
                   '<div class="w-8 h-8 rounded-lg bg-carbon-800 flex items-center justify-center text-neon-lime">' +
                     '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
@@ -1188,6 +1187,7 @@
                 (club.contact_phone ? '<a href="tel:' + esc(club.contact_phone) + '" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors border border-white/10 no-underline">Call Support</a>'
                   : club.contact_email ? '<a href="mailto:' + esc(club.contact_email) + '" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors border border-white/10 no-underline">Email</a>'
                   : '<span class="text-xs text-slate-500">Support</span>') +
+              '</div>' +
               '</div>' +
             '</aside>' +
           '</div>' +
