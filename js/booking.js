@@ -1527,6 +1527,12 @@
         root.innerHTML = '<div class="max-w-xl mx-auto py-12 text-center"><h2>Unable to restore checkout</h2><p>Your reservation could not be loaded. Open My Bookings to check its status.</p><a class="btn" href="#/me/bookings">My Bookings</a></div>';
         return;
       }
+      var proofResult = await sb.from("booking_payments").select("proof_path").eq("booking_id", pendingBookingId).not("proof_path", "is", null).limit(1);
+      if (proofResult.error) {
+        root.innerHTML = '<div class="max-w-xl mx-auto py-12 text-center"><h2>Unable to restore checkout</h2><p>Payment status could not be loaded. Open My Bookings to check your reservation.</p><a class="btn" href="#/me/bookings">My Bookings</a></div>';
+        return;
+      }
+      if ((proofResult.data || []).length || bkRes.data.status !== "pending") { D.go("/me/bookings"); return; }
       if (bkRes.data) {
         var step12 = q("#booking-step1-2-wrapper", root);
         if (step12) step12.hidden = true;
