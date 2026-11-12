@@ -33,7 +33,7 @@
       [/^(?:apply|search|find courts)/i, 'check', 'primary']
     ];
     root.querySelectorAll('button, a.btn, a.pill, a.transactions-button, a.setup-action, a[class*="bg-"], label.qrfile').forEach(function (button) {
-      if (button.matches('#grid > article > a.relative:first-child,[role="switch"],.booking-decision-action,.notification-filter,.payment-group,.qrtab,.complete-payment-close,.checkout-copy,.transfer-copy,[data-save-qr]')) return;
+      if (button.matches('#grid > article > a.relative:first-child,[role="switch"],.booking-decision-action,.notification-filter,.payment-group,.qrtab,.complete-payment-close,.payment-help-trigger,.payment-instructions-modal button,.checkout-copy,.transfer-copy,[data-save-qr]')) return;
       if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,.bellbtn,.nitem,.proof-icon-action,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('#ds-toast-stack,.toast-region,.confirmation-modal,.guest-payment-dialog,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"],.club-public,.book-public,#ds-book-page,.dink-payment-container')) return;
       var copy = button.cloneNode(true);
       copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });

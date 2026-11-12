@@ -4107,3 +4107,16 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .dink-payment-container #cancel-release-btn { min-height: 38px; background: #ef444410; border: 1px solid #ef444430; color: #fca5a5; border-radius: 9px; }
 .dink-payment-container #cancel-release-btn:hover { background: #ef444420; border-color: #ef444450; }
 .dink-payment-container #cancel-release-btn:focus-visible { outline: 2px solid #fca5a5; outline-offset: 3px; }
+
+.payment-help-trigger { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1px solid #36424a; border-radius: 9px; background: #202a30; color: #c8d7de; font: 500 12px/20px "Plus Jakarta Sans",sans-serif; cursor: pointer; text-align: left; }
+.payment-help-trigger .material-symbols-outlined { color: #a3e635; font-size: 18px; }
+.payment-help-trigger .material-symbols-outlined:last-child { margin-left: auto; font-size: 15px; }
+.payment-instructions-modal { box-sizing: border-box; width: min(620px,calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 0; margin: auto; overflow-y: auto; border: 1px solid #36424a; border-radius: 14px; background: #181f24; color: #dce6df; font-family: "Plus Jakarta Sans",sans-serif; }
+.payment-instructions-modal::backdrop { background: #03080dcc; backdrop-filter: blur(6px); }
+.payment-instructions-modal > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #ffffff12; }
+.payment-instructions-modal h2 { margin: 0; font-size: 16px; }
+.payment-instructions-modal header button { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid #ffffff12; border-radius: 8px; background: #202a30; color: #b9cbd5; cursor: pointer; }
+.payment-instructions-modal header button span { font-size: 18px; }
+.payment-instructions-body { padding: 16px; }
+.payment-instructions-body .payment-howto { margin: 0; }
+.payment-help-trigger:focus-visible, .payment-instructions-modal button:focus-visible { outline: 2px solid #a3e635; outline-offset: 3px; }
