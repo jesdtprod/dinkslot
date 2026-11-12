@@ -348,6 +348,12 @@
       }).join("");
     }
 
+    function clubInstructionMarkup(text) {
+      var lines = String(text || "").split(/\r?\n|\s+\*\s+/).map(function (line) {
+        return line.trim().replace(/^(?:\d+[.)]|[-*])\s*/, "");
+      }).filter(function (line) { return line && !/^booking and payment instructions:?$/i.test(line); });
+      return '<section class="payment-club-instructions"><h5>Instructions from the club</h5><ul>' + lines.map(function (line) { return '<li>' + esc(line) + '</li>'; }).join("") + '</ul></section>';
+    }
     el.innerHTML =
       '<div class="dink-payment-container max-w-7xl mx-auto w-full relative py-4 sm:py-6 text-slate-100">' +
         '<header class="checkout-page-intro"><span>Pickleball Court Reservation</span><div><h1>Complete your payment</h1><span class="checkout-page-badge">Checkout</span></div><p>Pay your reservation fee and attach your receipt to confirm your court booking.</p></header>' +
@@ -524,7 +530,7 @@
                 '<div class="hidden text-[11px] font-mono text-primary font-bold mt-1.5 text-right" id="summary-note-toast">Note reference code copied!</div>' +
               '</div>' +
 
-              '<section class="payment-howto"><h4>How to complete payment</h4><ol><li>Choose a receiver account and save or scan its QR.</li><li>Open your payment app and send <strong>' + money(b.amount) + '</strong>. Check the receiver name before paying.</li><li>Include booking code <strong>' + esc(b.reference_code) + '</strong> in the payment note when available.</li><li>Save the receipt, attach it below, then select Submit Proof &amp; Confirm Booking.</li></ol><p>' + (info.approval_required ? 'The club will review your receipt before confirming the reservation.' : 'Your reservation is confirmed after successful submission.') + '</p>' + (info.payment_instructions ? '<details><summary>Instructions from the club</summary><p>' + esc(info.payment_instructions) + '</p></details>' : '') + '</section>' +
+              '<section class="payment-howto"><h4>How to complete payment</h4><ol><li>Choose a receiver account and save or scan its QR.</li><li>Open your payment app and send <strong>' + money(b.amount) + '</strong>. Check the receiver name before paying.</li><li>Include booking code <strong>' + esc(b.reference_code) + '</strong> in the payment note when available.</li><li>Save the receipt, attach it below, then select Submit Proof &amp; Confirm Booking.</li></ol><p>' + (info.approval_required ? 'The club will review your receipt before confirming the reservation.' : 'Your reservation is confirmed after successful submission.') + '</p>' + (info.payment_instructions ? clubInstructionMarkup(info.payment_instructions) : '') + '</section>' +
               '<!-- Price Breakdown Ledger -->' +
               '<div class="py-3 border-t border-outline-variant/30 flex flex-col gap-2 text-xs">' +
                 '<div class="flex items-center justify-between text-zinc-300">' +

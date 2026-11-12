@@ -4054,3 +4054,15 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .dink-payment-container .bg-primary:hover { background-color: #a3e635; }
 .dink-payment-container .payment-howto h4,
 .dink-payment-container .checkout-page-intro > span { color: #a3e635; }
+
+/* Payment guidance is visible by default, with a clear step hierarchy. */
+.dink-payment-container .payment-howto { padding: 16px; border-radius: 10px; }
+.payment-howto > h4 { font-size: 12px; line-height: 18px; margin-bottom: 14px; }
+.payment-howto > ol { display: flex; flex-direction: column; gap: 12px; padding: 0; margin: 0; list-style: none; counter-reset: payment-step; }
+.payment-howto > ol > li { position: relative; margin: 0; padding-left: 30px; min-height: 22px; line-height: 1.7; counter-increment: payment-step; }
+.payment-howto > ol > li::before { content: counter(payment-step); position: absolute; top: 0; left: 0; display: grid; place-items: center; width: 21px; height: 21px; border: 1px solid #a3e63530; border-radius: 6px; background: #a3e6350c; color: #a3e635; font-size: 10px; font-weight: 600; }
+.payment-howto > p { padding: 10px 12px; margin: 14px 0 0; border-radius: 8px; background: #ffffff04; font-size: 10px; }
+.payment-club-instructions { margin-top: 16px; padding-top: 14px; border-top: 1px solid #ffffff12; }
+.payment-club-instructions h5 { margin: 0 0 10px; color: #d5e0e6; font: 600 11px/18px "Plus Jakarta Sans",sans-serif; }
+.payment-club-instructions ul { display: flex; flex-direction: column; gap: 8px; margin: 0; padding-left: 16px; list-style: disc; color: #aabac5; font-size: 11px; line-height: 1.75; }
+.payment-club-instructions li::marker { color: #a3e635; }
