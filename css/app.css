@@ -3817,3 +3817,38 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .checkout-payment .proof .checkout-receipt-card .payment-receipt-browse { margin: 0; }
 .checkout-payment .msg:empty { display: none; }
 @media(max-width:700px) { .payment-panel .proof.checkout-form, .booking-payment-modal .payment-panel .proof.checkout-form { grid-template-columns: minmax(0,1fr); } .checkout-payment .payment-account-options { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+
+/* Use the booking palette and one summary once checkout is active. */
+#ds-book-page .booking-layout:has(#paypanel:not([hidden])) { display: block; }
+#ds-book-page .booking-layout:has(#paypanel:not([hidden])) > aside { display: none; }
+#ds-book-page #paypanel > .payment-panel.checkout-payment { background: transparent; padding: 0; }
+#ds-book-page #paypanel > .checkout-payment > .proof.checkout-form { margin-top: 0; padding-top: 0; }
+.checkout-payment { --checkout-panel: #181f24; --checkout-inset: #202a30; --checkout-border: #303c43; --checkout-lime: #a3e635; }
+.checkout-payment .checkout-card { background: var(--checkout-panel); border-color: var(--checkout-border); border-radius: 12px; padding: 20px; }
+.checkout-payment .proof.checkout-form { gap: 24px; grid-template-columns: minmax(0,1.25fr) minmax(0,1fr); }
+.checkout-payment-left { gap: 24px; }
+.checkout-payment .checkout-card > header { align-items: center; gap: 10px; margin-bottom: 16px; }
+.checkout-payment .checkout-card > header > .material-symbols-outlined { display: grid; place-items: center; flex: 0 0 32px; height: 32px; border: 1px solid #a3e63525; border-radius: 8px; background: #a3e6350a; color: var(--checkout-lime); font-size: 19px; line-height: 1; }
+.checkout-payment .checkout-card header :is(h2,h3) { font-size: 15px; line-height: 21px; }
+.checkout-payment .checkout-card header p { line-height: 18px; }
+.checkout-payment .payment-method-groups { border-color: var(--checkout-border); background: #11191e; }
+.checkout-payment .payment-group[aria-pressed="true"] { color: #182200; background: var(--checkout-lime); border-color: var(--checkout-lime); }
+.checkout-payment .qrtab { border-color: #36424a; background: var(--checkout-inset); }
+.checkout-payment .qrtab[aria-pressed="true"] { color: var(--checkout-lime); border-color: #a3e63560; background: #a3e63512; }
+.checkout-payment #qrside > div:last-child,
+.checkout-payment .checkout-booking-details > div,
+.checkout-payment .checkout-policies { background: var(--checkout-inset); border-color: #36424a; }
+.checkout-payment .checkout-venue > .material-symbols-outlined { flex: 0 0 36px; color: var(--checkout-lime); font-size: 22px; line-height: 1; background: var(--checkout-inset); }
+.checkout-payment .checkout-venue span,
+.checkout-payment .checkout-payment-note :is(h4,strong),
+.checkout-payment .checkout-total > strong,
+.checkout-payment .checkout-context strong { color: var(--checkout-lime); }
+.checkout-payment .checkout-payment-note { border-color: #a3e63540; background: #a3e63508; }
+.checkout-payment .checkout-copy,
+.checkout-payment .checkout-submit { background: var(--checkout-lime); color: #182200; box-shadow: none; }
+.checkout-payment .checkout-actions > a { background: var(--checkout-inset); border: 1px solid #36424a; }
+.checkout-payment .checkout-total { align-items: center; gap: 12px; }
+.checkout-payment .proof .payment-receipt-upload { background: #11191e; min-height: 144px; gap: 8px; }
+.checkout-payment .checkout-reservation { align-self: start; }
+.checkout-payment .checkout-hold .material-symbols-outlined { display: inline-block; width: 14px; height: 14px; font-size: 14px; line-height: 1; }
+@media(max-width:700px) { .checkout-payment .proof.checkout-form { grid-template-columns: minmax(0,1fr); gap: 16px; } .checkout-payment-left { gap: 16px; } .checkout-payment .checkout-card { padding: 16px; } }
