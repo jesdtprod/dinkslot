@@ -3967,3 +3967,30 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .transfer-account-copy > .transfer-reminder { display: flex; align-items: flex-start; gap: 7px; padding: 10px; background: #0a0e14; border: 0; font-size: 10px; line-height: 16px; color: #9cabb9; }
 .transfer-reminder > .material-symbols-outlined { color: #a3e635; font-size: 17px; }
 @media(max-width:550px) { .transfer-details .transfer-account-grid { grid-template-columns: minmax(0,1fr); } .transfer-steps > small { display: none; } }
+
+/* Kinetic mesh and grid pattern for Step 3 Checkout */
+.grid-dot-pattern {
+  background-image: radial-gradient(rgba(163, 230, 53, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.mesh-subtle {
+  background-image: radial-gradient(circle at 10% 20%, rgba(163, 230, 53, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(164, 214, 76, 0.04) 0%, transparent 40%);
+}
+
+
+/* Checkout uses the same green as the booking action system. */
+.dink-payment-container .text-primary { color: var(--lime); }
+.dink-payment-container .bg-primary { background-color: var(--lime); }
+.dink-payment-container .border-primary { border-color: var(--lime); }
+.dink-payment-container .method-select-btn[aria-pressed="true"] { background: var(--lime); color: #182200; }
+.dink-payment-container #submit-confirm-btn { background: var(--lime); color: #182200; box-shadow: none; }
+.payment-qr-heading { gap: 6px; flex-wrap: wrap; }
+.payment-qr-heading > span:first-child { flex-shrink: 0; white-space: nowrap; }
+.payment-qr-account-label { min-width: 0; color: #91a5b2; font-size: 9px; overflow-wrap: anywhere; }
+.payment-howto { margin: 16px 0; padding: 14px; border: 1px solid #303c43; border-radius: 10px; background: #11191e; }
+.payment-howto h4 { margin: 0 0 10px; color: var(--lime); font-size: 12px; }
+.payment-howto ol { margin: 0; padding-left: 18px; color: #b7c6d0; font-size: 11px; line-height: 1.75; }
+.payment-howto li + li { margin-top: 6px; }
+.payment-howto p { color: #9cabb6; font-size: 11px; line-height: 1.7; margin-top: 10px; white-space: pre-line; }
+.payment-howto summary { color: #c3d1d8; cursor: pointer; font-size: 11px; margin-top: 10px; }

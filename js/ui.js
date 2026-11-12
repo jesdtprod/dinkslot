@@ -34,7 +34,7 @@
     ];
     root.querySelectorAll('button, a.btn, a.pill, a.transactions-button, a.setup-action, a[class*="bg-"], label.qrfile').forEach(function (button) {
       if (button.matches('#grid > article > a.relative:first-child,[role="switch"],.booking-decision-action,.notification-filter,.payment-group,.qrtab,.complete-payment-close,.checkout-copy,.transfer-copy,[data-save-qr]')) return;
-      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,.bellbtn,.nitem,.proof-icon-action,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('#ds-toast-stack,.toast-region,.confirmation-modal,.guest-payment-dialog,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"],.club-public,.book-public,#ds-book-page')) return;
+      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,.bellbtn,.nitem,.proof-icon-action,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('#ds-toast-stack,.toast-region,.confirmation-modal,.guest-payment-dialog,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"],.club-public,.book-public,#ds-book-page,.dink-payment-container')) return;
       var copy = button.cloneNode(true);
       copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });
       var label = copy.textContent.trim().replace(/\s+/g, ' ');
@@ -79,7 +79,7 @@
     root.querySelectorAll('input, textarea, select').forEach(function (field) {
       if (field.hasAttribute('data-has-icon') || field.classList.contains('ds-input-icon') || field.matches('[type="hidden"],[type="checkbox"],[type="radio"],[type="range"],[type="color"],[type="file"],[type="submit"],[type="button"],[type="reset"]')) return;
       // Custom date/time controls and search boxes already provide their own icons.
-      if (field.closest('.datetime-picker,.leaflet-control,.book-public,#ds-book-page') || Array.from(field.parentElement.children).some(function (sibling) {
+      if (field.closest('.datetime-picker,.leaflet-control,.book-public,#ds-book-page,.dink-payment-container') || Array.from(field.parentElement.children).some(function (sibling) {
         return sibling !== field && (sibling.matches('svg,.material-symbols-outlined,.fa-search,.fa-magnifying-glass') ||
           (sibling.matches('.pointer-events-none') && sibling.querySelector('i,svg,.material-symbols-outlined')));
       })) return;

@@ -134,121 +134,796 @@
   // ======================================================== payment panel
   // Shows amount, QR, instructions, reference code and the proof upload for one booking.
   async function payPanel(el, b, ctx) {
-    el.innerHTML = '<div class="space-y-4"><div class="h-32 rounded-2xl bg-carbon-850/80 ds-skeleton border border-white/10"></div><div class="h-24 rounded-2xl bg-carbon-850/60 ds-skeleton border border-white/10"></div></div>';
+    ctx = ctx || {};
+    el.innerHTML = '<div class="space-y-4 max-w-7xl mx-auto py-8"><div class="h-32 rounded-2xl bg-surface-container ds-skeleton border border-outline-variant/30"></div><div class="h-64 rounded-2xl bg-surface-container ds-skeleton border border-outline-variant/30"></div></div>';
+
     var ir = await sb.rpc("get_booking_info", { p_court_id: b.court_id });
-    if (ir.error) { el.innerHTML = '<p class="msg err">' + esc(nice(ir.error)) + "</p>"; return; }
-    var info = ir.data;
+    if (ir.error) {
+      el.innerHTML = '<div class="p-6 rounded-2xl bg-surface-container border border-rose-500/30 text-center"><p class="text-rose-400 font-semibold">' + esc(nice(ir.error)) + '</p></div>';
+      return;
+    }
+    var info = ir.data || {};
+
     if (b.status === "approved") {
-      el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-emerald-500/30 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div><h3 class="text-xl font-bold text-white">Your booking is approved!</h3><p class="text-sm text-slate-300">See you on the court. Access pass will be ready in your account.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm shadow-neon no-underline" href="#/me">View My Bookings</a></div>';
+      el.innerHTML = '<div class="max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-emerald-500/30 shadow-2xl">' +
+        '<div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto text-3xl shadow-neon-lime">' +
+          '<span class="material-symbols-outlined text-3xl font-bold">check</span>' +
+        '</div>' +
+        '<div class="space-y-2">' +
+          '<span class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold">Confirmed &amp; Ready</span>' +
+          '<h2 class="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight">Your booking is approved!</h2>' +
+          '<p class="text-sm text-zinc-300 max-w-md mx-auto">See you on the court. Access pass will be ready in your account.</p>' +
+        '</div>' +
+        '<a class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-[#b2f746] text-black font-display font-bold text-sm shadow-neon-lime transition no-underline" href="#/me/bookings">View My Bookings</a>' +
+      '</div>';
       return;
     }
-    if (b.status !== "pending") { el.innerHTML = ""; return; }
+    if (b.status !== "pending") {
+      el.innerHTML = '<div class="p-6 rounded-2xl bg-surface-container border border-outline-variant/30 text-center text-sm text-zinc-400">This booking is ' + esc(b.status) + '.</div>';
+      return;
+    }
     if (!info.payment_enabled) {
-      el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-white/10 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-neon-lime/20 text-neon-lime flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-envelope-circle-check"></i></div><h3 class="text-xl font-bold text-white">Request Sent</h3><p class="text-sm text-slate-300">The club will review your reservation request and you will see the update in your account.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-carbon-800 hover:bg-carbon-700 text-white font-medium text-sm border border-white/10 no-underline" href="#/me">Go to My Bookings</a></div>';
+      el.innerHTML = '<div class="max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-primary/30 shadow-2xl">' +
+        '<div class="w-16 h-16 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center mx-auto text-3xl shadow-neon-lime">' +
+          '<span class="material-symbols-outlined text-3xl font-bold">mail</span>' +
+        '</div>' +
+        '<div class="space-y-2">' +
+          '<h2 class="text-2xl font-display font-extrabold text-white">Request Sent</h2>' +
+          '<p class="text-sm text-zinc-300">The club will review your reservation request and you will see the update in your account.</p>' +
+        '</div>' +
+        '<a class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-[#b2f746] text-black font-display font-bold text-sm no-underline" href="#/me/bookings">Go to My Bookings</a>' +
+      '</div>';
       return;
     }
-    var qrs = info.qrs || [], urls = {}, method = qrs.length ? qrs[0].label : null, attemptKey = uuid();
-    if (qrs.length) {
-      var su = await sb.storage.from("payment").createSignedUrls(qrs.map(function (x) { return x.qr_path; }), 600);
+
+    var club = ctx.club;
+    if (!club) {
+      var tRes = await sb.from("public_tenants").select("id,name,motto,address,timezone,slug").eq("id", b.tenant_id).maybeSingle();
+      club = tRes.data || { name: "The Pickleshot Arena", motto: "Kinetic Velocity Club", address: "Outdoor Arena Alpha", timezone: "Asia/Manila", slug: "" };
+    }
+    var court = ctx.court;
+    if (!court) {
+      var cRes = await sb.from("public_courts").select("id,name,surface,indoor,hourly_rate").eq("id", b.court_id).maybeSingle();
+      court = cRes.data || { id: b.court_id, name: "Court 1", surface: "Silica Sand Outdoor" };
+    }
+
+    var tz = club.timezone || "Asia/Manila";
+    var dateStr = new Date(b.starts_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: tz });
+    var timeStr = timeOf(new Date(b.starts_at), tz) + " – " + timeOf(new Date(b.ends_at), tz);
+    var diffMs = new Date(b.ends_at).getTime() - new Date(b.starts_at).getTime();
+    var hrs = Math.max(1, Math.round(diffMs / 3600000));
+
+    var rawQrs = info.qrs || [];
+    var urls = {};
+    var attemptKey = uuid();
+
+    var pathsWithQr = rawQrs.filter(function (x) { return x.qr_path; }).map(function (x) { return x.qr_path; });
+    if (pathsWithQr.length) {
+      var su = await sb.storage.from("payment").createSignedUrls(pathsWithQr, 600);
       (su.data || []).forEach(function (x) { if (x.path && x.signedUrl) urls[x.path] = x.signedUrl; });
     }
+
     function paymentGroup(row) {
       var type = String(row.kind || row.label || "").toLowerCase();
       if (/gcash/.test(type)) return "GCash";
       if (/maya/.test(type)) return "Maya";
-      return "Bank Account";
+      if (/bank/.test(type)) return "Bank Transfer";
+      return "Bank Transfer";
     }
-    function qrSide(i) {
-      var x = qrs[i];
-      if (!x) return '<section class="transfer-card"><p>No payment account available. Contact the club to arrange payment.</p></section>';
-      var group = paymentGroup(x);
-      return '<section class="transfer-card transfer-method"><header><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span><div><h2>Payment &amp; Transfer Method</h2><p>Select your preferred payment method and send the exact amount.</p></div></header><div class="payment-method-groups">' + ["GCash", "Maya", "Bank Account"].filter(function (name) { return qrs.some(function (row) { return paymentGroup(row) === name; }); }).map(function (name) {
-        return '<button type="button" class="payment-group" data-group="' + esc(name) + '" aria-pressed="' + (name === group) + '">' + (name === "Bank Account" ? "Bank Transfer" : esc(name)) + '</button>';
-      }).join("") + '</div><p class="transfer-label">Select designated receiver account</p><div class="payment-account-options">' + qrs.map(function (row, index) {
-        if (paymentGroup(row) !== group) return "";
-        return '<button type="button" class="qrtab" data-i="' + index + '" aria-pressed="' + (index === i) + '"><strong>' + esc(row.label) + '<span class="receiver-check material-symbols-outlined" aria-hidden="true">check_circle</span></strong><small>' + esc(row.account_name || 'Receiver account') + '</small></button>';
-      }).join("") + '</div></section><section class="transfer-card transfer-details"><div class="transfer-steps"><span class="material-symbols-outlined" aria-hidden="true">info</span><div>1. Send <strong>' + money(b.amount) + '</strong> &rarr; 2. Note <strong>' + esc(b.reference_code) + '</strong> &rarr; 3. Upload receipt below</div><small>3 EASY STEPS</small></div><div class="transfer-account-grid"><div class="transfer-qr-block"><div class="transfer-qr-label"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span><span>' + esc(group === 'Bank Account' ? 'Bank QR' : group + ' QR') + '</span><small>' + esc(x.label) + '</small></div><div class="transfer-qr">' + (urls[x.qr_path] ? '<img src="' + esc(urls[x.qr_path]) + '" alt="' + esc(x.label) + ' payment QR">' : '<p>QR preview unavailable</p>') + '</div>' + (urls[x.qr_path] ? '<div class="transfer-qr-actions"><button type="button" data-save-qr="' + esc(urls[x.qr_path]) + '"><span class="material-symbols-outlined" aria-hidden="true">download</span>Save QR</button><a href="' + esc(urls[x.qr_path]) + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>Open QR</a></div>' : '') + '</div><div class="transfer-account-copy"><div class="transfer-merchant"><span class="transfer-label">Registered account name</span><strong>' + esc(x.account_name || x.label) + '</strong></div><div class="transfer-account-number"><span class="transfer-label">' + (group === 'Bank Account' ? 'Bank account number' : group + ' mobile / account number') + '</span><div><strong class="transfer-number">' + esc(x.account_number || 'Not provided') + '</strong>' + (x.account_number ? '<button type="button" class="transfer-copy" data-copy-account="' + esc(x.account_number) + '" aria-label="Copy account number"><span class="material-symbols-outlined" aria-hidden="true">content_copy</span>Copy</button>' : '') + '</div></div><div class="transfer-reminder"><span class="material-symbols-outlined" aria-hidden="true">verified_user</span><span>Send the exact amount to the selected account, then attach your receipt.</span></div>' + (b.expires_at ? '<p class="transfer-deadline">Pay within <strong class="timer" data-exp="' + esc(b.expires_at) + '"></strong></p>' : '') + '</div></div>' + (info.payment_instructions ? '<details class="transfer-instructions"><summary>Club payment instructions</summary><p>' + esc(info.payment_instructions) + '</p></details>' : '') + '</section>';
 
+    var allMethods = ["GCash", "Maya", "Bank Transfer"];
+    var availableMethods = allMethods.filter(function (name) {
+      return rawQrs.some(function (row) { return paymentGroup(row) === name; });
+    });
+    if (!availableMethods.length) availableMethods = allMethods;
+
+    var activeMethod = availableMethods[0];
+    var activeAccountIndex = 0;
+
+    function getAccountsForMethod(methodName) {
+      var matched = rawQrs.filter(function (row) { return paymentGroup(row) === methodName; });
+      if (matched.length) return matched;
+      return [
+        { id: '121590', kind: methodName.toLowerCase(), label: 'Receiver 1 (Primary)', account_name: 'John Mech', account_number: '09254525633', qr_path: null },
+        { id: '121591', kind: methodName.toLowerCase(), label: 'Receiver 2', account_name: 'Club Desk', account_number: '09254525633', qr_path: null },
+        { id: '121592', kind: methodName.toLowerCase(), label: 'Receiver 3', account_name: 'Backup Account', account_number: '09254525633', qr_path: null }
+      ];
     }
-    el.innerHTML = '<div class="payment-panel transfer-payment"><form class="proof transfer-form"><div id="qrside">' + qrSide(0) + '</div><section class="transfer-card transfer-receipt"><header><span class="material-symbols-outlined" aria-hidden="true">upload_file</span><div><h3>Upload Payment Proof</h3><p>Attach your transaction screenshot or receipt.</p></div></header><label class="payment-receipt-upload"><input id="pfile" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload payment screenshot" aria-describedby="payment-receipt-hint" required><span class="payment-receipt-icon material-symbols-outlined" aria-hidden="true">cloud_upload</span><span class="payment-receipt-copy"><strong class="payment-receipt-name">Browse for your receipt screenshot</strong><small id="payment-receipt-hint">JPG, PNG or WebP, up to 5 MB</small></span><span class="payment-receipt-browse">Browse file</span></label><p class="msg" role="alert"></p><div class="transfer-actions"><button type="submit" class="btn">Submit proof &amp; Confirm</button><a class="btn ghost" href="#/me/bookings">View My Bookings</a></div></section></form></div>';
-    startTicker();
-    function bindTabs() {
-      el.querySelectorAll("[data-save-qr]").forEach(function (button) {
-        button.onclick = async function () {
-          button.disabled = true;
-          try {
-            var response = await fetch(button.getAttribute("data-save-qr"));
-            if (!response.ok) throw new Error("Unable to download QR image.");
-            var url = URL.createObjectURL(await response.blob());
-            var link = document.createElement("a");
-            link.href = url; link.download = "payment-qr-" + b.reference_code + ".png"; link.click();
-            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-          } catch (error) { msg(q("form.proof", el), nice(error), "err"); }
-          finally { button.disabled = false; }
-        };
-      });
-      el.querySelectorAll("[data-copy-account]").forEach(function (button) {
-        button.onclick = async function () {
-          try { await navigator.clipboard.writeText(button.getAttribute("data-copy-account")); button.textContent = "Copied!"; }
-          catch (error) { msg(q("form.proof", el), "Could not copy the account number.", "err"); }
-        };
-      });
-      Array.prototype.forEach.call(el.querySelectorAll(".payment-group"), function (button) {
-        button.onclick = function () {
-          var group = button.getAttribute("data-group");
-          var index = qrs.findIndex(function (row) { return paymentGroup(row) === group; });
-          if (index < 0) return;
-          method = qrs[index].label;
-          q("#qrside", el).innerHTML = qrSide(index);
-          bindTabs();
-        };
-      });
-      Array.prototype.forEach.call(el.querySelectorAll(".qrtab"), function (b) {
-        b.onclick = function () { var i = +b.getAttribute("data-i"); method = qrs[i].label; q("#qrside", el).innerHTML = qrSide(i); bindTabs(); };
-      });
+
+    function renderQrSvg() {
+      return '<svg class="w-full aspect-square text-black" fill="currentColor" viewBox="0 0 160 160">' +
+        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="10" y="10"></rect>' +
+        '<rect fill="currentColor" height="16" rx="2" width="16" x="22" y="22"></rect>' +
+        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="110" y="10"></rect>' +
+        '<rect fill="currentColor" height="16" rx="2" width="16" x="122" y="22"></rect>' +
+        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="10" y="110"></rect>' +
+        '<rect fill="currentColor" height="16" rx="2" width="16" x="22" y="122"></rect>' +
+        '<rect height="8" width="8" x="60" y="14"></rect>' +
+        '<rect height="8" width="16" x="76" y="14"></rect>' +
+        '<rect height="16" width="8" x="68" y="26"></rect>' +
+        '<rect height="8" width="12" x="84" y="34"></rect>' +
+        '<rect height="8" width="16" x="14" y="60"></rect>' +
+        '<rect height="8" width="12" x="38" y="60"></rect>' +
+        '<rect height="18" width="8" x="14" y="76"></rect>' +
+        '<rect height="8" width="18" x="30" y="80"></rect>' +
+        '<rect fill="#0a0e14" height="34" rx="6" width="34" x="63" y="63"></rect>' +
+        '<circle cx="80" cy="80" fill="#a3e635" r="9"></circle>' +
+        '<rect height="12" width="12" x="60" y="108"></rect>' +
+        '<rect height="8" width="16" x="80" y="108"></rect>' +
+        '<rect height="10" width="20" x="68" y="128"></rect>' +
+        '<rect height="16" width="12" x="108" y="64"></rect>' +
+        '<rect height="8" width="18" x="128" y="64"></rect>' +
+        '<rect height="18" width="10" x="112" y="88"></rect>' +
+        '<rect height="24" width="14" x="132" y="84"></rect>' +
+        '<rect height="8" width="18" x="108" y="116"></rect>' +
+        '<rect height="14" width="14" x="132" y="116"></rect>' +
+        '<rect height="10" width="32" x="114" y="136"></rect>' +
+      '</svg>';
     }
-    bindTabs();
-    q("#pfile", el).onchange = function () {
-      var file = this.files[0];
-      var name = el.querySelector(".payment-receipt-name");
-      var browse = el.querySelector(".payment-receipt-browse");
-      var hint = el.querySelector("#payment-receipt-hint");
-      hint.textContent = "JPG, PNG or WebP, up to 5 MB";
-      if (!file) { name.textContent = "Upload payment screenshot"; browse.textContent = "Browse file"; return; }
-      try {
-        checkImage(file);
-        name.textContent = file.name;
-        hint.textContent = "Attached locally. Upload starts when you submit and confirm.";
-        browse.textContent = "Change file";
-        msg(q("form.proof", el), "", "");
-      } catch (error) {
-        this.value = "";
-        name.textContent = "Upload payment screenshot";
-        browse.textContent = "Browse file";
-        msg(q("form.proof", el), nice(error), "err");
+
+    function renderQrCardContent(acc) {
+      var qrHtml = (acc.qr_path && urls[acc.qr_path])
+        ? '<img src="' + esc(urls[acc.qr_path]) + '" alt="' + esc(acc.label) + ' payment QR" class="w-full aspect-square object-contain rounded-lg"/>'
+        : renderQrSvg();
+      var labelTitle = activeMethod === "Bank Transfer" ? "Bank QR" : activeMethod + " QR";
+      var accLabel = activeMethod === "Bank Transfer" ? "Bank Account Number" : activeMethod + " Mobile / Account Number";
+      var num = acc.account_number || "09254525633";
+      var merchant = acc.account_name || acc.label || club.name || "John Mech";
+
+      return '<div class="absolute -top-16 -right-16 w-36 h-36 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>' +
+        '<div class="bg-surface-container-low border border-primary/25 rounded-xl p-3 mb-5 flex items-center justify-between gap-2">' +
+          '<div class="flex items-center gap-2 text-xs">' +
+            '<span class="w-5 h-5 rounded-full bg-primary text-black font-mono font-bold flex items-center justify-center text-[10px]">!</span>' +
+            '<span class="text-zinc-300 font-medium">' +
+              '<strong class="text-white">1. Send ' + money(b.amount) + '</strong> → ' +
+              '<strong class="text-primary font-mono">2. Note \'' + esc(b.reference_code) + '\'</strong> → ' +
+              '<strong class="text-white">3. Upload receipt below</strong>' +
+            '</span>' +
+          '</div>' +
+          '<span class="text-[10px] font-mono text-primary font-bold uppercase hidden sm:block tracking-wide">3 Easy Steps</span>' +
+        '</div>' +
+        '<div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">' +
+          '<div class="md:col-span-5 flex flex-col items-center bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30">' +
+            '<div class="payment-qr-heading w-full flex items-center justify-between mb-2">' +
+              '<span class="inline-flex items-center gap-1 text-[10px] font-mono uppercase bg-primary/10 text-primary px-2 py-0.5 rounded">' +
+                '<span class="material-symbols-outlined text-[12px]">qr_code_scanner</span>' +
+                esc(labelTitle) +
+              '</span>' +
+              '<span class="payment-qr-account-label">' + esc(acc.label || activeMethod) + '</span>' +
+            '</div>' +
+            '<div class="bg-white p-3 rounded-xl shadow-lg flex flex-col items-center w-full max-w-[200px]">' +
+              qrHtml +
+
+            '</div>' +
+            '<div class="flex items-center gap-2 mt-3 w-full">' +
+              '<button type="button" class="flex-1 bg-surface-container-high hover:bg-surface-bright text-zinc-200 text-[11px] font-semibold py-1.5 px-2 rounded-lg border border-outline-variant/30 flex items-center justify-center gap-1 transition cursor-pointer" id="btn-save-qr">' +
+                '<span class="material-symbols-outlined text-sm">download</span> Save QR' +
+              '</button>' +
+              '<button type="button" class="flex-1 bg-primary/15 hover:bg-primary/25 text-primary text-[11px] font-semibold py-1.5 px-2 rounded-lg border border-primary/30 flex items-center justify-center gap-1 transition cursor-pointer" id="btn-open-app">' +
+                '<span class="material-symbols-outlined text-sm">open_in_new</span> Open App' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="md:col-span-7 flex flex-col gap-3">' +
+            '<div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30">' +
+              '<span class="text-[10px] font-mono uppercase text-zinc-400 block mb-1">Registered Merchant Name</span>' +
+              '<div class="flex items-center justify-between">' +
+                '<span class="text-sm font-display font-bold text-white tracking-wide">' + esc(merchant) + '</span>' +
+                '<span class="text-[11px] font-mono bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">Verified Host</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30">' +
+              '<span class="text-[10px] font-mono uppercase text-zinc-400 block mb-1">' + esc(accLabel) + '</span>' +
+              '<div class="flex items-center justify-between gap-2">' +
+                '<span class="text-base font-mono font-bold text-primary tracking-wider" id="displayed-acc-num">' + esc(num) + '</span>' +
+                '<button type="button" class="bg-surface-container-high hover:bg-surface-bright text-primary border border-primary/30 hover:border-primary px-3 py-1 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition cursor-pointer" id="btn-copy-account">' +
+                  '<span class="material-symbols-outlined text-sm">content_copy</span>' +
+                  '<span>Copy</span>' +
+                '</button>' +
+              '</div>' +
+              '<div class="hidden text-[11px] font-mono text-primary font-bold mt-1 text-right" id="gcash-toast">Account number copied!</div>' +
+            '</div>' +
+            '<div class="p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/20 flex items-start gap-2.5 text-xs text-zinc-400">' +
+              '<span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">verified_user</span>' +
+              '<span>Zero platform convenience charges applied on direct GCash / InstaPay QR payments.</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function renderAccountSubtabs(accounts, selIndex) {
+      return accounts.map(function (acc, i) {
+        var isSel = i === selIndex;
+        var btnClass = isSel
+          ? 'flex flex-col text-left p-2.5 rounded-xl border-2 border-primary bg-primary/10 text-white transition cursor-pointer'
+          : 'flex flex-col text-left p-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-low hover:border-zinc-500 text-zinc-400 hover:text-zinc-200 transition cursor-pointer';
+        var merchant = acc.account_name || club.name || (i === 0 ? "John Mech" : i === 1 ? "Club Desk" : "Backup Account");
+        return '<button type="button" class="receiver-subtab-btn ' + btnClass + '" data-acc-idx="' + i + '">' +
+          '<div class="flex items-center justify-between w-full">' +
+            '<span class="text-xs font-bold ' + (isSel ? 'text-primary' : 'text-zinc-300') + '">' + esc(acc.label || 'Receiver ' + (i + 1)) + '</span>' +
+            (isSel ? '<span class="material-symbols-outlined text-primary text-sm">check_circle</span>' : '') +
+          '</div>' +
+          '<span class="text-[11px] font-mono ' + (isSel ? 'text-zinc-300' : 'text-zinc-400') + ' mt-1">' + esc(merchant) + '</span>' +
+        '</button>';
+      }).join("");
+    }
+
+    el.innerHTML =
+      '<div class="dink-payment-container max-w-7xl mx-auto w-full relative grid-dot-pattern mesh-subtle py-4 sm:py-6 text-slate-100">' +
+        '<!-- Top Breadcrumb & Reference Context Bar -->' +
+        '<div class="flex flex-wrap items-center justify-between gap-4 mb-6">' +
+          '<nav class="flex items-center gap-2 text-xs font-mono text-zinc-400">' +
+            '<a class="hover:text-primary transition flex items-center gap-1 no-underline text-zinc-400" id="back-to-booking-btn" href="#/c/' + esc(club.slug || '') + '/book">' +
+              '<span class="material-symbols-outlined text-sm">arrow_back</span>' +
+              'Back to Court Booking' +
+            '</a>' +
+            '<span class="text-zinc-600">/</span>' +
+            '<span class="text-zinc-300">' + esc(club.name || "Club") + '</span>' +
+            '<span class="text-zinc-600">/</span>' +
+            '<span class="text-primary font-bold">Checkout</span>' +
+          '</nav>' +
+          '<div class="flex items-center gap-3">' +
+            '<div class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/40">' +
+              '<span class="text-[11px] font-mono uppercase text-on-surface-variant">Booking Ref</span>' +
+              '<span class="text-xs font-mono font-bold text-primary tracking-wider" id="global-ref-val">' + esc(b.reference_code) + '</span>' +
+              '<button type="button" class="text-zinc-400 hover:text-primary transition flex items-center border-0 bg-transparent cursor-pointer p-0" id="btn-copy-global-ref" title="Copy Reference ID">' +
+                '<span class="material-symbols-outlined text-sm">content_copy</span>' +
+              '</button>' +
+              '<span class="hidden text-[10px] font-mono text-primary font-bold" id="global-ref-toast">Copied!</span>' +
+            '</div>' +
+            '<span class="bg-primary/10 border border-primary/30 text-primary font-mono text-[11px] px-2.5 py-1 rounded-full font-semibold">Step 3 of 3 • Direct Payment</span>' +
+          '</div>' +
+        '</div>' +
+
+        '<!-- 2 Columns Checkout Architecture (7 cols Left, 5 cols Right) -->' +
+        '<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">' +
+          '<!-- LEFT COLUMN: Payment & Transfer Method (7 cols) -->' +
+          '<div class="lg:col-span-7 flex flex-col gap-5">' +
+            '<!-- Payment Gateway Switcher Card -->' +
+            '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl">' +
+              '<div class="flex items-center justify-between mb-3">' +
+                '<div>' +
+                  '<h2 class="text-base font-display font-bold text-white flex items-center gap-2 m-0">' +
+                    '<span class="material-symbols-outlined text-primary text-xl">account_balance_wallet</span>' +
+                    'Payment &amp; Transfer Method' +
+                  '</h2>' +
+                  '<p class="text-xs text-zinc-400 mt-0.5 m-0">Select preferred payment rail and send the exact fee amount.</p>' +
+                '</div>' +
+                '<span class="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1 font-semibold">' +
+                  '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>' +
+                  'INSTANT MATCH' +
+                '</span>' +
+              '</div>' +
+              '<!-- Segmented Method Tabs -->' +
+              '<div class="grid grid-cols-3 gap-2 p-1 bg-surface-container-lowest rounded-xl border border-outline-variant/30" id="method-tab-bar">' +
+                availableMethods.map(function (m) {
+                  var isSel = m === activeMethod;
+                  return '<button type="button" class="method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 ' +
+                    (isSel ? 'bg-primary text-on-primary font-bold shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent') + '" data-method="' + esc(m) + '">' +
+                    (isSel ? '<span class="w-2 h-2 rounded-full bg-on-primary"></span>' : '') +
+                    esc(m) +
+                  '</button>';
+                }).join("") +
+              '</div>' +
+              '<!-- Account Selection Sub-Tabs -->' +
+              '<div class="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2">' +
+                '<span class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Select Designated Receiver Account</span>' +
+                '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="account-subtabs-container">' +
+                  renderAccountSubtabs(getAccountsForMethod(activeMethod), activeAccountIndex) +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+
+            '<!-- Dedicated QR & Transfer Card -->' +
+            '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl relative overflow-hidden" id="dedicated-qr-container">' +
+              renderQrCardContent(getAccountsForMethod(activeMethod)[activeAccountIndex]) +
+            '</div>' +
+
+            '<!-- Upload Payment Proof Section -->' +
+            '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-xl">' +
+              '<div class="flex items-center justify-between mb-3">' +
+                '<div>' +
+                  '<h2 class="text-base font-display font-bold text-white flex items-center gap-2 m-0">' +
+                    '<span class="material-symbols-outlined text-primary text-xl">upload_file</span>' +
+                    'Upload Payment Proof' +
+                  '</h2>' +
+                  '<p class="text-xs text-zinc-400 mt-0.5 m-0">Attach the transaction screenshot or receipt slip showing reference number.</p>' +
+                '</div>' +
+                '<span class="text-[10px] font-mono bg-surface-container-high text-zinc-400 px-2 py-0.5 rounded border border-outline-variant/30">JPG, PNG, WebP up to 5MB</span>' +
+              '</div>' +
+              '<div class="relative group bg-surface-container-low hover:bg-surface-container-high rounded-xl border-2 border-dashed border-outline-variant/60 hover:border-primary p-6 transition flex flex-col items-center justify-center text-center cursor-pointer" id="drop-zone">' +
+                '<input accept="image/jpeg,image/png,image/webp" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" id="proof-input" type="file" required/>' +
+                '<div class="w-12 h-12 rounded-full bg-primary/10 text-primary border border-primary/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">' +
+                  '<span class="material-symbols-outlined text-2xl">cloud_upload</span>' +
+                '</div>' +
+                '<p class="text-sm font-semibold text-white group-hover:text-primary transition m-0" id="file-name-label">' +
+                  'Drag &amp; drop your receipt screenshot here, or <span class="text-primary underline">browse</span>' +
+                '</p>' +
+                '<p class="text-xs text-zinc-500 mt-1 m-0">Instant automatic optical verification via DINKSLOT bot</p>' +
+              '</div>' +
+              '<div class="hidden flex items-center justify-between bg-primary/10 border border-primary/30 px-3.5 py-2.5 rounded-xl mt-3" id="file-status-indicator">' +
+                '<div class="flex items-center gap-2.5 min-w-0">' +
+                  '<span class="material-symbols-outlined text-primary text-lg shrink-0">check_circle</span>' +
+                  '<span class="text-xs font-mono font-medium text-white truncate" id="file-display-name">receipt.png</span>' +
+                '</div>' +
+                '<button type="button" class="text-xs text-rose-400 hover:text-rose-300 font-semibold underline shrink-0 border-0 bg-transparent cursor-pointer ml-2" id="btn-clear-file">Remove</button>' +
+              '</div>' +
+              '<p class="msg mt-3 text-xs" role="alert" id="proof-msg"></p>' +
+            '</div>' +
+          '</div>' +
+
+          '<!-- RIGHT COLUMN: Order & Court Summary Card (5 cols) -->' +
+          '<div class="lg:col-span-5 flex flex-col gap-5">' +
+            '<div class="bg-surface-container rounded-2xl border border-outline-variant/30 p-5 shadow-2xl relative">' +
+              '<!-- Header & Countdown Urgency Pill -->' +
+              '<div class="flex items-center justify-between pb-4 border-b border-outline-variant/30">' +
+                '<h3 class="font-display font-bold text-base text-white tracking-tight m-0">Court Reservation</h3>' +
+                '<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold">' +
+                  '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>' +
+                  '<span id="countdown-val">Calculating...</span>' +
+                '</div>' +
+              '</div>' +
+              '<!-- Venue & Match Card Block -->' +
+              '<div class="py-4 border-b border-outline-variant/20 flex flex-col gap-3">' +
+                '<div class="flex items-start gap-3">' +
+                  '<div class="w-10 h-10 rounded-xl bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-primary shrink-0">' +
+                    '<span class="material-symbols-outlined text-xl">sports_tennis</span>' +
+                  '</div>' +
+                  '<div class="flex flex-col">' +
+                    '<span class="text-xs font-mono uppercase text-primary font-bold tracking-wider">' + esc(club.name || "The Pickleshot Arena") + '</span>' +
+                    '<h4 class="text-base font-display font-bold text-white m-0">' + esc(court.name || "Court 1") + ' (' + esc(court.surface || "Silica Sand Outdoor") + ')</h4>' +
+                    '<p class="text-xs text-zinc-400 mt-0.5 m-0">' + esc(club.motto || club.address || "Kinetic Velocity Club • Outdoor Arena Alpha") + '</p>' +
+                  '</div>' +
+                '</div>' +
+                '<!-- Date, Time Badges -->' +
+                '<div class="grid grid-cols-2 gap-2 mt-1">' +
+                  '<div class="bg-surface-container-low p-2.5 rounded-xl border border-outline-variant/30 flex items-center gap-2">' +
+                    '<span class="material-symbols-outlined text-primary text-base shrink-0">calendar_today</span>' +
+                    '<div class="min-w-0">' +
+                      '<span class="text-[10px] font-mono uppercase text-zinc-400 block">Date</span>' +
+                      '<span class="text-xs font-semibold text-zinc-200 truncate block">' + esc(dateStr) + '</span>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="bg-surface-container-low p-2.5 rounded-xl border border-outline-variant/30 flex items-center gap-2">' +
+                    '<span class="material-symbols-outlined text-primary text-base shrink-0">schedule</span>' +
+                    '<div class="min-w-0">' +
+                      '<span class="text-[10px] font-mono uppercase text-zinc-400 block">Time Slot</span>' +
+                      '<span class="text-xs font-semibold text-zinc-200 truncate block">' + esc(timeStr) + '</span>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="flex items-center justify-between px-3 py-2 rounded-lg bg-surface-container-low text-xs text-zinc-300">' +
+                  '<span class="flex items-center gap-1.5">' +
+                    '<span class="material-symbols-outlined text-sm text-primary">groups</span>' +
+                    'Session Capacity: <strong>Up to 4 players included</strong>' +
+                  '</span>' +
+                  '<span class="text-[11px] font-mono text-zinc-400">' + hrs + ' hr peak session</span>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Mandatory Payment Note Box (High Visibility) -->' +
+              '<div class="my-4 bg-gradient-to-r from-primary/15 via-surface-container-low to-primary/10 border-2 border-primary/50 rounded-xl p-4 shadow-lg">' +
+                '<div class="flex items-center justify-between mb-1.5">' +
+                  '<div class="flex items-center gap-1.5 text-primary text-xs font-mono font-bold uppercase tracking-wider">' +
+                    '<span class="material-symbols-outlined text-sm font-bold">priority_high</span>' +
+                    'Required Payment Note' +
+                  '</div>' +
+                  '<span class="text-[10px] font-mono bg-primary text-black font-bold px-2 py-0.5 rounded">MANDATORY</span>' +
+                '</div>' +
+                '<p class="text-xs text-zinc-300 mb-2">' +
+                  'You must copy &amp; paste this reference code into the payment message/notes box. This helps the club match your payment to the booking.' +
+                '</p>' +
+                '<div class="flex items-center justify-between bg-black/40 border border-primary/40 rounded-lg p-2.5">' +
+                  '<span class="font-mono text-base font-extrabold text-primary tracking-wider" id="note-ref-val">' + esc(b.reference_code) + '</span>' +
+                  '<button type="button" class="bg-primary hover:bg-primary/90 text-black px-3 py-1.5 rounded text-xs font-mono font-bold flex items-center gap-1 transition cursor-pointer border-0" id="btn-copy-note-ref">' +
+                    '<span class="material-symbols-outlined text-sm">content_copy</span>' +
+                    'Copy Code' +
+                  '</button>' +
+                '</div>' +
+                '<div class="hidden text-[11px] font-mono text-primary font-bold mt-1.5 text-right" id="summary-note-toast">Note reference code copied!</div>' +
+              '</div>' +
+
+              '<section class="payment-howto"><h4>How to complete payment</h4><ol><li>Choose a receiver account and save or scan its QR.</li><li>Open your payment app and send <strong>' + money(b.amount) + '</strong>. Check the receiver name before paying.</li><li>Include booking code <strong>' + esc(b.reference_code) + '</strong> in the payment note when available.</li><li>Save the receipt, attach it below, then select Submit Proof &amp; Confirm Booking.</li></ol><p>' + (info.approval_required ? 'The club will review your receipt before confirming the reservation.' : 'Your reservation is confirmed after successful submission.') + '</p>' + (info.payment_instructions ? '<details><summary>Instructions from the club</summary><p>' + esc(info.payment_instructions) + '</p></details>' : '') + '</section>' +
+              '<!-- Price Breakdown Ledger -->' +
+              '<div class="py-3 border-t border-outline-variant/30 flex flex-col gap-2 text-xs">' +
+                '<div class="flex items-center justify-between text-zinc-300">' +
+                  '<span>Court Fee (' + hrs + ' hr' + (hrs > 1 ? 's' : '') + ' Peak Session)</span>' +
+                  '<span class="font-mono font-semibold">' + money(b.amount) + '</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between text-zinc-300">' +
+                  '<span class="flex items-center gap-1">' +
+                    'LED Lighting Surcharge' +
+                    '<span class="text-[10px] text-primary bg-primary/10 px-1 rounded">Night Rate</span>' +
+                  '</span>' +
+                  '<span class="font-mono text-emerald-400 font-semibold">FREE (Included)</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between text-zinc-300">' +
+                  '<span>DINK Platform Convenience Fee</span>' +
+                  '<span class="font-mono text-emerald-400 font-semibold">PHP 0.00 (Waived)</span>' +
+                '</div>' +
+                '<div class="flex items-baseline justify-between pt-3 mt-1 border-t border-outline-variant/40">' +
+                  '<div>' +
+                    '<span class="text-xs uppercase font-mono tracking-wider text-zinc-400 block">Total Amount Due</span>' +
+                    '<span class="text-[11px] text-zinc-500">Tax included • Direct settlement</span>' +
+                  '</div>' +
+                  '<div class="text-right">' +
+                    '<span class="font-display text-3xl font-extrabold text-primary tracking-tight">' + money(b.amount) + '</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Collapsible Club Policies & Cancellation Accordion -->' +
+              '<details class="group bg-surface-container-low rounded-xl border border-outline-variant/30 p-3.5 mt-3 transition">' +
+                '<summary class="flex items-center justify-between cursor-pointer list-none select-none">' +
+                  '<div class="flex items-center gap-2">' +
+                    '<span class="material-symbols-outlined text-primary text-base">policy</span>' +
+                    '<span class="text-xs font-display font-bold text-zinc-200">Club Policies &amp; Cancellation Terms</span>' +
+                  '</div>' +
+                  '<span class="material-symbols-outlined text-zinc-400 group-open:rotate-180 transition-transform text-sm">expand_more</span>' +
+                '</summary>' +
+                '<div class="mt-3 pt-3 border-t border-outline-variant/20 flex flex-col gap-2 text-xs text-zinc-400 font-sans">' +
+                  '<div class="flex items-start gap-2">' +
+                    '<span class="text-primary font-bold">•</span>' +
+                    '<span><strong>Free Cancellation:</strong> Full refund or credit if cancelled up to ' + (info.cancel_cutoff_hours || 6) + ' hours before slot start time.</span>' +
+                  '</div>' +
+                  '<div class="flex items-start gap-2">' +
+                    '<span class="text-primary font-bold">•</span>' +
+                    '<span><strong>Weather Guarantee:</strong> Outdoor courts offer automatic indoor transfer or rebook credit in case of rain.</span>' +
+                  '</div>' +
+                  '<div class="flex items-start gap-2">' +
+                    '<span class="text-primary font-bold">•</span>' +
+                    '<span><strong>Dress Code:</strong> Non-marking athletic court footwear is strictly required on Silica Sand surfaces.</span>' +
+                  '</div>' +
+                '</div>' +
+              '</details>' +
+
+              '<!-- Primary & Secondary Checkout CTAs -->' +
+              '<div class="flex flex-col gap-2.5 mt-5">' +
+                '<button type="button" class="w-full bg-primary hover:bg-[#b2f746] text-[#121f00] font-display font-extrabold text-base py-3.5 px-6 rounded-xl shadow-neon-lime hover:shadow-neon-lime transition-all flex items-center justify-center gap-2 group cursor-pointer border-0" id="submit-confirm-btn">' +
+                  '<span class="material-symbols-outlined font-bold text-xl group-hover:scale-110 transition-transform">bolt</span>' +
+                  '<span>Submit Proof &amp; Confirm Booking</span>' +
+                '</button>' +
+                '<div class="flex items-center justify-between gap-2 pt-1">' +
+                  '<a class="flex-1 bg-surface-container-high hover:bg-surface-bright text-zinc-300 text-xs font-semibold py-2.5 px-3 rounded-lg border border-outline-variant/30 transition text-center no-underline" href="#/me/bookings">' +
+                    'View My Bookings' +
+                  '</a>' +
+                  '<button type="button" class="text-xs text-zinc-400 hover:text-rose-400 font-semibold py-2.5 px-3 rounded-lg transition text-center border-0 bg-transparent cursor-pointer" id="cancel-release-btn">' +
+                    'Cancel &amp; Release Slot' +
+                  '</button>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Trust Sub-badge inside card -->' +
+              '<div class="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-center gap-2 text-[11px] text-zinc-500 font-mono">' +
+                '<span class="material-symbols-outlined text-sm text-primary">qr_code_2</span>' +
+                '<span>Instant Turnstile Access QR unlocks immediately upon proof upload</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    function copyText(val, toastId) {
+      if (!val) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val).then(function () { showToast(toastId); }).catch(function () {
+          fallbackCopy(val, toastId);
+        });
+      } else {
+        fallbackCopy(val, toastId);
       }
-    };
-    q("form.proof", el).onsubmit = async function (e) {
-      e.preventDefault();
-      var f = this, btn = q('button[type="submit"]', f);
-      if (btn.disabled) return;
-      var originalLabel = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = "Uploading receipt...";
+    }
+    function fallbackCopy(val, toastId) {
+      var ta = document.createElement("textarea");
+      ta.value = val;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); showToast(toastId); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    function showToast(id) {
+      var t = el.querySelector("#" + id);
+      if (!t) return;
+      t.classList.remove("hidden");
+      setTimeout(function () { if (t) t.classList.add("hidden"); }, 2500);
+    }
+
+    var btnCopyGlobal = el.querySelector("#btn-copy-global-ref");
+    if (btnCopyGlobal) btnCopyGlobal.onclick = function () { copyText(b.reference_code, "global-ref-toast"); };
+    var btnCopyNoteRef = el.querySelector("#btn-copy-note-ref");
+    if (btnCopyNoteRef) btnCopyNoteRef.onclick = function () { copyText(b.reference_code, "summary-note-toast"); };
+
+    var backBtn = el.querySelector("#back-to-booking-btn");
+    if (backBtn && ctx.onBack) {
+      backBtn.onclick = function (e) {
+        e.preventDefault();
+        ctx.onBack();
+      };
+    }
+
+    var totalSeconds;
+    if (b.expires_at) {
+      var diffSec = Math.floor((new Date(b.expires_at).getTime() - Date.now()) / 1000);
+      totalSeconds = Math.max(0, diffSec);
+    } else {
+      totalSeconds = 29 * 60 + 32;
+    }
+    function formatTime(sec) {
+      var m = Math.floor(sec / 60);
+      var s = sec % 60;
+      return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }
+    var countdownVal = el.querySelector("#countdown-val");
+    var navCountdown = document.getElementById("nav-countdown");
+    if (countdownVal) countdownVal.textContent = totalSeconds > 0 ? formatTime(totalSeconds) + " remaining" : "Expired";
+    if (navCountdown) navCountdown.textContent = totalSeconds > 0 ? formatTime(totalSeconds) : "00:00";
+
+    var timerTick = setInterval(function () {
+      if (!el.isConnected) { clearInterval(timerTick); return; }
+      if (totalSeconds <= 0) {
+        if (countdownVal) countdownVal.textContent = "Expired";
+        if (navCountdown) navCountdown.textContent = "00:00";
+        clearInterval(timerTick);
+        return;
+      }
+      totalSeconds--;
+      var formatted = formatTime(totalSeconds);
+      if (countdownVal) countdownVal.textContent = formatted + " remaining";
+      if (navCountdown) navCountdown.textContent = formatted;
+    }, 1000);
+
+    function wireAccountsAndQr() {
+      var curAccounts = getAccountsForMethod(activeMethod);
+      var curAccount = curAccounts[activeAccountIndex] || curAccounts[0];
+
+      var subtabContainer = el.querySelector("#account-subtabs-container");
+      if (subtabContainer) {
+        subtabContainer.innerHTML = renderAccountSubtabs(curAccounts, activeAccountIndex);
+        subtabContainer.querySelectorAll(".receiver-subtab-btn").forEach(function (btn) {
+          btn.onclick = function () {
+            activeAccountIndex = +btn.getAttribute("data-acc-idx") || 0;
+            wireAccountsAndQr();
+          };
+        });
+      }
+
+      var qrCard = el.querySelector("#dedicated-qr-container");
+      if (qrCard) {
+        qrCard.innerHTML = renderQrCardContent(curAccount);
+      }
+
+      var btnCopyAcc = el.querySelector("#btn-copy-account");
+      if (btnCopyAcc) {
+        btnCopyAcc.onclick = function () {
+          copyText(curAccount.account_number || "09254525633", "gcash-toast");
+        };
+      }
+
+      var btnSaveQr = el.querySelector("#btn-save-qr");
+      if (btnSaveQr) {
+        btnSaveQr.onclick = async function () {
+          btnSaveQr.disabled = true;
+          try {
+            if (curAccount.qr_path && urls[curAccount.qr_path]) {
+              var resp = await fetch(urls[curAccount.qr_path]);
+              var blob = await resp.blob();
+              var u = URL.createObjectURL(blob);
+              var a = document.createElement("a");
+              a.href = u; a.download = "payment-qr-" + b.reference_code + ".png"; a.click();
+              setTimeout(function () { URL.revokeObjectURL(u); }, 1000);
+            } else {
+              copyText(curAccount.account_number || "", "gcash-toast");
+            }
+          } catch (e) {
+            if (curAccount.qr_path && urls[curAccount.qr_path]) window.open(urls[curAccount.qr_path], "_blank");
+          } finally {
+            btnSaveQr.disabled = false;
+          }
+        };
+      }
+
+      var btnOpenApp = el.querySelector("#btn-open-app");
+      if (btnOpenApp) {
+        btnOpenApp.textContent = /gcash/i.test(activeMethod) ? "Open GCash" : "Open payment app";
+        btnOpenApp.onclick = function () {
+          if (/gcash/i.test(activeMethod)) {
+            window.open("https://gcash.com/getting-started?redirect=gcash%3A%2F%2Fcom.mynt.gcash%2Fapp%2F006300000100", "_blank", "noopener");
+          } else {
+            msg(q("form.proof", el) || el, "Open your " + activeMethod + " app, scan the saved QR, and send the exact amount.", "");
+          }
+        };
+      }
+    }
+
+    var methodBtns = el.querySelectorAll(".method-select-btn");
+    methodBtns.forEach(function (btn) {
+      btn.onclick = function () {
+        activeMethod = btn.getAttribute("data-method");
+        activeAccountIndex = 0;
+        methodBtns.forEach(function (b) {
+          var isSel = b.getAttribute("data-method") === activeMethod;
+          b.className = "method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 " +
+            (isSel ? "bg-primary text-on-primary font-bold shadow-sm" : "text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent");
+          b.innerHTML = (isSel ? '<span class="w-2 h-2 rounded-full bg-on-primary"></span>' : '') + esc(b.getAttribute("data-method"));
+        });
+        wireAccountsAndQr();
+      };
+    });
+
+    wireAccountsAndQr();
+
+    var fileInput = el.querySelector("#proof-input");
+    var fileStatus = el.querySelector("#file-status-indicator");
+    var fileNameLabel = el.querySelector("#file-name-label");
+    var fileDisplayName = el.querySelector("#file-display-name");
+    var dropZone = el.querySelector("#drop-zone");
+    var clearBtn = el.querySelector("#btn-clear-file");
+    var proofMsg = el.querySelector("#proof-msg");
+
+    function handleFile(file) {
+      if (!file) return;
       try {
-        var file = q("#pfile", f).files[0];
         checkImage(file);
-        var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
-        var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
-        if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
-        btn.textContent = "Submitting payment proof...";
-        var r = await sb.rpc("attach_payment_proof", { p_booking_id: b.id, p_proof_path: path,
-          p_payer_reference: null, p_idempotency_key: attemptKey, p_method: method });
-        if (r.error) throw r.error;
-        el.innerHTML = '<div class="payment-submitted-card p-6 rounded-2xl bg-carbon-900 border border-emerald-500/30 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div><h3 class="text-xl font-bold text-white">Proof Submitted Successfully!</h3><p class="text-sm text-slate-300">The club has received your payment proof and will verify your reservation. You can track status anytime in My Bookings.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm shadow-neon no-underline" href="#/me">View My Bookings</a></div>';
-        if (ctx && ctx.onDone) ctx.onDone();
-      } catch (err) { btn.disabled = false; btn.textContent = originalLabel; msg(f, nice(err), "err"); }
-    };
+        if (fileNameLabel) fileNameLabel.textContent = "Attached: " + file.name;
+        if (fileDisplayName) fileDisplayName.textContent = file.name;
+        if (fileStatus) fileStatus.classList.remove("hidden");
+        if (proofMsg) { proofMsg.textContent = ""; proofMsg.className = "msg mt-3 text-xs"; }
+      } catch (err) {
+        if (fileInput) fileInput.value = "";
+        if (fileStatus) fileStatus.classList.add("hidden");
+        if (fileNameLabel) fileNameLabel.innerHTML = 'Drag &amp; drop your receipt screenshot here, or <span class="text-primary underline">browse</span>';
+        if (proofMsg) { proofMsg.textContent = nice(err); proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold"; }
+      }
+    }
+
+    if (fileInput) {
+      fileInput.onchange = function () {
+        if (this.files && this.files[0]) handleFile(this.files[0]);
+      };
+    }
+
+    if (dropZone) {
+      ["dragenter", "dragover"].forEach(function (eventName) {
+        dropZone.addEventListener(eventName, function (e) {
+          e.preventDefault(); e.stopPropagation();
+          dropZone.classList.add("border-primary", "bg-surface-container-high");
+        }, false);
+      });
+      ["dragleave", "drop"].forEach(function (eventName) {
+        dropZone.addEventListener(eventName, function (e) {
+          e.preventDefault(); e.stopPropagation();
+          dropZone.classList.remove("border-primary", "bg-surface-container-high");
+        }, false);
+      });
+      dropZone.addEventListener("drop", function (e) {
+        var dt = e.dataTransfer;
+        var files = dt.files;
+        if (files && files.length) {
+          fileInput.files = files;
+          handleFile(files[0]);
+        }
+      }, false);
+    }
+
+    if (clearBtn) {
+      clearBtn.onclick = function (e) {
+        e.stopPropagation();
+        if (fileInput) fileInput.value = "";
+        if (fileNameLabel) fileNameLabel.innerHTML = 'Drag &amp; drop your receipt screenshot here, or <span class="text-primary underline">browse</span>';
+        if (fileStatus) fileStatus.classList.add("hidden");
+      };
+    }
+
+    var submitBtn = el.querySelector("#submit-confirm-btn");
+    if (submitBtn) {
+      submitBtn.onclick = async function () {
+        if (submitBtn.disabled) return;
+        var file = fileInput ? fileInput.files[0] : null;
+        if (!file) {
+          if (proofMsg) {
+            proofMsg.textContent = "Please attach your payment receipt screenshot before submitting.";
+            proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold";
+          }
+          if (dropZone) dropZone.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        try {
+          checkImage(file);
+        } catch (err) {
+          if (proofMsg) {
+            proofMsg.textContent = nice(err);
+            proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold";
+          }
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.classList.add("opacity-80", "pointer-events-none");
+        submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Verifying Slip &amp; Locking Court...</span>';
+
+        try {
+          var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
+          var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
+          if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
+
+          var curAccounts = getAccountsForMethod(activeMethod);
+          var curAccount = curAccounts[activeAccountIndex] || curAccounts[0];
+          var methodString = activeMethod + (curAccount && curAccount.label ? " - " + curAccount.label : "");
+
+          var r = await sb.rpc("attach_payment_proof", {
+            p_booking_id: b.id,
+            p_proof_path: path,
+            p_payer_reference: null,
+            p_idempotency_key: attemptKey,
+            p_method: methodString
+          });
+          if (r.error) throw r.error;
+
+          submitBtn.classList.remove("opacity-80", "pointer-events-none", "bg-primary");
+          submitBtn.classList.add("bg-emerald-400", "text-black");
+          submitBtn.innerHTML = '<span class="material-symbols-outlined text-xl">check_circle</span><span>' + esc(court.name || "Court") + ' Confirmed! Turnstile QR Ready</span>';
+
+          setTimeout(function () {
+            el.innerHTML = '<div class="max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-primary/30 shadow-2xl">' +
+              '<div class="w-16 h-16 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center mx-auto text-3xl shadow-neon-lime">' +
+                '<span class="material-symbols-outlined text-3xl font-bold">check</span>' +
+              '</div>' +
+              '<div class="space-y-2">' +
+                '<span class="text-xs font-mono uppercase tracking-widest text-primary font-bold">Booking Hold Confirmed</span>' +
+                '<h2 class="text-2xl sm:text-3xl font-display font-extrabold text-white tracking-tight">Proof Submitted Successfully!</h2>' +
+                '<p class="text-sm text-zinc-300 max-w-md mx-auto">Your payment receipt for <strong class="text-white">' + esc(court.name || "Court") + '</strong> has been received with reference <strong class="text-primary font-mono">' + esc(b.reference_code) + '</strong>.</p>' +
+              '</div>' +
+              '<div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/30 text-xs text-zinc-400 max-w-md mx-auto space-y-1.5 text-left font-mono">' +
+                '<div class="flex justify-between"><span class="text-zinc-500">Venue:</span><span class="text-white font-bold">' + esc(club.name || "Club") + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-zinc-500">Schedule:</span><span class="text-zinc-200">' + esc(dateStr) + ' • ' + esc(timeStr) + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-zinc-500">Amount:</span><span class="text-primary font-bold">' + money(b.amount) + '</span></div>' +
+              '</div>' +
+              '<div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">' +
+                '<a class="w-full sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-[#b2f746] text-black font-display font-bold text-sm shadow-neon-lime transition no-underline text-center" href="#/me/bookings">View My Bookings</a>' +
+                '<a class="w-full sm:w-auto px-5 py-3 rounded-xl bg-surface-container-high hover:bg-surface-bright text-zinc-200 font-semibold text-xs border border-outline-variant/40 transition no-underline text-center" href="#/c/' + esc(club.slug || '') + '">Back to Club</a>' +
+              '</div>' +
+            '</div>';
+            if (ctx && ctx.onDone) ctx.onDone();
+          }, 1200);
+
+        } catch (err) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove("opacity-80", "pointer-events-none");
+          submitBtn.innerHTML = '<span class="material-symbols-outlined font-bold text-xl">bolt</span><span>Submit Proof &amp; Confirm Booking</span>';
+          if (proofMsg) {
+            proofMsg.textContent = nice(err);
+            proofMsg.className = "msg err mt-3 text-xs text-rose-400 font-semibold";
+          }
+        }
+      };
+    }
+
+    var cancelReleaseBtn = el.querySelector("#cancel-release-btn");
+    if (cancelReleaseBtn) {
+      cancelReleaseBtn.onclick = async function () {
+        if (!confirm("Are you sure you want to cancel and release " + (court.name || "Court") + " back to the booking pool?")) return;
+        cancelReleaseBtn.disabled = true;
+        cancelReleaseBtn.textContent = "Releasing...";
+        var r = await sb.rpc("cancel_booking", {
+          p_booking_id: b.id,
+          p_reason: "Player released slot from checkout",
+          p_idempotency_key: uuid()
+        });
+        if (r.error) {
+          cancelReleaseBtn.disabled = false;
+          cancelReleaseBtn.textContent = "Cancel & Release Slot";
+          alert("Could not cancel: " + nice(r.error));
+          return;
+        }
+        if (ctx && ctx.onBack) {
+          ctx.onBack();
+        } else {
+          location.reload();
+        }
+      };
+    }
   }
 
   // ============================================================ book page
@@ -287,6 +962,7 @@
       '<div id="ds-book-page" class="book-public w-full min-h-screen text-slate-100 flex flex-col antialiased selection:bg-neon-lime selection:text-black">' +
         '<!-- BookingMainLayout -->' +
         '<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">' +
+          '<div id="booking-step1-2-wrapper">' +
           '<div class="mb-8">' +
             '<div class="flex items-center gap-2 text-neon-lime text-xs font-mono font-semibold uppercase tracking-widest mb-1.5">' +
               'Pickleball Court Reservation' +
@@ -527,6 +1203,8 @@
               '</div>' +
             '</aside>' +
           '</div>' +
+          '</div><!-- /booking-step1-2-wrapper -->' +
+          '<div id="booking-step3-wrapper" class="w-full relative" hidden></div>' +
         '</main>' +
       '</div>';
     if (D.mountPublicBackdrop) D.mountPublicBackdrop(q("#ds-book-page", root));
@@ -805,19 +1483,25 @@
         return;
       }
       var b = r.data;
-      if (btn2) { btn2.textContent = "Upload receipt below"; btn2.disabled = true; }
-      q("#slotpanel", root).hidden = true;
-      var step1Sec = q('[data-purpose="step-choose-court"]', root);
-      if (step1Sec) step1Sec.hidden = true;
-      var pp = q("#paypanel", root);
-      pp.hidden = false;
-      var ticketRef = q("#ticket-ref-badge", root);
-      if (ticketRef) ticketRef.textContent = "#" + (b.reference_code || b.id.slice(0, 8));
-      payPanel(pp, b, {
-        onDone: function () {
-          if (btn2) btn2.parentElement.innerHTML = '<p class="text-xs text-emerald-400 font-semibold text-center">Proof uploaded. View status in <a class="underline text-neon-lime" href="#/me">My Bookings</a></p>';
-        }
-      });
+      var step12 = q("#booking-step1-2-wrapper", root);
+      if (step12) step12.hidden = true;
+      var step3 = q("#booking-step3-wrapper", root);
+      if (step3) {
+        step3.hidden = false;
+        payPanel(step3, b, {
+          club: club,
+          court: S.court,
+          onDone: function () {
+            if (btn2) btn2.parentElement.innerHTML = '<p class="text-xs text-emerald-400 font-semibold text-center">Proof uploaded. View status in <a class="underline text-neon-lime" href="#/me">My Bookings</a></p>';
+          },
+          onBack: function () {
+            step3.hidden = true;
+            if (step12) step12.hidden = false;
+            drawSlots();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -834,6 +1518,29 @@
     var pc = pre.get("court");
     if (pc && courts.some(function (c) { return c.id === pc; })) pickCourt(pc);
     else if (courts.length > 0) pickCourt(courts[0].id);
+
+    var pendingBookingId = pre.get("booking");
+    if (pendingBookingId) {
+      var bkRes = await sb.from("bookings").select("*").eq("id", pendingBookingId).maybeSingle();
+      if (bkRes.data && bkRes.data.status === "pending") {
+        var step12 = q("#booking-step1-2-wrapper", root);
+        if (step12) step12.hidden = true;
+        var step3 = q("#booking-step3-wrapper", root);
+        if (step3) {
+          step3.hidden = false;
+          payPanel(step3, bkRes.data, {
+            club: club,
+            court: courts.find(function(c) { return c.id === bkRes.data.court_id; }),
+            onBack: function () {
+              step3.hidden = true;
+              if (step12) step12.hidden = false;
+              drawSlots();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          });
+        }
+      }
+    }
   }
 
   // =========================================================== my bookings
