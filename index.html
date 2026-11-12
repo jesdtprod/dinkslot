@@ -326,10 +326,11 @@
       html body #ds-tenant-dashboard.member-dashboard header .facility-account summary { display:flex; align-items:center; justify-content:center; box-sizing:border-box; width:40px; min-width:40px; height:40px; padding:5px; gap:0; }
     }
   </style>
+<style>.dashboard-mobile-brand { display:none; } @media(max-width:767px) { html body #ds-tenant-dashboard.member-dashboard header #side-toggle-btn, html body #ds-tenant-dashboard header #side-toggle-btn { border:0 !important; border-radius:0 !important; background:transparent !important; } html body #ds-tenant-dashboard header .dashboard-mobile-brand { display:flex; align-items:center; gap:5px; white-space:nowrap; text-decoration:none; color:#e5e9e7; font-size:16px; font-weight:800; } .dashboard-mobile-brand img { width:32px; height:32px; object-fit:contain; } .dashboard-mobile-brand strong span { color:#a3e635; } }</style>
   <style id="mobile-header-account-buttons">
     @media (max-width:767px) {
       html body #ds-tenant-dashboard header div:has(> .dashboard-bellslot) { gap:8px !important; }
-      html body #ds-tenant-dashboard header #side-toggle-btn { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:40px; min-width:40px; height:40px; min-height:40px; padding:0; border:1px solid #35434b; border-radius:10px !important; background:#202a30; }
+      html body #ds-tenant-dashboard header #side-toggle-btn { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:40px; min-width:40px; height:40px; min-height:40px; padding:0; border:0 !important; border-radius:0 !important; background:transparent !important; }
       html body :is(#nav, #ds-tenant-dashboard header) :is(.bellbtn, .facility-account > summary) { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:40px; min-width:40px; height:40px; min-height:40px; border-radius:10px !important; }
     }
   </style>
@@ -456,7 +457,7 @@
   <script src="js/config.js"></script>
   <script src="js/landing.js?v=440"></script>
   <script src="js/app.js?v=453"></script>
-  <script src="js/ui.js?v=459"></script>
+  <script src="js/ui.js?v=460"></script>
   <script src="js/profile-controls.js?v=392"></script>
   <script src="js/notify.js?v=429"></script>
   <script src="js/vendor/leaflet.js"></script>
