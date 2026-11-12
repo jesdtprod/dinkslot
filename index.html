@@ -292,6 +292,10 @@
       .home-skeleton .hs-tabs i { width:102px; height:36px; } .home-skeleton .hs-tabs i + i { width:135px; } .home-skeleton .hs-tabs i + i + i { width:148px; }
       .home-skeleton .hs-cards { grid-template-columns:repeat(2,minmax(0,1fr)); }
     }
+    @media(max-width:767px) {
+      .home-skeleton .hs-controls, .home-skeleton .hs-filters, .home-skeleton .hs-tabs { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
+      .home-skeleton .hs-controls > i, .home-skeleton .hs-filters > i:not(:first-child):not(:last-child), .home-skeleton .hs-tabs > i { width:100%; }
+    }
     @media(min-width:1024px) { .home-skeleton .hs-cards { grid-template-columns:repeat(4,minmax(0,1fr)); } }
     @media(min-width:1200px) { .home-skeleton .hs-links { display:flex; gap:24px; margin:0 auto 0 40px; } .home-skeleton .hs-links i { width:72px; } .home-skeleton .hs-links i + i { width:94px; } .home-skeleton .hs-links i + i + i { width:104px; } }
     @keyframes hs-sweep { to { background-position:-200% 0; } }
