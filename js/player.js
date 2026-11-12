@@ -343,7 +343,7 @@
       '<div class="club-directory-filters"><label>City / Municipality<select id="club-filter-city">' + filterOptions(all.map(function (c) { return c.city; }), 'All locations') + '</select></label>' +
       '<label>Court Type<select id="club-filter-type"><option value="">All court types</option><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option></select></label>' +
       '<label>Surface<select id="club-filter-surface">' + filterOptions(allCourts.map(function (c) { return c.surface; }), 'All surfaces') + '</select></label>' +
-      '<div class="club-directory-results"><span><strong id="nearby-count-badge">' + all.length + '</strong> clubs found</span></div></div></section>';
+      '<div class="club-directory-results"><span><strong id="nearby-count-badge">' + all.length + '</strong> Clubs Found</span></div></div></section>';
 
     // Membership cards contain only saved venue and active-court records.
     var joinedSectionHtml = '<section id="my-home-club" data-purpose="joined-clubs-section"><header class="home-clubs-heading"><div><span class="overview-clubs-eyebrow">Your Pickleball Community</span><h2>My Clubs</h2><p>Explore your joined clubs, view court details, and book your next game.</p></div><a class="btn ghost" href="#/me/clubs"><span class="material-symbols-outlined" aria-hidden="true">groups</span>View All Clubs</a></header><div class="home-clubs-grid find-membership-grid">' +

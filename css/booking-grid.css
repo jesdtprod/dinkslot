@@ -428,7 +428,7 @@ body .club-directory-search #btn-clear-search[hidden] { display:none !important;
 #ds-tenant-dashboard #sec .club-directory-results > span { border-radius:15px !important; }
 
 /* Find a Club search section follows the supplied compact reference. */
-#ds-tenant-dashboard #sec .member-find-page .club-directory-tools { display:flex; flex-direction:column; gap:0; padding:16px; border:1px solid #ffffff10; border-radius:12px; background:#171d23; }
+#ds-tenant-dashboard #sec .member-find-page .club-directory-tools { display:flex; flex-direction:column; gap:0; padding:16px; border:1px solid #ffffff10; border-radius:12px; background:rgb(24 31 36 / 30%); }
 .member-find-page .club-directory-search { box-sizing:border-box; width:100%; min-height:44px; border:1px solid #ffffff12; border-radius:15px; background:#20282e; }
 .member-find-page .club-directory-tools > .club-directory-filters { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid #ffffff08; }
 .member-find-page .club-directory-filters > label { flex:0 1 auto; margin:0; }

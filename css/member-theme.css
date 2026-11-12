@@ -313,3 +313,6 @@
 #ds-tenant-dashboard #sec .member-find-page #btn-clear-search { box-sizing:border-box; flex:0 0 32px; width:32px; min-width:32px; height:32px; min-height:32px !important; align-self:center; margin:0; padding:0 !important; }
 #ds-tenant-dashboard #sec .member-find-page #btn-clear-search:not([hidden]) { display:inline-flex !important; align-items:center !important; justify-content:center !important; }
 #ds-tenant-dashboard #sec .member-find-page #btn-clear-search .material-symbols-outlined { display:flex; align-items:center; justify-content:center; width:22px; height:22px; font-size:22px !important; line-height:1 !important; }
+
+/* Keep discovery containers identical despite legacy panel specificity. */
+#app #ds-tenant-dashboard #sec .member-find-page :is(.club-directory-tools,#my-home-club .home-clubs-heading) { background:rgb(24 31 36 / 30%); border-color:#91a5b22b; box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
