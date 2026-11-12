@@ -968,7 +968,7 @@
               'Book a court' +
               '<span class="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 font-normal">Fast Checkout</span>' +
             '</h1>' +
-            '<p class="text-sm text-slate-400 mt-1 max-w-2xl m-0">Select your preferred outdoor court, time slot, and lock in your reservation with instant turnstile access.</p>' +
+            '<p class="text-sm text-slate-400 mt-1 max-w-2xl m-0">Choose your court and time, then confirm your reservation.</p>' +
           '</div>' +
 
         '<section class="booking-context" data-purpose="breadcrumbs-context">' +
