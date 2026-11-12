@@ -243,8 +243,7 @@
 
     if (sec.isConnected === false) return;
     sec.innerHTML = '<div class="member-overview-page member-profile-theme" data-purpose="player-dashboard">' +
-      heroHtml +
-      metricsHtml +
+      '<section class="overview-summary-section" aria-label="Player overview">' + heroHtml + metricsHtml + '</section>' +
       nextBookingHtml +
       homeClubHtml +
     '</div>';
