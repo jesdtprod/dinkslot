@@ -236,6 +236,23 @@
       .mobile-home-skeleton .loading-stats { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; margin-top:16px; }
       .mobile-home-skeleton .loading-stats i { height:48px; }
     }
+    @media(min-width:641px) {
+      html:not(.boot-dashboard) #app-startup .home-boot-skeleton { display:none !important; }
+      html:not(.boot-dashboard) #app-startup .mobile-home-skeleton { box-sizing:border-box; display:block; min-height:100dvh; padding:0 32px 32px; background:#10141a; }
+      .mobile-home-skeleton * { box-sizing:border-box; }
+      .mobile-home-skeleton i { display:block; border-radius:8px; background:linear-gradient(100deg,#202a30 20%,#303d43 40%,#202a30 60%); background-size:200% 100%; animation:mobile-loading-sweep 1.4s linear infinite; }
+      .mobile-home-skeleton .loading-nav { max-width:1400px; height:64px; margin:auto; display:flex; align-items:center; justify-content:space-between; }
+      .mobile-home-skeleton .loading-nav i:first-child { width:180px; height:36px; } .mobile-home-skeleton .loading-nav i:last-child { width:150px; height:36px; }
+      .mobile-home-skeleton .loading-hero { max-width:1000px; margin:70px auto 0; display:flex; flex-direction:column; align-items:center; gap:14px; }
+      .mobile-home-skeleton .loading-hero > i:nth-child(1) { width:340px; height:28px; border-radius:20px; }
+      .mobile-home-skeleton .loading-hero > i:nth-child(2) { width:420px; height:36px; margin-top:8px; }
+      .mobile-home-skeleton .loading-hero > i:nth-child(3) { width:360px; height:36px; }
+      .mobile-home-skeleton .loading-hero > i:nth-child(4) { width:min(620px,90%); height:20px; }
+      .mobile-home-skeleton .loading-search { width:100%; display:grid; grid-template-columns:2fr 1.4fr 1.4fr 1fr; gap:10px; margin-top:12px; padding:16px; border:1px solid #35434b; border-radius:12px; }
+      .mobile-home-skeleton .loading-search i { height:54px; }
+      .mobile-home-skeleton .loading-stats { width:100%; display:grid; grid-template-columns:repeat(4,1fr); gap:30px; margin-top:30px; }
+      .mobile-home-skeleton .loading-stats i { height:54px; }
+    }
     @keyframes mobile-loading-sweep { to { background-position:-200% 0; } }
     @media(prefers-reduced-motion:reduce) { .mobile-home-skeleton i { animation:none; } }
   </style>
