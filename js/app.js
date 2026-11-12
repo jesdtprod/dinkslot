@@ -182,7 +182,7 @@
       }
     }
     renderNav();
-    if (state.user) resumePending(); // finish a booking intent started before sign-up / confirmation
+    if (state.user) await resumePending(); // Complete the redirect before rendering the current route.
   }
   function renderNav() {
     var h = "";
@@ -2194,7 +2194,8 @@
     var startup = document.getElementById("app-startup");
     try {
       var startupPath = (location.hash || "#/").slice(1).split("?")[0];
-      var publicLanding = startupPath === "/" || startupPath === "";
+      var oauthCallback = new URLSearchParams(location.search).has("code");
+      var publicLanding = (startupPath === "/" || startupPath === "") && !oauthCallback;
       var sessionTask = refreshSession();
       if (publicLanding) {
         // A slow auth service must not block the public landing page.
