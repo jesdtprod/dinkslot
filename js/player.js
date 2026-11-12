@@ -699,16 +699,18 @@
         var isCancelled = b.status === "cancelled" || b.status === "rejected";
         var paymentSent = !!paymentByBooking[b.id];
         var canPay = isPending && !paymentSent && club.payment_enabled !== false && endD.getTime() > Date.now() && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now());
-        var statusLabel = isApproved ? "Confirmed" : (isPending ? (paymentSent ? "Payment submitted" : "Pending Approval") : (b.status === "rejected" ? "Declined" : "Cancelled"));
+        var isPast = endD.getTime() <= Date.now();
+        var tone = isCancelled ? 'negative' : isPast ? 'past' : isPending ? 'pending' : 'upcoming';
+        var statusLabel = isApproved ? (isPast ? "Completed" : "Confirmed") : (isPending ? (paymentSent ? "Payment submitted" : "Pending Approval") : (b.status === "rejected" ? "Declined" : b.status === 'completed' ? 'Completed' : "Cancelled"));
         var statusClass = isApproved
           ? "bg-brand-neon/15 text-brand-neon border border-brand-neon/40 shadow-neon-glow"
           : (isPending ? "bg-amber-400/15 text-amber-300 border border-amber-400/30" : "bg-rose-500/15 text-rose-400 border border-rose-500/30");
         var addressStr = [club.street || club.address,club.barangay,club.city,club.province,club.zip_code].filter(Boolean).join(', ');
         var isLive = (isApproved || isPending) && endD.getTime() > Date.now();
         var minutes = Math.round((endD - startD) / 60000);
-        return '<article class="clean-booking-card" data-purpose="reservation-card" data-booking-id="' + esc(b.id) + '"><div class="clean-booking-main"><div class="clean-booking-status"><span class="badge ' + (isApproved ? 'approved' : '') + '">' + esc(statusLabel) + '</span>' +
+        return '<article class="clean-booking-card booking-tone-' + tone + '" data-purpose="reservation-card" data-booking-id="' + esc(b.id) + '"><div class="clean-booking-main"><div class="clean-booking-status"><span class="badge reservation-status-badge">' + esc(statusLabel) + '</span>' +
           (court.surface ? '<span class="clean-booking-surface">' + esc(court.surface) + '</span>' : '') + '<span class="member-reservation-ref">Ref: ' + esc(b.reference_code || 'Not available') + '</span></div>' +
-          '<h3>' + esc(club.name || 'Club unavailable') + ' &middot; ' + esc(court.name || 'Court unavailable') + '</h3>' +
+          '<div class="member-reservation-venue"><span class="member-reservation-logo" aria-hidden="true">' + (club.logo_path ? '<img src="' + esc(D.mediaUrl(club.logo_path)) + '" alt="" loading="lazy">' : '<span class="material-symbols-outlined">sports_tennis</span>') + '</span><h3>' + esc(club.name || 'Club unavailable') + ' &middot; ' + esc(court.name || 'Court unavailable') + '</h3></div>' +
           '<p class="clean-booking-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span>' + esc(addressStr || 'Location not provided') + '</p>' +
           '<div class="member-reservation-meta"><span><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>' + esc(whenStr) + '</span><span><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + minutes + ' minutes</span>' + (b.amount != null ? '<strong>' + money(b.amount) + '</strong>' : '') + '</div></div>' +
           '<div class="clean-booking-actions">' + (isPending && !paymentSent && b.expires_at ? '<span class="booking-payment-timer" data-payment-expiry="' + esc(b.expires_at) + '"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span class="payment-time-left">Checking payment time...</span></span>' : '') + (canPay ? '<button type="button" data-pay="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">upload_file</span>Pay / Upload Proof</button>' : '') + (isApproved ? '<button type="button" data-ticket="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>View Digital Pass</button>' : '') +
