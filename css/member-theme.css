@@ -202,3 +202,17 @@
 .member-overview-page .overview-booking-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
 .member-overview-page .overview-booking-controls { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:10px; margin-left:auto; min-width:0; }
 @media(max-width:639px) { .member-overview-page .overview-booking-controls { width:100%; } .member-overview-page .overview-booking-controls [role="tablist"] { flex:1 1 100%; } }
+
+/* Refined overview welcome card with independent summary tiles. */
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header { position:relative; overflow:hidden; grid-template-columns:minmax(0,1fr) minmax(360px,auto); gap:32px; padding:28px; border-color:#91a5b22b; background:rgb(24 31 36 / 50%); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
+.member-overview-page .member-overview-header::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; border-radius:0 0 2px 2px; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-eyebrow { margin-bottom:8px; font-size:10px; line-height:16px; letter-spacing:.12em; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-intro p { margin-top:6px; margin-bottom:20px; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; width:auto; padding:0; border:0; background:transparent; align-self:center; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-stats > div { display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0; padding:14px; border:1px solid #91a5b21c; border-radius:9px; background:rgb(32 42 48 / 50%); }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-stat-label { color:#9bafbd; font:500 9px/14px "JetBrains Mono",monospace; letter-spacing:.025em; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-stat-value { min-height:30px; padding:0; border:0; background:none; color:#a3e635; font-size:24px; line-height:30px; font-weight:600; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-skill { font-size:16px; }
+#ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-stats small { color:#8297a5; font-size:9px; line-height:14px; }
+@media(max-width:1100px) { #ds-tenant-dashboard #sec .member-overview-page .member-overview-header { grid-template-columns:minmax(0,1fr); gap:24px; } #ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-stats { width:100%; } }
+@media(max-width:639px) { #ds-tenant-dashboard #sec .member-overview-page .member-overview-header { padding:20px 16px; gap:20px; } .member-overview-page .member-overview-header::before { left:16px; } #ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-stats { gap:6px; } #ds-tenant-dashboard #sec .member-overview-page .member-overview-header .member-overview-stats > div { padding:10px 8px; gap:6px; } }
