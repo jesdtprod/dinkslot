@@ -735,3 +735,15 @@ html body #app #ds-auth-screen.signup-screen .signup-card { border-radius:24px !
 @media (max-width:639px) {
   #ds-tenant-dashboard #sec .member-profile-theme .member-overview-header .member-overview-stat-label { min-height:28px; }
 }
+
+@media (max-width:639px) {
+  #app #ds-tenant-dashboard #sec .member-bookings-page .booking-toolbar-bottom { display:flex; flex-direction:column; align-items:stretch; gap:12px; }
+  #app #ds-tenant-dashboard #sec .member-bookings-page .booking-status-chips { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; gap:6px; }
+  #app #ds-tenant-dashboard #sec .member-bookings-page .booking-status-chips > button { display:flex; align-items:center; justify-content:center; gap:4px; min-width:0; min-height:38px; padding:6px 3px; font-size:11px; white-space:nowrap; }
+  #app #ds-tenant-dashboard #sec .member-bookings-page .booking-toolbar-bottom .club-directory-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)) 38px; gap:8px; width:100%; }
+  #app #ds-tenant-dashboard #sec .member-bookings-page .booking-toolbar-bottom .club-directory-filters label,
+  #app #ds-tenant-dashboard #sec .member-bookings-page .booking-toolbar-bottom .club-directory-filters select { min-width:0; width:100%; box-sizing:border-box; }
+  #app #ds-tenant-dashboard #sec .member-bookings-page [data-purpose=upcoming-confirmed-reservation-view] > div:first-child { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px; }
+  #app #ds-tenant-dashboard #sec .member-bookings-page #current-view-badge { white-space:nowrap; }
+  #app #ds-tenant-dashboard #sec .member-bookings-page [data-purpose=upcoming-confirmed-reservation-view] > div:first-child > span { flex-basis:100%; }
+}
