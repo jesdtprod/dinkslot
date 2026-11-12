@@ -123,7 +123,7 @@
     var avImg = D.avatar.mine();
     var ui = D.ui.dash(root, {
       head: { title: name, sub: "Player", initial: name, img: avImg },
-      workspace: "Player Workspace", hideStatus: false, statusLabel: "User Account", pill: "Player", chip: name,
+      workspace: "Player Workspace", hideLocationChip: true, hideStatus: false, statusLabel: "User Account", pill: "Player", chip: name,
       items: [
         { type: "label", label: "Play" },
         { key: "overview", label: "Overview", icon: "dashboard", href: "#/me" },
