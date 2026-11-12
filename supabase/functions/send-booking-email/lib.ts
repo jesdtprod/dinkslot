@@ -15,6 +15,7 @@ export interface Ctx {
   playerUserId: string | null;
   playerEmail: string | null;
   adminEmails: string[];
+  guestBookingUrl?: string | null;
   siteUrl: string; // e.g. https://jesdtprod.github.io/dinkslot/
 }
 
@@ -75,7 +76,7 @@ function details(ctx: Ctx): string[] {
 // isInsert: the booking was just created. cancelledByPlayer: the player cancelled it.
 export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
   const b = ctx.booking, status = b.status, key = `${b.id}:${status}`;
-  const myBookings = ctx.siteUrl.replace(/\/?$/, "/") + "#/me";
+  const myBookings = ctx.guestBookingUrl || ctx.siteUrl.replace(/\/?$/, "/") + "#/me";
   const queue = ctx.siteUrl.replace(/\/?$/, "/") + `#/admin/${ctx.clubSlug}/bookings`;
   const out: Mail[] = [];
   const toPlayer = (template: string, subject: string, heading: string, lines: string[], cta?: { label: string; url: string }, qr?: string) => {
@@ -104,7 +105,7 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
     }
   } else if (status === "rejected") {
     toPlayer("booking_rejected", `Booking not approved - ${b.reference_code}`, "Your booking was not approved",
-      [`Reason: ${b.reject_reason || "not given"}`, ...details(ctx)], { label: "Book another time", url: ctx.siteUrl });
+      [`Reason: ${b.reject_reason || "not given"}`, ...details(ctx)], ctx.guestBookingUrl ? { label: "View booking", url: ctx.guestBookingUrl } : { label: "Book another time", url: ctx.siteUrl });
   } else if (status === "cancelled") {
     toPlayer("booking_cancelled", `Booking cancelled - ${b.reference_code}`, "Your booking was cancelled",
       [...(b.cancel_reason ? [`Reason: ${b.cancel_reason}`] : []), ...details(ctx)], { label: "View my bookings", url: myBookings });
@@ -114,7 +115,7 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
     }
   } else if (status === "expired") {
     toPlayer("booking_expired", `Booking expired - ${b.reference_code}`, "Your booking expired",
-      ["We did not receive payment in time, so the slot was released.", ...details(ctx)], { label: "Book again", url: ctx.siteUrl });
+      ["We did not receive payment in time, so the slot was released.", ...details(ctx)], ctx.guestBookingUrl ? { label: "View booking", url: ctx.guestBookingUrl } : { label: "Book again", url: ctx.siteUrl });
   }
   return out;
 }

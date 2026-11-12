@@ -15,7 +15,7 @@
 - [x] Add guest booking status page wired to the status endpoint (not deployed or end-to-end tested).
 - [x] Render the guest QR pass only for an approved status returned by the endpoint (end-to-end testing pending).
 - [ ] Show guest contact and payment information in the admin approval queue.
-- [ ] Send booking, approval, rejection, cancellation and expiry emails to guests using the existing Gmail sender.
+- [x] Prepare guest status emails and secure booking links using the existing Gmail sender (requires guest creation, migrations, deployment, and delivery tests).
 - [ ] Verify registered-player email delivery and status transitions; configure and deploy the webhook and mailer as needed.
 - [ ] Run database security, concurrent booking, payment, recovery, accessibility, and end-to-end tests.
 - [ ] Apply migrations and deploy functions after validation; verify with real delivery and reservation flows.

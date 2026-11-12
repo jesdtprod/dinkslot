@@ -123,3 +123,12 @@ Deno.test('player booking emails identify the club in the subject', () => {
     if (!mail || !mail.subject.includes('The Pickleshot')) throw new Error('missing club for ' + status);
   }
 });
+
+Deno.test("guest status emails link to the guest reservation", () => {
+  const url = "https://example.test/#/guest/booking?token=abc";
+  for (const status of ["pending", "approved", "rejected", "cancelled", "expired"]) {
+    const message = planEmails(ctx({ status, source: "online", guest_name: "Guest" }, { playerEmail: "guest@example.test", playerUserId: null, guestBookingUrl: url }), false).find((mail) => mail.to === "guest@example.test");
+    if (!message || !message.subject.includes("The Pickleshot")) throw new Error("guest email missing");
+    if (!message.text.includes(url)) throw new Error("guest link missing for " + status);
+  }
+});

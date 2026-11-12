@@ -12,6 +12,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { b64url, buildMime, type Ctx, type Inline, type Mail, planEmails, safeEqual } from "./lib.ts";
 import { bookingQrPng } from "./qr.ts";
+import { issueGuestBookingToken } from "../_shared/guest-access.ts";
 
 // ---- Mailer: swap this for Resend later without touching the webhook, templates or email_log.
 interface OutMail { fromName: string; fromEmail: string; to: string; replyTo?: string | null; subject: string; text: string; html: string; inline?: Inline[] }
@@ -98,10 +99,26 @@ Deno.serve(async (req) => {
   }
   const adminEmails = (await Promise.all((members ?? []).map((m: { user_id: string }) => emailOf(m.user_id)))).filter(Boolean) as string[];
 
+  // Walk-in reservations without an email remain unchanged. Online guest contacts are private.
+  let guestEmail: string | null = null, guestBookingUrl: string | null = null;
+  if (!b.player_id) {
+    const contact = await admin.from("guest_booking_contacts").select("email").eq("booking_id", b.id).maybeSingle();
+    if (contact.error) return json({ error: "guest_contact_unavailable" }, 503);
+    guestEmail = contact.data?.email ?? null;
+    if (guestEmail) {
+      try {
+        const expiry = new Date(Math.max(Date.now() + 30 * 86400000, new Date(b.ends_at).getTime() + 7 * 86400000));
+        const token = await issueGuestBookingToken(admin, b.id, expiry);
+        const site = Deno.env.get("SITE_URL") ?? "https://jesdtprod.github.io/dinkslot/";
+        guestBookingUrl = site.replace(/\/?$/, "/") + "#/guest/booking?token=" + encodeURIComponent(token);
+      } catch { return json({ error: "guest_link_unavailable" }, 503); }
+    }
+  }
+
   const ctx: Ctx = {
     booking: b, clubName: tenant.name, clubSlug: tenant.slug, timezone: tenant.timezone || "Asia/Manila",
     courtName: court?.name ?? "Court", playerName: player?.display_name ?? b.guest_name ?? "Player",
-    playerUserId: player?.user_id ?? null, playerEmail: await emailOf(player?.user_id), adminEmails,
+    playerUserId: player?.user_id ?? null, playerEmail: guestEmail || await emailOf(player?.user_id), guestBookingUrl, adminEmails,
     siteUrl: Deno.env.get("SITE_URL") ?? "https://jesdtprod.github.io/dinkslot/",
   };
 
@@ -122,7 +139,7 @@ Deno.serve(async (req) => {
         ? [{ cid: "ticket-qr", type: "image/png", filename: `booking-${mail.qr}.png`, data: bookingQrPng(mail.qr) }]
         : undefined;
       const id = await mailer.send({
-        fromName: tenant.name, fromEmail: mailer.fromEmail, to: mail.to, replyTo: tenant.contact_email,
+        fromName: "DINKSLOT", fromEmail: mailer.fromEmail, to: mail.to, replyTo: tenant.contact_email,
         subject: mail.subject, text: mail.text, html: mail.html, inline,
       });
       await admin.from("email_log").update({ status: "sent", provider_message_id: id }).eq("id", log.id);
