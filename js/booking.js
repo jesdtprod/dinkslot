@@ -2804,5 +2804,24 @@
     }
   }
 
-    D.booking = { openPayment: openPayment, openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc, bookCourtSkeleton: bookCourtSkeleton, paymentSkeleton: paymentSkeleton, bookingPassSkeleton: bookingPassSkeleton, bookingConfirmSkeleton: bookingConfirmSkeleton };
+  async function guestBookingStatus(token) {
+    var root = D.root();
+    if (!/^[0-9a-f]{64}$/.test(token || "")) {
+      root.innerHTML = '<section class="panel"><h1>Booking link unavailable</h1><p>This link is invalid or has expired.</p></section>';
+      return;
+    }
+    root.innerHTML = '<section class="panel"><p>Loading your reservation...</p></section>';
+    var response = await sb.functions.invoke("guest-booking-status", { body: { token: token } });
+    if (response.error || !response.data || !response.data.booking) {
+      root.innerHTML = '<section class="panel"><h1>Unable to load booking</h1><p>The link may have expired or the service may be unavailable. Please contact the club.</p></section>';
+      return;
+    }
+    var b = response.data.booking, club = response.data.club || {}, court = response.data.court || {};
+    var statusText = { pending:"Pending approval", approved:"Confirmed", rejected:"Rejected", cancelled:"Cancelled", expired:"Expired" }[b.status] || "Unavailable";
+    var tz = club.timezone || "Asia/Manila";
+    var schedule = new Intl.DateTimeFormat("en-PH", { timeZone:tz, dateStyle:"medium", timeStyle:"short" }).format(new Date(b.starts_at));
+    root.innerHTML = '<section class="panel guest-booking-status"><h1>Your booking</h1><p>Review your reservation and payment status.</p><dl><div><dt>Status</dt><dd>' + esc(statusText) + '</dd></div><div><dt>Club</dt><dd>' + esc(club.name || "Club") + '</dd></div><div><dt>Court</dt><dd>' + esc(court.name || "Court") + '</dd></div><div><dt>Schedule</dt><dd>' + esc(schedule) + '</dd></div><div><dt>Reference</dt><dd>' + esc(b.reference_code || "") + '</dd></div><div><dt>Payment proof</dt><dd>' + (b.proof_submitted ? 'Submitted' : 'Not submitted') + '</dd></div></dl><p>' + (b.gate_pass_available ? 'Your booking is confirmed.' : 'Your gate pass will be available after approval.') + '</p></section>';
+  }
+
+    D.booking = { guestBookingStatus: guestBookingStatus, openPayment: openPayment, openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc, bookCourtSkeleton: bookCourtSkeleton, paymentSkeleton: paymentSkeleton, bookingPassSkeleton: bookingPassSkeleton, bookingConfirmSkeleton: bookingConfirmSkeleton };
 })();

@@ -12,7 +12,8 @@
 - [ ] Implement token revocation and test guest access endpoints against the database.
 - [ ] Add email-based access-link recovery with rate limiting and non-enumerating responses.
 - [ ] Reuse checkout with guest-authorized proof upload and cancellation; preserve existing member flow.
-- [ ] Add guest booking status and approved-only QR pass.
+- [x] Add guest booking status page wired to the status endpoint (not deployed or end-to-end tested).
+- [ ] Add approved-only QR pass to the guest booking page.
 - [ ] Show guest contact and payment information in the admin approval queue.
 - [ ] Send booking, approval, rejection, cancellation and expiry emails to guests using the existing Gmail sender.
 - [ ] Verify registered-player email delivery and status transitions; configure and deploy the webhook and mailer as needed.
