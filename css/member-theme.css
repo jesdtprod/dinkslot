@@ -258,3 +258,11 @@
 #ds-tenant-dashboard #sec .member-overview-page .overview-booking-heading h2 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
 .overview-booking-heading p { margin:2px 0 0; color:#91a5b2; font:400 13px/21px "Plus Jakarta Sans",sans-serif; }
 @media(max-width:639px) { #ds-tenant-dashboard #sec .member-overview-page .overview-booking-toolbar { padding:16px; gap:16px; } .member-overview-page .overview-booking-toolbar::before { left:16px; } #ds-tenant-dashboard #sec .member-overview-page .overview-booking-heading h2 { font-size:28px; line-height:34px; } }
+
+/* Booking status accents retain a readable dark surface. */
+.member-reservation-card.booking-tone-upcoming { --booking-accent:#a3e635; --booking-accent-rgb:163,230,53; }
+.member-reservation-card.booking-tone-pending { --booking-accent:#fbbf24; --booking-accent-rgb:251,191,36; }
+.member-reservation-card.booking-tone-past { --booking-accent:#94a3b8; --booking-accent-rgb:148,163,184; }
+.member-reservation-card.booking-tone-negative { --booking-accent:#fca5a5; --booking-accent-rgb:252,165,165; }
+#ds-tenant-dashboard #sec .member-overview-page #next-booking-card-slot .member-reservation-card[class*="booking-tone-"] { border:1px solid #35434b; border-top:2px solid var(--booking-accent); background:linear-gradient(rgba(var(--booking-accent-rgb),.035),rgba(var(--booking-accent-rgb),.035)),#181f24; }
+#ds-tenant-dashboard #sec .member-reservation-card .reservation-status-badge { border:1px solid rgba(var(--booking-accent-rgb),.25); background:rgba(var(--booking-accent-rgb),.1); color:var(--booking-accent); }

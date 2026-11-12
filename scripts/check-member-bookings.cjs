@@ -27,6 +27,7 @@ function section(){
 (async()=>{
   let sec=section(); await D.player.overview(sec);
   assert.match(sec.innerHTML,/REAL-123/);
+  assert.match(sec.innerHTML,/booking-tone-upcoming/);
   assert.match(sec.innerHTML,/Active Courts<\/span><span[^>]+>7<\/span>/);
   assert.match(sec.innerHTML,/Skill Level/);
   assert.match(sec.innerHTML,/Not Rated/);
@@ -46,7 +47,9 @@ function section(){
   assert.match(home,/12 Real Street, Poblacion, Isulan/);
   assert.doesNotMatch(home,/All 16 Slots|4:30 PM|128 reviews/);
   sec.tabs[2].onclick(); assert.match(sec.slot.innerHTML,/PENDING-456/); assert.doesNotMatch(sec.slot.innerHTML,/REAL-123/);
+  assert.match(sec.slot.innerHTML,/booking-tone-pending/);assert.match(sec.slot.innerHTML,/Awaiting approval/);
   sec.tabs[1].onclick(); assert.match(sec.slot.innerHTML,/PAST-789/);
+  assert.match(sec.slot.innerHTML,/booking-tone-past/);assert.match(sec.slot.innerHTML,/Completed/);
   bookings=[]; sec=section(); await D.player.overview(sec);
   assert.match(sec.innerHTML,/No upcoming bookings/); assert.doesNotMatch(sec.innerHTML,/member-reservation-card/);
   sec.tabs[2].onclick(); assert.match(sec.slot.innerHTML,/No pending bookings/);
