@@ -19,7 +19,7 @@
     var code = n.message || "";
     var t = n.type, mine = !!tenants[n.tenant_id], slug = (tenants[n.tenant_id] || {}).slug;
     switch (t) {
-      case "booking_received": return { icon: "event", text: "Booking " + code + " received. Pay and upload your proof to confirm it.", to: "/me" };
+      case "booking_received": return { icon: "event", text: "Booking " + code + " is on hold. Complete payment and upload your receipt to confirm your reservation.", to: "/me" };
       case "booking_requested": return { icon: "pending_actions", text: "New booking request " + code + ".", to: "/admin/" + slug + "/bookings" };
       case "proof_uploaded": return { icon: "receipt_long", text: "Payment proof uploaded for " + code + ". Ready to review.", to: "/admin/" + slug + "/bookings" };
       case "booking_approved": return { icon: "check_circle", text: "Booking " + code + " is confirmed. See you on the court!", to: "/me" };
