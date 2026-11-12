@@ -3628,3 +3628,11 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .payment-panel .payment-group[aria-pressed="true"],
 .payment-panel .qrtab[aria-pressed="true"] { background: #a3e6351a; border-color: #a3e6354d; color: #a3e635; }
 .payment-panel .proof input { background: #111620; border-color: #ffffff1a; color: #f1f5f9; }
+
+/* Customer identity and contact stay together beside the avatar. */
+.reservation-review-header .reservation-customer { align-items: center; }
+.reservation-customer-copy .reservation-customer-phone { margin: 3px 0 0; gap: 5px; font-size: 11px; line-height: 17px; overflow-wrap: anywhere; }
+.reservation-customer-copy .reservation-customer-phone .material-symbols-outlined { font-size: 13px; flex-shrink: 0; }
+.reservation-customer-type { display: inline-flex; margin-bottom: 3px; padding: 1px 6px; border: 1px solid #a3e63530; border-radius: 5px; background: #a3e6350c; color: #c4dfa4; font: 500 9px/14px "Plus Jakarta Sans", sans-serif; }
+.reservation-customer-type.guest { color: #80d8ea; border-color: #22d3ee30; background: #22d3ee0c; }
+.reservation-review-card > .reservation-review-details { margin-top: 14px; }

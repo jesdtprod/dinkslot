@@ -16,6 +16,7 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.deepEqual(Array.from(statusFilter),["pending","approved"]);
   assert.match(normal.innerHTML,/NEEDS-REVIEW/);
   assert.match(normal.innerHTML,/Alex Morgan/);
+  assert.match(normal.innerHTML,/reservation-customer-type member/);
   assert.match(normal.innerHTML,/09171234567/);
   assert.doesNotMatch(normal.innerHTML,/NICKNAME/);
   assert.match(normal.innerHTML,/Needs approval/);
@@ -25,6 +26,7 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   const guest=box();await D.booking.queue(guest,{id:'club'});
   assert.match(guest.innerHTML.split("Today's confirmed bookings")[0],/UNPAID-GUEST/);
   assert.match(guest.innerHTML,/data-guest-pay="guest"/);
+  assert.match(guest.innerHTML,/reservation-customer-type guest/);
   assert.doesNotMatch(guest.innerHTML,/data-ok="guest"/);
   records=[{...records[0],paid_at:'2026-11-12T01:00:00Z',reference_code:'PAID-GUEST'}];
   const paid=box();await D.booking.queue(paid,{id:'club'});
