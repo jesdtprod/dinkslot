@@ -568,3 +568,10 @@ body .booking-pass-actions .proof-icon-action { display:inline-flex !important; 
 body .rate-editor .rate-add > button { min-height:36px !important; font-size:11px !important; }
 .rate-editor-note { margin:0; color:#718b7c; font-size:10px; line-height:16px; }
 @media(max-width:650px) { #ds-tenant-dashboard #sec .rate-editor .rate-add { grid-template-columns:repeat(2,minmax(0,1fr)); } .rate-editor .rate-add > button { grid-column:1/-1; } }
+
+/* Size review cards from the available content width, including beside the tablet sidebar. */
+#ds-tenant-dashboard #sec .booking-record-grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr)); }
+#ds-tenant-dashboard #sec .reservation-review-header { flex-wrap:wrap; }
+#ds-tenant-dashboard #sec .reservation-customer { flex:1 1 160px; min-width:0; }
+#ds-tenant-dashboard #sec .reservation-customer-copy h4 { overflow-wrap:normal; word-break:normal; }
+#ds-tenant-dashboard #sec .reservation-customer-phone span:last-child { overflow-wrap:normal; word-break:normal; }
