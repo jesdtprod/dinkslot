@@ -1,4 +1,4 @@
-const CACHE = "dinkslot-shell-v444";
+const CACHE = "dinkslot-shell-v445";
 const RUNTIME = "dinkslot-cdn-v1";
 
 const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/landing.js", "js/config.js", "js/ui.js", "js/profile-controls.js", "js/notify.js", "js/admin.js", "js/booking.js", "js/vendor/qrcode.js", "js/player.js", "js/ph-address.js", "assets/ph-zip-codes.json", "manifest.webmanifest", "favicon.ico", "assets/dinkslot-logo.png", "assets/landing-court.jpg", "assets/pickleball-courts-hd.jpg", "assets/icons/qr-logo.png", "assets/icons/icon-192.png", "assets/icons/icon-512.png"];
@@ -42,7 +42,7 @@ self.addEventListener("fetch", (e) => {
 
   // Our own files: network first (so deploys show up), cached copy when offline.
   e.respondWith(
-    fetch(req)
+    fetch(req, req.mode === "navigate" ? { cache: "no-cache" } : undefined)
       .then((r) => { if (r.ok) { const c = r.clone(); caches.open(CACHE).then((x) => x.put(req, c)); } return r; })
       .catch(() => caches.match(req).then((m) => m || (req.mode === "navigate" ? caches.match("index.html") : Response.error())))
   );
