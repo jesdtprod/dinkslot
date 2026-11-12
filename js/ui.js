@@ -536,6 +536,7 @@
     var title = kind === 'err' ? 'Action Required' : kind === 'ok' ? 'Update Successful' : 'Notification';
     if (/invalid login credentials/i.test(message)) { title = 'Unable to Sign In'; message = 'The email address or password is incorrect. Please check your details and try again.'; }
     else if (/saved|updated successfully/i.test(message)) title = 'Changes Saved';
+    else if (/booking.*on hold/i.test(message)) title = 'Complete Your Payment';
     else if (/booked|booking.*confirmed/i.test(message)) title = 'Booking Confirmed';
     else if (/uploading/i.test(message)) title = 'Upload in Progress';
     else if (/uploaded/i.test(message)) title = 'Upload Complete';

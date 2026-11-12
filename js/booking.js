@@ -774,7 +774,9 @@
       var btn1 = q("#reserve", root), btn2 = q("#reserve-sidebar", root);
       if (btn1) btn1.disabled = true;
       if (btn2) btn2.disabled = true;
-      msg(q("#slotpanel", root), "Holding your selected time slot...", "");
+      msg(q("#slotpanel", root), "", "");
+      if (btn1) btn1.textContent = "Holding slot...";
+      if (btn2) btn2.textContent = "Holding slot...";
       var r = await sb.rpc("create_booking", {
         p_court_id: S.court.id,
         p_starts_at: first.s.toISOString(),
@@ -782,6 +784,8 @@
         p_idempotency_key: keys[sig]
       });
       if (r.error) {
+        if (btn1) btn1.textContent = "Reserve this slot";
+        if (btn2) btn2.textContent = "Confirm & Pay";
         msg(q("#slotpanel", root), nice(r.error), "err");
         if (/slot_taken|slot_blocked/.test(r.error.message || "")) drawSlots();
         else { if (btn1) btn1.disabled = false; if (btn2) btn2.disabled = false; }
