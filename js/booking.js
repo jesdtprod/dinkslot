@@ -120,7 +120,7 @@
 
   async function openPayment(booking) {
     try {
-      var result = await sb.from("public_tenants").select("slug").eq("id", booking.tenant_id).maybeSingle();
+      var result = await sb.from("public_clubs").select("slug").eq("id", booking.tenant_id).maybeSingle();
       if (result.error) throw result.error;
       if (!result.data || !result.data.slug) throw new Error("The club checkout is unavailable. Please try again.");
       location.hash = "#/c/" + encodeURIComponent(result.data.slug) + "/book?booking=" + encodeURIComponent(booking.id);
@@ -174,12 +174,12 @@
 
     var club = ctx.club;
     if (!club) {
-      var tRes = await sb.from("public_tenants").select("id,name,motto,address,timezone,slug").eq("id", b.tenant_id).maybeSingle();
+      var tRes = await sb.from("public_clubs").select("id,name,address,timezone,slug").eq("id", b.tenant_id).maybeSingle();
       club = tRes.data || { name: "The Pickleshot Arena", motto: "Kinetic Velocity Club", address: "Outdoor Arena Alpha", timezone: "Asia/Manila", slug: "" };
     }
     var court = ctx.court;
     if (!court) {
-      var cRes = await sb.from("public_courts").select("id,name,surface,indoor,hourly_rate").eq("id", b.court_id).maybeSingle();
+      var cRes = await sb.from("public_courts").select("id,name,surface,is_indoor,hourly_rate").eq("id", b.court_id).maybeSingle();
       court = cRes.data || { id: b.court_id, name: "Court 1", surface: "Silica Sand Outdoor" };
     }
 

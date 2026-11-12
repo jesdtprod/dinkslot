@@ -4,7 +4,7 @@ const vm = require('node:vm');
 let result = {data:{slug:'the-pickleshot'}}, notices = [];
 const location = {hash:'#/me/bookings'};
 const D = {friendly:e=>e.message,ui:{toast:(...args)=>notices.push(args)},sb:{from(table){
-  assert.equal(table,'public_tenants');
+  assert.equal(table,'public_clubs');
   return {select(){return this;},eq(key,value){assert.equal(key,'id');assert.equal(value,'club');return this;},maybeSingle:async()=>result};
 }}};
 vm.runInNewContext(fs.readFileSync('js/booking.js','utf8'),{window:{DS:D},location,console,URLSearchParams});
