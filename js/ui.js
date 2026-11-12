@@ -16,6 +16,7 @@
       [/google/i, 'login', 'secondary'],
       [/^(?:block time|block court|maintenance)/i, 'event_busy', 'primary'],
       [/^(?:today|tomorrow|select date)/i, 'calendar_today', 'secondary'],
+      [/^add to calendar/i, 'calendar_today', 'secondary'],
       [/^(?:quick book|new booking|book now|book a|reserve|confirm booking)/i, 'calendar_today', 'primary'],
       [/^(?:save|confirm|approve|accept|complete|submit)/i, 'check', 'primary'],
       [/^(?:add staff|add player|invite)/i, 'person_add', 'secondary'],
