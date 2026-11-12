@@ -681,3 +681,8 @@
 html body #app #ds-auth-screen .auth-card { border-radius:24px !important; overflow:hidden; }
 
 html body #app #ds-auth-screen.signup-screen .signup-card { border-radius:24px !important; overflow:hidden; }
+
+/* Match mobile sign-in gutters on the player Overview. */
+@media(max-width:640px) {
+  #app #ds-tenant-dashboard #sec:has(> .member-overview-page) { box-sizing:border-box; padding-left:12px !important; padding-right:12px !important; }
+}
