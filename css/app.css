@@ -4103,3 +4103,7 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .dink-payment-container button .material-symbols-outlined { font-size: 16px; }
 .dink-payment-container h2 > .material-symbols-outlined { font-size: 20px; }
 .dink-payment-container #drop-zone .material-symbols-outlined { font-size: 24px; }
+
+.dink-payment-container #cancel-release-btn { min-height: 38px; background: #ef444410; border: 1px solid #ef444430; color: #fca5a5; border-radius: 9px; }
+.dink-payment-container #cancel-release-btn:hover { background: #ef444420; border-color: #ef444450; }
+.dink-payment-container #cancel-release-btn:focus-visible { outline: 2px solid #fca5a5; outline-offset: 3px; }
