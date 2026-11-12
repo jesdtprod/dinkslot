@@ -192,3 +192,5 @@
 .member-overview-page .overview-clubs-eyebrow { display:block; margin-bottom:6px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.1em; text-transform:uppercase; }
 #ds-tenant-dashboard #sec .member-overview-page .home-clubs-heading h2 { font-size:34px; line-height:42px; font-weight:700; letter-spacing:-.025em; }
 @media(max-width:639px) { #ds-tenant-dashboard #sec .member-overview-page .home-clubs-heading h2 { font-size:26px; line-height:34px; } }
+#ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-heading { border:0; padding-bottom:0; }
+#ds-tenant-dashboard #sec .member-overview-page #my-home-club .home-clubs-heading::after { content:none; }
