@@ -8,6 +8,7 @@
   var currentUi = null; // active layout shell instance
   var statusChan = null; // live club-status subscription for the open dashboard
   var badgePoll = null;
+  var renderRequest = 0;
   async function approvalCount(tenantId) {
     var result = await sb.from('bookings').select('id,status,amount,paid_at').eq('tenant_id', tenantId).in('status', ['pending','approved']);
     if (result.error) throw result.error;
@@ -205,12 +206,13 @@
 
   // ----------------------------------------------------------------- shell
   async function render(slug, section) {
+    var request = ++renderRequest;
     document.body.classList.add("tenant-dashboard-mode");
     var root = D.root();
     if (!section || section === "dashboard") section = "overview";
     if (section === "settings") section = "profile";
 
-    var isSameShell = currentUi && ctx && ctx.slug === slug && root.querySelector("#ds-tenant-dashboard");
+    var isSameShell = currentUi && ctx && ctx.slug === slug && root.contains(currentUi.main) && root.querySelector("#ds-tenant-dashboard");
     if (!isSameShell) {
       root.innerHTML = skeletonShell();
       var tr = await sb.from("tenants").select("*").eq("slug", slug).maybeSingle();
@@ -219,6 +221,7 @@
         var mr = await sb.from("tenant_members").select("role").eq("tenant_id", t.id).eq("user_id", D.state.user.id).maybeSingle();
         role = mr.data && mr.data.role;
       }
+      if (request !== renderRequest) return;
       if (!t || !role) {
         root.innerHTML = '<div class="p-8 max-w-lg mx-auto mt-12 bg-surface-container-low rounded-2xl border border-outline-variant/30 text-center"><span class="material-symbols-outlined text-4xl text-error mb-2">lock</span><h2 class="font-headline-md text-on-surface">No access</h2><p class="text-on-surface-variant mt-2 font-body-md">This club does not exist, or you are not part of its staff team.</p><p class="mt-6"><a class="px-5 py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-bold no-underline inline-block font-label-md" href="#/">Return Home</a></p></div>';
         return;
@@ -226,6 +229,7 @@
       ctx = { t: t, role: role, slug: slug };
       var owner = role === "owner";
       var pendingCount = await approvalCount(t.id);
+      if (request !== renderRequest) return;
       var base = "#/admin/" + slug;
       var items = [
         { type: "label", label: "Operations" },

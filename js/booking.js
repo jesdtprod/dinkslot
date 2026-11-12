@@ -1924,6 +1924,7 @@
         box.querySelector("[data-retry-queue]").onclick = load;
         return;
       }
+      if (!alive(box)) { stop(); return; }
       var pays = (paymentResult.data || []).filter(function (payment) { return !payment.deleted_at; });
       // The scoped RPC supplies real profile names without granting access to profile rows.
       var contacts = typeof sb.rpc === "function" ? await sb.rpc("club_player_contacts", { p_tenant_id: t.id }) : { data: [] };
@@ -1933,6 +1934,7 @@
         var contact = contactMap[player.id];
         if (contact) { player.full_name = contact.full_name; player.phone = contact.phone || player.phone; }
       });
+      if (!alive(box)) { stop(); return; }
       var pm = {}, cm = {}, pay = {};
       players.forEach(function (p) { pm[p.id] = p; }); courts.forEach(function (c) { cm[c.id] = c; }); pays.forEach(function (p) { pay[p.booking_id] = p; });
       var today = dayStr(tz);
@@ -2141,7 +2143,7 @@
     box.innerHTML =
       '<section class="booking-launch">' +
         '<div class="booking-launch-copy"><span class="booking-launch-icon material-symbols-outlined" aria-hidden="true">person_add</span><div>' +
-          '<div class="booking-launch-title"><h2>Book for a customer</h2><span class="booking-launch-badge">Staff Desk</span></div>' +
+          '<div class="booking-launch-title"><h2>Book for a customer</h2><span class="booking-launch-badge">' + esc(t.name || 'Staff Desk') + '</span></div>' +
           '<p>Reserve a court for a walk-in guest or registered player.</p>' +
         '</div></div>' +
         '<button id="nbtoggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="booking-modal" class="booking-launch-action"><span class="material-symbols-outlined" aria-hidden="true">add</span>New booking</button>' +

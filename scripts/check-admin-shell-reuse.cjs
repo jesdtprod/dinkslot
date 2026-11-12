@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const source=fs.readFileSync('js/admin.js','utf8');
+const expression=source.match(/var isSameShell = (.+);/)[1];
+const check=new Function('currentUi','ctx','slug','root','return !!('+expression+');');
+const ui={main:{}},ctx={slug:'pikl-ground'};
+assert.equal(check(ui,ctx,'pikl-ground',{contains:()=>false,querySelector:()=>({})}),false);
+assert.equal(check(ui,ctx,'pikl-ground',{contains:()=>true,querySelector:()=>({})}),true);
+assert.equal(check(ui,ctx,'the-pickleshot',{contains:()=>true,querySelector:()=>({})}),false);
+console.log('Admin shell reuse requires the active club and attached dashboard content.');
