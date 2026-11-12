@@ -4484,3 +4484,11 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
   #club-signup-screen .club-signup-layout { width:100%; max-width:520px; }
   #club-signup-screen .club-signup-form { padding-inline:20px; }
 }
+
+/* Match the desktop header edge on mobile, without a fade or shadow. */
+@media(max-width:767px) {
+  body > .site-header { box-shadow:none !important; }
+  body > .site-header::after { inset:0; mask:none; -webkit-mask:none; background:rgb(16 20 26 / 90%); }
+  #ds-auth-screen .auth-stage::before { display:none; }
+  #ds-auth-screen .auth-stage > .auth-pattern, #club-signup-screen > .auth-pattern, #club-profile-stage > .auth-pattern { mask-image:none; -webkit-mask-image:none; }
+}
