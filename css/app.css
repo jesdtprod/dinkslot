@@ -4357,3 +4357,19 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   #nav.member-nav .facility-account-text, #nav.member-nav .facility-chevron { display:none; }
   #nav.member-nav .facility-account summary { justify-content:center; width:40px; min-width:40px; height:40px; padding:5px; }
 }
+
+/* Readable mobile brand sizing beside the compact account controls. */
+@media(max-width:640px) {
+  .site-header .site-brand { gap:8px; }
+  .site-header .site-logo-frame { width:40px; flex-basis:40px; }
+  .site-header .site-logo { width:40px; }
+  .site-header .site-brand > div:last-child > span:first-child { font-size:17px; line-height:20px; }
+  .site-header .site-brand > div:last-child > span:last-child { margin-top:2px; font-size:7px; line-height:11px; }
+}
+@media(max-width:360px) {
+  .site-header .site-brand { gap:6px; }
+  .site-header .site-logo-frame { width:36px; flex-basis:36px; }
+  .site-header .site-logo { width:36px; }
+  .site-header .site-brand > div:last-child > span:first-child { font-size:15px; }
+  .site-header .site-brand > div:last-child > span:last-child { font-size:6px; }
+}
