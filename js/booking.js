@@ -79,6 +79,11 @@
     if (m) { m.className = "msg " + (kind || ""); m.textContent = text || ""; }
   }
   function setMsg(el, text, kind) { if (el) { el.className = "msg " + (kind || ""); el.textContent = text || ""; } }
+  function setReserveLabel(button, text) {
+    var label = button.querySelector("[data-reserve-label]");
+    if (label) label.textContent = text;
+    else button.textContent = text;
+  }
 
   // "2026-11-12T10:00" typed/computed in the club's timezone -> UTC Date
   function zonedToUtc(local, tz) {
@@ -936,7 +941,7 @@
     if (me.status === "blocked") { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Booking unavailable</h2><p>You are blocked from this club. Please contact the club.</p></div>'; return; }
     var courts = (await sb.from("public_courts").select("*").eq("club_slug", slug).order("name")).data || [];
     var tz = club.timezone || "Asia/Manila";
-    var S = { court: null, info: null, date: "", slots: [], start: null, count: 1, bookingDays: 14 };
+    var S = { court: null, info: null, date: "", slots: [], start: null, count: 1, bookingDays: 14, reserving: false };
     var pre = new URLSearchParams(location.hash.split("?")[1] || "");
 
     function addDays(ymd, n) {
@@ -1143,7 +1148,7 @@
                 '<div class="space-y-4">' +
                   '<button id="reserve-sidebar" type="button" class="w-full py-4 px-6 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-neon transition-all hover:scale-[1.02] active:scale-[0.98] border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none" disabled>' +
                     '<svg class="w-4 h-4 text-carbon-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
-                    '<span>Confirm &amp; Pay</span>' +
+                    '<span data-reserve-label>Confirm &amp; Pay</span>' +
                   '</button>' +
                   '<div class="p-3.5 rounded-lg bg-carbon-800/60 border border-white/5 flex items-start gap-2.5 leading-relaxed text-[11px] text-slate-300">' +
                     '<svg class="w-4 h-4 text-neon-lime shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
@@ -1302,6 +1307,7 @@
     }
 
     async function drawSlots() {
+      if (S.reserving) return;
       var c = S.court, step = c.slot_minutes, box = q("#slots", root);
       if (!c || !box) return;
       box.innerHTML = '<div class="col-span-full grid grid-cols-2 sm:grid-cols-4 gap-2.5">' + Array(8).fill('<div class="h-16 rounded-xl bg-carbon-850/60 ds-skeleton border border-white/5"></div>').join('') + '</div>';
@@ -1386,6 +1392,7 @@
     }
 
     function summary() {
+      if (S.reserving) return;
       var banner = q("#slot-banner", root);
       var btn1 = q("#reserve", root);
       var btn2 = q("#reserve-sidebar", root);
@@ -1397,7 +1404,7 @@
       if (S.start == null || !rangeOk(S.start)) {
         if (banner) banner.hidden = true;
         if (btn1) btn1.disabled = true;
-        if (btn2) { btn2.disabled = true; btn2.querySelector("span").textContent = "Confirm & Pay"; }
+        if (btn2) { btn2.disabled = true; setReserveLabel(btn2, "Confirm & Pay"); }
         if (timeSidebar) timeSidebar.textContent = "Select a time slot";
         if (feeSidebar) feeSidebar.textContent = "PHP 0.00";
         if (totalSidebar) totalSidebar.textContent = "PHP 0.00";
@@ -1424,7 +1431,7 @@
       if (btn1) btn1.disabled = false;
       if (btn2) {
         btn2.disabled = false;
-        btn2.querySelector("span").textContent = "Confirm & Pay " + money(total);
+        setReserveLabel(btn2, "Confirm & Pay " + money(total));
       }
       if (timeSidebar) timeSidebar.textContent = timeWindowStr;
       if (dateSidebar) dateSidebar.textContent = first.s.toLocaleDateString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric", year: "numeric" });
@@ -1433,7 +1440,8 @@
     }
 
     async function doReserve() {
-      if (S.start == null || !rangeOk(S.start)) return;
+      if (S.reserving || S.start == null || !rangeOk(S.start)) return;
+      S.reserving = true;
       var first = S.slots[S.start], last = S.slots[S.start + S.count - 1];
       var sig = S.court.id + "|" + first.s.toISOString() + "|" + last.e.toISOString();
       keys[sig] = keys[sig] || uuid();
@@ -1442,16 +1450,18 @@
       if (btn2) btn2.disabled = true;
       msg(q("#slotpanel", root), "", "");
       if (btn1) btn1.textContent = "Holding slot...";
-      if (btn2) btn2.textContent = "Holding slot...";
-      var r = await sb.rpc("create_booking", {
+      if (btn2) setReserveLabel(btn2, "Holding slot...");
+      var r;
+      try { r = await sb.rpc("create_booking", {
         p_court_id: S.court.id,
         p_starts_at: first.s.toISOString(),
         p_ends_at: last.e.toISOString(),
         p_idempotency_key: keys[sig]
-      });
+      }); } catch (error) { r = { error: error }; }
       if (r.error) {
+        S.reserving = false;
         if (btn1) btn1.textContent = "Reserve this slot";
-        if (btn2) btn2.textContent = "Confirm & Pay";
+        if (btn2) setReserveLabel(btn2, "Confirm & Pay");
         msg(q("#slotpanel", root), nice(r.error), "err");
         if (/slot_taken|slot_blocked/.test(r.error.message || "")) drawSlots();
         else { if (btn1) btn1.disabled = false; if (btn2) btn2.disabled = false; }
@@ -1473,6 +1483,7 @@
             if (btn2) btn2.parentElement.innerHTML = '<p class="text-xs text-emerald-400 font-semibold text-center">Proof uploaded. View status in <a class="underline text-neon-lime" href="#/me">My Bookings</a></p>';
           },
           onBack: function () {
+            S.reserving = false;
             history.replaceState(null, "", location.pathname + location.search + "#/c/" + slug + "/book");
             step3.hidden = true;
             if (step12) step12.hidden = false;
