@@ -3996,7 +3996,7 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .payment-howto summary { color: #c3d1d8; cursor: pointer; font-size: 11px; margin-top: 10px; }
 
 /* One booking palette for every checkout surface and green state. */
-.dink-payment-container { --lime: #b5ec08; --payment-green: #b5ec08; --payment-green-rgb: 181, 236, 8; }
+.dink-payment-container { --lime: #a3e635; --payment-green: #a3e635; --payment-green-rgb: 163, 230, 53; }
 .dink-payment-container .text-primary { color: var(--payment-green); }
 .dink-payment-container .bg-primary { background-color: var(--payment-green); color: #182200; }
 .dink-payment-container .border-primary { border-color: var(--payment-green); }
@@ -4044,3 +4044,13 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .checkout-page-intro h1 { margin: 0; color: #f0f5f1; font: 700 clamp(26px,3vw,36px)/1.2 "Plus Jakarta Sans",sans-serif; letter-spacing: -.025em; }
 .checkout-page-badge { padding: 3px 10px; border: 1px solid #ffffff16; border-radius: 999px; background: #ffffff05; color: #b7c6d0; font-size: 11px; }
 .checkout-page-intro p { margin: 0; max-width: 680px; color: #91a5b2; font-size: 13px; line-height: 1.65; }
+
+/* Checkout's requested green, including semantic green text and hover states. */
+.dink-payment-container :is(.text-emerald-400, .text-emerald-500, .text-brand-lime, .text-neon-lime, .text-lime-400) { color: #a3e635; }
+.dink-payment-container :is(.bg-emerald-400, .bg-emerald-500, .bg-brand-lime, .bg-neon-lime) { background-color: #a3e635; }
+.dink-payment-container [class~="bg-emerald-500/10"] { background-color: #a3e6351a; }
+.dink-payment-container [class~="border-emerald-500/30"] { border-color: #a3e6354d; }
+.dink-payment-container #submit-confirm-btn:hover,
+.dink-payment-container .bg-primary:hover { background-color: #a3e635; }
+.dink-payment-container .payment-howto h4,
+.dink-payment-container .checkout-page-intro > span { color: #a3e635; }
