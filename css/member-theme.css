@@ -288,13 +288,13 @@
 #ds-tenant-dashboard #sec .member-find-page .club-directory-search { background:#202a30; border-color:#35434b; }
 #ds-tenant-dashboard #sec .member-find-page .club-directory-filters select { background-color:#202a30; border-color:#35434b; color:#c8d6df; border-radius:10px !important; }
 #ds-tenant-dashboard #sec .member-find-page .club-directory-results > span { color:#a3e635; border-color:#a3e63530; background:#a3e6350d; }
-#ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+#ds-tenant-dashboard #sec .member-find-page #my-home-club .find-membership-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
 #ds-tenant-dashboard #sec .member-find-page .home-club-cover { height:180px; }
 #ds-tenant-dashboard #sec .member-find-page .home-club-avatar { border-color:#202a30; }
 #ds-tenant-dashboard #sec .member-find-page .home-club-card .home-club-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
 #ds-tenant-dashboard #sec .member-find-page .home-club-card .home-club-actions > a { min-width:0; padding-inline:6px; font-size:11px; white-space:nowrap; }
-@media(max-width:1100px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:600px) { #ds-tenant-dashboard #sec .member-find-page .find-membership-grid { grid-template-columns:minmax(0,1fr); } #ds-tenant-dashboard #sec .member-find-page .home-club-cover { height:160px; } }
+@media(max-width:1100px) { #ds-tenant-dashboard #sec .member-find-page #my-home-club .find-membership-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { #ds-tenant-dashboard #sec .member-find-page #my-home-club .find-membership-grid { grid-template-columns:minmax(0,1fr); } #ds-tenant-dashboard #sec .member-find-page .home-club-cover { height:160px; } }
 
 /* Discovery filters share the My Clubs container treatment. */
 #ds-tenant-dashboard #sec .member-find-page .club-directory-tools { position:relative; overflow:hidden; padding:20px 28px; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
