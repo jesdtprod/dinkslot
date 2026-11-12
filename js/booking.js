@@ -506,10 +506,9 @@
               : '<span class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">Available</span><span class="w-4 h-4 rounded-full border border-slate-600 flex items-center justify-center"><span class="w-2 h-2 rounded-full bg-transparent"></span></span>') +
           '</div>' +
           '<h3 class="text-base font-bold text-white mb-0.5 m-0">' + esc(c.name) + '</h3>' +
-          '<p class="text-xs text-slate-300 mb-3 m-0">' + (c.is_indoor ? "Indoor" : "Outdoor") + ' – ' + esc(rateStr) + '</p>' +
+          '<p class="text-xs text-slate-300 mb-3 m-0">' + (c.is_indoor ? "Indoor" : "Outdoor") + ' – ' + '<span class="court-price">' + esc(rateStr) + '</span></p>' +
           '<div class="space-y-1.5 pt-2.5 border-t border-white/10 text-[11px] text-slate-400">' +
             '<div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full ' + (isSelected ? "bg-emerald-400" : "bg-slate-500") + '"></span><span>' + esc(c.surface || "Silica Cushion Surface") + '</span></div>' +
-            '<div class="flex items-center gap-1.5 ' + (isSelected ? "text-neon-lime font-medium" : "text-slate-400") + '"><svg class="w-3 h-3 ' + (isSelected ? "text-neon-lime" : "text-slate-400") + '" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>' + (c.is_indoor ? "Indoor Climate Controlled" : "LED Tournament Floodlight") + '</span></div>' +
           '</div>' +
         '</label>';
       }).join("");

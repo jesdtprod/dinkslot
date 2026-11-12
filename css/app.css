@@ -3481,3 +3481,5 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 #ds-book-page .booking-time-section > p { margin: 10px 0 0; padding: 0; font-size: 11px; line-height: 1.6; }
 #ds-book-page #slotpanel > #slot-banner { margin-top: 16px; padding: 14px; gap: 12px; }
 #ds-book-page #banner-selection-time { font-size: 15px; line-height: 1.5; }
+
+#ds-book-page .court-card .court-price { color: #34d399; font-weight: 600; }
