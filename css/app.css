@@ -4401,3 +4401,9 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   #nav.member-nav .facility-account summary::after { content:none; }
   #nav.member-nav .facility-account summary::-webkit-details-marker { display:none; }
 }
+
+/* Keep the notification popover inside the mobile viewport. */
+@media(max-width:640px) {
+  .bell .bellmenu { position:fixed; top:72px; left:12px; right:12px; width:auto; max-width:none; max-height:calc(100dvh - 84px); box-sizing:border-box; }
+  .bell .belllist { max-height:calc(100dvh - 200px); overflow-y:auto; overscroll-behavior:contain; }
+}
