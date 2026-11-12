@@ -4147,3 +4147,8 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
   .checkout-ticket-column .payment-access-note { margin-top: auto; padding-top: 16px; }
   .checkout-method-column .payment-help-trigger { margin-top: auto; }
 }
+
+.dink-payment-container .checkout-total-due { align-items: center; gap: 12px; }
+.checkout-total-due > div { min-width: 0; }
+.checkout-total-due > div:last-child { flex-shrink: 0; display: flex; align-items: center; }
+.checkout-total-due > div:last-child > span { line-height: 1.2; white-space: nowrap; }

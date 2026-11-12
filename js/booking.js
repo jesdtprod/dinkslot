@@ -548,7 +548,7 @@
                   '<span>DINK Platform Convenience Fee</span>' +
                   '<span class="font-mono text-emerald-400 font-semibold">PHP 0.00 (Waived)</span>' +
                 '</div>' +
-                '<div class="flex items-baseline justify-between pt-3 mt-1 border-t border-outline-variant/40">' +
+                '<div class="checkout-total-due flex items-baseline justify-between pt-3 mt-1 border-t border-outline-variant/40">' +
                   '<div>' +
                     '<span class="text-xs uppercase font-mono tracking-wider text-zinc-400 block">Total Amount Due</span>' +
                     '<span class="text-[11px] text-zinc-500">Tax included • Direct settlement</span>' +
