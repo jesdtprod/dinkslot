@@ -4567,3 +4567,12 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 #ds-book-page #method-tab-bar .method-select-btn { box-sizing:border-box; display:flex; align-items:center; justify-content:center; min-width:0; min-height:42px; margin:0; padding:8px 4px; gap:6px; border-radius:8px; line-height:18px; white-space:nowrap; }
 #ds-book-page #method-tab-bar .payment-method-icon { display:inline-flex; align-items:center; justify-content:center; flex:0 0 16px; width:16px; height:16px; font-size:16px; line-height:1; }
 #ds-book-page #method-tab-bar .method-select-btn:focus-visible { outline:2px solid #a3e635; outline-offset:-2px; }
+
+@media (max-width:639px) {
+  #ds-book-page .checkout-proof-card > div:first-child { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
+  #ds-book-page .checkout-proof-card > div:first-child > div { width:100%; min-width:0; }
+  #ds-book-page .checkout-proof-card > div:first-child h2 { display:flex; align-items:center; gap:8px; font-size:17px; line-height:24px; }
+  #ds-book-page .checkout-proof-card > div:first-child h2 .material-symbols-outlined { flex-shrink:0; }
+  #ds-book-page .checkout-proof-card > div:first-child p { margin-top:4px; font-size:12px; line-height:18px; }
+  #ds-book-page .checkout-proof-card > div:first-child > span { display:inline-flex; align-items:center; padding:4px 8px; white-space:nowrap; line-height:16px; }
+}
