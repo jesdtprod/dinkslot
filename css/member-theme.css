@@ -435,3 +435,7 @@
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions { gap:8px; padding-top:12px; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions > button { min-height:38px; font:600 12px/18px "Plus Jakarta Sans",sans-serif !important; letter-spacing:0; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions > div > button { min-height:36px; font:500 10px/16px "Plus Jakarta Sans",sans-serif !important; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions > .booking-pay-row { display:flex; align-items:stretch; gap:6px; }
+#ds-tenant-dashboard #sec .member-bookings-page .booking-pay-row:empty { display:none; }
+#ds-tenant-dashboard #sec .member-bookings-page .booking-pay-row .booking-payment-timer { flex:0 0 auto; margin:0; padding:6px; font-size:9px; white-space:nowrap; }
+#ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .clean-booking-actions > .booking-pay-row > button { flex:1; min-width:0; padding:8px 5px !important; font-size:10px !important; }
