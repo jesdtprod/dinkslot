@@ -3608,7 +3608,7 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-contact-warning { margin-bottom: 12px; padding: 10px 12px; border: 1px solid #fbbf2433; border-radius: 9px; background: #fbbf240d; color: #e8ce87; font: 400 12px/18px "Plus Jakarta Sans", sans-serif; }
 
 .reservation-review-payment { margin-top: 7px; }
-.reservation-view-proof { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 34px; margin-top: 12px; padding: 7px 10px; border: 1px solid #ffffff18; border-radius: 8px; background: #ffffff05; color: #c8d6df; font: 600 11px/18px "Plus Jakarta Sans",sans-serif; cursor: pointer; }
+.reservation-review-card > .reservation-view-proof { box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; max-width: none; min-height: 36px; margin-top: 12px; padding: 8px 10px; border: 1px solid #ffffff18; border-radius: 8px; background: #ffffff05; color: #c8d6df; font: 600 11px/18px "Plus Jakarta Sans",sans-serif; white-space: nowrap; cursor: pointer; }
 .reservation-view-proof .material-symbols-outlined { font-size: 17px; color: #a3e635; }
 .reservation-view-proof:hover { background: #a3e6350d; border-color: #a3e63550; }
 .reservation-view-proof:focus-visible { outline: 2px solid #a3e635; outline-offset: 2px; }

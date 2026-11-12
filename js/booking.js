@@ -1946,7 +1946,6 @@
           '<dl class="reservation-review-details"><div><dt>Court</dt><dd>' + esc(c.name || "Court") + '</dd></div><div><dt>Amount</dt><dd class="reservation-review-amount">' + money(b.amount) + '</dd></div><div><dt>Date</dt><dd>' + esc(bookingDate) + '</dd></div><div><dt>Time</dt><dd>' + esc(timeOf(new Date(b.starts_at), tz) + " \u2013 " + timeOf(new Date(b.ends_at), tz)) + '</dd></div></dl>' +
           '<div class="reservation-review-reference"><span>Reference</span><strong>' + esc(b.reference_code || "Not available") + '</strong></div>' +
           '<div class="reservation-review-reference reservation-review-payment"><span>Payment</span><strong class="payment-state-' + paymentState + '">' + paymentLabel + '</strong></div>' +
-          (py && py.proof_path ? '<button type="button" class="reservation-view-proof proof-icon-action" data-proof="' + esc(b.id) + '"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>View Payment Proof</button>' : '') +
           (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
           '<div class="mt-3.5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">' +
             '<div class="booking-pass-actions">' +
@@ -1963,6 +1962,7 @@
                 : '<button class="booking-decision-action cancel" data-cx="' + esc(b.id) + '" type="button" aria-label="Cancel booking" title="Cancel booking"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>') +
             '</div>' +
           '</div>' +
+          (py && py.proof_path ? '<button type="button" class="reservation-view-proof" data-proof="' + esc(b.id) + '"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>View Payment Proof</button>' : '') +
           '<p class="msg" role="alert"></p>' +
         '</article>';
       }
