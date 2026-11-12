@@ -164,8 +164,8 @@
 .member-overview-page #next-booking-card-slot > * { margin:0; min-width:0; }
 #ds-tenant-dashboard #sec .member-overview-page #next-booking-card-slot .member-reservation-card { flex-direction:column; align-items:stretch; justify-content:flex-start; gap:16px; padding:16px; }
 .member-overview-page #next-booking-card-slot .member-reservation-main { min-width:0; flex:1; }
-.member-overview-page #next-booking-card-slot .member-reservation-meta { flex-direction:row; flex-wrap:wrap; align-items:center; gap:6px; }
-.member-overview-page #next-booking-card-slot .member-reservation-meta > span:first-child { flex-basis:100%; }
+.member-overview-page #next-booking-card-slot .member-reservation-meta { display:grid; grid-template-columns:max-content max-content; align-items:center; justify-content:start; gap:6px; }
+.member-overview-page #next-booking-card-slot .member-reservation-meta > span:first-child { grid-column:1 / -1; justify-self:start; width:fit-content; max-width:100%; }
 .member-overview-page #next-booking-card-slot .member-reservation-meta > span { white-space:normal; }
 .member-overview-page #next-booking-card-slot .member-reservation-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; margin-top:auto; gap:8px; }
 .member-overview-page #next-booking-card-slot .member-reservation-actions > a { width:100%; }
