@@ -352,3 +352,26 @@
 #app #ds-tenant-dashboard #sec :is(.member-find-page,.member-clubs-page) { --club-card-surface:#181f24; }
 #app #ds-tenant-dashboard #sec .member-find-page .home-club-card,
 #app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel { background-color:var(--club-card-surface); background-image:none; }
+
+/* Quick booking: clear court identity, price hierarchy, and focused actions. */
+#app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel-courts { padding:16px; border:1px solid #35434b; background:#111a20; }
+#app #ds-tenant-dashboard #sec .membership-panel-courts > header { align-items:center; margin-bottom:14px; padding:0; border:0; gap:12px; }
+.quick-court-eyebrow { display:block; margin-bottom:4px; color:#8298a7; font:500 9px/14px "JetBrains Mono",monospace; text-transform:uppercase; letter-spacing:.07em; }
+#app #ds-tenant-dashboard #sec .quick-court-heading h3 { display:flex; align-items:center; gap:6px; margin:0; font:700 16px/23px "Plus Jakarta Sans",sans-serif; }
+#app #ds-tenant-dashboard #sec .quick-court-heading h3 > span { color:#a3e635; font-size:19px; }
+#app #ds-tenant-dashboard #sec .membership-panel-courts > header > a { flex-shrink:0; padding:6px 8px; border:1px solid #ffffff12; border-radius:7px; background:#202a30; color:#c7d6de; font-size:10px; }
+#app #ds-tenant-dashboard #sec .membership-court-tile { display:flex; flex-direction:column; gap:10px; min-width:0; padding:14px; border:1px solid #35434b; background:#202a30; transition:border-color .2s,background .2s,transform .2s; }
+#app #ds-tenant-dashboard #sec .membership-court-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+#app #ds-tenant-dashboard #sec .membership-court-icon { display:grid; place-items:center; width:30px; height:30px; border:1px solid #a3e63530; border-radius:8px; background:#a3e6350d; color:#a3e635; font-size:18px; }
+#app #ds-tenant-dashboard #sec .membership-court-type { color:#a9bfcd; background:#0f171c; border:1px solid #ffffff0d; padding:2px 7px; border-radius:6px; font-size:9px; }
+#app #ds-tenant-dashboard #sec .membership-court-tile > strong { color:#edf3ef; font:700 16px/22px "Plus Jakarta Sans",sans-serif; }
+#app #ds-tenant-dashboard #sec .membership-court-hours { display:flex; align-items:center; gap:5px; color:#91a5b2; font-size:10px; line-height:16px; }
+#app #ds-tenant-dashboard #sec .membership-court-hours > span { font-size:14px; color:#91a5b2; }
+#app #ds-tenant-dashboard #sec .membership-court-bottom { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px; padding-top:10px; border-top:1px solid #ffffff0d; }
+#app #ds-tenant-dashboard #sec .membership-court-bottom b { padding:0; border:0; background:none; color:#a3e635; font:600 13px/20px "Plus Jakarta Sans",sans-serif; }
+#app #ds-tenant-dashboard #sec .membership-court-bottom small { margin-left:3px; color:#91a5b2; font-size:10px; font-weight:400; }
+#app #ds-tenant-dashboard #sec .membership-court-bottom > .material-symbols-outlined { display:grid; place-items:center; width:26px; height:26px; border-radius:7px; background:#a3e63512; color:#a3e635; font-size:17px; }
+@media(hover:hover) and (pointer:fine) { #app #ds-tenant-dashboard #sec .membership-court-tile:hover { border-color:#a3e63570; background:#26353a; transform:translateY(-2px); } }
+#app #ds-tenant-dashboard #sec .membership-court-tile:focus-visible { outline:2px solid #a3e635; outline-offset:2px; }
+@media(prefers-reduced-motion:reduce) { #app #ds-tenant-dashboard #sec .membership-court-tile { transition:none; } #app #ds-tenant-dashboard #sec .membership-court-tile:hover { transform:none; } }
+@media(max-width:380px) { .member-clubs-page .membership-court-grid { grid-template-columns:minmax(0,1fr); } }
