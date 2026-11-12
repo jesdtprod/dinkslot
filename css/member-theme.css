@@ -413,3 +413,4 @@
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta { display:grid; grid-template-columns:max-content max-content; justify-content:start; align-items:center; gap:6px; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta > span:first-child { grid-column:1 / -1; justify-self:start; width:fit-content; max-width:100%; }
 #ds-tenant-dashboard #sec .member-bookings-page #booking-cards-container .member-reservation-meta > :is(span,strong) { box-sizing:border-box; display:inline-flex; align-items:center; min-height:26px; padding:4px 8px; line-height:16px; }
+#ds-tenant-dashboard #sec .member-bookings-page .clean-booking-main > .booking-payment-timer { display:flex; width:100%; box-sizing:border-box; margin-top:10px; }
