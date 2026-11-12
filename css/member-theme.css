@@ -449,3 +449,7 @@
 #app #ds-tenant-dashboard #sec .member-bookings-page .booking-status-chips > button[aria-selected="true"] { background:#a3e635; border-color:#a3e635; color:#142000; }
 #app #ds-tenant-dashboard #sec .member-bookings-page .booking-countdown { border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); }
 @media(max-width:639px) { #app #ds-tenant-dashboard #sec .member-bookings-page .booking-search-tools { padding:16px; } .member-bookings-page .booking-search-tools::before { left:16px; } }
+
+/* Surface belongs with venue details, separate from reservation status. */
+#ds-tenant-dashboard #sec .member-bookings-page .clean-booking-main > .clean-booking-surface { display:inline-flex; align-items:center; gap:5px; margin:0 0 8px 43px; padding:2px 7px; border:1px solid #35434b; border-radius:6px; background:#202a30; color:#a9bcc7; font:500 10px/16px "Plus Jakarta Sans",sans-serif; }
+.member-bookings-page .clean-booking-surface > .material-symbols-outlined { font-size:14px; }
