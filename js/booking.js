@@ -122,7 +122,7 @@
     var dialog = document.createElement("dialog");
     dialog.className = "booking-payment-modal";
     dialog.setAttribute("aria-label", "Pay and upload payment proof");
-    dialog.innerHTML = '<header><h2>Complete your payment</h2><button type="button" class="btn ghost" aria-label="Close payment form">Close</button></header><div class="booking-payment-content"></div>';
+    dialog.innerHTML = '<header><div class="complete-payment-heading"><span class="complete-payment-mode">Payment confirmation</span><h2>Complete your payment</h2><p>Choose an account, pay, and upload your receipt.</p></div><button type="button" class="complete-payment-close" aria-label="Close payment form"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="booking-payment-content"></div>';
     var previousFocus = document.activeElement;
     document.body.append(dialog);
     dialog.querySelector("header button").onclick = function () { dialog.close(); };
@@ -185,9 +185,9 @@
           '</div>' +
           '<span class="text-xs font-mono px-2.5 py-1 rounded bg-neon-lime/10 text-neon-lime border border-neon-lime/30 font-bold">Ref: ' + esc(b.reference_code) + '</span>' +
         '</div>' +
-        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">' +
+        '<div class="payment-overview-grid grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">' +
           '<div id="qrside">' + qrSide(0) + '</div>' +
-          '<div class="space-y-4">' +
+          '<div class="payment-details-section space-y-4">' +
             '<div><p class="text-xs font-mono uppercase text-slate-400 tracking-wider m-0">Amount to pay</p><p class="text-3xl font-black text-neon-lime font-mono m-0 mt-0.5">' + money(b.amount) + '</p></div>' +
             '<div class="p-3 rounded-xl bg-carbon-850 border border-white/10"><p class="text-xs text-slate-400 m-0">Include this code in your payment note</p><p class="text-lg font-mono font-bold text-neon-lime m-0 tracking-wider">' + esc(b.reference_code) + '</p></div>' +
             (info.payment_instructions ? '<div class="text-xs text-slate-300 p-3 rounded-xl bg-carbon-850/60 border border-white/5"><p class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1">Club Note</p>' + esc(info.payment_instructions) + '</div>' : '') +

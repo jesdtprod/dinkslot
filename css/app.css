@@ -3663,3 +3663,35 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .guest-payment-dialog .guest-payment-note { color: #96aab5; font-size: 11px; line-height: 1.65; }
 .guest-payment-dialog .guest-payment-actions { padding-top: 16px; }
 .guest-payment-dialog .guest-payment-actions button { min-height: 40px; padding: 9px 14px; border-radius: 9px; font-size: 12px; }
+
+/* Complete payment follows the staff-desk modal's grouped visual structure. */
+dialog.booking-payment-modal[open] { display: flex; flex-direction: column; width: min(820px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow: hidden; padding: 0; border-radius: 12px; border-color: #ffffff18; background: #192127; }
+.booking-payment-modal::before { content: ""; display: block; height: 2px; flex-shrink: 0; background: #a7d67c; }
+.booking-payment-modal > header { flex-shrink: 0; align-items: center; padding: 16px 20px; background: #192127; }
+.complete-payment-mode { display: inline-flex; padding: 2px 8px; margin-bottom: 6px; border: 1px solid #a3e63540; border-radius: 6px; background: #a3e63510; color: var(--lime); font: 600 10px/16px "Plus Jakarta Sans", sans-serif; }
+.booking-payment-modal > header h2 { margin: 0; font: 600 19px/26px "Plus Jakarta Sans", sans-serif; }
+.complete-payment-heading > p { margin: 3px 0 0; color: #91a5b2; font: 400 12px/18px "Plus Jakarta Sans", sans-serif; }
+.booking-payment-modal > header .complete-payment-close { display: grid; place-items: center; flex: 0 0 30px; min-width: 30px; min-height: 30px; height: 30px; padding: 0; border: 1px solid #ffffff12; border-radius: 8px; background: #111820; color: #a7b8c5; cursor: pointer; }
+.complete-payment-close .material-symbols-outlined { font-size: 18px; }
+.complete-payment-close:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+.booking-payment-modal .booking-payment-content { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 18px 20px 0; background: #10151c; scrollbar-width: thin; scrollbar-color: #405247 transparent; }
+.booking-payment-modal .payment-panel { padding: 0; border: 0; border-radius: 0; background: transparent; }
+.booking-payment-modal .payment-panel > div:first-child { display: none; }
+.booking-payment-modal .payment-panel > .payment-overview-grid { margin-top: 0; gap: 16px; }
+.booking-payment-modal .payment-overview-grid > :is(#qrside, .payment-details-section),
+.booking-payment-modal .payment-panel .proof { box-sizing: border-box; padding: 14px; border: 1px solid #ffffff0c; border-radius: 10px; background: #ffffff02; }
+.booking-payment-modal #qrside::before,
+.booking-payment-modal .payment-details-section::before { display: block; margin-bottom: 12px; color: #c5d1da; font: 600 12px/18px "Plus Jakarta Sans", sans-serif; }
+.booking-payment-modal #qrside::before { content: "Payment account"; }
+.booking-payment-modal .payment-details-section::before { content: "Payment details"; }
+.booking-payment-modal .payment-details-section > :not([hidden]) ~ :not([hidden]) { margin-top: 12px; }
+.booking-payment-modal .payment-details-section > div:first-of-type { margin-top: 0; }
+.booking-payment-modal .payment-panel .proof { margin-top: 16px; }
+.booking-payment-modal .payment-panel .proof h3 { font-size: 12px; line-height: 18px; }
+.booking-payment-modal .payment-panel .proof input { min-height: 38px; padding: 8px 10px; border-radius: 8px; background: #10151c; }
+.booking-payment-modal .payment-panel .proof input[type="file"] { padding: 5px 8px; }
+.booking-payment-modal .payment-panel .proof > div:last-child { position: sticky; bottom: 0; justify-content: flex-end; margin: 16px -14px -14px; padding: 14px; border-top: 1px solid #ffffff12; border-radius: 0 0 10px 10px; background: #192127; }
+.booking-payment-modal .payment-panel .proof :is(button[type="submit"], a) { min-height: 38px; padding: 8px 12px; border-radius: 9px; }
+.booking-payment-modal .payment-panel .proof .msg:empty { display: none; }
+.booking-payment-modal .payment-panel { padding-bottom: 18px; }
+@media (max-width: 640px) { .booking-payment-modal .booking-payment-content { padding: 16px 12px 0; } .booking-payment-modal > header { padding: 14px 16px; } .booking-payment-modal .payment-panel .proof input { font-size: 16px; } }
