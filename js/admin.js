@@ -285,9 +285,6 @@
     ui.setActive(section);
     ui.setTitle(meta[0], meta[1]);
     var sec = ui.main;
-    var stage = sec.parentElement;
-    stage.classList.toggle('member-workspace-stage', section === 'overview');
-    if (section === 'overview' && D.mountPublicBackdrop) D.mountPublicBackdrop(stage);
     sec.innerHTML = skeletonSection(section);
 
     var owner = ctx.role === "owner";
