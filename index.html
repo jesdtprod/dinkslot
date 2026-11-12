@@ -207,7 +207,7 @@
       }
     };
   </script>
-  <link rel="stylesheet" href="css/app.css?v=462" />
+  <link rel="stylesheet" href="css/app.css?v=463" />
   <link rel="stylesheet" href="css/member.css?v=406" />
   <link rel="stylesheet" href="css/ticket.css?v=406" />
   <link rel="stylesheet" href="css/booking-grid.css?v=406" />
@@ -324,6 +324,11 @@
       html body #ds-tenant-dashboard.member-dashboard header .facility-account summary > .facility-account-text,
       html body #ds-tenant-dashboard.member-dashboard header .facility-account summary > .facility-chevron { display:none !important; }
       html body #ds-tenant-dashboard.member-dashboard header .facility-account summary { display:flex; align-items:center; justify-content:center; box-sizing:border-box; width:40px; min-width:40px; height:40px; padding:5px; gap:0; }
+    }
+  </style>
+  <style id="mobile-header-account-buttons">
+    @media (max-width:767px) {
+      html body :is(#nav, #ds-tenant-dashboard header) :is(.bellbtn, .facility-account > summary) { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:40px; min-width:40px; height:40px; min-height:40px; border-radius:10px !important; }
     }
   </style>
   <style id="mobile-header-identity">
