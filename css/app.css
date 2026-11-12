@@ -4576,3 +4576,15 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
   #ds-book-page .checkout-proof-card > div:first-child p { margin-top:4px; font-size:12px; line-height:18px; }
   #ds-book-page .checkout-proof-card > div:first-child > span { display:inline-flex; align-items:center; padding:4px 8px; white-space:nowrap; line-height:16px; }
 }
+
+@media (max-width:639px) {
+  #ds-book-page > main:has(.payment-success-view) { display:flex; align-items:center; min-height:calc(100dvh - 64px); padding:16px 12px; box-sizing:border-box; }
+  #ds-book-page .payment-success-view { width:100%; }
+  #ds-book-page .payment-success-card { box-sizing:border-box; width:100%; padding:24px 16px; }
+  #ds-book-page .payment-success-card > :not([hidden]) ~ :not([hidden]) { margin-top:16px; }
+  #ds-book-page .payment-success-card > div:first-child { width:48px; height:48px; }
+  #ds-book-page .payment-success-card h2 { font-size:20px; line-height:26px; }
+  #ds-book-page .payment-success-card > div:nth-child(3) { padding:12px; }
+  #ds-book-page .payment-success-card > div:nth-child(3) > div { gap:12px; }
+  #ds-book-page .payment-success-card > div:nth-child(3) > div > span:last-child { text-align:right; }
+}

@@ -862,7 +862,8 @@
           submitBtn.innerHTML = '<span class="material-symbols-outlined text-xl">check_circle</span><span>' + esc(court.name || "Court") + ' Confirmed! Gate Access QR Ready</span>';
 
           setTimeout(function () {
-            el.innerHTML = '<div class="max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-primary/30 shadow-2xl">' +
+            el.classList.add('payment-success-view');
+            el.innerHTML = '<div class="payment-success-card max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-primary/30 shadow-2xl">' +
               '<div class="w-16 h-16 rounded-2xl bg-primary/20 text-primary border border-primary/40 flex items-center justify-center mx-auto text-3xl shadow-neon-lime">' +
                 '<span class="material-symbols-outlined text-3xl font-bold">check</span>' +
               '</div>' +
