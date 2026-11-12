@@ -8,7 +8,8 @@
 - [x] Prepare a private hashed-token storage migration with expiry and revocation fields (not applied or database-tested).
 - [x] Implement and unit-test server-side token lookup with expiry and revocation checks (not yet wired to an endpoint).
 - [x] Implement and unit-test server-side token issuance (not yet wired to booking or email).
-- [ ] Implement token revocation and guest reservation access endpoints; test against database.
+- [x] Add a token-authenticated guest booking status endpoint (not deployed or database-tested).
+- [ ] Implement token revocation and test guest access endpoints against the database.
 - [ ] Add email-based access-link recovery with rate limiting and non-enumerating responses.
 - [ ] Reuse checkout with guest-authorized proof upload and cancellation; preserve existing member flow.
 - [ ] Add guest booking status and approved-only QR pass.
