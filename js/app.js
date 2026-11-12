@@ -2193,10 +2193,21 @@
     document.body.classList.add("app-booting");
     var startup = document.getElementById("app-startup");
     try {
-      await Promise.race([
-        refreshSession(),
-        new Promise(function (_, reject) { timer = setTimeout(function () { reject(new Error("Session restoration timed out.")); }, 20000); })
-      ]);
+      var startupPath = (location.hash || "#/").slice(1).split("?")[0];
+      var publicLanding = startupPath === "/" || startupPath === "";
+      var sessionTask = refreshSession();
+      if (publicLanding) {
+        // A slow auth service must not block the public landing page.
+        await Promise.race([
+          sessionTask.catch(function (error) { console.warn("Session restoration delayed", error); }),
+          new Promise(function (resolve) { timer = setTimeout(resolve, 4000); })
+        ]);
+      } else {
+        await Promise.race([
+          sessionTask,
+          new Promise(function (_, reject) { timer = setTimeout(function () { reject(new Error("Session restoration timed out.")); }, 20000); })
+        ]);
+      }
       clearTimeout(timer);
       if (attempt !== startupAttempt) return;
       await render();
@@ -2204,6 +2215,7 @@
       if (startup) startup.remove();
     } catch (error) {
       clearTimeout(timer);
+      console.error("Startup failed:", error);
       if (attempt !== startupAttempt || !startup) return;
       startup.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">cloud_off</span><h1>Unable to load this page</h1><p>Please check your connection and try again.</p><button type="button">Retry</button>';
       startup.querySelector("button").onclick = function () { location.reload(); };
