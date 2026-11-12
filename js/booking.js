@@ -1291,9 +1291,9 @@
           dialog.className = "confirmation-modal guest-payment-dialog";
           dialog.setAttribute("aria-label", "Record guest payment");
           var paymentMethods = [["cash", "Cash", "payments"], ["gcash", "GCash", "account_balance_wallet"], ["maya", "Maya", "wallet"], ["bank", "Bank transfer", "account_balance"]];
-          dialog.innerHTML = '<form><header class="guest-payment-header"><div><span class="guest-payment-eyebrow">Guest reservation</span><h2>Record payment</h2></div><button type="button" class="guest-payment-close" data-close aria-label="Close payment dialog"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="guest-payment-summary"><span>Amount received</span><strong>' + money(booking.amount) + '</strong><div><span>Reference</span><b>' + esc(booking.reference_code) + '</b></div></div><fieldset class="guest-payment-methods"><legend>Payment method</legend><div>' + paymentMethods.map(function (method, index) {
-            return '<label class="guest-payment-method"><input type="radio" name="method" value="' + method[0] + '"' + (index === 0 ? ' checked' : '') + ' required><span class="material-symbols-outlined" aria-hidden="true">' + method[2] + '</span><span>' + method[1] + '</span><span class="guest-method-check material-symbols-outlined" aria-hidden="true">check_circle</span></label>';
-          }).join("") + '</div></fieldset><p class="guest-payment-note">Record only payments you have received. This marks the reservation as paid.</p><p class="msg" role="alert"></p><div class="guest-payment-actions"><button type="button" class="btn ghost" data-close>Cancel</button><button type="submit" class="btn">Confirm payment</button></div></form>';
+          dialog.innerHTML = '<form><header class="guest-payment-header"><div><span class="guest-payment-eyebrow">Guest reservation</span><h2>Record payment</h2></div><button type="button" class="guest-payment-close" data-close aria-label="Close payment dialog"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="guest-payment-summary"><span>Amount received</span><strong>' + money(booking.amount) + '</strong><div><span>Reference</span><b>' + esc(booking.reference_code) + '</b></div></div><label class="guest-payment-picker" for="guest-payment-method">Payment method<select id="guest-payment-method" name="method" required>' + paymentMethods.map(function (method, index) {
+            return '<option value="' + method[0] + '"' + (index === 0 ? ' selected' : '') + '>' + method[1] + '</option>';
+          }).join("") + '</select></label><p class="guest-payment-note">Record only payments you have received. This marks the reservation as paid.</p><p class="msg" role="alert"></p><div class="guest-payment-actions"><button type="button" class="btn ghost" data-close>Cancel</button><button type="submit" class="btn">Confirm payment</button></div></form>';
           dialog.querySelectorAll("[data-close]").forEach(function (closeButton) { closeButton.onclick = function () { dialog.close(); }; });
           dialog.addEventListener("close", function () { dialog.remove(); if (button.isConnected) button.focus(); }, { once: true });
           dialog.querySelector("form").onsubmit = async function (event) {
@@ -1301,7 +1301,7 @@
             var submit = dialog.querySelector('[type="submit"]');
             submit.disabled = true;
             try {
-              var result = await sb.rpc("record_guest_payment", { p_booking_id: booking.id, p_method: dialog.querySelector('input[name="method"]:checked').value });
+              var result = await sb.rpc("record_guest_payment", { p_booking_id: booking.id, p_method: dialog.querySelector('select[name="method"]').value });
               if (result.error) throw result.error;
               dialog.close();
               await load();

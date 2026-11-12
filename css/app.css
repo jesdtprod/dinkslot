@@ -3695,3 +3695,19 @@ dialog.booking-payment-modal[open] { display: flex; flex-direction: column; widt
 .booking-payment-modal .payment-panel .proof .msg:empty { display: none; }
 .booking-payment-modal .payment-panel { padding-bottom: 18px; }
 @media (max-width: 640px) { .booking-payment-modal .booking-payment-content { padding: 16px 12px 0; } .booking-payment-modal > header { padding: 14px 16px; } .booking-payment-modal .payment-panel .proof input { font-size: 16px; } }
+
+/* Smooth native payment selector with an animated, themed picker. */
+.guest-payment-picker select { font: 400 12px/20px "Plus Jakarta Sans", sans-serif; transition: border-color .16s ease, background-color .16s ease; }
+.guest-payment-picker select:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+@supports (appearance: base-select) {
+  .guest-payment-picker select, .guest-payment-picker select::picker(select) { appearance: base-select; }
+  .guest-payment-picker select::picker(select) { margin-top: 6px; padding: 5px; border: 1px solid #ffffff1a; border-radius: 10px; background: #202a30; color: #dce6df; box-shadow: 0 12px 30px #0006; opacity: 0; transform: translateY(-5px); transition: opacity .16s ease, transform .16s ease, display .16s allow-discrete, overlay .16s allow-discrete; }
+  .guest-payment-picker select:open::picker(select) { opacity: 1; transform: translateY(0); }
+  .guest-payment-picker select::picker-icon { color: #91a5b2; transition: rotate .16s ease; }
+  .guest-payment-picker select:open::picker-icon { rotate: 180deg; }
+  .guest-payment-picker option { min-height: 36px; padding: 8px 10px; border-radius: 7px; font: 400 12px/20px "Plus Jakarta Sans", sans-serif; cursor: pointer; }
+  .guest-payment-picker option:is(:hover, :focus) { background: #ffffff09; }
+  .guest-payment-picker option:checked { background: #a3e63512; color: var(--lime); }
+  @starting-style { .guest-payment-picker select:open::picker(select) { opacity: 0; transform: translateY(-5px); } }
+}
+@media (prefers-reduced-motion: reduce) { .guest-payment-picker select, .guest-payment-picker select::picker(select), .guest-payment-picker select::picker-icon { transition: none; } }
