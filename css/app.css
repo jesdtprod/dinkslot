@@ -3994,3 +3994,34 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .payment-howto li + li { margin-top: 6px; }
 .payment-howto p { color: #9cabb6; font-size: 11px; line-height: 1.7; margin-top: 10px; white-space: pre-line; }
 .payment-howto summary { color: #c3d1d8; cursor: pointer; font-size: 11px; margin-top: 10px; }
+
+/* One booking palette for every checkout surface and green state. */
+.dink-payment-container { --lime: #b5ec08; --payment-green: #b5ec08; --payment-green-rgb: 181, 236, 8; }
+.dink-payment-container .text-primary { color: var(--payment-green); }
+.dink-payment-container .bg-primary { background-color: var(--payment-green); color: #182200; }
+.dink-payment-container .border-primary { border-color: var(--payment-green); }
+.dink-payment-container .bg-surface-container { background-color: #181f24; }
+.dink-payment-container .bg-surface-container-low { background-color: #202a30; }
+.dink-payment-container .bg-surface-container-lowest { background-color: #0f171c; }
+.dink-payment-container .bg-surface-container-high { background-color: #262d33; }
+.dink-payment-container [class~="from-primary/15"] { background-image: none; background-color: rgba(var(--payment-green-rgb), .07); }
+.dink-payment-container #submit-confirm-btn { background: var(--payment-green); border-color: var(--payment-green); box-shadow: none; }
+.dink-payment-container #submit-confirm-btn:hover { background: #c5f43e; }
+.dink-payment-container [class~="bg-primary/5"] { background-color: rgba(var(--payment-green-rgb), 0.05); }
+.dink-payment-container [class~="border-primary/5"] { border-color: rgba(var(--payment-green-rgb), 0.05); }
+.dink-payment-container [class~="bg-primary/10"] { background-color: rgba(var(--payment-green-rgb), 0.1); }
+.dink-payment-container [class~="border-primary/10"] { border-color: rgba(var(--payment-green-rgb), 0.1); }
+.dink-payment-container [class~="bg-primary/15"] { background-color: rgba(var(--payment-green-rgb), 0.15); }
+.dink-payment-container [class~="border-primary/15"] { border-color: rgba(var(--payment-green-rgb), 0.15); }
+.dink-payment-container [class~="bg-primary/20"] { background-color: rgba(var(--payment-green-rgb), 0.2); }
+.dink-payment-container [class~="border-primary/20"] { border-color: rgba(var(--payment-green-rgb), 0.2); }
+.dink-payment-container [class~="bg-primary/25"] { background-color: rgba(var(--payment-green-rgb), 0.25); }
+.dink-payment-container [class~="border-primary/25"] { border-color: rgba(var(--payment-green-rgb), 0.25); }
+.dink-payment-container [class~="bg-primary/30"] { background-color: rgba(var(--payment-green-rgb), 0.3); }
+.dink-payment-container [class~="border-primary/30"] { border-color: rgba(var(--payment-green-rgb), 0.3); }
+.dink-payment-container [class~="bg-primary/40"] { background-color: rgba(var(--payment-green-rgb), 0.4); }
+.dink-payment-container [class~="border-primary/40"] { border-color: rgba(var(--payment-green-rgb), 0.4); }
+.dink-payment-container [class~="bg-primary/50"] { background-color: rgba(var(--payment-green-rgb), 0.5); }
+.dink-payment-container [class~="border-primary/50"] { border-color: rgba(var(--payment-green-rgb), 0.5); }
+.dink-payment-container .receiver-subtab-btn { box-shadow: none; }
+.dink-payment-container .receiver-subtab-btn.border-primary { background-color: rgba(var(--payment-green-rgb), .1); }
