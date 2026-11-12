@@ -661,3 +661,6 @@
 .admin-booking-status.is-pending { background:#fbbf240d; border-color:#fbbf2430; color:#fbbf24; }
 .admin-booking-status.is-negative { background:#fca5a50d; border-color:#fca5a530; color:#fca5a5; }
 .admin-booking-amount { color:#a3e635; font-size:12px; font-weight:600; white-space:nowrap; font-variant-numeric:tabular-nums; }
+
+/* Admin summary counts use the shared lime accent in every state. */
+#ds-tenant-dashboard #sec .overview-metrics .metric-card .metric-reading strong { color:#a3e635; }
