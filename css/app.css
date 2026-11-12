@@ -4531,3 +4531,6 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
   #ds-book-page #quick-days { grid-template-columns:repeat(3,minmax(0,1fr)); }
   #ds-book-page #quick-days > button:nth-child(n+7) { display:none; }
 }
+
+#ds-book-page .booking-date-field .datetime-trigger { height:46px; padding:10px 12px 10px 42px; border:1px solid #35434b; border-radius:10px; background:#202a30; font:600 13px/20px 'Plus Jakarta Sans',sans-serif; }
+#ds-book-page .booking-date-field .datetime-trigger .material-symbols-outlined { color:#a3e635; }

@@ -1258,7 +1258,7 @@
           if (selectedDate && selectedDate !== S.date) {
             S.date = selectedDate;
             var bd = q("#bd", root);
-            if (bd) bd.value = selectedDate;
+            if (bd) { bd.value = selectedDate; bd.dispatchEvent(new Event('input', { bubbles: true })); }
             drawQuickDays();
             drawSlots();
           }
@@ -1309,7 +1309,7 @@
         else if (!S.date || S.date < today) S.date = today;
 
         var bd = q("#bd", root);
-        if (bd) { bd.min = today; bd.max = last; bd.value = S.date; }
+        if (bd) { bd.min = today; bd.max = last; bd.value = S.date; bd.dispatchEvent(new Event('input', { bubbles: true })); }
         drawQuickDays();
         drawSlots();
       });
@@ -1514,6 +1514,7 @@
     var reserveSidebarBtn = q("#reserve-sidebar", root);
     if (reserveSidebarBtn) reserveSidebarBtn.onclick = doReserve;
 
+    if (bd && D.ui && D.ui.dateTimePickers) D.ui.dateTimePickers(bd.parentElement, tz);
     drawCourtCards();
     var pendingBookingId = pre.get("booking");
     var pc = pre.get("court");

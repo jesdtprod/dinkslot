@@ -468,7 +468,7 @@
         for (var blank = 0; blank < date.getDay(); blank++) days += '<span></span>';
         for (var day = 1; day <= count; day++) {
           var value = month + '-' + pad(day);
-          days += '<button type="button" data-date="' + value + '" aria-label="' + value + '" aria-pressed="' + (value === draft.slice(0, 10)) + '"' + (value === today ? ' aria-current="date"' : '') + (input.min && value < input.min.slice(0,10) ? ' disabled' : '') + '>' + day + '</button>';
+          days += '<button type="button" data-date="' + value + '" aria-label="' + value + '" aria-pressed="' + (value === draft.slice(0, 10)) + '"' + (value === today ? ' aria-current="date"' : '') + ((input.min && value < input.min.slice(0,10)) || (input.max && value > input.max.slice(0,10)) ? ' disabled' : '') + '>' + day + '</button>';
         }
         function options(total, selected) {
           var html = ''; for (var n = 0; n < total; n++) html += '<option value="' + pad(n) + '"' + (pad(n) === selected ? ' selected' : '') + '>' + pad(n) + '</option>'; return html;
@@ -501,7 +501,7 @@
         if (event.target.dataset.date && offsets[event.key]) {
           event.preventDefault(); var d = new Date(event.target.dataset.date + 'T12:00:00'); d.setDate(d.getDate() + offsets[event.key]);
           var value = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
-          if (input.min && value < input.min.slice(0,10)) return;
+          if ((input.min && value < input.min.slice(0,10)) || (input.max && value > input.max.slice(0,10))) return;
           month = value.slice(0,7); draft = value + draft.slice(10); draw(); panel.querySelector('[data-date="' + value + '"]').focus();
         }
       });
@@ -511,7 +511,7 @@
         if (panel.matches(':popover-open')) { panel.hidePopover(); return; }
         draft = input.value || today + 'T08:00'; month = draft.slice(0,7); draw(); panel.showPopover(); position(); panel.querySelector('[aria-pressed="true"]').focus();
       };
-      input.addEventListener('change', text);
+      input.addEventListener('change', text); input.addEventListener('input', text);
       text();
     });
   }
@@ -556,7 +556,7 @@
       });
       panel.addEventListener('keydown', function (event) { if (event.key === 'Escape') { event.preventDefault(); panel.hidePopover(); trigger.focus(); } });
       panel.addEventListener('toggle', function (event) { trigger.setAttribute('aria-expanded', String(event.newState === 'open')); });
-      input.addEventListener('change', text); text();
+      input.addEventListener('change', text); input.addEventListener('input', text); text();
     });
   }
 
