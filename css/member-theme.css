@@ -714,3 +714,11 @@ html body #app #ds-auth-screen.signup-screen .signup-card { border-radius:24px !
   #ds-tenant-dashboard #sec .member-overview-page .overview-booking-controls [data-bfilter] { min-width:0; padding:6px 3px; white-space:normal; text-align:center; }
   #ds-tenant-dashboard #sec .member-overview-page .overview-calendar-button { align-self:stretch; width:100%; justify-content:center; box-sizing:border-box; }
 }
+
+@media (max-width:639px) {
+  #ds-tenant-dashboard #sec .member-overview-page .overview-booking-controls [role=tablist] { gap:6px; padding:0; border:0; background:transparent; overflow:visible; }
+  #ds-tenant-dashboard #sec .member-overview-page .overview-booking-controls [data-bfilter] { display:flex; align-items:center; justify-content:center; gap:5px; min-height:40px; padding:6px 4px; border:1px solid #35434b; border-radius:9px; background:#202a30; color:#b9c8d0; white-space:nowrap; }
+  #ds-tenant-dashboard #sec .member-overview-page .overview-booking-controls [data-bfilter][aria-selected=true] { border-color:#a3e635; background:#a3e635; color:#142000; }
+  #ds-tenant-dashboard #sec .member-overview-page .overview-filter-count { display:inline-grid; place-items:center; min-width:18px; height:18px; padding:0 3px; border-radius:5px; background:#ffffff12; color:inherit; font-size:10px; line-height:1; }
+  #ds-tenant-dashboard #sec .member-overview-page [aria-selected=true] .overview-filter-count { background:#1420001c; }
+}

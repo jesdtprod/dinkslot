@@ -277,9 +277,9 @@
           '<p>Track your reservations, review pending bookings, and plan your next game.</p></div>' +
           '<div class="overview-booking-controls">' +
             '<div class="inline-flex items-center bg-[#131b26] p-1 rounded-xl border border-[#212f42]" role="tablist" aria-label="Booking filter">' +
-              '<button class="px-3 py-1 text-xs font-bold rounded-lg bg-[#a3e635] text-black shadow-sm cursor-pointer transition-colors" type="button" data-bfilter="upcoming">Upcoming (' + up + ')</button>' +
-              '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="recent">Past Bookings (' + recentList.length + ')</button>' +
-              '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="pending">Pending (' + pending + ')</button>' +
+              '<button class="px-3 py-1 text-xs font-bold rounded-lg bg-[#a3e635] text-black shadow-sm cursor-pointer transition-colors" type="button" data-bfilter="upcoming">Upcoming <span class="overview-filter-count">' + up + '</span></button>' +
+              '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="recent" aria-label="Past bookings">Past <span class="overview-filter-count">' + recentList.length + '</span></button>' +
+              '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="pending">Pending <span class="overview-filter-count">' + pending + '</span></button>' +
             '</div>' +
           '<a class="btn ghost overview-calendar-button self-end sm:self-auto" href="#/me/bookings">' +
             '<span class="material-symbols-outlined text-sm" aria-hidden="true">event_note</span>' +
