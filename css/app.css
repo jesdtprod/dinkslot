@@ -3560,3 +3560,10 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-queue-description { margin-top: 3px; font-size: 11px; line-height: 18px; }
 .booking-queue:has(.booking-queue-description) .booking-record-grid { margin-top: 8px; }
 .booking-queue:has(.booking-queue-description) .booking-record-grid > .bcard { margin-top: 0; }
+
+/* Keep the queue icon centered beside the heading and its supporting line. */
+.booking-queue-heading { align-items: center; gap: 10px; }
+.booking-queue-heading > .material-symbols-outlined { flex: 0 0 32px; width: 32px; height: 32px; line-height: 1; }
+.booking-queue-heading-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.booking-queue-heading-copy .booking-queue-description { margin: 0; line-height: 16px; }
+.booking-queue-heading > .booking-count { flex-shrink: 0; align-self: center; }
