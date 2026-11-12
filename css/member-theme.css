@@ -175,3 +175,4 @@
 .member-overview-page #next-booking-card-slot > .app-empty-state { grid-column:1 / -1; }
 @media(max-width:1100px) { .member-overview-page #next-booking-card-slot { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .member-overview-page #next-booking-card-slot { grid-template-columns:minmax(0,1fr); } }
+.member-overview-page .overview-calendar-button { display:inline-flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap; }

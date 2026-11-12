@@ -205,7 +205,7 @@
               '<button class="px-3 py-1 text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer" type="button" data-bfilter="pending">Pending (' + pending + ')</button>' +
             '</div>' +
           '</div>' +
-          '<a class="text-xs font-semibold text-[#a3e635] hover:underline flex items-center gap-1 self-end sm:self-auto no-underline" href="#/me/bookings">' +
+          '<a class="btn ghost overview-calendar-button self-end sm:self-auto" href="#/me/bookings">' +
             '<span>Calendar View</span>' +
             '<span class="material-symbols-outlined text-sm" aria-hidden="true">calendar_month</span>' +
           '</a>' +
