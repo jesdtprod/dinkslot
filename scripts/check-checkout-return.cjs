@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const source=fs.readFileSync('js/booking.js','utf8');
+const start=source.lastIndexOf('            onBack: function () {');
+const body=source.slice(start+'            onBack: function () {'.length,source.indexOf('\n            }',start)).replace(/\r/g,'');
+let picked=[],draws=0;
+const state={court:null,date:'',reserving:true};
+const context={S:state,history:{replaceState(){}},location:{pathname:'/',search:''},slug:'club',step3:{hidden:false},step12:{hidden:true},courts:[{id:'first'}],bkRes:{data:{court_id:'reserved'}},pickCourt:id=>picked.push(id),drawSlots:()=>draws++,window:{scrollTo(){}}};
+vm.createContext(context);vm.runInContext('(function(){'+body+'})()',context);
+assert.deepEqual(picked,['reserved']);assert.equal(draws,0);assert.equal(state.reserving,false);
+state.court={id:'reserved'};state.date='2026-11-12';vm.runInContext('(function(){'+body+'})()',context);
+assert.equal(draws,1);assert.equal(context.step12.hidden,false);
+console.log('Returning from restored checkout initializes court settings before drawing slots.');

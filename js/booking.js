@@ -1316,8 +1316,9 @@
 
     async function drawSlots() {
       if (S.reserving) return;
-      var c = S.court, step = c.slot_minutes, box = q("#slots", root);
-      if (!c || !box) return;
+      var c = S.court, box = q("#slots", root);
+      if (!c || !box || !/^\d{4}-\d{2}-\d{2}$/.test(S.date)) return;
+      var step = c.slot_minutes;
       box.innerHTML = '<div class="col-span-full grid grid-cols-2 sm:grid-cols-4 gap-2.5">' + Array(8).fill('<div class="h-16 rounded-xl bg-carbon-850/60 ds-skeleton border border-white/5"></div>').join('') + '</div>';
       S.start = null;
       summary();
@@ -1533,11 +1534,13 @@
             club: club,
             court: courts.find(function(c) { return c.id === bkRes.data.court_id; }),
             onBack: function () {
+              S.reserving = false;
               history.replaceState(null, "", location.pathname + location.search + "#/c/" + slug + "/book");
-              if (!S.court && courts.length) pickCourt(courts[0].id);
               step3.hidden = true;
               if (step12) step12.hidden = false;
-              drawSlots();
+              if (!S.court || !S.date) {
+                if (courts.length) pickCourt(bkRes.data.court_id || courts[0].id);
+              } else drawSlots();
               window.scrollTo({ top: 0, behavior: "smooth" });
             }
           });
