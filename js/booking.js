@@ -1261,7 +1261,7 @@
               (withDecide
                 ? '<button class="booking-decision-action approve" data-ok="' + esc(b.id) + '" type="button" aria-label="Approve reservation" title="Approve reservation"><span class="material-symbols-outlined" aria-hidden="true">check</span></button>' +
                   '<button class="booking-decision-action reject" data-no="' + esc(b.id) + '" type="button" aria-label="Reject reservation" title="Reject reservation"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>'
-                : '<button class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 border border-white/10 hover:border-rose-500/30 text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-1.5" data-cx="' + esc(b.id) + '" type="button"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>Cancel booking</button>') +
+                : '<button class="booking-decision-action cancel" data-cx="' + esc(b.id) + '" type="button" aria-label="Cancel booking" title="Cancel booking"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>') +
             '</div>' +
           '</div>' +
           '<p class="msg" role="alert"></p>' +
