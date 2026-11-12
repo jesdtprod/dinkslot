@@ -298,21 +298,20 @@
                 '</div>' +
 
                 '<!-- Date Input & Quick Day Selector -->' +
-                '<div class="space-y-2.5">' +
-                  '<label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Date</label>' +
+                '<div class="booking-date-length">' +
+                '<div class="booking-date-field space-y-2.5">' +
+                  '<label for="bd" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Date</label>' +
                   '<div class="relative">' +
                     '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">' +
                       '<svg class="w-4 h-4 text-neon-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
                     '</div>' +
                     '<input id="bd" data-has-icon="true" class="w-full pl-11 pr-10 py-3 bg-carbon-850 border border-white/10 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-neon-lime focus:ring-1 focus:ring-neon-lime cursor-pointer font-mono" type="date"/>' +
                   '</div>' +
-                  '<div id="quick-days" class="flex items-center gap-2 pt-1 overflow-x-auto pb-1">' +
-                  '</div>' +
                 '</div>' +
 
                 '<!-- Duration / Length Selector -->' +
-                '<div class="space-y-2">' +
-                  '<label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Length</label>' +
+                '<div class="booking-length-field space-y-2">' +
+                  '<label for="bn" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Length</label>' +
                   '<div class="relative">' +
                     '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">' +
                       '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
@@ -324,6 +323,9 @@
                     '</div>' +
                   '</div>' +
                 '</div>' +
+
+                '</div>' +
+                '<div id="quick-days" aria-label="Quick booking dates"></div>' +
 
                 '<!-- Slots Time Matrix Grid -->' +
                 '<div class="space-y-3 pt-2">' +

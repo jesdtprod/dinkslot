@@ -3432,3 +3432,14 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 
 /* Keep the booking context directly above the court selection cards. */
 #ds-book-page [data-purpose="breadcrumbs-context"] { padding: 0; margin-bottom: 24px; }
+
+/* Date and duration share one row; shortcuts fit inside the card. */
+#ds-book-page .booking-layout > *,
+#ds-book-page .booking-date-length > * { min-width: 0; }
+#ds-book-page .booking-date-length { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+#ds-book-page .booking-date-length label { display: block; margin-bottom: 8px; }
+#ds-book-page .booking-date-length :is(input, select) { box-sizing: border-box; width: 100%; min-width: 0; height: 46px; padding: 10px 36px 10px 42px; }
+#ds-book-page .booking-date-length .relative { margin-top: 0; }
+#ds-book-page #quick-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; width: 100%; min-width: 0; overflow: hidden; }
+#ds-book-page #quick-days > button { min-width: 0; width: 100%; padding: 9px 4px; white-space: normal; overflow-wrap: anywhere; font-size: 11px; line-height: 1.5; text-align: center; }
+@media (max-width: 640px) { #ds-book-page #quick-days { grid-template-columns: repeat(4, minmax(0, 1fr)); } #ds-book-page .booking-date-length { gap: 12px; } }
