@@ -458,12 +458,12 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
       </div>
     </div>
     <!-- Right Column: Live Open Sessions Widget -->
-    <div class="lg:col-span-7 flex flex-col gap-4 p-5 sm:p-7 md:p-8 rounded-3xl bg-surface-container-low/95 border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl relative overflow-hidden">
+    <div class="open-play-preview lg:col-span-7 flex flex-col gap-4 p-5 sm:p-7 md:p-8 rounded-3xl bg-surface-container-low/95 border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl relative overflow-hidden">
       <!-- Subtle top-right ambient glow -->
       <div class="absolute -top-20 -right-20 w-56 h-56 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <!-- Widget Header -->
-      <div class="flex items-center justify-between gap-3 relative z-10">
+      <div class="open-play-header flex items-center justify-between gap-3 relative z-10">
         <div class="flex items-center gap-2.5">
           <span class="relative flex h-2.5 w-2.5">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -477,7 +477,7 @@ window.DINKSLOT_LANDING = `<div id="ds-landing" class="flex flex-col w-full">
       </div>
 
       <!-- Match Sessions List -->
-      <div class="flex flex-col gap-3 relative z-10 mt-1">
+      <div class="open-play-list flex flex-col gap-3 relative z-10 mt-1">
         <!-- Match Session 1: Full -->
         <div class="p-3.5 sm:p-4 rounded-2xl bg-surface-container/70 hover:bg-surface-container border border-white/[0.06] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
           <div class="flex items-center gap-3.5 min-w-0">

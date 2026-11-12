@@ -4459,3 +4459,17 @@ body > .site-header::before { content:""; position:absolute; left:0; right:0; bo
 /* Match the header divider at the top of the footer. */
 body > .site-footer { position:relative; border-top:0; }
 body > .site-footer::before { content:""; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#a3e63538 25%,#91a5b230 55%,transparent); pointer-events:none; }
+
+/* Compact and readable open play preview on phones. */
+@media(max-width:639px) {
+  #ds-landing .open-play-preview { min-width:0; padding:16px; gap:14px; }
+  #ds-landing .open-play-header { align-items:flex-start; flex-wrap:wrap; gap:8px; }
+  #ds-landing .open-play-header h3 { font-size:16px; line-height:22px; }
+  #ds-landing .open-play-header > span { padding:4px 8px; font-size:10px; line-height:16px; }
+  #ds-landing .open-play-list { gap:10px; }
+  #ds-landing .open-play-list > div { gap:10px; padding:12px; }
+  #ds-landing .open-play-list > div > div:not(.absolute) { align-items:flex-start; gap:10px; }
+  #ds-landing .open-play-list h4 { white-space:normal; overflow:visible; line-height:20px; }
+  #ds-landing .open-play-list p { gap:3px 6px; line-height:18px; }
+  #ds-landing .open-play-list > div > :is(a,button) { align-self:stretch; justify-content:center; width:100%; min-height:38px; }
+}
