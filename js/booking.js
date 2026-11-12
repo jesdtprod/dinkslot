@@ -1169,8 +1169,7 @@
                   '<div class="booking-payment-channels flex items-center justify-center gap-2 text-xs font-mono text-slate-400">' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">GCash</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Maya</span>' +
-                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Visa / Mastercard</span>' +
-                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-neon-lime">Court Credits</span>' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Bank Transfer</span>' +
                     '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Cash</span>' +
                   '</div>' +
                 '</div>' +
