@@ -5004,3 +5004,8 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   #ds-landing .landing-court-filter-options > span { align-self:flex-start; }
   #ds-landing .landing-court-filter-options > button { box-sizing:border-box; display:flex; width:100%; justify-content:center; }
 }
+
+/* Equal mobile notification and account controls. */
+@media(max-width:767px) {
+  #nav.member-nav .dashboard-bellslot .bellbtn { box-sizing:border-box; width:40px; min-width:40px; height:40px; min-height:40px; }
+}
