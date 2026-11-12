@@ -4031,3 +4031,9 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 /* Optically center Maya's wordmark, accounting for its descending letterform. */
 .qr-tab-logo-maya { display: grid; place-items: center; box-sizing: border-box; }
 .qr-tab-logo-maya img { margin: 0; align-self: center; object-position: center; transform: translateY(2px); }
+
+/* Place customer contact beneath proof status, level with the customer name. */
+.reservation-review-header .reservation-payment-status { align-self: center; gap: 3px; }
+.reservation-payment-status .reservation-customer-phone { margin: 0; gap: 5px; font-size: 11px; line-height: 20px; white-space: nowrap; }
+.reservation-payment-status .reservation-customer-phone .material-symbols-outlined { font-size: 13px; }
+.reservation-review-header .reservation-customer-copy h4 { line-height: 20px; }
