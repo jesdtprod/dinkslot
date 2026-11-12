@@ -4315,3 +4315,10 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   #ds-book-page .booking-summary-footer { margin-top:auto; }
   #ds-book-page .booking-channel-support { margin-bottom:0; }
 }
+
+/* Stack surface filters on small screens. */
+@media(max-width:639px) {
+  #ds-landing .landing-court-filter-options { display:flex; flex-direction:column; align-items:stretch; width:100%; gap:8px; }
+  #ds-landing .landing-court-filter-options > span { align-self:flex-start; }
+  #ds-landing .landing-court-filter-options > button { width:100%; justify-content:center; }
+}
