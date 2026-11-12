@@ -4181,3 +4181,5 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 .checkout-page-intro > span { display: block; margin-bottom: 6px; font-size: 12px; line-height: 16px; }
 .checkout-page-intro > div { margin: 0; gap: 12px; }
 .checkout-page-intro p { margin-top: 4px; }
+
+.dink-payment-container .payment-help-trigger { width: 100%; margin-top: 12px; box-sizing: border-box; }

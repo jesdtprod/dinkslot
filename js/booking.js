@@ -457,7 +457,7 @@
               '</div>' +
               '<p class="msg mt-3 text-xs" role="alert" id="proof-msg"></p>' +
             '</div>' +
-              '<button type="button" class="payment-help-trigger" id="payment-help-btn"><span class="material-symbols-outlined" aria-hidden="true">help</span>How to pay &amp; club instructions<span class="material-symbols-outlined" aria-hidden="true">open_in_new</span></button><template id="payment-help-content"><section class="payment-howto"><h4>How to complete payment</h4><ol><li>Choose a receiver account and save or scan its QR.</li><li>Open your payment app and send <strong>' + money(b.amount) + '</strong>. Check the receiver name before paying.</li><li>Include booking code <strong>' + esc(b.reference_code) + '</strong> in the payment note when available.</li><li>Save the receipt, attach it in checkout, then select Submit Proof &amp; Confirm Booking.</li></ol><p>' + (info.approval_required ? 'The club will review your receipt before confirming the reservation.' : 'Your reservation is confirmed after successful submission.') + '</p>' + (info.payment_instructions ? clubInstructionMarkup(info.payment_instructions) : '') + '</section></template>' +
+              '<template id="payment-help-content"><section class="payment-howto"><h4>How to complete payment</h4><ol><li>Choose a receiver account and save or scan its QR.</li><li>Open your payment app and send <strong>' + money(b.amount) + '</strong>. Check the receiver name before paying.</li><li>Include booking code <strong>' + esc(b.reference_code) + '</strong> in the payment note when available.</li><li>Save the receipt, attach it in checkout, then select Submit Proof &amp; Confirm Booking.</li></ol><p>' + (info.approval_required ? 'The club will review your receipt before confirming the reservation.' : 'Your reservation is confirmed after successful submission.') + '</p>' + (info.payment_instructions ? clubInstructionMarkup(info.payment_instructions) : '') + '</section></template>' +
           '</div>' +
 
           '<!-- RIGHT COLUMN: Order & Court Summary Card (5 cols) -->' +
@@ -577,6 +577,7 @@
                 '</div>' +
               '</div>' +
 
+              '<button type="button" class="payment-help-trigger" id="payment-help-btn"><span class="material-symbols-outlined" aria-hidden="true">help</span>How to pay &amp; club instructions<span class="material-symbols-outlined" aria-hidden="true">open_in_new</span></button>' +
               '<!-- Trust Sub-badge inside card -->' +
               '<div class="payment-access-note mt-4 pt-3 border-t border-outline-variant/20">' +
                 '<span class="material-symbols-outlined" aria-hidden="true">door_front</span>' +
