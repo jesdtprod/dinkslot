@@ -369,7 +369,7 @@
             '<span class="text-zinc-600">/</span>' +
             '<span class="text-primary font-bold">Checkout</span>' +
           '</nav>' +
-          '<div class="flex items-center gap-3">' +
+          '<div class="checkout-context-badges flex items-center gap-3">' +
             '<div class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/40">' +
               '<span class="text-[11px] font-mono uppercase text-on-surface-variant">Booking Ref</span>' +
               '<span class="text-xs font-mono font-bold text-primary tracking-wider" id="global-ref-val">' + esc(b.reference_code) + '</span>' +

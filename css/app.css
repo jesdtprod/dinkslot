@@ -4211,3 +4211,12 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 #ds-book-page .checkout-page-intro h1 { margin: 0; font: 700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing: -.025em; }
 #ds-book-page .checkout-page-intro p { margin: 4px 0 0; padding: 0; font: 400 13px/21px "Plus Jakarta Sans",sans-serif; }
 @media(max-width:639px) { #ds-book-page .checkout-page-intro h1 { font-size: 28px; line-height: 34px; } }
+
+/* Match booking and checkout context badge dimensions exactly. */
+#ds-book-page .booking-context-status,
+#ds-book-page .checkout-context-badges { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+#ds-book-page .booking-context-status > span,
+#ds-book-page .checkout-context-badges > :is(div, span) { box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; height: 32px; min-height: 32px; padding: 0 11px; border-width: 1px; border-style: solid; border-radius: 999px; font: 600 11px/18px "JetBrains Mono",monospace; letter-spacing: 0; }
+#ds-book-page .checkout-context-badges > div > span { font-size: 11px; line-height: 18px; letter-spacing: 0; }
+#ds-book-page .checkout-context-badges button { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; padding: 0; }
+#ds-book-page .checkout-context-badges button .material-symbols-outlined { font-size: 14px; }
