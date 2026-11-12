@@ -3608,6 +3608,7 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .reservation-review-reference strong { color: #b9c9d3; font-weight: 500; font-family: "JetBrains Mono", monospace; overflow-wrap: anywhere; }
 .reservation-review-hold { display: flex; align-items: center; gap: 6px; margin-top: 12px; padding: 7px 9px; border: 1px solid #fbbf2433; border-radius: 8px; background: #fbbf240d; color: #fcd34d; font-size: 11px; }
 .reservation-review-hold .material-symbols-outlined { font-size: 15px; }
+.reservation-review-hold .timer { display:inline-block; min-width:4ch; font-variant-numeric:tabular-nums; }
 .reservation-card-actions .booking-pass-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .reservation-card-actions .reservation-review-hold { box-sizing: border-box; flex: 0 0 auto; width: auto; height: 36px; min-height: 36px; margin: 0; padding: 0 8px; border-radius: var(--ui-radius, 10px); font-size: 10px; line-height: 18px; white-space: nowrap; }
 /* A single geometry rule wins over shared button padding and size defaults. */

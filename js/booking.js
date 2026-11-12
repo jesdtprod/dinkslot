@@ -110,6 +110,10 @@
   }
 
   // One interval ticks every countdown on screen; it stops itself when they are gone.
+  function holdTimeLeft(expiresAt) {
+    var left = new Date(expiresAt).getTime() - Date.now();
+    return left > 0 ? Math.floor(left / 60000) + ":" + pad(Math.floor(left / 1000) % 60) : "expired";
+  }
   var tickTimer = null;
   function startTicker() {
     if (tickTimer) return;
@@ -117,8 +121,7 @@
       var els = document.querySelectorAll("[data-exp]");
       if (!els.length) { clearInterval(tickTimer); tickTimer = null; return; }
       Array.prototype.forEach.call(els, function (el) {
-        var left = new Date(el.getAttribute("data-exp")).getTime() - Date.now();
-        el.textContent = left > 0 ? Math.floor(left / 60000) + ":" + pad(Math.floor(left / 1000) % 60) : "expired";
+        el.textContent = holdTimeLeft(el.getAttribute("data-exp"));
       });
     }, 1000);
   }
@@ -1571,7 +1574,7 @@
         var live = (b.status === "pending" || b.status === "approved") && new Date(b.ends_at).getTime() > now;
         var note = "";
         if (b.status === "pending" && pay) note = "Proof sent" + (pay.payer_reference ? " (ref " + esc(pay.payer_reference) + ")" : "") + ". Waiting for the club to approve.";
-        else if (b.status === "pending" && b.expires_at) note = 'Pay within <b class="timer" data-exp="' + esc(b.expires_at) + '"></b>';
+        else if (b.status === "pending" && b.expires_at) note = 'Pay within <b class="timer" data-exp="' + esc(b.expires_at) + '">' + holdTimeLeft(b.expires_at) + '</b>';
         else if (b.status === "pending") note = "Waiting for the club to approve.";
         else if (b.status === "rejected") note = "Reason: " + esc(b.reject_reason || "not given");
         else if (b.status === "cancelled" && b.cancel_reason) note = "Reason: " + esc(b.cancel_reason);
@@ -1962,7 +1965,7 @@
             '<div class="booking-pass-actions">' +
               '<button type="button" class="booking-decision-action qr-pass" data-ticket="' + esc(b.id) + '" aria-label="View QR pass" title="View QR Pass"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span></button>' +
               (((py && py.proof_path) || (!b.player_id && paymentState === "paid")) ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>' : '') +
-              (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
+              (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '">' + holdTimeLeft(b.expires_at) + '</b></span></div>' : '') +
             '</div>' +
             '<div class="reservation-decision-actions flex items-center gap-2">' +
               (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now()) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span></button>' : '') +

@@ -24,6 +24,8 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.match(normal.innerHTML,/Unpaid/);
   assert.match(normal.innerHTML,/data-ok="pending"[^>]*disabled/);
   assert.ok(normal.innerHTML.indexOf('reservation-review-hold') > normal.innerHTML.indexOf('data-ticket="pending"'));
+  assert.match(normal.innerHTML,/data-exp="[^"]+">\d+:\d{2}<\/b>/);
+  assert.doesNotMatch(normal.innerHTML,/data-exp="[^"]+"><\/b>/);
   assert.doesNotMatch(normal.innerHTML,/AM \? /);
   payments=[{booking_id:'pending',proof_path:'club/proofs/receipt.png'}];
   const uploaded=box();await D.booking.queue(uploaded,{id:'club'});
