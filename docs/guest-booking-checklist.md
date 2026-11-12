@@ -7,7 +7,8 @@
 - [ ] Implement and test server-side guest reservation, including slot and pricing rules, contact details, abuse protection, and idempotency.
 - [x] Prepare a private hashed-token storage migration with expiry and revocation fields (not applied or database-tested).
 - [x] Implement and unit-test server-side token lookup with expiry and revocation checks (not yet wired to an endpoint).
-- [ ] Implement token issuance, revocation, and guest reservation access endpoints; test against database.
+- [x] Implement and unit-test server-side token issuance (not yet wired to booking or email).
+- [ ] Implement token revocation and guest reservation access endpoints; test against database.
 - [ ] Add email-based access-link recovery with rate limiting and non-enumerating responses.
 - [ ] Reuse checkout with guest-authorized proof upload and cancellation; preserve existing member flow.
 - [ ] Add guest booking status and approved-only QR pass.
