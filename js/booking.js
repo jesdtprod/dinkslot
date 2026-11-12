@@ -121,40 +121,67 @@
   // ======================================================== payment panel
   // Shows amount, QR, instructions, reference code and the proof upload for one booking.
   async function payPanel(el, b, ctx) {
-    el.innerHTML = '<div class="space-y-4"><div class="h-32 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-24 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div>';
+    el.innerHTML = '<div class="space-y-4"><div class="h-32 rounded-2xl bg-carbon-850/80 ds-skeleton border border-white/10"></div><div class="h-24 rounded-2xl bg-carbon-850/60 ds-skeleton border border-white/10"></div></div>';
     var ir = await sb.rpc("get_booking_info", { p_court_id: b.court_id });
     if (ir.error) { el.innerHTML = '<p class="msg err">' + esc(nice(ir.error)) + "</p>"; return; }
     var info = ir.data;
     if (b.status === "approved") {
-      el.innerHTML = '<p class="msg ok">Your booking is approved. See you on the court!</p>'; return;
+      el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-emerald-500/30 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div><h3 class="text-xl font-bold text-white">Your booking is approved!</h3><p class="text-sm text-slate-300">See you on the court. Access pass will be ready in your account.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm shadow-neon no-underline" href="#/me">View My Bookings</a></div>';
+      return;
     }
     if (b.status !== "pending") { el.innerHTML = ""; return; }
     if (!info.payment_enabled) {
-      el.innerHTML = '<p class="msg ok">Request sent. The club will review it and you will see the result here.</p>'; return;
+      el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-white/10 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-neon-lime/20 text-neon-lime flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-envelope-circle-check"></i></div><h3 class="text-xl font-bold text-white">Request Sent</h3><p class="text-sm text-slate-300">The club will review your reservation request and you will see the update in your account.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-carbon-800 hover:bg-carbon-700 text-white font-medium text-sm border border-white/10 no-underline" href="#/me">Go to My Bookings</a></div>';
+      return;
     }
     var qrs = info.qrs || [], urls = {}, method = qrs.length ? qrs[0].label : null, attemptKey = uuid();
     if (qrs.length) {
       var su = await sb.storage.from("payment").createSignedUrls(qrs.map(function (x) { return x.qr_path; }), 600);
       (su.data || []).forEach(function (x) { if (x.path && x.signedUrl) urls[x.path] = x.signedUrl; });
     }
-    // one QR per payment method: tabs switch between the ones the club accepts
     function qrSide(i) {
       var x = qrs[i];
-      if (!x) return '<div class="qr ph"></div><p class="muted small">The club has not set up a payment QR yet. Contact the club to pay.</p>';
-      return (qrs.length > 1 ? '<div class="qrtabs" role="tablist">' + qrs.map(function (y, k) {
-          return '<button type="button" role="tab" class="qrtab' + (k === i ? " on" : "") + '" data-i="' + k + '">' + esc(y.label) + "</button>"; }).join("") + "</div>" : "") +
-        (urls[x.qr_path] ? '<img class="qr" src="' + esc(urls[x.qr_path]) + '" alt="' + esc(x.label) + ' QR">' : '<div class="qr ph"></div>') +
-        '<p class="small"><b>' + esc(x.label) + "</b>" + (x.account_name ? "<br>" + esc(x.account_name) : "") + (x.account_number ? "<br>" + esc(x.account_number) : "") + "</p>";
+      if (!x) return '<div class="w-48 h-48 rounded-xl bg-carbon-950 border border-white/10 flex items-center justify-center text-slate-500 font-mono text-xs">No QR available</div><p class="text-xs text-slate-400 mt-2">Contact the club to arrange payment.</p>';
+      return (qrs.length > 1 ? '<div class="flex flex-wrap gap-2 mb-3" role="tablist">' + qrs.map(function (y, k) {
+          return '<button type="button" role="tab" class="qrtab px-3 py-1.5 rounded-lg text-xs font-semibold transition ' + (k === i ? "bg-neon-lime text-carbon-950 shadow-neon font-bold" : "bg-carbon-800 text-slate-300 hover:text-white border border-white/10") + '" data-i="' + k + '">' + esc(y.label) + "</button>"; }).join("") + "</div>" : "") +
+        '<div class="p-3 bg-white rounded-2xl max-w-[210px] mx-auto sm:mx-0 shadow-lg flex items-center justify-center">' +
+        (urls[x.qr_path] ? '<img class="w-full h-auto object-contain rounded-lg" src="' + esc(urls[x.qr_path]) + '" alt="' + esc(x.label) + ' QR">' : '<div class="w-40 h-40 flex items-center justify-center text-slate-400 font-mono text-xs">QR Preview</div>') +
+        '</div>' +
+        '<div class="mt-2 text-xs text-slate-300 space-y-0.5"><p class="font-bold text-white text-sm m-0">' + esc(x.label) + "</p>" +
+        (x.account_name ? '<p class="text-slate-400 m-0">Name: <span class="text-slate-200 font-medium">' + esc(x.account_name) + "</span></p>" : "") +
+        (x.account_number ? '<p class="text-slate-400 m-0">Account: <span class="text-neon-lime font-mono font-bold text-sm">' + esc(x.account_number) + "</span></p>" : "") + "</div>";
     }
     el.innerHTML =
-      '<div class="pay"><div id="qrside">' + qrSide(0) + "</div>" +
-      "<div><p class=\"muted small\">Amount to pay</p><p class=\"bigamt\">" + money(b.amount) + "</p>" +
-      '<p class="muted small">Include this code in your payment note</p><p class="refcode">' + esc(b.reference_code) + "</p>" +
-      (info.payment_instructions ? '<p class="small">' + esc(info.payment_instructions) + "</p>" : "") +
-      (b.expires_at ? '<p class="small">Pay within <b class="timer" data-exp="' + esc(b.expires_at) + '"></b> or the slot is released.</p>' : "") + "</div></div>" +
-      '<form class="proof"><h3>Upload your proof</h3><label>Payment reference number<input id="pref" maxlength="60" required placeholder="e.g. GCash ref no."></label>' +
-      '<label>Screenshot of the payment<input id="pfile" type="file" accept="image/jpeg,image/png,image/webp" required></label>' +
-      '<p class="msg" role="alert"></p><button class="btn" type="submit">Submit proof</button></form>';
+      '<div class="bg-carbon-900 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark space-y-6">' +
+        '<div class="flex items-center justify-between pb-4 border-b border-white/10">' +
+          '<div class="flex items-center gap-3">' +
+            '<span class="w-7 h-7 rounded-lg bg-neon-lime text-carbon-950 font-black text-sm flex items-center justify-center shadow-sm">3</span>' +
+            '<h2 class="text-lg sm:text-xl font-bold text-white tracking-tight m-0">Pay &amp; Confirm Reservation</h2>' +
+          '</div>' +
+          '<span class="text-xs font-mono px-2.5 py-1 rounded bg-neon-lime/10 text-neon-lime border border-neon-lime/30 font-bold">Ref: ' + esc(b.reference_code) + '</span>' +
+        '</div>' +
+        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">' +
+          '<div id="qrside">' + qrSide(0) + '</div>' +
+          '<div class="space-y-4">' +
+            '<div><p class="text-xs font-mono uppercase text-slate-400 tracking-wider m-0">Amount to pay</p><p class="text-3xl font-black text-neon-lime font-mono m-0 mt-0.5">' + money(b.amount) + '</p></div>' +
+            '<div class="p-3 rounded-xl bg-carbon-850 border border-white/10"><p class="text-xs text-slate-400 m-0">Include this code in your payment note</p><p class="text-lg font-mono font-bold text-neon-lime m-0 tracking-wider">' + esc(b.reference_code) + '</p></div>' +
+            (info.payment_instructions ? '<div class="text-xs text-slate-300 p-3 rounded-xl bg-carbon-850/60 border border-white/5"><p class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1">Club Note</p>' + esc(info.payment_instructions) + '</div>' : '') +
+            (b.expires_at ? '<div class="flex items-center gap-2 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl"><span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span><span>Pay within <strong class="timer font-mono text-sm" data-exp="' + esc(b.expires_at) + '"></strong> or the slot is released.</span></div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<form class="proof pt-4 border-t border-white/10 space-y-4">' +
+          '<h3 class="text-base font-bold text-white tracking-tight m-0">Upload Payment Proof</h3>' +
+          '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
+            '<label class="block space-y-1.5"><span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Payment Reference Number</span><input id="pref" data-has-icon="true" class="w-full px-3.5 py-3 rounded-xl bg-carbon-850 border border-white/10 text-white text-sm focus:outline-none focus:border-neon-lime font-mono" maxlength="60" required placeholder="e.g. GCash 13-digit ref no."></label>' +
+            '<label class="block space-y-1.5"><span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Payment Screenshot</span><input id="pfile" class="w-full px-3.5 py-2.5 rounded-xl bg-carbon-850 border border-white/10 text-white text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-neon-lime file:text-carbon-950 hover:file:bg-neon-glow cursor-pointer" type="file" accept="image/jpeg,image/png,image/webp" required></label>' +
+          '</div>' +
+          '<p class="msg" role="alert"></p>' +
+          '<div class="flex items-center gap-3 pt-2">' +
+            '<button class="px-6 py-3.5 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-black text-sm uppercase tracking-wider shadow-neon transition-all hover:scale-[1.02] border-0 cursor-pointer" type="submit">Submit proof &amp; Confirm</button>' +
+            '<a class="px-4 py-3.5 rounded-xl bg-carbon-800 hover:bg-carbon-700 text-slate-300 hover:text-white text-xs font-medium border border-white/10 no-underline transition" href="#/me">View My Bookings</a>' +
+          '</div>' +
+        '</form>' +
+      '</div>';
     startTicker();
     function bindTabs() {
       Array.prototype.forEach.call(el.querySelectorAll(".qrtab"), function (b) {
@@ -165,18 +192,17 @@
     q("form.proof", el).onsubmit = async function (e) {
       e.preventDefault();
       var f = this, btn = q("button", f);
-      btn.disabled = true; msg(f, "Uploading...", "");
+      btn.disabled = true; msg(f, "Uploading payment proof...", "");
       try {
         var file = q("#pfile", f).files[0];
         checkImage(file);
-        // Storage policy: <tenant_id>/proofs/<my user id>/...  (first segment = club, third = me)
         var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
         var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
         if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
         var r = await sb.rpc("attach_payment_proof", { p_booking_id: b.id, p_proof_path: path,
           p_payer_reference: q("#pref", f).value.trim(), p_idempotency_key: attemptKey, p_method: method });
         if (r.error) throw r.error;
-        el.innerHTML = '<p class="msg ok">Proof submitted. The club will check it and approve your booking. You will see the result here.</p>';
+        el.innerHTML = '<div class="p-6 rounded-2xl bg-carbon-900 border border-emerald-500/30 text-center space-y-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-check"></i></div><h3 class="text-xl font-bold text-white">Proof Submitted Successfully!</h3><p class="text-sm text-slate-300">The club has received your payment proof and will verify your reservation. You can track status anytime in My Bookings.</p><a class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm shadow-neon no-underline" href="#/me">View My Bookings</a></div>';
         if (ctx && ctx.onDone) ctx.onDone();
       } catch (err) { btn.disabled = false; msg(f, nice(err), "err"); }
     };
@@ -186,78 +212,445 @@
   async function renderBook(slug) {
     var root = D.root();
     if (!D.requireUser("/c/" + slug + "/book")) return;
-    root.innerHTML = '<div class="pubwrap narrow space-y-6">' +
-      '<div class="h-8 w-48 rounded-lg bg-surface-container-high/70 ds-skeleton"></div>' +
-      '<div class="flex gap-2 overflow-x-auto pb-2">' +
-        '<div class="w-16 h-20 rounded-xl bg-surface-container-high/60 ds-skeleton shrink-0"></div>' +
-        '<div class="w-16 h-20 rounded-xl bg-surface-container-high/40 ds-skeleton shrink-0"></div>' +
-        '<div class="w-16 h-20 rounded-xl bg-surface-container-high/40 ds-skeleton shrink-0"></div>' +
-        '<div class="w-16 h-20 rounded-xl bg-surface-container-high/40 ds-skeleton shrink-0"></div>' +
-      '</div>' +
-      '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">' +
-        '<div class="h-12 rounded-lg bg-surface-container-high/50 ds-skeleton"></div>' +
-        '<div class="h-12 rounded-lg bg-surface-container-high/50 ds-skeleton"></div>' +
-        '<div class="h-12 rounded-lg bg-surface-container-high/50 ds-skeleton"></div>' +
-        '<div class="h-12 rounded-lg bg-surface-container-high/50 ds-skeleton"></div>' +
-      '</div>' +
-    '</div>';
+    root.innerHTML = '<div class="w-full max-w-7xl mx-auto px-4 py-8 space-y-6">' +
+      '<div class="h-8 w-48 rounded-lg bg-carbon-850/70 ds-skeleton border border-white/5"></div>' +
+      '<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">' +
+        '<div class="lg:col-span-8 space-y-6">' +
+          '<div class="h-44 rounded-2xl bg-carbon-900/60 ds-skeleton border border-white/5"></div>' +
+          '<div class="h-72 rounded-2xl bg-carbon-900/60 ds-skeleton border border-white/5"></div>' +
+        '</div>' +
+        '<div class="lg:col-span-4">' +
+          '<div class="h-96 rounded-2xl bg-carbon-900/60 ds-skeleton border border-white/5"></div>' +
+        '</div>' +
+      '</div></div>';
     var club = (await sb.from("public_clubs").select("*").eq("slug", slug).maybeSingle()).data;
-    if (!club) { root.innerHTML = "<h2>Club not found</h2><p>This club does not exist or is not approved yet.</p>"; return; }
+    if (!club) { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Club not found</h2><p>This club does not exist or is not approved yet.</p><a class="inline-block mt-4 px-4 py-2 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm" href="#/">Back to clubs</a></div>'; return; }
     var me = (await sb.from("club_players").select("id,status,display_name").eq("tenant_id", club.id)
       .eq("user_id", D.state.user.id).maybeSingle()).data;
     if (!me) return D.go("/c/" + slug + "/join");
-    if (me.status === "blocked") { root.innerHTML = "<h2>Booking unavailable</h2><p>You are blocked from this club. Please contact the club.</p>"; return; }
+    if (me.status === "blocked") { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Booking unavailable</h2><p>You are blocked from this club. Please contact the club.</p></div>'; return; }
     var courts = (await sb.from("public_courts").select("*").eq("club_slug", slug).order("name")).data || [];
     var tz = club.timezone || "Asia/Manila";
-    var S = { court: null, info: null, date: "", slots: [], start: null, count: 1 };
+    var S = { court: null, info: null, date: "", slots: [], start: null, count: 1, bookingDays: 14 };
+    var pre = new URLSearchParams(location.hash.split("?")[1] || "");
+
+    function addDays(ymd, n) {
+      var d = new Date(ymd + "T12:00:00Z");
+      d.setUTCDate(d.getUTCDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
 
     root.innerHTML =
-      '<div class="bookwrap"><a class="back" href="#/c/' + esc(slug) + '">&larr; ' + esc(club.name) + "</a><h1>Book a court</h1>" +
-      '<div class="panel wide"><h2>1. Choose a court</h2>' + (courts.length ? '<div class="courtpick">' + courts.map(function (c) {
-        return '<button type="button" class="courtbtn" data-c="' + esc(c.id) + '"><b>' + esc(c.name) + "</b><span>" + (c.is_indoor ? "Indoor" : "Outdoor") +
-          " - " + rateRange(c) + "</span></button>";
-      }).join("") + "</div>" : '<p class="muted">This club has no bookable courts yet.</p>') + "</div>" +
-      '<div class="panel wide" id="slotpanel" hidden><h2>2. Pick a date and time</h2><div class="inline">' +
-      '<label>Date<input id="bd" type="date"></label><label>Length<select id="bn"></select></label></div>' +
-      '<div id="slots" class="slots"></div><p class="legend small muted">Greyed out times are taken or in the past. Times are in ' + esc(tz) + ".</p>" +
-      '<div id="sum" class="summary"></div><p class="msg" role="alert"></p><button class="btn" id="reserve" type="button" disabled>Reserve this slot</button></div>' +
-      '<div class="panel wide" id="paypanel" hidden></div></div>';
+      '<div id="ds-book-page" class="book-public w-full min-h-screen text-slate-100 flex flex-col antialiased selection:bg-neon-lime selection:text-black">' +
+        '<!-- BreadcrumbAndStatusHeader -->' +
+        '<section class="border-b border-white/5 bg-carbon-900/50 py-3" data-purpose="breadcrumbs-context">' +
+          '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 text-xs">' +
+            '<div class="flex items-center gap-2 text-slate-400">' +
+              '<a class="inline-flex items-center gap-1.5 hover:text-white transition-colors no-underline text-slate-300" href="#/c/' + esc(slug) + '">' +
+                '<svg class="w-3.5 h-3.5 text-neon-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                esc(club.name) +
+              '</a>' +
+              '<span class="text-slate-600">/</span>' +
+              '<span class="text-slate-200 font-medium">Court Booking</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-3">' +
+              '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium font-mono text-[11px]">' +
+                '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>' +
+                '<span id="book-live-slots">Live Availability: Checking slots...</span>' +
+              '</span>' +
+              '<span class="text-slate-500 text-[11px] hidden sm:inline">Timezone: ' + esc(tz) + ' (PHT)</span>' +
+            '</div>' +
+          '</div>' +
+        '</section>' +
+
+        '<!-- BookingMainLayout -->' +
+        '<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">' +
+          '<div class="mb-8">' +
+            '<div class="flex items-center gap-2 text-neon-lime text-xs font-mono font-semibold uppercase tracking-widest mb-1.5">' +
+              'Pickleball Court Reservation' +
+            '</div>' +
+            '<h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3 m-0">' +
+              'Book a court' +
+              '<span class="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 font-normal">Fast Checkout</span>' +
+            '</h1>' +
+            '<p class="text-sm text-slate-400 mt-1 max-w-2xl m-0">Select your preferred outdoor court, time slot, and lock in your reservation with instant turnstile access.</p>' +
+          '</div>' +
+
+          '<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">' +
+            '<!-- LEFT / MAIN INTERACTION COLUMN -->' +
+            '<div class="lg:col-span-8 space-y-7">' +
+              '<!-- Step 1: Choose a court -->' +
+              '<section class="bg-carbon-900/90 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark relative overflow-hidden" data-purpose="step-choose-court">' +
+                '<div class="flex items-center justify-between mb-5">' +
+                  '<div class="flex items-center gap-3">' +
+                    '<span class="w-7 h-7 rounded-lg bg-neon-lime text-carbon-950 font-black text-sm flex items-center justify-center shadow-sm">1</span>' +
+                    '<h2 class="text-lg sm:text-xl font-bold text-white tracking-tight m-0">Choose a court</h2>' +
+                  '</div>' +
+                  '<span class="text-xs font-mono text-slate-400">' + courts.length + ' ' + (courts.length === 1 ? 'Court' : 'Courts') + ' Available</span>' +
+                '</div>' +
+                '<div id="courtcards" class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">' +
+                '</div>' +
+              '</section>' +
+
+              '<!-- Step 2: Pick a date and time -->' +
+              '<section id="slotpanel" class="bg-carbon-900/90 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark space-y-6" data-purpose="step-date-time-selection" hidden>' +
+                '<div class="flex items-center justify-between">' +
+                  '<div class="flex items-center gap-3">' +
+                    '<span class="w-7 h-7 rounded-lg bg-neon-lime text-carbon-950 font-black text-sm flex items-center justify-center shadow-sm">2</span>' +
+                    '<h2 class="text-lg sm:text-xl font-bold text-white tracking-tight m-0">Pick a date and time</h2>' +
+                  '</div>' +
+                  '<div class="hidden sm:flex items-center gap-1 text-[11px] text-slate-400 bg-carbon-800/80 px-2.5 py-1 rounded-lg border border-white/5">' +
+                    '<span>Timezone:</span>' +
+                    '<strong class="text-slate-200">' + esc(tz) + ' (PHT)</strong>' +
+                  '</div>' +
+                '</div>' +
+
+                '<!-- Date Input & Quick Day Selector -->' +
+                '<div class="space-y-2.5">' +
+                  '<label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Date</label>' +
+                  '<div class="relative">' +
+                    '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">' +
+                      '<svg class="w-4 h-4 text-neon-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '</div>' +
+                    '<input id="bd" data-has-icon="true" class="w-full pl-11 pr-10 py-3 bg-carbon-850 border border-white/10 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-neon-lime focus:ring-1 focus:ring-neon-lime cursor-pointer font-mono" type="date"/>' +
+                  '</div>' +
+                  '<div id="quick-days" class="flex items-center gap-2 pt-1 overflow-x-auto pb-1">' +
+                  '</div>' +
+                '</div>' +
+
+                '<!-- Duration / Length Selector -->' +
+                '<div class="space-y-2">' +
+                  '<label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Length</label>' +
+                  '<div class="relative">' +
+                    '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">' +
+                      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '</div>' +
+                    '<select id="bn" data-has-icon="true" class="w-full pl-11 pr-10 py-3 bg-carbon-850 border border-white/10 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-neon-lime focus:ring-1 focus:ring-neon-lime appearance-none cursor-pointer">' +
+                    '</select>' +
+                    '<div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">' +
+                      '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+
+                '<!-- Slots Time Matrix Grid -->' +
+                '<div class="space-y-3 pt-2">' +
+                  '<div class="flex items-center justify-between text-xs text-slate-400">' +
+                    '<span class="font-medium text-slate-300">Select Available Start Time</span>' +
+                    '<span class="flex items-center gap-2">' +
+                      '<span class="inline-block w-2.5 h-2.5 rounded bg-neon-lime"></span> Selected' +
+                      '<span class="inline-block w-2.5 h-2.5 rounded bg-carbon-800 border border-white/10 ml-2"></span> Open' +
+                      '<span class="inline-block w-2.5 h-2.5 rounded bg-carbon-950/80 border border-white/5 opacity-50 ml-2"></span> Booked' +
+                    '</span>' +
+                  '</div>' +
+                  '<div id="slots" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">' +
+                  '</div>' +
+                  '<p class="text-xs text-slate-400 pt-2 flex items-center gap-1.5">' +
+                    '<svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '<span>Greyed out times are taken or in the past. Times are in ' + esc(tz) + '.</span>' +
+                  '</p>' +
+                '</div>' +
+
+                '<!-- Selected Slot Banner & Quick Reserve Button -->' +
+                '<div id="slot-banner" class="mt-4 p-4 rounded-xl bg-carbon-950 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4" hidden>' +
+                  '<div>' +
+                    '<div class="text-xs font-mono uppercase text-slate-400 tracking-wider">Current Selection</div>' +
+                    '<div id="banner-selection-time" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5"></div>' +
+                    '<div id="banner-selection-rate" class="text-xs text-slate-400 mt-0.5"></div>' +
+                  '</div>' +
+                  '<div class="flex items-center gap-3">' +
+                    '<div class="text-right sm:block hidden">' +
+                      '<div class="text-xs text-slate-400">Total Due</div>' +
+                      '<div id="banner-total-due" class="text-xl font-black text-neon-lime font-mono"></div>' +
+                    '</div>' +
+                    '<button id="reserve" type="button" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-bold text-sm flex items-center justify-center gap-2 shadow-neon transition-all hover:scale-[1.02] active:scale-[0.98] border-0 cursor-pointer">' +
+                      '<svg class="w-4 h-4 text-carbon-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                      '<span>Reserve this slot</span>' +
+                    '</button>' +
+                  '</div>' +
+                '</div>' +
+                '<p class="msg" role="alert"></p>' +
+              '</section>' +
+
+              '<!-- Step 3: Payment Panel -->' +
+              '<section id="paypanel" class="space-y-6" hidden></section>' +
+            '</div>' +
+
+            '<!-- RIGHT COLUMN: Sticky Reservation Checkout Card & Summary -->' +
+            '<aside class="lg:col-span-4 lg:sticky lg:top-24 space-y-5" data-purpose="reservation-summary-sidebar">' +
+              '<div class="bg-carbon-900 rounded-2xl p-6 border border-white/10 shadow-card-dark relative overflow-hidden">' +
+                '<div class="absolute -top-12 -right-12 w-32 h-32 bg-neon-lime/10 rounded-full blur-2xl pointer-events-none"></div>' +
+                '<div class="flex items-center justify-between pb-4 border-b border-white/10">' +
+                  '<div>' +
+                    '<span class="text-[11px] font-mono text-neon-lime uppercase tracking-wider font-semibold">Booking Ticket</span>' +
+                    '<h3 class="text-xl font-extrabold text-white m-0">Reservation Summary</h3>' +
+                  '</div>' +
+                  '<span id="ticket-ref-badge" class="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-slate-300">' +
+                    '#READY' +
+                  '</span>' +
+                '</div>' +
+
+                '<div class="py-4 space-y-3.5 border-b border-white/10 text-xs">' +
+                  '<div class="flex items-start justify-between">' +
+                    '<span class="text-slate-400">Club Venue</span>' +
+                    '<span class="text-white font-semibold text-right">' + esc(club.name) + '</span>' +
+                  '</div>' +
+                  '<div class="flex items-start justify-between">' +
+                    '<span class="text-slate-400">Court Assigned</span>' +
+                    '<span id="summary-court-assigned" class="text-white font-semibold text-right flex items-center gap-1.5">' +
+                      '<span class="w-2 h-2 rounded-full bg-neon-lime"></span>' +
+                      '<span>Select a court</span>' +
+                    '</span>' +
+                  '</div>' +
+                  '<div class="flex items-start justify-between">' +
+                    '<span class="text-slate-400">Date</span>' +
+                    '<span id="summary-date" class="text-slate-200 font-mono font-medium">-</span>' +
+                  '</div>' +
+                  '<div class="flex items-start justify-between">' +
+                    '<span class="text-slate-400">Time Window</span>' +
+                    '<span id="summary-time" class="text-neon-lime font-mono font-semibold">Select a time slot</span>' +
+                  '</div>' +
+                  '<div class="flex items-start justify-between">' +
+                    '<span class="text-slate-400">Player Count</span>' +
+                    '<span class="text-slate-200">Up to 4 Players Included</span>' +
+                  '</div>' +
+                '</div>' +
+
+                '<div class="py-3.5 space-y-2 border-b border-white/10">' +
+                  '<span class="text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Session Inclusions</span>' +
+                  '<div class="grid grid-cols-1 gap-1.5 text-xs text-slate-300">' +
+                    '<div class="flex items-center gap-2">' +
+                      '<svg class="w-3.5 h-3.5 text-neon-lime shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
+                      '<span>Automated Smart LED Floodlight System</span>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-2">' +
+                      '<svg class="w-3.5 h-3.5 text-neon-lime shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
+                      '<span>Instant Turnstile QR Key on confirmation</span>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-2">' +
+                      '<svg class="w-3.5 h-3.5 text-neon-lime shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
+                      '<span>Franklin X-40 loaner balls available</span>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+
+                '<div class="py-4 space-y-2 text-xs">' +
+                  '<div class="flex justify-between text-slate-400">' +
+                    '<span id="summary-fee-label">Court Booking Fee</span>' +
+                    '<span id="summary-court-fee" class="font-mono text-slate-200">PHP 0.00</span>' +
+                  '</div>' +
+                  '<div class="flex justify-between text-slate-400">' +
+                    '<span>Night Lighting Surcharge</span>' +
+                    '<span class="font-mono text-emerald-400">PHP 0.00 (Free)</span>' +
+                  '</div>' +
+                  '<div class="flex justify-between text-slate-400">' +
+                    '<span>Booking Processing Fee</span>' +
+                    '<span class="font-mono text-emerald-400">PHP 0.00</span>' +
+                  '</div>' +
+                  '<div class="pt-3 border-t border-white/10 flex items-baseline justify-between">' +
+                    '<div>' +
+                      '<span class="text-sm font-bold text-white">Total Amount</span>' +
+                      '<p class="text-[10px] text-slate-400 m-0">All local taxes included</p>' +
+                    '</div>' +
+                    '<span id="summary-total-amount" class="text-2xl font-black text-neon-lime font-mono">PHP 0.00</span>' +
+                  '</div>' +
+                '</div>' +
+
+                '<div class="mt-4 space-y-3">' +
+                  '<button id="reserve-sidebar" type="button" class="w-full py-4 px-6 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-neon transition-all hover:scale-[1.02] active:scale-[0.98] border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none" disabled>' +
+                    '<svg class="w-4 h-4 text-carbon-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '<span>Confirm &amp; Pay</span>' +
+                  '</button>' +
+                  '<div class="p-3 rounded-lg bg-carbon-800/60 border border-white/5 flex items-start gap-2.5 text-[11px] text-slate-300">' +
+                    '<svg class="w-4 h-4 text-neon-lime shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                    '<span><strong>Flex Cancel:</strong> Free cancellation up to 6 hours before slot. Full credit refund credited to your DINK wallet.</span>' +
+                  '</div>' +
+                '</div>' +
+
+                '<div class="mt-5 pt-4 border-t border-white/10 text-center">' +
+                  '<span class="text-[10px] uppercase font-mono tracking-widest text-slate-400 block mb-2">Supported Payment Channels</span>' +
+                  '<div class="flex items-center justify-center flex-wrap gap-2 text-xs font-mono text-slate-400">' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">GCash</span>' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Maya</span>' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-slate-300">Visa / Mastercard</span>' +
+                    '<span class="px-2 py-1 rounded bg-carbon-800 border border-white/5 text-[11px] text-neon-lime">Court Credits</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+
+              '<div class="p-4 rounded-xl bg-carbon-900/60 border border-white/5 flex items-center justify-between text-xs text-slate-400">' +
+                '<div class="flex items-center gap-2.5">' +
+                  '<div class="w-8 h-8 rounded-lg bg-carbon-800 flex items-center justify-center text-neon-lime">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>' +
+                  '</div>' +
+                  '<div>' +
+                    '<p class="text-white font-medium m-0">Need equipment or a paddle coach?</p>' +
+                    '<p class="text-[11px] m-0">Chat with ' + esc(club.name) + ' club front desk</p>' +
+                  '</div>' +
+                '</div>' +
+                (club.contact_phone ? '<a href="tel:' + esc(club.contact_phone) + '" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors border border-white/10 no-underline">Call Support</a>'
+                  : club.contact_email ? '<a href="mailto:' + esc(club.contact_email) + '" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-colors border border-white/10 no-underline">Email</a>'
+                  : '<span class="text-xs text-slate-500">Support</span>') +
+              '</div>' +
+            '</aside>' +
+          '</div>' +
+        '</main>' +
+      '</div>';
+
+    function drawCourtCards() {
+      var box = q("#courtcards", root);
+      if (!box) return;
+      box.innerHTML = courts.map(function (c) {
+        var isSelected = S.court && S.court.id === c.id;
+        var lo = Number(c.rate_min != null ? c.rate_min : c.hourly_rate);
+        var hi = Number(c.rate_max != null ? c.rate_max : lo);
+        var rateStr = "PHP " + lo.toFixed(2) + (hi > lo ? " – " + hi.toFixed(2) : "") + "/hr";
+        return '<label class="court-card relative block p-4 rounded-xl cursor-pointer transition-all ' +
+          (isSelected ? "bg-carbon-850/95 border-2 border-neon-lime shadow-neon" : "bg-carbon-800/40 hover:bg-carbon-800/70 border border-white/10 hover:border-white/20") + '" data-c="' + esc(c.id) + '">' +
+          '<input type="radio" name="selected_court" class="sr-only" value="' + esc(c.id) + '"' + (isSelected ? " checked" : "") + '/>' +
+          '<div class="flex items-center justify-between mb-2">' +
+            (isSelected
+              ? '<span class="text-xs font-mono uppercase tracking-wider text-neon-lime font-bold">Selected</span><div class="w-5 h-5 rounded-full bg-neon-lime flex items-center justify-center text-carbon-950 text-xs font-black">✓</div>'
+              : '<span class="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">Available</span><span class="w-4 h-4 rounded-full border border-slate-600 flex items-center justify-center"><span class="w-2 h-2 rounded-full bg-transparent"></span></span>') +
+          '</div>' +
+          '<h3 class="text-base font-bold text-white mb-0.5 m-0">' + esc(c.name) + '</h3>' +
+          '<p class="text-xs text-slate-300 mb-3 m-0">' + (c.is_indoor ? "Indoor" : "Outdoor") + ' – ' + esc(rateStr) + '</p>' +
+          '<div class="space-y-1.5 pt-2.5 border-t border-white/10 text-[11px] text-slate-400">' +
+            '<div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full ' + (isSelected ? "bg-emerald-400" : "bg-slate-500") + '"></span><span>' + esc(c.surface || "Silica Cushion Surface") + '</span></div>' +
+            '<div class="flex items-center gap-1.5 ' + (isSelected ? "text-neon-lime font-medium" : "text-slate-400") + '"><svg class="w-3 h-3 ' + (isSelected ? "text-neon-lime" : "text-slate-400") + '" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg><span>' + (c.is_indoor ? "Indoor Climate Controlled" : "LED Tournament Floodlight") + '</span></div>' +
+          '</div>' +
+        '</label>';
+      }).join("");
+
+      Array.prototype.forEach.call(box.querySelectorAll(".court-card"), function (card) {
+        card.onclick = function (e) {
+          e.preventDefault();
+          var id = card.getAttribute("data-c");
+          if (id) pickCourt(id);
+        };
+      });
+    }
+
+    function drawQuickDays() {
+      var box = q("#quick-days", root);
+      if (!box) return;
+      var today = dayStr(tz);
+      var maxDays = Math.min(S.bookingDays || 14, 7);
+      var html = [];
+      for (var i = 0; i < maxDays; i++) {
+        var ymd = addDays(today, i);
+        var dateObj = new Date(ymd + "T12:00:00Z");
+        var dayName = i === 0 ? "Today" : dateObj.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "short" });
+        var monthDay = dateObj.toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric" });
+        var label = i === 0 ? (dayName + ", " + monthDay + " (Today)") : (dayName + ", " + monthDay);
+        var active = ymd === S.date;
+        html.push(
+          '<button type="button" class="quick-day-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ' +
+          (active ? "bg-neon-lime/10 border border-neon-lime/30 text-neon-lime font-bold shadow-sm" : "bg-carbon-800 border border-white/5 text-slate-300 hover:text-white hover:bg-carbon-700") +
+          '" data-date="' + ymd + '">' + esc(label) + '</button>'
+        );
+      }
+      box.innerHTML = html.join("");
+      Array.prototype.forEach.call(box.querySelectorAll(".quick-day-btn"), function (btn) {
+        btn.onclick = function () {
+          var selectedDate = btn.getAttribute("data-date");
+          if (selectedDate && selectedDate !== S.date) {
+            S.date = selectedDate;
+            var bd = q("#bd", root);
+            if (bd) bd.value = selectedDate;
+            drawQuickDays();
+            drawSlots();
+          }
+        };
+      });
+    }
 
     function pickCourt(id) {
       S.court = courts.filter(function (c) { return c.id === id; })[0];
-      Array.prototype.forEach.call(root.querySelectorAll(".courtbtn"), function (b) { b.classList.toggle("on", b.getAttribute("data-c") === id); });
+      if (!S.court) return;
+      drawCourtCards();
       q("#slotpanel", root).hidden = false;
       q("#paypanel", root).hidden = true;
+
+      var assignedEl = q("#summary-court-assigned", root);
+      if (assignedEl) {
+        assignedEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-neon-lime"></span><span>' +
+          esc(S.court.name) + ' (' + esc(S.court.surface || "Silica Sand") + ' ' + (S.court.is_indoor ? "Indoor" : "Outdoor") + ')</span>';
+      }
+
       sb.rpc("get_booking_info", { p_court_id: id }).then(function (r) {
         if (r.error) return msg(q("#slotpanel", root), nice(r.error), "err");
         S.info = r.data;
+        S.bookingDays = r.data.booking_window_days || 14;
         var step = S.court.slot_minutes, mn = Math.max(1, Math.ceil(r.data.min_hours * 60 / step)), mx = Math.max(mn, Math.floor(r.data.max_hours * 60 / step));
         var opts = "";
-        for (var n = mn; n <= mx; n++) opts += '<option value="' + n + '">' + (n * step / 60) + " hour" + (n * step === 60 ? "" : "s") + "</option>";
-        q("#bn", root).innerHTML = opts; S.count = mn; S.start = null;
-        var today = dayStr(tz), last = new Date(Date.now() + r.data.booking_window_days * 86400000).toLocaleDateString("en-CA", { timeZone: tz });
-        var bd = q("#bd", root); bd.min = today; bd.max = last; if (!S.date || S.date < today) S.date = today; bd.value = S.date;
+        for (var n = mn; n <= mx; n++) {
+          var hrsVal = (n * step / 60);
+          var hrSuffix = hrsVal === 1 ? "1 hour" : (hrsVal + " hours");
+          if (hrsVal === 2) hrSuffix += " (Popular for doubles)";
+          else if (hrsVal === 3) hrSuffix += " (Mini Tournament)";
+          opts += '<option value="' + n + '">' + esc(hrSuffix) + '</option>';
+        }
+        var bn = q("#bn", root);
+        if (bn) bn.innerHTML = opts;
+        S.count = mn;
+        S.start = null;
+        var pl = +pre.get("len");
+        if (pl && pl % step === 0 && pl / step >= mn && pl / step <= mx) {
+          S.count = pl / step;
+          if (bn) bn.value = String(S.count);
+        }
+        pre.delete("len");
+
+        var today = dayStr(tz), last = addDays(today, S.bookingDays);
+        var pd = pre.get("date"); pre.delete("date");
+        if (pd && pd >= today && pd <= last) S.date = pd;
+        else if (!S.date || S.date < today) S.date = today;
+
+        var bd = q("#bd", root);
+        if (bd) { bd.min = today; bd.max = last; bd.value = S.date; }
+        drawQuickDays();
         drawSlots();
       });
     }
 
     async function drawSlots() {
       var c = S.court, step = c.slot_minutes, box = q("#slots", root);
-      box.innerHTML = '<div class="grid grid-cols-3 sm:grid-cols-4 gap-2">' + Array(6).fill('<div class="h-10 rounded-lg bg-surface-container-high/60 ds-skeleton"></div>').join('') + '</div>'; S.start = null; summary();
+      if (!c || !box) return;
+      box.innerHTML = '<div class="col-span-full grid grid-cols-2 sm:grid-cols-4 gap-2.5">' + Array(8).fill('<div class="h-16 rounded-xl bg-carbon-850/60 ds-skeleton border border-white/5"></div>').join('') + '</div>';
+      S.start = null;
+      summary();
       var startM = toMin(hhmm(c.open_time)), endM = closeMin(c), slots = [];
       for (var m = startM; m + step <= endM; m += step) {
         var s = zonedToUtc(S.date + "T" + pad(Math.floor(m / 60)) + ":" + pad(m % 60), tz);
         slots.push({ s: s, e: new Date(s.getTime() + step * 60000), m: m });
       }
-      if (!slots.length) { box.innerHTML = '<p class="muted">No times.</p>'; return; }
+      if (!slots.length) {
+        box.innerHTML = '<p class="text-xs text-slate-400 col-span-full py-4 text-center">No available time slots on this date.</p>';
+        return;
+      }
       await attachRates(c, S.date, slots);
       var av = await sb.rpc("court_availability", { p_court_id: c.id, p_from: slots[0].s.toISOString(), p_to: slots[slots.length - 1].e.toISOString() });
       var taken = (av.data || []).map(function (r) { return [new Date(r.starts_at), new Date(r.ends_at)]; });
       var now = Date.now();
+      var freeCount = 0;
       slots.forEach(function (x) {
         x.off = x.s.getTime() <= now || taken.some(function (t) { return t[0] < x.e && t[1] > x.s; });
+        if (!x.off) freeCount++;
       });
-      S.slots = slots; paint();
+      var liveInd = q("#book-live-slots", root);
+      if (liveInd) liveInd.textContent = "Live Availability: " + freeCount + " slots open on " + S.date;
+
+      S.slots = slots;
+      paint();
+
+      var pm = pre.get("start");
+      if (pm != null && pre.get("court") === c.id) {
+        pre.delete("start");
+        var pi = -1;
+        slots.forEach(function (x, i) { if (x.m === +pm) pi = i; });
+        if (pi >= 0 && rangeOk(pi)) { S.start = pi; paint(); summary(); }
+      }
     }
 
     function rangeOk(i) {
@@ -265,53 +658,143 @@
       for (var k = i; k < i + S.count; k++) if (S.slots[k].off) return false;
       return true;
     }
+
     function paint() {
       var box = q("#slots", root);
+      if (!box) return;
       box.innerHTML = S.slots.map(function (x, i) {
         var inRange = S.start != null && i >= S.start && i < S.start + S.count;
-        return '<button type="button" class="slot' + (inRange ? (i === S.start ? " sel" : " in") : "") + '" data-i="' + i + '"' + (x.off ? " disabled" : "") + ">" + esc(timeOf(x.s, tz)) + rateTag(x) + "</button>";
+        var isPeak = S.court && S.court.rate_max != null && x.rate != null && Number(x.rate) >= Number(S.court.rate_max) && Number(S.court.rate_max) > Number(S.court.rate_min);
+        var rateNum = Math.round(x.rate != null ? x.rate : S.court.hourly_rate);
+        var timeStr = esc(timeOf(x.s, tz));
+
+        if (x.off) {
+          return '<button type="button" class="slot-pill p-3 rounded-xl bg-carbon-950/70 border border-white/5 text-slate-600 cursor-not-allowed opacity-55 text-center" disabled>' +
+            '<div class="text-xs font-semibold line-through">' + timeStr + '</div>' +
+            '<div class="text-[11px] font-mono text-slate-600">' + rateNum + '</div>' +
+          '</button>';
+        }
+        if (inRange) {
+          return '<button type="button" class="slot-pill p-3 rounded-xl bg-neon-lime text-carbon-950 font-bold border-2 border-neon-glow shadow-neon text-center transform scale-[1.02] ring-2 ring-neon-lime/30 cursor-pointer" data-i="' + i + '">' +
+            '<div class="text-xs font-black tracking-tight text-carbon-950">' + timeStr + '</div>' +
+            '<div class="text-[11px] font-mono font-bold text-carbon-900">' + rateNum + '</div>' +
+          '</button>';
+        }
+        return '<button type="button" class="slot-pill p-3 rounded-xl bg-carbon-850 hover:bg-carbon-700/80 border border-white/10 hover:border-slate-500 text-slate-200 text-center group cursor-pointer" data-i="' + i + '">' +
+          '<div class="text-xs font-semibold group-hover:text-white">' + timeStr + '</div>' +
+          '<div class="text-[11px] font-mono ' + (isPeak ? "text-amber-400 group-hover:text-neon-lime font-bold" : "text-slate-400 group-hover:text-neon-lime") + '">' + rateNum + '</div>' +
+        '</button>';
       }).join("");
-      Array.prototype.forEach.call(box.querySelectorAll(".slot"), function (b) {
+
+      Array.prototype.forEach.call(box.querySelectorAll(".slot-pill:not([disabled])"), function (b) {
         b.onclick = function () {
           var i = +b.getAttribute("data-i");
-          S.start = i; paint(); summary();
-          if (!rangeOk(i)) msg(q("#slotpanel", root), "Not enough free time from here for that length. Try a shorter length or another start.", "err");
+          S.start = i;
+          paint();
+          summary();
+          if (!rangeOk(i)) msg(q("#slotpanel", root), "Not enough consecutive free slots from here for that duration. Try another start time or shorter duration.", "err");
           else msg(q("#slotpanel", root), "", "");
         };
       });
     }
+
     function summary() {
-      var el = q("#sum", root), btn = q("#reserve", root);
-      if (S.start == null || !rangeOk(S.start)) { el.innerHTML = ""; btn.disabled = true; return; }
-      var first = S.slots[S.start], last = S.slots[S.start + S.count - 1], hrs = S.count * S.court.slot_minutes / 60;
-      el.innerHTML = "<b>" + esc(range(first.s, last.e, tz)) + "</b> - " + hrs + " h - <b>" + money(slotsTotal(S.slots, S.start, S.count, S.court.slot_minutes)) + "</b>";
-      btn.disabled = false;
+      var banner = q("#slot-banner", root);
+      var btn1 = q("#reserve", root);
+      var btn2 = q("#reserve-sidebar", root);
+      var timeSidebar = q("#summary-time", root);
+      var dateSidebar = q("#summary-date", root);
+      var feeSidebar = q("#summary-court-fee", root);
+      var totalSidebar = q("#summary-total-amount", root);
+
+      if (S.start == null || !rangeOk(S.start)) {
+        if (banner) banner.hidden = true;
+        if (btn1) btn1.disabled = true;
+        if (btn2) { btn2.disabled = true; btn2.querySelector("span").textContent = "Confirm & Pay"; }
+        if (timeSidebar) timeSidebar.textContent = "Select a time slot";
+        if (feeSidebar) feeSidebar.textContent = "PHP 0.00";
+        if (totalSidebar) totalSidebar.textContent = "PHP 0.00";
+        return;
+      }
+      var first = S.slots[S.start], last = S.slots[S.start + S.count - 1];
+      var hrs = S.count * S.court.slot_minutes / 60;
+      var total = slotsTotal(S.slots, S.start, S.count, S.court.slot_minutes);
+      var formattedRange = range(first.s, last.e, tz);
+      var timeWindowStr = timeOf(first.s, tz) + " – " + timeOf(last.e, tz) + " (" + hrs + " hr" + (hrs === 1 ? "" : "s") + ")";
+
+      if (banner) {
+        banner.hidden = false;
+        var timeEl = q("#banner-selection-time", banner);
+        if (timeEl) timeEl.innerHTML = esc(formattedRange) + ' <span class="text-neon-lime font-mono font-medium">• ' + hrs + ' h</span>';
+        var rateEl = q("#banner-selection-rate", banner);
+        if (rateEl) {
+          rateEl.textContent = "Rate: PHP " + Number(first.rate != null ? first.rate : S.court.hourly_rate).toFixed(2) + " / hour" +
+            (S.court.rate_max && first.rate >= S.court.rate_max ? " (Peak Evening Slot)" : "");
+        }
+        var dueEl = q("#banner-total-due", banner);
+        if (dueEl) dueEl.textContent = money(total);
+      }
+      if (btn1) btn1.disabled = false;
+      if (btn2) {
+        btn2.disabled = false;
+        btn2.querySelector("span").textContent = "Confirm & Pay " + money(total);
+      }
+      if (timeSidebar) timeSidebar.textContent = timeWindowStr;
+      if (dateSidebar) dateSidebar.textContent = first.s.toLocaleDateString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric", year: "numeric" });
+      if (feeSidebar) feeSidebar.textContent = money(total);
+      if (totalSidebar) totalSidebar.textContent = money(total);
     }
 
-    Array.prototype.forEach.call(root.querySelectorAll(".courtbtn"), function (b) { b.onclick = function () { pickCourt(b.getAttribute("data-c")); }; });
-    q("#bd", root).onchange = function () { S.date = this.value; if (S.date) drawSlots(); };
-    q("#bn", root).onchange = function () { S.count = +this.value; paint(); summary(); };
-    q("#reserve", root).onclick = async function () {
+    async function doReserve() {
       if (S.start == null || !rangeOk(S.start)) return;
-      var btn = this, first = S.slots[S.start], last = S.slots[S.start + S.count - 1];
+      var first = S.slots[S.start], last = S.slots[S.start + S.count - 1];
       var sig = S.court.id + "|" + first.s.toISOString() + "|" + last.e.toISOString();
       keys[sig] = keys[sig] || uuid();
-      btn.disabled = true; msg(q("#slotpanel", root), "Reserving...", "");
-      var r = await sb.rpc("create_booking", { p_court_id: S.court.id, p_starts_at: first.s.toISOString(),
-        p_ends_at: last.e.toISOString(), p_idempotency_key: keys[sig] });
+      var btn1 = q("#reserve", root), btn2 = q("#reserve-sidebar", root);
+      if (btn1) btn1.disabled = true;
+      if (btn2) btn2.disabled = true;
+      msg(q("#slotpanel", root), "Reserving court slot...", "");
+      var r = await sb.rpc("create_booking", {
+        p_court_id: S.court.id,
+        p_starts_at: first.s.toISOString(),
+        p_ends_at: last.e.toISOString(),
+        p_idempotency_key: keys[sig]
+      });
       if (r.error) {
         msg(q("#slotpanel", root), nice(r.error), "err");
-        if (/slot_taken|slot_blocked/.test(r.error.message || "")) drawSlots(); else btn.disabled = false;
+        if (/slot_taken|slot_blocked/.test(r.error.message || "")) drawSlots();
+        else { if (btn1) btn1.disabled = false; if (btn2) btn2.disabled = false; }
         return;
       }
       var b = r.data;
       q("#slotpanel", root).hidden = true;
-      var pp = q("#paypanel", root); pp.hidden = false;
-      pp.innerHTML = '<h2>3. ' + (b.status === "approved" ? "Booked" : "Pay and confirm") + '</h2><p><b>' + esc(S.court.name) + "</b> - " + esc(range(b.starts_at, b.ends_at, tz)) +
-        '</p><div id="payhere"></div><p><a class="btn ghost" href="#/me">View my bookings</a></p>';
-      payPanel(q("#payhere", pp), b, {});
-    };
-    if (courts.length === 1) pickCourt(courts[0].id);
+      var step1Sec = q('[data-purpose="step-choose-court"]', root);
+      if (step1Sec) step1Sec.hidden = true;
+      var pp = q("#paypanel", root);
+      pp.hidden = false;
+      var ticketRef = q("#ticket-ref-badge", root);
+      if (ticketRef) ticketRef.textContent = "#" + (b.reference_code || b.id.slice(0, 8));
+      payPanel(pp, b, {
+        onDone: function () {
+          if (btn2) btn2.parentElement.innerHTML = '<p class="text-xs text-emerald-400 font-semibold text-center">Proof uploaded. View status in <a class="underline text-neon-lime" href="#/me">My Bookings</a></p>';
+        }
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    var bd = q("#bd", root);
+    if (bd) bd.onchange = function () { S.date = this.value; if (S.date) { drawQuickDays(); drawSlots(); } };
+    var bn = q("#bn", root);
+    if (bn) bn.onchange = function () { S.count = +this.value; paint(); summary(); };
+    var reserveBtn = q("#reserve", root);
+    if (reserveBtn) reserveBtn.onclick = doReserve;
+    var reserveSidebarBtn = q("#reserve-sidebar", root);
+    if (reserveSidebarBtn) reserveSidebarBtn.onclick = doReserve;
+
+    drawCourtCards();
+    var pc = pre.get("court");
+    if (pc && courts.some(function (c) { return c.id === pc; })) pickCourt(pc);
+    else if (courts.length > 0) pickCourt(courts[0].id);
   }
 
   // =========================================================== my bookings
@@ -1342,5 +1825,5 @@
     }
   }
 
-    D.booking = { openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew };
+    D.booking = { openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc };
 })();

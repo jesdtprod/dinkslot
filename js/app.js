@@ -486,28 +486,361 @@
       var cm = Math.max.apply(null, courts.map(function (k) { return toM(k.close_time) === 0 ? 1440 : toM(k.close_time); }));
       hrs = om === 0 && cm === 1440 ? "Open 24 hours" : fm(om) + " - " + (cm === 1440 ? "midnight" : fm(cm));
     }
-    var nextPath = encodeURIComponent("/c/" + slug + "/book");
-    var bookHref = state.user ? "#/c/" + esc(slug) + "/book" : "#/auth?mode=up&join=" + esc(slug) + "&next=" + nextPath;
-    var signInHref = "#/auth?mode=in&join=" + esc(slug) + "&next=" + nextPath;
-    var chip = function (icon, text) { return text ? '<span class="chip"><span class="mi">' + icon + "</span>" + esc(text) + "</span>" : ""; };
+    return renderClubPage(c, courts, hrs);
+  }
+
+  // Public club page: venue hero, live per-day availability for every court, and a quick path into booking.
+  // Availability comes from court_availability (taken/blocked time only) and court_slot_rates; the database
+  // still decides everything when the player actually books.
+  function renderClubPage(c, courts, hrs) {
+    var slug = c.slug, tz = c.timezone || "Asia/Manila";
+    var B = window.DS.booking;
+    var DAYS = 7;
+    var S = { day: 0, dur: 60, sel: {}, taken: {}, rates: {} };
+    var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
+    var hm = function (t) { var x = String(t).slice(0, 5).split(":"); return +x[0] * 60 + +x[1]; };
+    var closeM = function (k) { var m = hm(k.close_time); return m === 0 ? 1440 : m; };
+    var money = function (n) { return "PHP " + Number(n).toFixed(2); };
+    var today = new Date().toLocaleDateString("en-CA", { timeZone: tz });
+    var addDays = function (ymd, n) { var d = new Date(ymd + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+    var dates = []; for (var i = 0; i < DAYS; i++) dates.push(addDays(today, i));
+    var toUtc = function (ymd, m) { return B.zonedToUtc(ymd + "T" + pad2(Math.floor(m / 60)) + ":" + pad2(m % 60), tz); };
+    var timeLabel = function (d) { return d.toLocaleTimeString("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit" }); };
+    var dayLabel = function (i) {
+      if (i === 0) return "Today";
+      if (i === 1) return "Tomorrow";
+      return new Date(dates[i] + "T12:00:00Z").toLocaleDateString("en-US", { timeZone: "UTC", weekday: "short" });
+    };
+    var dateLabel = function (i) { return new Date(dates[i] + "T12:00:00Z").toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric" }); };
+
+    // Every start time on a court for one date, marked unavailable when past, taken, or too short for the chosen length.
+    function slotsFor(k, ymd) {
+      var step = k.slot_minutes, need = Math.max(1, Math.ceil(S.dur / step)), endM = closeM(k), now = Date.now(), out = [];
+      var taken = S.taken[k.id] || [], rates = (S.rates[k.id] || {})[ymd] || {};
+      for (var m = hm(k.open_time); m + step <= endM; m += step) {
+        var s = toUtc(ymd, m), e = new Date(s.getTime() + step * 60000);
+        out.push({ m: m, s: s, e: e, rate: rates[m], busy: s.getTime() <= now || taken.some(function (t) { return t[0] < e && t[1] > s; }) });
+      }
+      out.forEach(function (x, idx) {
+        x.off = idx + need > out.length;
+        for (var j = idx; !x.off && j < idx + need; j++) if (out[j].busy) x.off = true;
+      });
+      return out;
+    }
+    function openCount(ymd) {
+      return courts.reduce(function (n, k) { return n + slotsFor(k, ymd).filter(function (x) { return !x.off; }).length; }, 0);
+    }
+    function bookHref(k, m) {
+      var p = "/c/" + slug + "/book";
+      if (k) {
+        p += "?court=" + encodeURIComponent(k.id) + "&date=" + dates[S.day] + "&len=" + S.dur;
+        if (m != null) p += "&start=" + m;
+      }
+      return state.user ? "#" + p : "#/auth?mode=up&join=" + encodeURIComponent(slug) + "&next=" + encodeURIComponent(p);
+    }
+    var signInHref = "#/auth?mode=in&join=" + encodeURIComponent(slug) + "&next=" + encodeURIComponent("/c/" + slug + "/book");
+
+    var address = [c.address, c.city, c.province].filter(Boolean).join(", ") + (c.zip_code ? " " + c.zip_code : "");
+    var mapHref = c.latitude != null && c.longitude != null
+      ? "https://www.google.com/maps/search/?api=1&query=" + c.latitude + "," + c.longitude
+      : (address ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(c.name + ", " + address) : "");
+    var surfaces = courts.map(function (k) { return k.surface; }).filter(function (v, idx, a) { return v && a.indexOf(v) === idx; });
+    var nIn = courts.filter(function (k) { return k.is_indoor; }).length, nOut = courts.length - nIn;
+    var setting = !courts.length ? "" : nIn && nOut ? "Indoor & Outdoor" : nIn ? "Indoor" : "Outdoor";
+    var courtWord = courts.length + (courts.length === 1 ? " Court" : " Courts");
+    var steps = courts.map(function (k) { return k.slot_minutes; }).filter(function (v, idx, a) { return a.indexOf(v) === idx; });
+    var stepText = steps.length === 1 ? steps[0] + " min slots" : "Flexible slot lengths";
+    var tiered = courts.some(function (k) { return k.rate_max != null && Number(k.rate_max) > Number(k.rate_min); });
+
+    var badge = function (icon, iconCls, text) {
+      return '<span class="backdrop-blur-md bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-[8px] border border-white/10 flex items-center gap-1.5 shadow-lg">' +
+        '<i class="fa-solid ' + icon + " " + iconCls + '" aria-hidden="true"></i> ' + esc(text) + "</span>";
+    };
+    var pill = function (icon, tone, label, valueHtml, title) {
+      return '<div class="club-fact-card flex items-center gap-3 p-3 rounded-[12px] bg-dink-surfaceLight/60 border border-dink-border min-w-0">' +
+        '<div class="club-fact-icon w-8 h-8 rounded-[8px] flex items-center justify-center shrink-0"><i class="' + icon + '" aria-hidden="true"></i></div>' +
+        '<div class="min-w-0"><p class="text-[11px] text-slate-400 font-medium">' + label + '</p><div class="text-slate-200 font-semibold truncate"' +
+        (title ? ' title="' + esc(title) + '"' : "") + ">" + valueHtml + "</div></div></div>";
+    };
+    var phoneDigits = String(c.contact_phone || "").replace(/[^\d+]/g, "");
+    var contactPill = c.contact_phone
+      ? pill("fa-solid fa-phone", "bg-blue-500/10 text-blue-400", "Phone Support", '<a class="hover:text-dink-lime transition font-label-md" href="tel:' + esc(phoneDigits) + '">' + esc(c.contact_phone) + "</a>")
+      : c.contact_email
+        ? pill("fa-solid fa-envelope", "bg-blue-500/10 text-blue-400", "Email", '<a class="hover:text-dink-lime transition" href="mailto:' + esc(c.contact_email) + '">' + esc(c.contact_email) + "</a>", c.contact_email)
+        : pill("fa-solid fa-phone", "bg-blue-500/10 text-blue-400", "Phone Support", '<span class="text-slate-500">Not listed</span>');
+
+    var logo = c.logo_path
+      ? '<img src="' + esc(mediaUrl(c.logo_path)) + '" alt="' + esc(c.name) + ' logo" class="w-full h-full object-cover">'
+      : '<div class="flex flex-col items-center justify-center p-2 text-center"><i class="fa-solid fa-table-tennis-paddle-ball text-3xl text-dink-pinkAccent mb-1" aria-hidden="true"></i>' +
+        '<span class="text-2xl font-extrabold uppercase text-dink-lime leading-tight font-display">' + esc(c.name.charAt(0).toUpperCase()) + "</span></div>";
+
     app.innerHTML =
-      '<div class="pubwrap"><a class="back" href="#/">&larr; All clubs</a>' +
-      '<section class="clubbanner">' + (c.cover_path ? '<img src="' + esc(mediaUrl(c.cover_path)) + '" alt="">' : '<div class="ph"></div>') + "</section>" +
-      '<section class="clubid"><div class="bigcircle">' + (c.logo_path ? '<img src="' + esc(mediaUrl(c.logo_path)) + '" alt="">' : "<span>" + esc(c.name.charAt(0).toUpperCase()) + "</span>") + "</div>" +
-      '<div class="clubid-text"><h1>' + esc(c.name) + '</h1><div class="chips">' +
-      chip("location_on", [c.address, c.city, c.province].filter(Boolean).join(", ") + (c.zip_code ? " " + c.zip_code : "")) + chip("call", c.contact_phone) + chip("schedule", hrs) +
-      chip("sports_tennis", courts.length + (courts.length === 1 ? " court" : " courts")) + "</div></div>" +
-      '<div class="bookcta"><a class="btn" href="' + bookHref + '">' + (state.user ? "Book a court" : "Sign up to book") + "</a>" +
-      (state.user ? "" : '<span class="muted small">Free account needed. Already registered? <a href="' + signInHref + '">Sign in</a></span>') + "</div></section>" +
-      (c.description ? '<section class="about"><h2>About</h2><p>' + esc(c.description) + "</p></section>" : "") +
-      '<div class="sectionhead"><h2>Courts</h2></div>' +
-      (courts.length ? '<div class="courtgrid">' + courts.map(function (k) {
-        return '<div class="courtcard"><div class="cc-top"><h3>' + esc(k.name) + '</h3><span class="chip">' + (k.is_indoor ? "Indoor" : "Outdoor") + "</span></div>" +
-          '<p class="cc-rate"><b>PHP ' + esc(Number(k.rate_min != null ? k.rate_min : k.hourly_rate).toFixed(2)) + "</b><span>/hr</span></p>" +
-          '<p class="muted small"><span class="mi">schedule</span>' + esc(hoursText(k.open_time, k.close_time)) +
-          " &middot; " + esc(String(k.slot_minutes)) + " min slots" + (k.surface ? " &middot; " + esc(k.surface) : "") + "</p>" +
-          '<a class="btn sm" href="' + bookHref + '">' + (state.user ? "Book" : "Sign up to book") + "</a></div>";
-      }).join("") + "</div>" : '<p class="muted">This club has not listed its courts yet.</p>') + "</div>";
+      '<div id="club-profile-stage"><div id="ds-club-page" class="club-public w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 text-slate-100">' +
+      // breadcrumbs
+      '<section class="pt-6 pb-2"><div class="flex items-center justify-between flex-wrap gap-3">' +
+        '<nav class="club-breadcrumb" aria-label="Breadcrumb">' +
+          '<a class="club-back-link" href="#/"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>All clubs</span></a>' +
+          '<ol class="club-breadcrumb-trail">' +
+          (c.province || c.city ? '<li class="club-breadcrumb-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>' + esc(c.province || c.city) + '</span></li><li class="club-breadcrumb-separator" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></li>' : "") +
+          '<li class="club-breadcrumb-current" aria-current="page">' + esc(c.name) + '</li></ol>' +
+        "</nav>" +
+        '<div class="flex items-center gap-2">' +
+          '<span class="club-live-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Live Availability</span>' +
+          '<button type="button" id="club-share" class="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-md bg-dink-surface border border-dink-border hover:border-slate-600 transition flex items-center gap-1.5"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>' +
+        "</div></div></section>" +
+      '<div class="space-y-8">' +
+      // hero
+      '<section class="mt-3 bg-dink-surface rounded-2xl border border-dink-border overflow-hidden shadow-2xl relative">' +
+        '<div class="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden bg-slate-900">' +
+          (c.cover_path
+            ? '<img alt="' + esc(c.name) + ' courts" class="w-full h-full object-cover object-center brightness-95 contrast-105" src="' + esc(mediaUrl(c.cover_path)) + '">'
+            : '<div class="w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(163,230,53,.18),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(236,72,153,.14),transparent_45%)]"></div>') +
+          '<div class="absolute inset-0 bg-gradient-to-t from-dink-surface via-dink-surface/40 to-transparent"></div>' +
+          '<div class="absolute top-4 left-4 sm:left-6 right-4 flex flex-wrap items-center gap-2">' +
+            (surfaces.length ? badge("fa-layer-group", "text-dink-lime", surfaces.join(" / ")) : "") +
+            (setting ? badge("fa-table-tennis-paddle-ball", "text-dink-pinkAccent", setting + " Courts") : "") +
+            (hrs ? '<span class="backdrop-blur-md bg-emerald-950/80 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-[8px] border border-emerald-500/30 flex items-center gap-1.5 shadow-lg"><i class="fa-solid fa-clock" aria-hidden="true"></i> Hours: ' + esc(hrs) + "</span>" : "") +
+          "</div>" +
+        "</div>" +
+        '<div class="px-6 pb-6 pt-0 relative -mt-16 sm:-mt-20">' +
+          '<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">' +
+            '<div class="flex flex-col sm:flex-row items-start sm:items-end gap-5 min-w-0">' +
+              '<div class="relative shrink-0"><div class="club-profile-frame w-24 h-24 sm:w-28 sm:h-28">' +
+                '<div class="club-profile-image w-full h-full flex items-center justify-center overflow-hidden">' + logo + "</div></div>" +
+                '<span class="absolute bottom-1 right-1 w-5 h-5 bg-dink-lime rounded-full border-2 border-dink-surface flex items-center justify-center text-[10px] text-black font-bold" title="Verified venue"><i class="fa-solid fa-check" aria-hidden="true"></i></span></div>' +
+              '<div class="space-y-1.5 min-w-0">' +
+                '<div class="flex flex-wrap items-center gap-3"><h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-display m-0">' + esc(c.name) + "</h1>" +
+                  '<span class="bg-dink-lime/10 text-dink-lime border border-dink-lime/30 text-xs px-2.5 py-0.5 rounded-md font-semibold flex items-center gap-1"><i class="fa-solid fa-shield-halved text-[10px]" aria-hidden="true"></i> Verified Club</span></div>' +
+                '<div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-300">' +
+                  (c.city ? '<span class="flex items-center gap-1.5 text-slate-300"><i class="fa-solid fa-location-dot text-dink-lime text-xs" aria-hidden="true"></i>' + esc(c.city) + "</span><span class=\"text-slate-500\">&bull;</span>" : "") +
+                  '<span class="text-dink-lime font-medium">' + courtWord + (setting ? " &bull; " + esc(setting) : "") + "</span>" +
+                "</div>" +
+              "</div>" +
+            "</div>" +
+            '<div class="flex flex-col gap-2 self-stretch lg:self-end lg:items-end">' +
+              '<div class="flex flex-wrap sm:flex-nowrap items-center gap-3">' +
+                '<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[12px] font-bold text-black bg-dink-lime hover:bg-dink-limeHover active:scale-95 transition shadow-neon-lime font-display text-sm uppercase tracking-wider no-underline" href="#club-courts" data-scroll="club-courts">' +
+                  '<i class="fa-solid fa-bolt-lightning text-sm" aria-hidden="true"></i>' + (state.user ? "Book a court" : "Sign up to book") + "</a>" +
+                '<button type="button" data-scroll="club-dates" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-[12px] font-semibold text-slate-200 bg-dink-surfaceLight hover:bg-slate-700/80 border border-dink-border hover:border-slate-500 transition text-sm">' +
+                  '<i class="fa-solid fa-calendar-check text-slate-400" aria-hidden="true"></i>Court Schedule</button>' +
+              "</div>" +
+              (state.user ? "" : '<span class="text-xs text-slate-400">Free account needed. Already registered? <a class="text-dink-lime underline underline-offset-2" href="' + signInHref + '">Sign in</a></span>') +
+            "</div>" +
+          "</div>" +
+          '<div class="mt-6 pt-5 border-t border-dink-border/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">' +
+            pill("fa-solid fa-location-dot", "bg-dink-lime/10 text-dink-lime", "Address",
+              address ? (mapHref ? '<a class="hover:text-dink-lime transition" href="' + esc(mapHref) + '" target="_blank" rel="noopener">' + esc(address) + "</a>" : esc(address)) : '<span class="text-slate-500">Not listed</span>', address) +
+            contactPill +
+            pill("fa-regular fa-clock", "bg-purple-500/10 text-purple-400", "Operating Hours", hrs ? esc(hrs) + " (Daily)" : '<span class="text-slate-500">Not listed</span>') +
+            pill("fa-solid fa-table-tennis-paddle-ball", "bg-pink-500/10 text-pink-400", "Capacity &amp; Surface", esc(courtWord + (surfaces.length ? " \u2022 " + surfaces.join(", ") : setting ? " \u2022 " + setting : ""))) +
+          "</div>" +
+        "</div>" +
+      "</section>" +
+      // date + duration strip
+      (courts.length ? '<section id="club-dates" class="bg-dink-surface p-5 rounded-2xl border border-dink-border shadow-md space-y-4 scroll-mt-20">' +
+        '<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">' +
+          '<div><h2 class="text-lg font-bold text-white font-display flex items-center gap-2 m-0"><i class="fa-solid fa-calendar-days text-dink-lime" aria-hidden="true"></i> Select Booking Date &amp; Slot</h2>' +
+            '<p class="text-xs text-slate-400 m-0">' + esc(courtWord + " \u2022 " + stepText + " \u2022 Times in " + tz) + "</p></div>" +
+          '<div class="flex items-center gap-2" role="group" aria-label="Booking length"><span class="text-xs text-slate-400 font-medium mr-1">Duration:</span>' +
+            [60, 120].map(function (d) { return '<button type="button" data-dur="' + d + '" aria-pressed="false" class="club-dur px-3 py-1.5 rounded-[8px] text-xs transition">' + (d / 60) + (d === 60 ? " Hour" : " Hours") + "</button>"; }).join("") +
+          "</div>" +
+        "</div>" +
+        '<div id="club-daystrip" class="flex items-center gap-2.5 overflow-x-auto pb-2 pt-3 border-t border-dink-border/60"></div>' +
+      "</section>" : "") +
+      // courts
+      '<section id="club-courts" class="space-y-4 scroll-mt-20">' +
+        '<div class="flex items-center justify-between flex-wrap gap-3"><div><h2 class="text-2xl font-bold text-white font-display m-0">Courts Available</h2>' +
+          '<p id="club-avail-note" class="text-xs text-slate-400 m-0"></p></div>' +
+          (courts.length ? '<div class="flex items-center gap-2 text-xs"><span class="flex items-center gap-1.5 text-slate-400"><span class="w-2.5 h-2.5 rounded-full bg-dink-lime"></span> Available</span>' +
+            '<span class="flex items-center gap-1.5 text-slate-400 ml-2"><span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span> Booked</span>' +
+            (tiered ? '<span class="flex items-center gap-1.5 text-slate-400 ml-2"><span class="text-[8px] bg-dink-pinkAccent text-white px-1 rounded-sm uppercase font-bold">Peak</span> Peak Rate</span>' : "") + "</div>" : "") +
+        "</div>" +
+        (courts.length ? '<div id="club-courtgrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>'
+          : '<div class="bg-dink-surface rounded-2xl border border-dink-border p-8 text-center text-slate-400"><i class="fa-solid fa-table-tennis-paddle-ball text-2xl text-slate-600 mb-2" aria-hidden="true"></i><p class="m-0">This club has not listed its courts yet.</p></div>') +
+      "</section>" +
+      // about + booking info
+      '<section class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">' +
+        '<div class="lg:col-span-2 bg-dink-surface p-6 rounded-2xl border border-dink-border shadow-md">' +
+          '<h3 class="text-lg font-bold text-white font-display mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-info text-dink-lime" aria-hidden="true"></i> About ' + esc(c.name) + "</h3>" +
+          (c.description ? '<p class="text-sm text-slate-300 leading-relaxed whitespace-pre-line m-0">' + esc(c.description) + "</p>"
+            : '<p class="text-sm text-slate-300 leading-relaxed m-0">' + esc(c.name + (c.city ? " is located in " + [c.city, c.province].filter(Boolean).join(", ") : "") + "." + (courts.length ? " Explore " + courtWord.toLowerCase() + (setting ? " for " + setting.toLowerCase() + " play" : "") + " and choose an available time above." : " Contact the club for court availability.")) + "</p>") +
+          '<div class="club-about-details grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">' +
+            (courts.length ? [["fa-table-tennis-paddle-ball", courtWord, setting ? setting + " play" : "Pickleball"],
+             ["fa-layer-group", surfaces.length ? surfaces.join(", ") : "Court surface", surfaces.length ? "Playing surface" : "Ask the club"],
+             ["fa-clock", hrs || "Hours vary", stepText]] : []).concat([
+             ["fa-location-dot", address || "Not provided", "Address", mapHref],
+             ["fa-phone", c.contact_phone || "Not provided", "Phone support", phoneDigits ? "tel:" + phoneDigits : ""],
+             ["fa-envelope", c.contact_email || "Not provided", "Email", c.contact_email ? "mailto:" + c.contact_email : ""]
+            ]).map(function (a) {
+              return '<div class="p-3.5 rounded-[12px] bg-dink-surfaceLight border border-dink-border flex items-start gap-3"><div class="text-dink-lime text-base mt-0.5"><i class="fa-solid ' + a[0] + '" aria-hidden="true"></i></div>' +
+                '<div class="min-w-0"><p class="club-about-value text-xs font-bold text-white m-0" title="' + esc(a[1]) + '">' + (a[3] ? '<a href="' + esc(a[3]) + '" class="hover:text-dink-lime transition"' + (a[0] === "fa-location-dot" ? ' target="_blank" rel="noopener"' : '') + '>' + esc(a[1]) + '</a>' : esc(a[1])) + '</p><p class="text-[11px] text-slate-400 m-0">' + esc(a[2]) + "</p></div></div>";
+            }).join("") + "</div>" +
+        "</div>" +
+        '<div class="bg-dink-surface p-6 rounded-2xl border border-dink-border shadow-md">' +
+          '<h3 class="text-lg font-bold text-white font-display mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-dink-lime" aria-hidden="true"></i> Before You Book</h3>' +
+          '<ul class="space-y-3 text-xs text-slate-300 list-none p-0 m-0">' +
+            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-user-check text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Account:</strong> A free DINKSLOT player account is needed to reserve a court.</span></li>' +
+            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-earth-asia text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Time zone:</strong> All times are shown in ' + esc(tz) + ".</span></li>" +
+            (tiered ? '<li class="flex items-start gap-2.5"><i class="fa-solid fa-tags text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Pricing:</strong> Rates vary by time of day. Your total is shown before you confirm.</span></li>' : "") +
+            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-receipt text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Confirmation:</strong> The club reviews each request; you will see the status in My Bookings.</span></li>' +
+            (c.contact_phone || c.contact_email ? '<li class="flex items-start gap-2.5"><i class="fa-solid fa-headset text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Questions:</strong> Contact the club at ' +
+              esc([c.contact_phone, c.contact_email].filter(Boolean).join(" or ")) + ".</span></li>" : "") +
+          "</ul>" +
+        "</div>" +
+      "</section>" +
+      "</div></div></div>";
+
+    cleanupAuthPattern = mountAuthPattern($("#club-profile-stage"));
+
+    function drawDays() {
+      var strip = $("#club-daystrip");
+      if (!strip) return;
+      strip.innerHTML = dates.map(function (d, idx) {
+        var n = openCount(d), on = idx === S.day;
+        var tone = on ? "opacity-90" : n === 0 ? "text-slate-500" : n <= 6 ? "text-amber-400" : "text-dink-lime";
+        return '<button type="button" data-day="' + idx + '" aria-pressed="' + on + '" class="flex-shrink-0 flex flex-col items-center justify-center w-24 py-2.5 px-3 rounded-[12px] transition ' +
+          (on ? "bg-dink-lime text-black font-semibold shadow-neon-lime" : "bg-dink-surfaceLight hover:bg-slate-700/60 border border-dink-border text-slate-300") + '">' +
+          '<span class="text-[10px] uppercase font-bold tracking-wider ' + (on ? "opacity-80" : "text-slate-400") + '">' + dayLabel(idx) + "</span>" +
+          '<span class="text-base font-extrabold font-display ' + (on ? "" : "text-white") + '">' + dateLabel(idx) + "</span>" +
+          '<span class="text-[10px] font-medium ' + tone + '">' + (n === 0 ? "Fully booked" : n + (n === 1 ? " slot left" : " slots left")) + "</span></button>";
+      }).join("");
+      document.querySelectorAll(".club-dur").forEach(function (b) {
+        var on = +b.getAttribute("data-dur") === S.dur;
+        b.setAttribute("aria-pressed", String(on));
+        b.className = "club-dur px-3 py-1.5 rounded-[8px] text-xs transition " + (on ? "font-bold bg-dink-lime text-black shadow-sm" : "font-medium text-slate-400 bg-dink-surfaceLight hover:bg-slate-700/60");
+      });
+    }
+
+    function drawCourts() {
+      var grid = $("#club-courtgrid"), note = $("#club-avail-note");
+      if (note) note.innerHTML = courts.length ? "Real-time availability for <span class=\"text-dink-lime font-semibold\">" + dayLabel(S.day) + " (" + dateLabel(S.day) + ")</span> at " + esc(c.name) : "";
+      if (!grid) return;
+      var ymd = dates[S.day];
+      grid.innerHTML = courts.map(function (k) {
+        var slots = slotsFor(k, ymd), free = slots.filter(function (x) { return !x.off; }).length;
+        var lo = Number(k.rate_min != null ? k.rate_min : k.hourly_rate), hi = Number(k.rate_max != null ? k.rate_max : lo);
+        var sel = S.sel[k.id], selSlot = slots.filter(function (x) { return x.m === sel && !x.off; })[0];
+        if (!selSlot) delete S.sel[k.id];
+        var selectedTotal = null;
+        if (selSlot) {
+          var remaining = S.dur, total = 0;
+          for (var idx = slots.indexOf(selSlot); remaining > 0 && idx < slots.length; idx++) {
+            var rate = slots[idx].rate;
+            if (rate == null || !Number.isFinite(Number(rate))) break;
+            var minutes = Math.min(k.slot_minutes, remaining);
+            total += Number(rate) * minutes / 60;
+            remaining -= minutes;
+          }
+          if (remaining === 0) selectedTotal = total;
+        }
+        var slotHtml = slots.length ? slots.map(function (x) {
+          var peak = hi > lo && x.rate != null && x.rate >= hi;
+          var picked = selSlot && x.m === selSlot.m;
+          var cls = x.off
+            ? "bg-slate-800/40 border-transparent text-slate-600 cursor-not-allowed line-through"
+            : picked ? "bg-dink-lime border-dink-lime text-black font-bold"
+              : "bg-dink-surfaceLight border-dink-border text-slate-200 hover:border-dink-lime hover:text-dink-lime";
+          return '<button type="button" class="club-slot relative py-1.5 px-2 rounded-[8px] border text-[11px] font-label-md font-medium transition text-center ' + cls + '" data-court="' + esc(k.id) + '" data-m="' + x.m + '"' +
+            (x.off ? " disabled" : "") + ' aria-pressed="' + !!picked + '" title="' + esc(timeLabel(x.s) + (x.rate != null ? " \u2022 " + money(x.rate) + "/hr" : "")) + '">' + esc(timeLabel(x.s)) +
+            (peak && !x.off ? '<span class="absolute -top-1.5 -right-1 text-[8px] bg-dink-pinkAccent text-white px-1 rounded-sm uppercase font-sans font-bold">Peak</span>' : "") + "</button>";
+        }).join("") : "";
+        var features = [
+          ["fa-regular fa-clock", hoursText(k.open_time, k.close_time) + " \u2022 " + k.slot_minutes + " min slots"],
+          k.surface ? ["fa-solid fa-layer-group", k.surface] : null,
+          ["fa-solid " + (k.is_indoor ? "fa-warehouse" : "fa-sun"), k.is_indoor ? "Indoor court" : "Outdoor court"]
+        ].filter(Boolean);
+        return '<article class="bg-dink-surface rounded-2xl border border-dink-border hover:border-slate-600 transition flex flex-col justify-between overflow-hidden shadow-lg">' +
+          '<div class="p-6 pb-4">' +
+            '<div class="flex items-center justify-between gap-2 mb-4"><div class="flex items-center gap-2 min-w-0"><span class="w-2.5 h-2.5 rounded-full shrink-0 ' + (free ? "bg-dink-lime animate-pulse" : "bg-slate-700") + '"></span>' +
+              '<h3 class="text-xl font-bold text-white font-display m-0 truncate">' + esc(k.name) + "</h3></div>" +
+              '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-dink-surfaceLight text-slate-300 border border-dink-border shrink-0">' + (k.is_indoor ? "Indoor" : "Outdoor") + "</span></div>" +
+            '<div class="club-court-price my-3" aria-live="polite"><div class="flex items-baseline flex-wrap gap-1"><span class="text-2xl sm:text-3xl font-extrabold text-dink-lime font-display tracking-tight">' + esc(money(selectedTotal != null ? selectedTotal : lo)) + "</span>" +
+              (selectedTotal == null && hi > lo ? '<span class="text-sm font-bold text-dink-lime/80 font-display">&ndash; ' + esc(money(hi)) + "</span>" : "") +
+              '<span class="text-xs font-semibold text-slate-400">' + (selectedTotal != null && S.dur !== 60 ? '/ ' + S.dur / 60 + ' hours' : '/ hr') + '</span></div>' +
+              (selSlot && selectedTotal == null ? '<p class="text-[11px] text-slate-400 mt-1 mb-0">Scheduled price unavailable. Confirm the price at checkout.</p>' : '') + '</div>' +
+            '<div class="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-dink-border">' + features.map(function (f) {
+              return '<div class="flex items-center gap-2"><i class="' + f[0] + ' text-slate-500 w-4" aria-hidden="true"></i><span>' + esc(f[1]) + "</span></div>";
+            }).join("") + "</div>" +
+            '<div class="mt-5"><p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2 flex justify-between"><span>Available Time Slots</span><span class="normal-case tracking-normal ' + (free ? "text-dink-lime" : "text-slate-500") + '">' +
+              (free ? free + " open" : "Fully booked") + "</span></p>" +
+              (slots.length ? '<div class="club-time-slots grid grid-cols-3 gap-1.5 pt-1.5">' + slotHtml + "</div>" : '<p class="text-xs text-slate-500 m-0">No times on this date.</p>') +
+            "</div>" +
+          "</div>" +
+          '<div class="p-6 pt-2 bg-dink-surface">' +
+            '<a href="' + esc(bookHref(k, selSlot ? selSlot.m : null)) + '" class="w-full py-3 rounded-[12px] bg-dink-lime hover:bg-dink-limeHover active:scale-[0.98] text-black font-bold font-display text-sm transition shadow-neon-lime flex items-center justify-center gap-2 no-underline">' +
+              '<i class="fa-solid ' + (selSlot ? "fa-check" : "fa-bolt-lightning") + ' text-xs" aria-hidden="true"></i>' +
+              esc((state.user ? "Book " : "Sign up to book ") + k.name + (selSlot ? " \u2022 " + timeLabel(selSlot.s) : "")) + "</a>" +
+          "</div></article>";
+      }).join("");
+    }
+
+    async function loadAvailability() {
+      if (!courts.length) return;
+      var from = toUtc(dates[0], 0).toISOString(), to = toUtc(addDays(dates[DAYS - 1], 1), 0).toISOString();
+      var res = await Promise.all(courts.map(function (k) { return sb.rpc("court_availability", { p_court_id: k.id, p_from: from, p_to: to }); }));
+      res.forEach(function (r, idx) {
+        if (r.error) return;
+        S.taken[courts[idx].id] = (r.data || []).map(function (x) { return [new Date(x.starts_at), new Date(x.ends_at)]; });
+      });
+    }
+    async function loadRates(ymd) {
+      await Promise.all(courts.map(function (k) {
+        var per = S.rates[k.id] = S.rates[k.id] || {};
+        if (per[ymd]) return null;
+        return sb.rpc("court_slot_rates", { p_court_id: k.id, p_date: ymd }).then(function (r) {
+          var by = {};
+          (r.data || []).forEach(function (x) { by[x.start_min] = Number(x.hourly_rate); });
+          per[ymd] = by;
+        });
+      }));
+    }
+    function alive() { return !!$(".club-public"); }
+
+    // events
+    app.querySelectorAll("[data-scroll]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        var t = document.getElementById(b.getAttribute("data-scroll"));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      });
+    });
+    var share = $("#club-share");
+    if (share) share.onclick = async function () {
+      var url = location.origin + location.pathname + "#/c/" + slug;
+      try {
+        if (navigator.share) await navigator.share({ title: c.name + " | DINKSLOT", url: url });
+        else { await navigator.clipboard.writeText(url); setMsg(app, "Club link copied.", "ok"); }
+      } catch (err) { if (err && err.name !== "AbortError") setMsg(app, "Could not share this link.", "err"); }
+    };
+    var dateBox = $("#club-dates");
+    if (dateBox) dateBox.addEventListener("click", async function (e) {
+      var day = e.target.closest("[data-day]"), dur = e.target.closest("[data-dur]");
+      if (day) { S.day = +day.getAttribute("data-day"); drawDays(); drawCourts(); await loadRates(dates[S.day]); if (alive()) drawCourts(); }
+      else if (dur) { S.dur = +dur.getAttribute("data-dur"); drawDays(); drawCourts(); }
+    });
+    var grid = $("#club-courtgrid");
+    if (grid) grid.addEventListener("click", function (e) {
+      var b = e.target.closest(".club-slot");
+      if (!b || b.disabled) return;
+      var id = b.getAttribute("data-court"), m = +b.getAttribute("data-m");
+      if (S.sel[id] === m) delete S.sel[id]; else S.sel[id] = m;
+      drawCourts();
+    });
+
+    drawDays(); drawCourts();
+    if (!courts.length) return;
+    var grid0 = $("#club-courtgrid");
+    if (grid0) grid0.innerHTML = courts.map(function () { return '<div class="h-[30rem] rounded-2xl bg-dink-surface border border-dink-border ds-skeleton"></div>'; }).join("");
+    return Promise.all([loadAvailability(), loadRates(dates[0])]).then(function () {
+      if (!alive()) return;
+      drawDays(); drawCourts();
+      // keep availability fresh while the page is open (stopped by stopLive() on navigation)
+      livePoll = setInterval(async function () {
+        if (!alive()) { stopLive(); return; }
+        if (document.hidden) return;
+        await loadAvailability();
+        if (alive()) { drawDays(); drawCourts(); }
+      }, 60000);
+    });
   }
 
   // Bend only the decorative mesh; the form remains on a stationary surface.
@@ -1340,7 +1673,7 @@
       '</label>' +
       '<div class="relative rounded-xl shadow-sm">' +
       '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
-      '<i class="fa-regular fa-user text-xs"></i>' +
+      '<i class="fa-regular fa-user text-sm" aria-hidden="true"></i>' +
       '</div>' +
       '<input class="w-full pl-10 pr-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="oname" name="owner-name" placeholder="e.g. Alex Morgan" required type="text" autocomplete="name" />' +
       '</div>' +
@@ -1352,7 +1685,7 @@
       '</label>' +
       '<div class="relative rounded-xl shadow-sm">' +
       '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
-      '<i class="fa-solid fa-building text-xs"></i>' +
+      '<i class="fa-regular fa-building text-sm" aria-hidden="true"></i>' +
       '</div>' +
       '<input class="w-full pl-10 pr-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="oclub" name="club-name" placeholder="e.g. Apex Pickleball Center" type="text" />' +
       '</div>' +
@@ -1365,7 +1698,7 @@
       '</label>' +
       '<div class="relative rounded-xl shadow-sm">' +
       '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
-      '<i class="fa-regular fa-envelope text-xs"></i>' +
+      '<i class="fa-regular fa-envelope text-sm" aria-hidden="true"></i>' +
       '</div>' +
       '<input class="w-full pl-10 pr-4 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="oemail" name="email" placeholder="manager@yourclub.com" required type="email" autocomplete="email" />' +
       '</div>' +
@@ -1382,7 +1715,7 @@
       '</div>' +
       '<div class="relative rounded-xl shadow-sm">' +
       '<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">' +
-      '<i class="fa-solid fa-key text-xs"></i>' +
+      '<i class="fa-solid fa-lock text-sm" aria-hidden="true"></i>' +
       '</div>' +
       '<input class="w-full pl-10 pr-10 py-2.5 bg-brand-surfaceDim/90 border border-brand-border text-slate-100 rounded-xl text-sm placeholder:text-slate-600 focus:outline-none focus:border-brand-neon focus:ring-1 focus:ring-brand-neon transition-all" id="opw" minlength="6" name="password" placeholder="Create a password" required type="password" autocomplete="new-password" />' +
       '<button id="pw-toggle" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 text-xs transition-colors" title="Toggle password view" type="button">' +
@@ -1696,6 +2029,7 @@
     stopLive();
     cleanupAuthPattern();
     document.body.classList.remove("auth-page", "landing-page", "tenant-dashboard-mode");
+    document.body.classList.toggle("club-registration-page", path === "/register-club");
     renderNav();
     // Supabase Auth returns here with #error=... (expired/used link) or #access_token=... (signed in).
     // These are not page routes.

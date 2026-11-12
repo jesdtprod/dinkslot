@@ -32,8 +32,8 @@
       [/^(?:apply|search|find courts)/i, 'check', 'primary']
     ];
     root.querySelectorAll('button, a.btn, a.pill, a.transactions-button, a.setup-action, a[class*="bg-"], label.qrfile').forEach(function (button) {
-      if (button.matches('#grid > article > a.relative:first-child')) return;
-      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,.bellbtn,.nitem,.proof-icon-action,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('#ds-toast-stack,.toast-region,.confirmation-modal,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"]')) return;
+      if (button.matches('#grid > article > a.relative:first-child,[role="switch"]')) return;
+      if (button.matches('[role="tab"],.datetime-trigger,.segbtn,.slot,.slot-btn,.bellbtn,.nitem,.proof-icon-action,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('#ds-toast-stack,.toast-region,.confirmation-modal,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"],.club-public,.book-public,#ds-book-page')) return;
       var copy = button.cloneNode(true);
       copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });
       var label = copy.textContent.trim().replace(/\s+/g, ' ');
@@ -78,7 +78,10 @@
     root.querySelectorAll('input, textarea, select').forEach(function (field) {
       if (field.hasAttribute('data-has-icon') || field.classList.contains('ds-input-icon') || field.matches('[type="hidden"],[type="checkbox"],[type="radio"],[type="range"],[type="color"],[type="file"],[type="submit"],[type="button"],[type="reset"]')) return;
       // Custom date/time controls and search boxes already provide their own icons.
-      if (field.closest('.datetime-picker,.leaflet-control') || Array.from(field.parentElement.children).some(function (sibling) { return sibling !== field && sibling.matches('svg,.material-symbols-outlined,.fa-search,.fa-magnifying-glass'); })) return;
+      if (field.closest('.datetime-picker,.leaflet-control,.book-public,#ds-book-page') || Array.from(field.parentElement.children).some(function (sibling) {
+        return sibling !== field && (sibling.matches('svg,.material-symbols-outlined,.fa-search,.fa-magnifying-glass') ||
+          (sibling.matches('.pointer-events-none') && sibling.querySelector('i,svg,.material-symbols-outlined')));
+      })) return;
       var label = field.labels && field.labels[0];
       var hint = [field.type, field.name, field.id, field.placeholder, field.getAttribute('aria-label'), label && label.textContent].join(' ').toLowerCase();
       var kind = /password/.test(hint) ? 'lock' : /email|e-mail/.test(hint) ? 'mail' : /phone|mobile|tel/.test(hint) ? 'phone' : /search/.test(hint) ? 'search' : /latitude|longitude|coordinate|address|street|province|city|barangay|zip|location/.test(hint) ? 'location' : /rate|amount|price|fee/.test(hint) ? 'money' : /guest|manager|full.?name|player|account.?name|first.?name|last.?name/.test(hint) ? 'person' : /club|court|venue|surface/.test(hint) ? 'club' : /url|website/.test(hint) ? 'link' : field.type === 'number' ? 'number' : 'text';

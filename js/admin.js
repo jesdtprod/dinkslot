@@ -1058,9 +1058,44 @@
   // Every club has 9 cards: 3 GCash, 3 Maya, 3 Bank account. One card = one account. All start inactive.
   // The owner fills a card in, uploads its QR (checked to be a real QR code) and switches it on.
   // Players see only the active cards at checkout and say which one they paid with.
+  async function seedPickleshotSamples(t, rows) {
+    if (t.slug !== "the-pickleshot") return;
+    var marker = "dinkslot:payment-samples:v2:" + t.id;
+    try { if (localStorage.getItem(marker)) return; } catch (e) { /* storage may be unavailable */ }
+    var images = {}, added = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var name = row.kind === "gcash" ? "GCash" : row.kind === "maya" ? "Maya" : "Bank Account";
+      if (row.qr_path || row.account_name || row.account_number || row.is_active ||
+          (row.label !== name + " " + row.slot && !(row.kind === "bank" && row.label === "Bank account " + row.slot))) continue;
+      if (!images[row.kind]) {
+        var response = await fetch("assets/sample-payments/" + row.kind + ".png");
+        if (!response.ok) throw new Error("Could not load the sample QR images. Please retry.");
+        images[row.kind] = new File([await response.blob()], "sample-" + row.kind + ".png", { type: "image/png" });
+      }
+      var path = await upload("payment", t.id + "/qr/sample-" + row.id + "-" + Date.now() + ".png", images[row.kind]);
+      var values = {
+        label: "SAMPLE " + name + " " + row.slot,
+        account_name: "The Pickleshot (SAMPLE ONLY)",
+        account_number: row.kind === "bank" ? "DEMO BANK - SAMPLE-000" + row.slot : "SAMPLE-09XX-XXX-000" + row.slot,
+        qr_path: path, is_active: false
+      };
+      var saved = await sb.from("payment_qrs").update(values).eq("id", row.id).eq("tenant_id", t.id)
+        .is("qr_path", null).is("account_name", null).is("account_number", null).eq("is_active", false).eq("label", row.label).select("*").single();
+      if (saved.error || !saved.data) {
+        await removeQuiet("payment", path);
+        throw saved.error || new Error("The sample payment card could not be saved.");
+      }
+      Object.assign(row, saved.data);
+      added++;
+    }
+    try { localStorage.setItem(marker, "done"); } catch (e) { /* persisted cards remain the source of truth */ }
+    return added;
+  }
+
   async function qrManager(box) {
-    var t = ctx.t, flash = "";
-    var KINDS = [["gcash", "GCash"], ["maya", "Maya"], ["bank", "Bank account"]];
+    var t = ctx.t, flash = "", sampleError = "";
+    var KINDS = [["gcash", "GCash"], ["maya", "Maya"], ["bank", "Bank Account"]];
     var fieldCls = "bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30";
     var lblCls = "flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase";
     function say(el, text, kind) { var m = el.querySelector(".msg"); if (m) { m.className = "msg " + (kind || ""); m.textContent = text || ""; } }
@@ -1068,7 +1103,17 @@
     async function load() {
       box.innerHTML = '<p class="muted small">Loading payment cards...</p>';
       var r = await sb.from("payment_qrs").select("*").eq("tenant_id", t.id).is("deleted_at", null).order("sort_order");
+      if (r.error || !r.data || !r.data.length) {
+        box.innerHTML = '<p class="msg err" role="alert">' + esc(r.error ? friendly(r.error) : "No payment cards were found. Contact support to initialize this club’s payment slots.") + '</p><button type="button" class="btn sm" data-act="retry">Retry</button>';
+        box.querySelector('[data-act="retry"]').onclick = load;
+        return;
+      }
       var rows = r.data || [], urls = {};
+      sampleError = "";
+      try {
+        var added = await seedPickleshotSamples(t, rows);
+        if (added) flash = "Added " + added + " sample accounts and QR images. Sample cards are inactive and are not valid for payments.";
+      } catch (e) { sampleError = "Sample setup could not finish: " + friendly(e); }
       var paths = rows.filter(function (x) { return x.qr_path; }).map(function (x) { return x.qr_path; });
       if (paths.length) {
         var su = await sb.storage.from("payment").createSignedUrls(paths, 300);
@@ -1082,13 +1127,16 @@
       return '<div class="qrcard' + (x.is_active ? "" : " off") + '" data-id="' + esc(x.id) + '">' +
         '<div class="qrthumbbox">' + (x.qr_path && urls[x.qr_path] ? '<img class="qrthumb" src="' + esc(urls[x.qr_path]) + '" alt="QR for ' + esc(x.label) + '">' : '<div class="qrthumb empty"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span><strong>No QR Image</strong><span>Add a clear payment QR code below.</span></div>') + "</div>" +
         '<div class="qrbody"><div class="qrtop"><b>' + esc(kindName) + " " + x.slot + '</b>' +
-        '<label class="qrswitch" title="' + (x.qr_path ? "Show this card to players" : "Upload a QR image first") + '"><input type="checkbox" data-act="toggle"' + (x.is_active ? " checked" : "") + (x.qr_path ? "" : " disabled") + '><span>' + (x.is_active ? "Active" : "Inactive") + "</span></label></div>" +
+        '<button type="button" class="qr-activation" role="switch" aria-label="Activate ' + esc(x.label) + '" aria-checked="' + !!x.is_active + '" data-act="toggle" title="' + (x.qr_path ? "Show this card to players" : "Save a QR image first") + '"' + (x.qr_path ? "" : " disabled") + '><span class="qr-activation-track" aria-hidden="true"></span><span>' + (x.is_active ? "Active" : "Inactive") + "</span></button></div>" +
+        (!x.qr_path ? '<p class="small muted">Save a QR image to enable activation.</p>' : '') +
         '<div class="grid2"><label class="' + lblCls + '">Label players see<input data-f="label" maxlength="40" value="' + esc(x.label) + '" class="' + fieldCls + '"></label>' +
         '<label class="' + lblCls + '">Account Name<input data-f="account_name" maxlength="80" value="' + esc(x.account_name || "") + '" class="' + fieldCls + '"></label>' +
         '<label class="' + lblCls + ' ph-wide">' + (x.kind === "bank" ? "Bank and Account Number" : "Contact Number") + '<input data-f="account_number" maxlength="60" value="' + esc(x.account_number || "") + '" class="' + fieldCls + '"></label></div>' +
         '<div class="payment-qr-upload"><span class="payment-qr-upload-label">QR Image</span><label class="payment-qr-picker"><input type="file" data-act="file" accept="image/jpeg,image/png,image/webp"><span class="material-symbols-outlined" aria-hidden="true">upload_file</span><span><strong>' + (x.qr_path ? 'Replace QR Image' : 'Choose QR Image') + '</strong><small>JPG, PNG or WebP &middot; Up to 5 MB</small><span class="payment-qr-filename">No image selected</span></span><span class="material-symbols-outlined" aria-hidden="true">add</span></label></div>' +
         '<div class="qract"><button type="button" class="btn sm" data-act="save">Save card</button>' +
-        '<button type="button" class="btn sm danger" data-act="clear">Clear card</button></div><p class="msg" role="alert"></p></div></div>';
+        '<button type="button" class="btn sm danger" data-act="clear">Clear card</button>' +
+        (t.slug === "the-pickleshot" && !x.qr_path && !x.account_name && !x.account_number ? '<button type="button" class="btn sm" data-act="sample">Add sample data and QR</button>' : '') +
+        '</div><p class="msg" role="alert"></p></div></div>';
     }
 
     var curKind = "gcash", lastRows = [], lastUrls = {};
@@ -1098,11 +1146,15 @@
       var count = function (k) { return rows.filter(function (x) { return x.kind === k && x.is_active; }).length; };
       var list = rows.filter(function (x) { return x.kind === curKind; }).sort(function (p, q2) { return p.slot - q2.slot; });
       box.innerHTML =
-        '<header class="qr-head"><h2>2. Payment methods (QR codes)</h2><p>Three cards each for GCash, Maya and bank accounts. One card is one account. Fill in a card, upload its QR and switch it on. Players see only the active cards.</p>' +
-        '<span class="qr-count' + (active ? " has" : "") + '">' + active + " of 9 active</span></header>" +
+        '<header class="qr-head"><div class="qr-heading-row"><h2>2. Payment methods (QR codes)</h2>' +
+        '<span class="qr-count' + (active ? " has" : "") + '" role="status" aria-live="polite">' + active + ' of 9 active</span></div>' +
+        '<p class="qr-description">Set up to three accounts each for GCash, Maya and bank transfers.</p>' +
+        '<p class="qr-guidance"><span class="material-symbols-outlined" aria-hidden="true">info</span><span>Save the account details and QR, then switch the card on. Players see only active cards.</span></p></header>' +
+        (sampleError ? '<p class="msg err" role="alert">' + esc(sampleError) + '</p>' : '') +
         '<div class="qr-tabs" role="tablist">' + KINDS.map(function (k) {
-          return '<button type="button" role="tab" class="qr-tab' + (k[0] === curKind ? " on" : "") + '" data-kind="' + k[0] + '" aria-selected="' + (k[0] === curKind) + '">' + esc(k[1]) +
-            '<small>' + count(k[0]) + " / 3 active</small></button>"; }).join("") + "</div>" +
+          var logo = k[0] === "bank" ? '<span class="material-symbols-outlined" aria-hidden="true">account_balance</span>' : '<img src="assets/payment-logos/' + k[0] + '.svg" alt="" width="58" height="20">';
+          return '<button type="button" role="tab" class="qr-tab' + (k[0] === curKind ? " on" : "") + '" data-kind="' + k[0] + '" aria-selected="' + (k[0] === curKind) + '"><span class="qr-tab-logo qr-tab-logo-' + k[0] + '" aria-hidden="true">' + logo + '</span><span class="qr-tab-copy"><span>' + esc(k[1]) +
+            '</span><small>' + count(k[0]) + " / 3 active</small></span></button>"; }).join("") + "</div>" +
         '<div class="qr-list">' + list.map(function (x) { return cardHtml(x, urls); }).join("") + "</div>";
       if (flash) D.ui.toast(flash, "ok");
       flash = "";
@@ -1132,12 +1184,34 @@
           else say(card, "This browser could not check the QR code. You can still save it, so test it with a real payment.", "");
         };
 
-        card.querySelector('[data-act="toggle"]').onchange = async function () {
-          var on = this.checked; this.disabled = true;
-          var x = await sb.from("payment_qrs").update({ is_active: on }).eq("id", row.id);
-          if (x.error) { this.checked = !on; this.disabled = false; return say(card, friendly(x.error), "err"); }
-          flash = row.label + " is now " + (on ? "active. Players can pay with it." : "inactive. Players no longer see it.");
-          load();
+        card.querySelector('[data-act="toggle"]').onclick = async function () {
+          var btn = this, on = !row.is_active; btn.disabled = true;
+          try {
+            var x = await sb.from("payment_qrs").update({ is_active: on }).eq("id", row.id).eq("tenant_id", t.id).select("id,is_active").single();
+            if (x.error) throw x.error;
+            if (!x.data || x.data.is_active !== on) throw new Error("The activation change was not saved. Please retry.");
+            row.is_active = x.data.is_active;
+            flash = row.label + " is now " + (on ? "active. Players can pay with it." : "inactive. Players no longer see it.");
+            draw(lastRows, lastUrls);
+          } catch (err) { btn.disabled = false; say(card, friendly(err), "err"); }
+        };
+
+        var sampleBtn = card.querySelector('[data-act="sample"]');
+        if (sampleBtn) sampleBtn.onclick = async function () {
+          this.disabled = true;
+          try {
+            say(card, "Loading sample data and QR...", "");
+            var response = await fetch("assets/sample-payments/" + row.kind + ".png");
+            if (!response.ok) throw new Error("Could not load the sample QR. Please retry.");
+            var file = new File([await response.blob()], "sample-" + row.kind + ".png", { type: "image/png" });
+            var transfer = new DataTransfer(); transfer.items.add(file); fileEl.files = transfer.files;
+            card.querySelector('[data-f="label"]').value = "SAMPLE " + row.kind.toUpperCase() + " " + row.slot;
+            card.querySelector('[data-f="account_name"]').value = "The Pickleshot (SAMPLE ONLY)";
+            card.querySelector('[data-f="account_number"]').value = "SAMPLE ONLY - NOT FOR PAYMENT";
+            await fileEl.onchange();
+            await card.querySelector('[data-act="save"]').onclick();
+          } catch (err) { say(card, friendly(err), "err"); }
+          this.disabled = false;
         };
 
         card.querySelector('[data-act="save"]').onclick = async function () {
@@ -1154,8 +1228,8 @@
               say(card, "Uploading...", "");
               path = await upload("payment", t.id + "/qr/" + row.id + "-" + Date.now() + "." + TYPES[file.type], file);
             }
-            var x = await sb.from("payment_qrs").update({ label: val("label"), account_name: val("account_name") || null, account_number: val("account_number") || null, qr_path: path }).eq("id", row.id);
-            if (x.error) { if (file) await removeQuiet("payment", path); throw x.error; }
+            var x = await sb.from("payment_qrs").update({ label: val("label"), account_name: val("account_name") || null, account_number: val("account_number") || null, qr_path: path }).eq("id", row.id).eq("tenant_id", t.id).select("id").single();
+            if (x.error || !x.data) { if (file) await removeQuiet("payment", path); throw x.error || new Error("The payment card was not saved. Please retry."); }
             if (file && row.qr_path) await removeQuiet("payment", row.qr_path);
             flash = "Saved " + val("label") + (file ? (checked ? ". QR code checked." : ". The QR could not be checked in this browser.") : ".") +
               (path && !row.is_active ? " Switch the card on to show it to players." : "");

@@ -1,5 +1,15 @@
 # Payment methods (QR cards)
 
+## Pickleshot sample data
+
+`assets/sample-payments/` contains scannable GCash, Maya, and bank demo QR images. Each encodes an explicit **SAMPLE ONLY / NOT VALID FOR PAYMENT** message, not a payment destination.
+
+On The Pickleshot's Payments and rules page, empty cards offer **Add sample data and QR**. This saves a labeled sample account and QR using the signed-in owner's permissions, keeping the card inactive. Activate a saved card with its switch; the tab and overall active counts update after the database confirms the change. Existing accounts are preserved.
+
+The page also initializes untouched Pickleshot slots with sample details and QR images on the first visit, including all Maya and bank slots. It uses the signed-in owner's storage and database permissions, preserves configured cards, and leaves samples inactive. A browser-local completion marker prevents automatically refilling cards cleared afterward in that browser. Failed setup displays an error and can resume on refresh.
+
+To populate The Pickleshot's empty payment cards, set `SUPABASE_SERVICE_ROLE_KEY` in your local environment and run `node scripts/seed-pickleshot-payments.mjs`. The script targets only `the-pickleshot`, preserves existing card details, fills empty slots with labeled sample accounts, and keeps samples inactive. It adds sample payment instructions only if blank and preserves existing checkout switches and booking rules. Running it again preserves previously populated cards. Never commit the service role key.
+
 Every club has **9 ready-made payment cards: 3 GCash, 3 Maya and 3 Bank account**. One card = one account. All start **inactive**. The owner fills a card in, uploads its QR and switches it on. (Clubs created later get their 9 cards automatically; existing clubs were given theirs.)
 
 ## Owner: Dashboard > Payments and rules
