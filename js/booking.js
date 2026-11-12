@@ -152,11 +152,23 @@
       var su = await sb.storage.from("payment").createSignedUrls(qrs.map(function (x) { return x.qr_path; }), 600);
       (su.data || []).forEach(function (x) { if (x.path && x.signedUrl) urls[x.path] = x.signedUrl; });
     }
+    function paymentGroup(row) {
+      var type = String(row.kind || row.label || "").toLowerCase();
+      if (/gcash/.test(type)) return "GCash";
+      if (/maya/.test(type)) return "Maya";
+      return "Bank Account";
+    }
     function qrSide(i) {
       var x = qrs[i];
       if (!x) return '<div class="w-48 h-48 rounded-xl bg-carbon-950 border border-white/10 flex items-center justify-center text-slate-500 font-mono text-xs">No QR available</div><p class="text-xs text-slate-400 mt-2">Contact the club to arrange payment.</p>';
-      return (qrs.length > 1 ? '<div class="flex flex-wrap gap-2 mb-3" role="tablist">' + qrs.map(function (y, k) {
-          return '<button type="button" role="tab" class="qrtab px-3 py-1.5 rounded-lg text-xs font-semibold transition ' + (k === i ? "bg-neon-lime text-carbon-950 shadow-neon font-bold" : "bg-carbon-800 text-slate-300 hover:text-white border border-white/10") + '" data-i="' + k + '">' + esc(y.label) + "</button>"; }).join("") + "</div>" : "") +
+      var selectedGroup = paymentGroup(x);
+      var groups = ["GCash", "Maya", "Bank Account"].filter(function (group) { return qrs.some(function (row) { return paymentGroup(row) === group; }); });
+      return '<div class="payment-method-groups" aria-label="Payment methods">' + groups.map(function (group) {
+        return '<button type="button" class="payment-group" data-group="' + esc(group) + '" aria-pressed="' + (group === selectedGroup) + '">' + esc(group) + '</button>';
+      }).join("") + '</div><div class="payment-account-options" aria-label="Payment accounts">' + qrs.map(function (y, k) {
+        if (paymentGroup(y) !== selectedGroup) return "";
+        return '<button type="button" class="qrtab" data-i="' + k + '" aria-pressed="' + (k === i) + '">' + esc(y.label) + '</button>';
+      }).join("") + '</div>' +
         '<div class="p-3 bg-white rounded-2xl max-w-[210px] mx-auto sm:mx-0 shadow-lg flex items-center justify-center">' +
         (urls[x.qr_path] ? '<img class="w-full h-auto object-contain rounded-lg" src="' + esc(urls[x.qr_path]) + '" alt="' + esc(x.label) + ' QR">' : '<div class="w-40 h-40 flex items-center justify-center text-slate-400 font-mono text-xs">QR Preview</div>') +
         '</div>' +
@@ -165,7 +177,7 @@
         (x.account_number ? '<p class="text-slate-400 m-0">Account: <span class="text-neon-lime font-mono font-bold text-sm">' + esc(x.account_number) + "</span></p>" : "") + "</div>";
     }
     el.innerHTML =
-      '<div class="bg-carbon-900 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark space-y-6">' +
+      '<div class="payment-panel bg-carbon-900 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark space-y-6">' +
         '<div class="flex items-center justify-between pb-4 border-b border-white/10">' +
           '<div class="flex items-center gap-3">' +
             '<span class="w-7 h-7 rounded-lg bg-neon-lime text-carbon-950 font-black text-sm flex items-center justify-center shadow-sm">3</span>' +
@@ -185,7 +197,7 @@
         '<form class="proof pt-4 border-t border-white/10 space-y-4">' +
           '<h3 class="text-base font-bold text-white tracking-tight m-0">Upload Payment Proof</h3>' +
           '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">' +
-            '<label class="block space-y-1.5"><span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Payment Reference Number</span><input id="pref" data-has-icon="true" class="w-full px-3.5 py-3 rounded-xl bg-carbon-850 border border-white/10 text-white text-sm focus:outline-none focus:border-neon-lime font-mono" maxlength="60" required placeholder="e.g. GCash 13-digit ref no."></label>' +
+            '<label class="block space-y-1.5"><span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Payment Reference Number</span><input id="pref" data-has-icon="true" class="w-full px-3.5 py-3 rounded-xl bg-carbon-850 border border-white/10 text-white text-sm focus:outline-none focus:border-neon-lime font-mono" maxlength="60" required placeholder="Payment transaction reference" minlength="3"></label>' +
             '<label class="block space-y-1.5"><span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Payment Screenshot</span><input id="pfile" class="w-full px-3.5 py-2.5 rounded-xl bg-carbon-850 border border-white/10 text-white text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-neon-lime file:text-carbon-950 hover:file:bg-neon-glow cursor-pointer" type="file" accept="image/jpeg,image/png,image/webp" required></label>' +
           '</div>' +
           '<p class="msg" role="alert"></p>' +
@@ -197,6 +209,16 @@
       '</div>';
     startTicker();
     function bindTabs() {
+      Array.prototype.forEach.call(el.querySelectorAll(".payment-group"), function (button) {
+        button.onclick = function () {
+          var group = button.getAttribute("data-group");
+          var index = qrs.findIndex(function (row) { return paymentGroup(row) === group; });
+          if (index < 0) return;
+          method = qrs[index].label;
+          q("#qrside", el).innerHTML = qrSide(index);
+          bindTabs();
+        };
+      });
       Array.prototype.forEach.call(el.querySelectorAll(".qrtab"), function (b) {
         b.onclick = function () { var i = +b.getAttribute("data-i"); method = qrs[i].label; q("#qrside", el).innerHTML = qrSide(i); bindTabs(); };
       });

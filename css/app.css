@@ -3490,3 +3490,35 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-payment-modal > header h2 { margin: 0; font-size: 18px; }
 .booking-payment-modal .grid { padding-bottom: 0; }
 .booking-payment-modal [class*="shadow-neon"] { box-shadow: none; }
+
+/* Shared payment structure for resumed and newly created reservations. */
+.booking-payment-modal { width: min(820px, calc(100vw - 32px)); padding: 0; border-radius: 14px; background: #192127; box-shadow: 0 24px 80px #0009; color-scheme: dark; }
+.booking-payment-modal > header { margin: 0; padding: 16px 20px; border-bottom: 1px solid #ffffff12; }
+.booking-payment-modal > header h2 { font-size: 16px; font-weight: 650; }
+.booking-payment-modal > header button { min-height: 34px; padding: 6px 12px; border-radius: 8px; font-size: 12px; }
+.booking-payment-content { padding: 20px; }
+.payment-panel { padding: 20px; border: 1px solid #303c43; border-radius: 12px; background: #181f24; font: 400 12px/1.65 "Plus Jakarta Sans", sans-serif; box-shadow: none; }
+.booking-payment-modal .payment-panel { padding: 0; border: 0; background: transparent; }
+.payment-panel > :not([hidden]) ~ :not([hidden]) { margin-top: 20px; }
+.payment-panel > div:first-child { align-items: center; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; }
+.payment-panel h2 { font-size: 16px; line-height: 1.5; }
+.payment-panel h3 { font-size: 14px; }
+.payment-panel .grid { padding-bottom: 0; gap: 20px; min-width: 0; }
+.payment-panel .grid > * { min-width: 0; }
+.payment-panel .payment-method-groups { display: flex; gap: 6px; flex-wrap: wrap; padding: 4px; border: 1px solid #303c43; border-radius: 10px; background: #11191e; margin-bottom: 10px; }
+.payment-panel .payment-group { flex: 1; min-height: 34px; padding: 6px 10px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #a8b9c4; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.payment-panel .payment-group[aria-pressed="true"] { border-color: #a3e63540; background: #a3e63516; color: var(--lime); }
+.payment-panel .payment-account-options { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.payment-panel .qrtab { min-height: 30px; padding: 4px 10px; border: 1px solid #36424a; border-radius: 7px; background: #202a30; color: #bdcbd3; font-size: 11px; cursor: pointer; }
+.payment-panel .qrtab[aria-pressed="true"] { border-color: #a3e63560; color: var(--lime); background: #a3e63512; }
+.payment-panel #qrside > .bg-white { margin-inline: auto; box-shadow: none; }
+.payment-panel #qrside > div:last-child { margin-top: 12px; }
+.payment-panel .proof { padding-top: 16px; }
+.payment-panel .proof label { display: flex; flex-direction: column; gap: 7px; }
+.payment-panel .proof label > span { font-size: 11px; letter-spacing: .02em; }
+.payment-panel .proof input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; margin: 0; padding: 10px 12px; border: 1px solid #36424a; border-radius: 9px; background: #202a30; color: #e0e9e3; font-size: 12px; }
+.payment-panel .proof input[type="file"] { padding: 7px 10px; }
+.payment-panel .proof > div:last-child { flex-wrap: wrap; gap: 8px; }
+.payment-panel .proof :is(button[type="submit"], a) { min-height: 40px; padding: 9px 14px; font-size: 12px; border-radius: 9px; text-transform: none; letter-spacing: 0; transform: none; box-shadow: none; }
+.payment-panel button:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+@media (max-width: 640px) { .booking-payment-content { padding: 16px; } .payment-panel .proof input { font-size: 16px; } }
