@@ -42,6 +42,12 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.doesNotMatch(paid.innerHTML.split("Today's confirmed bookings")[0],/PAID-GUEST/);
   assert.match(paid.innerHTML,/PAID-GUEST/);
   assert.doesNotMatch(paid.innerHTML,/data-guest-pay/);
+  payments=[{booking_id:'guest',proof_path:'club/guest-proofs/receipt.png'}];
+  const guestProof=box();await D.booking.queue(guestProof,{id:'club'});
+  assert.match(guestProof.innerHTML,/booking-decision-action view-proof/);
+  assert.ok(guestProof.innerHTML.indexOf('data-proof="guest"') < guestProof.innerHTML.indexOf('data-cx="guest"'));
+  assert.doesNotMatch(guestProof.innerHTML,/reservation-view-proof/);
+  payments=[];
   failure=true;const failed=box();await D.booking.queue(failed,{id:'club'});
   assert.match(failed.innerHTML,/Unable to load reservations/);
   assert.doesNotMatch(failed.innerHTML,/No pending approvals/);

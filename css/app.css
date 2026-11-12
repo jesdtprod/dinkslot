@@ -3555,6 +3555,8 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 
 .booking-decision-action.cancel { background: #ffffff08; color: #c4d0d8; border-color: #ffffff16; }
 .booking-decision-action.cancel:hover { background: #ef444414; color: #fca5a5; border-color: #ef444440; }
+.booking-decision-action.view-proof { background: #ffffff05; color: #a3e635; border-color: #ffffff18; }
+.booking-decision-action.view-proof:hover { background: #a3e63512; border-color: #a3e63550; }
 
 /* Compact approval guidance and its gap before reservation cards. */
 .booking-queue-description { margin-top: 3px; font-size: 11px; line-height: 18px; }
