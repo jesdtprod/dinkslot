@@ -3385,6 +3385,9 @@ body:has(#club-profile-stage) > .site-footer { margin-top: 0; }
 }
 #ds-book-page [data-purpose="breadcrumbs-context"] { background: #181f24; border-color: #303c43; }
 #ds-book-page .bg-carbon-900 { background: #181f24; border-color: #303c43; box-shadow: none; }
+#ds-book-page .booking-selection-support { margin-top: 14px; gap: 12px; background: #202a30; border-color: #35434b; }
+#ds-book-page .booking-selection-support > a { flex-shrink: 0; }
+@media(max-width:480px) { #ds-book-page .booking-selection-support { align-items: flex-start; flex-wrap: wrap; padding: 12px; } #ds-book-page .booking-selection-support > a { margin-left: 42px; } }
 #ds-book-page :is([data-c], .bg-carbon-950, .bg-carbon-850, .bg-carbon-800) { background-color: #202a30; }
 #ds-book-page :is(button, a)[class*="shadow-neon"],
 #ds-book-page [data-c] { box-shadow: none; }
