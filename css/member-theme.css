@@ -619,7 +619,7 @@
 /* Club Admin Overview mirrors the member Overview's welcome panel. */
 #app #ds-tenant-dashboard #sec .admin-overview-header { position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:24px; padding:20px 28px; overflow:hidden; border:1px solid #91a5b22b; border-radius:10px; background:linear-gradient(135deg,#1b2228,#171d22); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; color:#dce6df; font-family:"Plus Jakarta Sans",sans-serif; }
 .admin-overview-header::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; }
-.admin-overview-eyebrow { display:block; margin-bottom:4px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
+.admin-overview-eyebrow, #ds-tenant-dashboard .setup-eyebrow { display:block; margin-bottom:4px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
 #app #ds-tenant-dashboard #sec .admin-overview-intro h1 { margin:0; color:#fff; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
 .admin-overview-intro p { margin:2px 0 12px; color:#91a5b2; font:400 13px/21px "Plus Jakarta Sans",sans-serif; }
 .admin-overview-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
