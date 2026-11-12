@@ -3283,3 +3283,48 @@ body.club-registration-page > .site-footer { display: none; }
 @media (max-width: 767px) {
   #ds-club-page .club-account-prompt { justify-content: flex-start; flex-direction: column; align-items: flex-start; }
 }
+
+/* One viewport-sized sign-in backdrop, independent of each page's content height. */
+#ds-auth-screen .auth-stage.shared-auth-backdrop::after,
+#club-signup-screen.shared-auth-backdrop::after,
+#club-profile-stage.shared-auth-backdrop::after { content: none; }
+.shared-auth-backdrop > .shared-auth-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100svh - 64px);
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 15% 25%, #a3e63512, transparent 45%), radial-gradient(ellipse at 90% 80%, #a3e63510, transparent 40%);
+  animation: court-glow-breathe 9s ease-in-out infinite alternate;
+}
+.shared-auth-glow::before,
+.shared-auth-glow::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+}
+.shared-auth-glow::before {
+  top: -160px;
+  left: -160px;
+  width: 384px;
+  height: 384px;
+  background: #b5ec081a;
+  filter: blur(140px);
+}
+.shared-auth-glow::after {
+  bottom: -192px;
+  right: -128px;
+  width: 480px;
+  height: 480px;
+  background: #b5ec0826;
+  filter: blur(160px);
+}
+#club-signup-screen.shared-auth-backdrop,
+#club-profile-stage.shared-auth-backdrop { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .shared-auth-backdrop > .shared-auth-glow { animation: none; }
+}

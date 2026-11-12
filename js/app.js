@@ -845,6 +845,19 @@
 
   // Bend only the decorative mesh; the form remains on a stationary surface.
   function mountAuthPattern(stage) {
+    var sharedBackdrop = stage.matches(".auth-stage, #club-signup-screen, #club-profile-stage");
+    var glow;
+    if (sharedBackdrop) {
+      // Replace route-specific ambient artwork with the sign-in backdrop on every page.
+      Array.from(stage.children).forEach(function (child) {
+        if (child.classList.contains("absolute") && child.classList.contains("pointer-events-none")) child.remove();
+      });
+      stage.classList.add("shared-auth-backdrop");
+      glow = document.createElement("div");
+      glow.className = "shared-auth-glow";
+      glow.setAttribute("aria-hidden", "true");
+      stage.prepend(glow);
+    }
     var canvas = document.createElement("canvas");
     canvas.className = "auth-pattern";
     canvas.setAttribute("aria-hidden", "true");
@@ -961,6 +974,8 @@
       reduced.removeEventListener("change", preferenceChanged);
       fine.removeEventListener("change", preferenceChanged);
       canvas.remove();
+      if (glow) glow.remove();
+      if (sharedBackdrop) stage.classList.remove("shared-auth-backdrop");
     };
   }
 
