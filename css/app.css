@@ -3759,3 +3759,6 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
   #ds-book-page #slots .slot-pill { height: 100%; min-height: 52px; padding-block: 8px; }
   #ds-book-page .booking-time-section > p { flex-shrink: 0; }
 }
+
+.guest-proof-upload.has-receipt { border-style: solid; border-color: #a3e63560; }
+.guest-proof-upload.has-receipt .guest-proof-hint { color: #bfdba4; }

@@ -1307,7 +1307,7 @@
           var paymentMethods = [["cash", "Cash", "payments"], ["gcash", "GCash", "account_balance_wallet"], ["maya", "Maya", "wallet"], ["bank", "Bank Transfer", "account_balance"]];
           dialog.innerHTML = '<form><header class="guest-payment-header"><div><span class="guest-payment-eyebrow">Guest reservation</span><h2>Record payment</h2></div><button type="button" class="guest-payment-close" data-close aria-label="Close payment dialog"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="guest-payment-summary"><span>Amount received</span><strong>' + money(booking.amount) + '</strong><div><span>Reference</span><b>' + esc(booking.reference_code) + '</b></div></div><fieldset class="guest-payment-methods"><legend>Payment method</legend><div>' + paymentMethods.map(function (method, index) {
             return '<label class="guest-payment-method"><input type="radio" name="method" value="' + method[0] + '"' + (index === 0 ? ' checked' : '') + ' required><span class="material-symbols-outlined" aria-hidden="true">' + method[2] + '</span><span>' + method[1] + '</span><span class="guest-method-check material-symbols-outlined" aria-hidden="true">check_circle</span></label>';
-          }).join("") + '</div></fieldset><div class="guest-proof-section" hidden><label class="guest-proof-upload"><span class="material-symbols-outlined" aria-hidden="true">upload_file</span><span><strong class="guest-proof-name">Attach payment receipt</strong><small>JPG, PNG or WebP, up to 5 MB</small></span><input type="file" name="proof" accept="image/jpeg,image/png,image/webp" aria-label="Attach payment receipt"></label></div><p class="guest-payment-note">Record only payments you have received. This marks the reservation as paid.</p><p class="msg" role="alert"></p><div class="guest-payment-actions"><button type="button" class="btn ghost" data-close>Cancel</button><button type="submit" class="btn">Confirm payment</button></div></form>';
+          }).join("") + '</div></fieldset><div class="guest-proof-section" hidden><label class="guest-proof-upload"><span class="material-symbols-outlined" aria-hidden="true">upload_file</span><span><strong class="guest-proof-name">Attach payment receipt</strong><small class="guest-proof-hint">JPG, PNG or WebP, up to 5 MB</small></span><input type="file" name="proof" accept="image/jpeg,image/png,image/webp" aria-label="Attach payment receipt"></label></div><p class="guest-payment-note">Record only payments you have received. This marks the reservation as paid.</p><p class="msg" role="alert"></p><div class="guest-payment-actions"><button type="button" class="btn ghost" data-close>Cancel</button><button type="submit" class="btn">Confirm payment</button></div></form>';
           var proofInput = dialog.querySelector('input[name="proof"]');
           var paymentAttempt = uuid();
           var uploadedProof = null;
@@ -1323,8 +1323,21 @@
             uploadedProof = null;
             paymentAttempt = uuid();
             var name = dialog.querySelector(".guest-proof-name");
-            try { if (this.files[0]) checkImage(this.files[0]); name.textContent = this.files[0] ? this.files[0].name : "Attach payment receipt"; msg(dialog, "", ""); }
-            catch (error) { this.value = ""; name.textContent = "Attach payment receipt"; msg(dialog, nice(error), "err"); }
+            var hint = dialog.querySelector(".guest-proof-hint");
+            try {
+              var file = this.files[0];
+              if (file) checkImage(file);
+              name.textContent = file ? file.name : "Attach payment receipt";
+              hint.textContent = file ? "Attached (" + (file.size / 1024 / 1024).toFixed(2) + " MB). Uploads when you confirm payment." : "JPG, PNG or WebP, up to 5 MB";
+              dialog.querySelector(".guest-proof-upload").classList.toggle("has-receipt", !!file);
+              msg(dialog, "", "");
+            } catch (error) {
+              this.value = "";
+              name.textContent = "Attach payment receipt";
+              hint.textContent = "JPG, PNG or WebP, up to 5 MB";
+              dialog.querySelector(".guest-proof-upload").classList.remove("has-receipt");
+              msg(dialog, nice(error), "err");
+            }
           };
           dialog.querySelectorAll("[data-close]").forEach(function (closeButton) { closeButton.onclick = function () { dialog.close(); }; });
           dialog.addEventListener("close", function () { dialog.remove(); if (button.isConnected) button.focus(); }, { once: true });
@@ -1339,16 +1352,18 @@
                 checkImage(receipt);
                 if (!uploadedProof) {
                   var proofPath = booking.tenant_id + "/guest-proofs/" + D.state.user.id + "/" + booking.id + "-" + paymentAttempt + "." + TYPES[receipt.type];
+                  submit.textContent = "Uploading receipt...";
                   var upload = await sb.storage.from("payment").upload(proofPath, receipt, { contentType: receipt.type, upsert: false });
                   if (upload.error && !/exist|duplicate|409/i.test(upload.error.message || "")) throw upload.error;
                   uploadedProof = proofPath;
                 }
               }
+              submit.textContent = "Recording payment...";
               var result = await sb.rpc("record_guest_payment", { p_booking_id: booking.id, p_method: selectedMethod, p_proof_path: selectedMethod === "cash" ? null : uploadedProof });
               if (result.error) throw result.error;
               dialog.close();
               await load();
-            } catch (error) { submit.disabled = false; msg(dialog, nice(error), "err"); }
+            } catch (error) { submit.disabled = false; submit.textContent = "Confirm payment"; msg(dialog, nice(error), "err"); }
           };
           document.body.append(dialog);
           dialog.showModal();
