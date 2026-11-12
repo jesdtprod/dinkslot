@@ -1,0 +1,16 @@
+# Guest booking checklist
+
+- [x] Create pre-implementation checkpoint.
+- [x] Include the club name in registered-player booking email subjects (code and unit tests; deployment pending).
+- [x] Prepare a private guest contact table migration (not applied or database-tested).
+- [x] Implement and unit-test token generation and hashing helpers (not yet wired to booking).
+- [ ] Implement and test server-side guest reservation, including slot and pricing rules, contact details, abuse protection, and idempotency.
+- [ ] Implement secure token storage, expiry, revocation, and reservation access.
+- [ ] Add email-based access-link recovery with rate limiting and non-enumerating responses.
+- [ ] Reuse checkout with guest-authorized proof upload and cancellation; preserve existing member flow.
+- [ ] Add guest booking status and approved-only QR pass.
+- [ ] Show guest contact and payment information in the admin approval queue.
+- [ ] Send booking, approval, rejection, cancellation and expiry emails to guests using the existing Gmail sender.
+- [ ] Verify registered-player email delivery and status transitions; configure and deploy the webhook and mailer as needed.
+- [ ] Run database security, concurrent booking, payment, recovery, accessibility, and end-to-end tests.
+- [ ] Apply migrations and deploy functions after validation; verify with real delivery and reservation flows.
