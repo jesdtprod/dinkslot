@@ -83,7 +83,7 @@
 }
 
 /* Overview follows Book a Court: shared backdrop, lime accent, and flat surfaces. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) {
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) {
   width:100%; max-width:1280px; margin-inline:auto; box-sizing:border-box;
   --member-accent:#a3e635; --lime:#a3e635; --member-panel:#181f24;
   --member-inset:#202a30; --member-border:#303c43;
@@ -96,191 +96,191 @@
 .member-workspace-stage > .auth-pattern { opacity:.3 !important; }
 .member-workspace-stage > #sec { position:relative; z-index:1; }
 .member-workspace-stage > .auth-pattern { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; mask-image:linear-gradient(to bottom,transparent,#000 32px); }
-:is(.member-overview-page,.member-find-page) > :is(section,header) { position:relative; z-index:1; }
-:is(.member-overview-page,.member-find-page) > .auth-pattern { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; mask-image:linear-gradient(to bottom,transparent,#000 32px); }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { grid-template-columns:minmax(0,1fr) auto; gap:24px; padding:0 0 8px; border:0; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-eyebrow { display:block; margin:0 0 6px; padding:0; border:0; background:none; font:600 12px/16px "JetBrains Mono",monospace; letter-spacing:.1em; }
-:is(.member-overview-page,.member-find-page) .member-overview-eyebrow::before { content:none; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-intro h1 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-intro p { margin:4px 0 16px; font-size:13px; line-height:21px; color:#91a5b2; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) :is(h2,h3) { font-family:"Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) h2 { font-size:19px; line-height:26px; margin:0; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-stats { padding:16px 0; background:#181f24; border-color:#303c43; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-stat-value { color:#a3e635; background:#a3e6350d; border-color:#a3e63530; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-stat-label { color:#91a5b2; }
-:is(.member-overview-page,.member-find-page) .overview-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .overview-metric { display:flex; flex-direction:column; gap:14px; padding:20px; border:1px solid #303c43; border-radius:12px; background:#181f24; box-shadow:none; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) > :is(section,header) { position:relative; z-index:1; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) > .auth-pattern { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; mask-image:linear-gradient(to bottom,transparent,#000 32px); }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { grid-template-columns:minmax(0,1fr) auto; gap:24px; padding:0 0 8px; border:0; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-eyebrow { display:block; margin:0 0 6px; padding:0; border:0; background:none; font:600 12px/16px "JetBrains Mono",monospace; letter-spacing:.1em; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-eyebrow::before { content:none; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-intro h1 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-intro p { margin:4px 0 16px; font-size:13px; line-height:21px; color:#91a5b2; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(h2,h3) { font-family:"Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) h2 { font-size:19px; line-height:26px; margin:0; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-stats { padding:16px 0; background:#181f24; border-color:#303c43; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-stat-value { color:#a3e635; background:#a3e6350d; border-color:#a3e63530; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-stat-label { color:#91a5b2; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metric { display:flex; flex-direction:column; gap:14px; padding:20px; border:1px solid #303c43; border-radius:12px; background:#181f24; box-shadow:none; }
 .overview-metric-heading { display:flex; align-items:center; gap:9px; color:#becbd3; font-size:12px; font-weight:600; }
 .overview-metric-heading .material-symbols-outlined { display:grid; place-items:center; flex:0 0 32px; height:32px; border:1px solid #a3e63525; border-radius:8px; background:#a3e6350a; color:#a3e635; font-size:18px; }
 .overview-metric > strong { color:#f1f5f2; font-size:30px; line-height:36px; font-weight:700; }
 .overview-metric-footer { display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:12px; border-top:1px solid #303c43; color:#91a5b2; font-size:11px; }
 .overview-metric-footer a { display:grid; place-items:center; flex:0 0 28px; height:28px; border-radius:7px; background:#202a30; color:#a3e635; text-decoration:none; }
 .overview-metric-footer .material-symbols-outlined { font-size:17px; }
-:is(.member-overview-page,.member-find-page) :is(#next-booking,#my-home-club) { padding:24px; border:1px solid #303c43; border-radius:12px; background:#181f24; }
-:is(.member-overview-page,.member-find-page) #next-booking > div:first-child { margin-bottom:16px; gap:16px; }
-:is(.member-overview-page,.member-find-page) [role="tablist"] { background:#0f171c; border-color:#303c43; border-radius:9px; }
-:is(.member-overview-page,.member-find-page) [data-bfilter] { min-height:32px; padding:6px 10px; border:0; border-radius:7px; white-space:nowrap; font:600 11px/18px "Plus Jakarta Sans",sans-serif; }
-:is(.member-overview-page,.member-find-page) [data-bfilter][aria-selected="true"] { background:#a3e635; color:#142000; box-shadow:none; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) :is(.member-reservation-card,.home-club-card) { background:#202a30; border-color:#35434b; box-shadow:none; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-reservation-card h3 { font-size:16px; line-height:23px; }
-:is(.member-overview-page,.member-find-page) .home-clubs-heading { align-items:center; gap:16px; }
-:is(.member-overview-page,.member-find-page) .home-clubs-heading p { margin:4px 0 0; font-size:12px; color:#91a5b2; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .btn { min-height:38px; border-radius:9px; border-color:#a3e635; background:#a3e635; color:#142000; font:600 12px/18px "Plus Jakarta Sans",sans-serif; text-transform:none; letter-spacing:0; box-shadow:none; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .btn:hover { background:#b4ee59; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .btn.ghost { background:#202a30; border-color:#35434b; color:#c8d6df; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .btn.ghost:hover { background:#2a363e; }
-:is(.member-overview-page,.member-find-page) :is(a,button):focus-visible { outline:2px solid #a3e635; outline-offset:3px; }
-@media(max-width:1200px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { grid-template-columns:1fr; } :is(.member-overview-page,.member-find-page) .overview-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) :is(#next-booking,#my-home-club) { padding:24px; border:1px solid #303c43; border-radius:12px; background:#181f24; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking > div:first-child { margin-bottom:16px; gap:16px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) [role="tablist"] { background:#0f171c; border-color:#303c43; border-radius:9px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) [data-bfilter] { min-height:32px; padding:6px 10px; border:0; border-radius:7px; white-space:nowrap; font:600 11px/18px "Plus Jakarta Sans",sans-serif; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) [data-bfilter][aria-selected="true"] { background:#a3e635; color:#142000; box-shadow:none; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(.member-reservation-card,.home-club-card) { background:#202a30; border-color:#35434b; box-shadow:none; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-reservation-card h3 { font-size:16px; line-height:23px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading { align-items:center; gap:16px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading p { margin:4px 0 0; font-size:12px; color:#91a5b2; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .btn { min-height:38px; border-radius:9px; border-color:#a3e635; background:#a3e635; color:#142000; font:600 12px/18px "Plus Jakarta Sans",sans-serif; text-transform:none; letter-spacing:0; box-shadow:none; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .btn:hover { background:#b4ee59; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .btn.ghost { background:#202a30; border-color:#35434b; color:#c8d6df; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .btn.ghost:hover { background:#2a363e; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) :is(a,button):focus-visible { outline:2px solid #a3e635; outline-offset:3px; }
+@media(max-width:1200px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { grid-template-columns:1fr; } :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:639px) {
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) { padding:0; gap:16px; }
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-intro h1 { font-size:28px; line-height:34px; }
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-stats { width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); }
-  :is(.member-overview-page,.member-find-page) :is(#next-booking,#my-home-club) { padding:16px; }
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .overview-metric { padding:14px; gap:10px; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) { padding:0; gap:16px; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-intro h1 { font-size:28px; line-height:34px; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-stats { width:100%; grid-template-columns:repeat(3,minmax(0,1fr)); }
+  :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(#next-booking,#my-home-club) { padding:16px; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metric { padding:14px; gap:10px; }
   .overview-metric-heading { font-size:11px; align-items:flex-start; }
   .overview-metric-footer { align-items:flex-end; }
-  :is(.member-overview-page,.member-find-page) [role="tablist"] { display:flex; width:100%; overflow-x:auto; }
-  :is(.member-overview-page,.member-find-page) [data-bfilter] { flex:1; }
-  :is(.member-overview-page,.member-find-page) .home-clubs-heading { align-items:flex-start; flex-wrap:wrap; }
+  :is(.member-overview-page,.member-find-page,.member-clubs-page) [role="tablist"] { display:flex; width:100%; overflow-x:auto; }
+  :is(.member-overview-page,.member-find-page,.member-clubs-page) [data-bfilter] { flex:1; }
+  :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading { align-items:flex-start; flex-wrap:wrap; }
 }
-@media(max-width:359px) { :is(.member-overview-page,.member-find-page) .overview-metrics { grid-template-columns:1fr; } }
+@media(max-width:359px) { :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metrics { grid-template-columns:1fr; } }
 
 /* Compact overview stats mirror the reference count cards. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .overview-metric { gap:6px; padding:12px; background:#1b2429; border-color:#303c43; }
-:is(.member-overview-page,.member-find-page) .overview-metric-heading { justify-content:space-between; align-items:center; gap:8px; color:#aec7db; font-size:11px; line-height:18px; font-weight:500; }
-:is(.member-overview-page,.member-find-page) .overview-metric-heading .material-symbols-outlined { flex:0 0 24px; width:24px; height:24px; border-radius:7px; font-size:16px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metric { gap:6px; padding:12px; background:#1b2429; border-color:#303c43; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metric-heading { justify-content:space-between; align-items:center; gap:8px; color:#aec7db; font-size:11px; line-height:18px; font-weight:500; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metric-heading .material-symbols-outlined { flex:0 0 24px; width:24px; height:24px; border-radius:7px; font-size:16px; }
 .overview-metric-value { display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .overview-metric-value > strong { color:#a3e635; font:600 28px/34px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
 .overview-metric-badge { padding:2px 6px; border:1px solid #a3e63530; border-radius:5px; background:#a3e63510; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; }
 .overview-metric-track { height:4px; margin-top:2px; overflow:hidden; border-radius:999px; background:#29343a; }
 .overview-metric-track > span { display:block; height:100%; border-radius:inherit; background:#a3e635; }
-:is(.member-overview-page,.member-find-page) .overview-metric-footer { padding:0; border:0; align-items:center; font-size:10px; line-height:16px; }
-:is(.member-overview-page,.member-find-page) .overview-metric-footer a { flex:0 0 20px; height:20px; background:none; color:#8fa7b5; }
-:is(.member-overview-page,.member-find-page) .overview-metric-footer .material-symbols-outlined { font-size:13px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metric-footer { padding:0; border:0; align-items:center; font-size:10px; line-height:16px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metric-footer a { flex:0 0 20px; height:20px; background:none; color:#8fa7b5; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-metric-footer .material-symbols-outlined { font-size:13px; }
 
 /* Next bookings sit directly on the page in a responsive card grid. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #next-booking { padding:0; border:0; border-radius:0; background:transparent; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; align-items:stretch; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot > * { margin:0; min-width:0; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-card { flex-direction:column; align-items:stretch; justify-content:flex-start; gap:16px; padding:16px; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-main { min-width:0; flex:1; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-meta { display:grid; grid-template-columns:max-content max-content; align-items:center; justify-content:start; gap:6px; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-meta > span:first-child { grid-column:1 / -1; justify-self:start; width:fit-content; max-width:100%; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-meta > span { white-space:normal; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; margin-top:auto; gap:8px; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-actions > a { width:100%; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-actions > a:only-child { grid-column:1 / -1; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-actions > a { min-width:0; padding:8px 5px; gap:4px; font-size:10px; white-space:nowrap; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-actions .material-symbols-outlined { font-size:15px; }
-:is(.member-overview-page,.member-find-page) #next-booking-card-slot > .app-empty-state { grid-column:1 / -1; }
-@media(max-width:1100px) { :is(.member-overview-page,.member-find-page) #next-booking-card-slot { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:600px) { :is(.member-overview-page,.member-find-page) #next-booking-card-slot { grid-template-columns:minmax(0,1fr); } }
-:is(.member-overview-page,.member-find-page) .overview-calendar-button { display:inline-flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking { padding:0; border:0; border-radius:0; background:transparent; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; align-items:stretch; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot > * { margin:0; min-width:0; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-card { flex-direction:column; align-items:stretch; justify-content:flex-start; gap:16px; padding:16px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-main { min-width:0; flex:1; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-meta { display:grid; grid-template-columns:max-content max-content; align-items:center; justify-content:start; gap:6px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-meta > span:first-child { grid-column:1 / -1; justify-self:start; width:fit-content; max-width:100%; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-meta > span { white-space:normal; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; margin-top:auto; gap:8px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-actions > a { width:100%; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-actions > a:only-child { grid-column:1 / -1; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-actions > a { min-width:0; padding:8px 5px; gap:4px; font-size:10px; white-space:nowrap; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-actions .material-symbols-outlined { font-size:15px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot > .app-empty-state { grid-column:1 / -1; }
+@media(max-width:1100px) { :is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { :is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot { grid-template-columns:minmax(0,1fr); } }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-calendar-button { display:inline-flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap; }
 
 /* My Clubs shares Next Booking's open section and card tracks. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club { padding:0; border:0; border-radius:0; background:transparent; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .home-clubs-heading { margin-bottom:16px; padding-bottom:0; border-bottom:0; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; align-items:stretch; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-grid > * { min-width:0; margin:0; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-grid > .app-empty-state { grid-column:1 / -1; }
-@media(max-width:1100px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:600px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-grid { grid-template-columns:minmax(0,1fr); } }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club { padding:0; border:0; border-radius:0; background:transparent; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading { margin-bottom:16px; padding-bottom:0; border-bottom:0; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; align-items:stretch; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-grid > * { min-width:0; margin:0; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-grid > .app-empty-state { grid-column:1 / -1; }
+@media(max-width:1100px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-grid { grid-template-columns:minmax(0,1fr); } }
 .member-reservation-venue { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
 .member-reservation-logo { display:grid; place-items:center; flex:0 0 36px; width:36px; height:36px; overflow:hidden; border:1px solid #ffffff18; border-radius:9px; background:#202a30; color:#a3e635; }
 .member-reservation-logo img { display:block; width:100%; height:100%; object-fit:contain; }
 #ds-tenant-dashboard #sec .member-reservation-venue h3 { margin:0; min-width:0; }
-:is(.member-overview-page,.member-find-page) .overview-clubs-eyebrow { display:block; margin-bottom:6px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.1em; text-transform:uppercase; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .home-clubs-heading h2 { font-size:34px; line-height:42px; font-weight:700; letter-spacing:-.025em; }
-@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .home-clubs-heading h2 { font-size:26px; line-height:34px; } }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-heading { border:0; padding-bottom:0; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-heading::after { content:none; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-clubs-eyebrow { display:block; margin-bottom:6px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.1em; text-transform:uppercase; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading h2 { font-size:34px; line-height:42px; font-weight:700; letter-spacing:-.025em; }
+@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading h2 { font-size:26px; line-height:34px; } }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-heading { border:0; padding-bottom:0; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-heading::after { content:none; }
 
 /* Overview introduction uses the shared card surface. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { padding:24px; border:1px solid #91a5b226; border-radius:10px !important; background:rgb(24 31 36 / 50%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:inset 0 1px 0 #ffffff04; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stats { background:rgb(24 31 36 / 50%); border-color:#91a5b226; }
-@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { padding:16px; } }
-:is(.member-overview-page,.member-find-page) .overview-booking-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
-:is(.member-overview-page,.member-find-page) .overview-booking-controls { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:10px; margin-left:auto; min-width:0; }
-@media(max-width:639px) { :is(.member-overview-page,.member-find-page) .overview-booking-controls { width:100%; } :is(.member-overview-page,.member-find-page) .overview-booking-controls [role="tablist"] { flex:1 1 100%; } }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { padding:24px; border:1px solid #91a5b226; border-radius:10px !important; background:rgb(24 31 36 / 50%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:inset 0 1px 0 #ffffff04; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stats { background:rgb(24 31 36 / 50%); border-color:#91a5b226; }
+@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { padding:16px; } }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-controls { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:10px; margin-left:auto; min-width:0; }
+@media(max-width:639px) { :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-controls { width:100%; } :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-controls [role="tablist"] { flex:1 1 100%; } }
 
 /* Refined overview welcome card with independent summary tiles. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { position:relative; overflow:hidden; grid-template-columns:minmax(0,1fr) minmax(360px,auto); gap:32px; padding:28px; border-color:#91a5b22b; background:rgb(24 31 36 / 50%); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
-:is(.member-overview-page,.member-find-page) .member-overview-header::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; border-radius:0 0 2px 2px; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-eyebrow { margin-bottom:8px; font-size:10px; line-height:16px; letter-spacing:.12em; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-intro p { margin-top:6px; margin-bottom:20px; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; width:auto; padding:0; border:0; background:transparent; align-self:center; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stats > div { display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0; padding:14px; border:1px solid #91a5b21c; border-radius:9px; background:rgb(32 42 48 / 50%); }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stat-label { color:#9bafbd; font:500 9px/14px "JetBrains Mono",monospace; letter-spacing:.025em; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stat-value { min-height:30px; padding:0; border:0; background:none; color:#a3e635; font-size:24px; line-height:30px; font-weight:600; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-skill { font-size:16px; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stats small { color:#8297a5; font-size:9px; line-height:14px; }
-@media(max-width:1100px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { grid-template-columns:minmax(0,1fr); gap:24px; } #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stats { width:100%; } }
-@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { padding:20px 16px; gap:20px; } :is(.member-overview-page,.member-find-page) .member-overview-header::before { left:16px; } #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stats { gap:6px; } #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-stats > div { padding:10px 8px; gap:6px; } }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { position:relative; overflow:hidden; grid-template-columns:minmax(0,1fr) minmax(360px,auto); gap:32px; padding:28px; border-color:#91a5b22b; background:rgb(24 31 36 / 50%); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; border-radius:0 0 2px 2px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-eyebrow { margin-bottom:8px; font-size:10px; line-height:16px; letter-spacing:.12em; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-intro p { margin-top:6px; margin-bottom:20px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; width:auto; padding:0; border:0; background:transparent; align-self:center; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stats > div { display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0; padding:14px; border:1px solid #91a5b21c; border-radius:9px; background:rgb(32 42 48 / 50%); }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stat-label { color:#9bafbd; font:500 9px/14px "JetBrains Mono",monospace; letter-spacing:.025em; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stat-value { min-height:30px; padding:0; border:0; background:none; color:#a3e635; font-size:24px; line-height:30px; font-weight:600; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-skill { font-size:16px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stats small { color:#8297a5; font-size:9px; line-height:14px; }
+@media(max-width:1100px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { grid-template-columns:minmax(0,1fr); gap:24px; } #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stats { width:100%; } }
+@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { padding:20px 16px; gap:20px; } :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header::before { left:16px; } #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stats { gap:6px; } #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-stats > div { padding:10px 8px; gap:6px; } }
 
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-heading { position:relative; padding:24px; margin-bottom:16px; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 50%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:inset 0 1px 0 #ffffff05; }
-@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-heading { padding:20px 16px; } }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-heading { position:relative; padding:24px; margin-bottom:16px; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 50%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:inset 0 1px 0 #ffffff05; }
+@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-heading { padding:20px 16px; } }
 
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .home-club-avatar { border-color:#202a30; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-club-avatar { border-color:#202a30; }
 
-:is(.member-overview-page,.member-find-page) #my-home-club .home-club-cover { height:180px; }
-@media(max-width:600px) { :is(.member-overview-page,.member-find-page) #my-home-club .home-club-cover { height:160px; } }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-club-cover { height:180px; }
+@media(max-width:600px) { :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-club-cover { height:160px; } }
 
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { background:rgb(24 31 36 / 30%); }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { background:rgb(24 31 36 / 30%); }
 
 /* Tighter welcome text and action rhythm. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { padding-block:20px; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-eyebrow { margin-bottom:4px; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header .member-overview-intro p { margin-top:2px; margin-bottom:12px; }
-@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .member-overview-header { padding-block:16px; gap:16px; } }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { padding-block:20px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-eyebrow { margin-bottom:4px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header .member-overview-intro p { margin-top:2px; margin-bottom:12px; }
+@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .member-overview-header { padding-block:16px; gap:16px; } }
 
 /* My Clubs headings share the Overview welcome treatment. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-heading,
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-heading,
 #ds-tenant-dashboard #sec .member-clubs-page .member-overview-header { position:relative; overflow:hidden; padding:20px 28px; gap:24px; border:1px solid #91a5b22b; border-radius:10px !important; background:rgb(24 31 36 / 30%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-heading::before,
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-heading::before,
 .member-clubs-page .member-overview-header::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; border-radius:0 0 2px 2px; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .home-clubs-heading .overview-clubs-eyebrow,
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading .overview-clubs-eyebrow,
 #ds-tenant-dashboard #sec .member-clubs-page .member-overview-eyebrow { display:block; margin:0 0 4px; padding:0; border:0; background:transparent; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.12em; }
 .member-clubs-page .member-overview-eyebrow::before { content:none; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .home-clubs-heading h2,
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading h2,
 #ds-tenant-dashboard #sec .member-clubs-page .member-overview-intro h1 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .home-clubs-heading p,
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading p,
 #ds-tenant-dashboard #sec .member-clubs-page .member-overview-intro p { margin:2px 0 0; color:#91a5b2; font:400 13px/21px "Plus Jakarta Sans",sans-serif; }
 @media(max-width:639px) {
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-heading, #ds-tenant-dashboard #sec .member-clubs-page .member-overview-header { padding:16px; gap:16px; }
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .home-clubs-heading h2, #ds-tenant-dashboard #sec .member-clubs-page .member-overview-intro h1 { font-size:28px; line-height:34px; }
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #my-home-club .home-clubs-heading::before, .member-clubs-page .member-overview-header::before { left:16px; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-heading, #ds-tenant-dashboard #sec .member-clubs-page .member-overview-header { padding:16px; gap:16px; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-clubs-heading h2, #ds-tenant-dashboard #sec .member-clubs-page .member-overview-intro h1 { font-size:28px; line-height:34px; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #my-home-club .home-clubs-heading::before, .member-clubs-page .member-overview-header::before { left:16px; }
 }
 
 /* Next Booking matches the My Clubs heading card. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .overview-booking-toolbar { position:relative; overflow:hidden; padding:20px 28px; gap:24px; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
-:is(.member-overview-page,.member-find-page) .overview-booking-toolbar::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; border-radius:0 0 2px 2px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-toolbar { position:relative; overflow:hidden; padding:20px 28px; gap:24px; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-toolbar::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; border-radius:0 0 2px 2px; }
 .overview-booking-eyebrow { display:block; margin-bottom:4px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .overview-booking-heading h2 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-heading h2 { margin:0; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
 .overview-booking-heading p { margin:2px 0 0; color:#91a5b2; font:400 13px/21px "Plus Jakarta Sans",sans-serif; }
-@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .overview-booking-toolbar { padding:16px; gap:16px; } :is(.member-overview-page,.member-find-page) .overview-booking-toolbar::before { left:16px; } #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) .overview-booking-heading h2 { font-size:28px; line-height:34px; } }
+@media(max-width:639px) { #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-toolbar { padding:16px; gap:16px; } :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-toolbar::before { left:16px; } #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) .overview-booking-heading h2 { font-size:28px; line-height:34px; } }
 
 /* Booking status accents retain a readable dark surface. */
 .member-reservation-card.booking-tone-upcoming { --booking-accent:#a3e635; --booking-accent-rgb:163,230,53; }
 .member-reservation-card.booking-tone-pending { --booking-accent:#fbbf24; --booking-accent-rgb:251,191,36; }
 .member-reservation-card.booking-tone-past { --booking-accent:#94a3b8; --booking-accent-rgb:148,163,184; }
 .member-reservation-card.booking-tone-negative { --booking-accent:#fca5a5; --booking-accent-rgb:252,165,165; }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) #next-booking-card-slot .member-reservation-card[class*="booking-tone-"] { border:1px solid #35434b; border-top:2px solid var(--booking-accent); background:linear-gradient(rgba(var(--booking-accent-rgb),.035),rgba(var(--booking-accent-rgb),.035)),#181f24; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) #next-booking-card-slot .member-reservation-card[class*="booking-tone-"] { border:1px solid #35434b; border-top:2px solid var(--booking-accent); background:linear-gradient(rgba(var(--booking-accent-rgb),.035),rgba(var(--booking-accent-rgb),.035)),#181f24; }
 #ds-tenant-dashboard #sec .member-reservation-card .reservation-status-badge { border:1px solid rgba(var(--booking-accent-rgb),.25); background:rgba(var(--booking-accent-rgb),.1); color:var(--booking-accent); }
 
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) :is(#next-booking,#my-home-club) { margin-top:16px; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(#next-booking,#my-home-club) { margin-top:16px; }
 
 /* Subtle card feedback for pointer and keyboard navigation. */
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) :is(.home-club-card,.member-reservation-card) { transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
-:is(.member-overview-page,.member-find-page) .home-club-cover { overflow:hidden; }
-:is(.member-overview-page,.member-find-page) .home-club-cover > img { transition:transform .3s ease; }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(.home-club-card,.member-reservation-card) { transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .home-club-cover { overflow:hidden; }
+:is(.member-overview-page,.member-find-page,.member-clubs-page) .home-club-cover > img { transition:transform .3s ease; }
 @media(hover:hover) and (pointer:fine) {
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) :is(.home-club-card,.member-reservation-card):hover { transform:translateY(-3px); border-color:var(--booking-accent,#a3e635); box-shadow:0 10px 20px #00000026; }
-  :is(.member-overview-page,.member-find-page) .home-club-card:hover .home-club-cover > img { transform:scale(1.035); }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(.home-club-card,.member-reservation-card):hover { transform:translateY(-3px); border-color:var(--booking-accent,#a3e635); box-shadow:0 10px 20px #00000026; }
+  :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-club-card:hover .home-club-cover > img { transform:scale(1.035); }
 }
-#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) :is(.home-club-card,.member-reservation-card):focus-within { border-color:var(--booking-accent,#a3e635); box-shadow:0 0 0 1px var(--booking-accent,#a3e635); }
+#ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(.home-club-card,.member-reservation-card):focus-within { border-color:var(--booking-accent,#a3e635); box-shadow:0 0 0 1px var(--booking-accent,#a3e635); }
 @media(prefers-reduced-motion:reduce) {
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) :is(.home-club-card,.member-reservation-card), :is(.member-overview-page,.member-find-page) .home-club-cover > img { transition:none; }
-  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page) :is(.home-club-card,.member-reservation-card):hover, :is(.member-overview-page,.member-find-page) .home-club-card:hover .home-club-cover > img { transform:none; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(.home-club-card,.member-reservation-card), :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-club-cover > img { transition:none; }
+  #ds-tenant-dashboard #sec :is(.member-overview-page,.member-find-page,.member-clubs-page) :is(.home-club-card,.member-reservation-card):hover, :is(.member-overview-page,.member-find-page,.member-clubs-page) .home-club-card:hover .home-club-cover > img { transform:none; }
 }
 
 /* Find a Club shares Overview's card geometry and discovery surfaces. */
@@ -316,3 +316,30 @@
 
 /* Keep discovery containers identical despite legacy panel specificity. */
 #app #ds-tenant-dashboard #sec .member-find-page :is(.club-directory-tools,#my-home-club .home-clubs-heading) { background:rgb(24 31 36 / 30%); border-color:#91a5b22b; box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+
+/* My Clubs uses the discovery visual system in two desktop columns. */
+#app #ds-tenant-dashboard #sec .member-clubs-page { --member-accent:#a3e635; --member-panel:#181f24; --member-inset:#202a30; --member-border:#303c43; }
+#ds-tenant-dashboard #sec .member-clubs-page #my-joined-clubs-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; align-items:stretch; }
+#app #ds-tenant-dashboard #sec .member-clubs-page .club-directory-tools { position:relative; overflow:hidden; padding:20px 28px; background:rgb(24 31 36 / 30%); border:1px solid #91a5b22b; border-radius:10px; backdrop-filter:blur(6px); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; }
+.member-clubs-page .club-directory-tools::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; }
+#app #ds-tenant-dashboard #sec .member-clubs-page :is(.club-directory-search,.club-directory-filters select) { background-color:#202a30; border-color:#35434b; }
+#app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel { min-width:0; padding:20px; background:#181f24; border-color:#35434b; box-shadow:none; }
+.member-clubs-page .membership-panel-header { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; align-items:start; }
+.member-clubs-page .membership-panel-avatar { width:52px; height:52px; border-color:#303c43; background:#202a30; }
+.member-clubs-page .membership-panel-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-column:1 / -1; width:100%; margin:0; gap:8px; }
+#app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel-courts { padding:14px; background:#202a30; border-color:#35434b; }
+.member-clubs-page .membership-court-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.member-clubs-page .membership-panel-footer { margin-top:auto; padding-top:14px; }
+#app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel { display:flex; flex-direction:column; gap:0; }
+.member-clubs-page .membership-panel-courts { margin-bottom:16px; }
+.member-clubs-page .membership-panel-map { margin-left:0; }
+.member-clubs-page .club-directory-search > .material-symbols-outlined { font-size:22px; }
+#app #ds-tenant-dashboard #sec .member-clubs-page #myclubs-clear:not([hidden]) { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; padding:0; align-self:center; }
+#app #ds-tenant-dashboard #sec .member-clubs-page #myclubs-clear .material-symbols-outlined { font-size:22px; line-height:1; }
+#ds-tenant-dashboard #sec .member-clubs-page #my-joined-clubs-list > .app-empty-state { grid-column:1 / -1; }
+@media(max-width:700px) { #ds-tenant-dashboard #sec .member-clubs-page #my-joined-clubs-list { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:639px) { #app #ds-tenant-dashboard #sec .member-clubs-page .club-directory-tools { padding:16px; } .member-clubs-page .club-directory-tools::before { left:16px; } #app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel { padding:16px; } }
+.member-clubs-page .membership-panel { transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+@media(hover:hover) and (pointer:fine) { #app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel:hover { transform:translateY(-3px); border-color:#a3e635; box-shadow:0 10px 20px #00000026; } }
+#app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel:focus-within { border-color:#a3e635; }
+@media(prefers-reduced-motion:reduce) { .member-clubs-page .membership-panel { transition:none; } #app #ds-tenant-dashboard #sec .member-clubs-page .membership-panel:hover { transform:none; } }
