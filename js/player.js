@@ -223,7 +223,7 @@
       joinedCourts = joinedCourtsResult.data || [];
     }
     // Joined clubs use saved media and venue details, without sample time slots.
-    var homeClubHtml = '<section id="my-home-club"><header class="home-clubs-heading"><div><span class="overview-clubs-eyebrow">Your Pickleball Community</span><h2>My Clubs</h2></div><a class="btn ghost" href="#/me/clubs"><span class="material-symbols-outlined" aria-hidden="true">groups</span>View All Clubs</a></header>' +
+    var homeClubHtml = '<section id="my-home-club"><header class="home-clubs-heading"><div><span class="overview-clubs-eyebrow">Your Pickleball Community</span><h2>My Clubs</h2><p>Explore your joined clubs, view court details, and book your next game.</p></div><a class="btn ghost" href="#/me/clubs"><span class="material-symbols-outlined" aria-hidden="true">groups</span>View All Clubs</a></header>' +
       '<div class="home-clubs-grid">' + (mc.clubs.length ? mc.clubs.map(function (club) {
         var addressParts = [club.street || club.address, club.barangay, club.city, club.province].filter(Boolean);
         var address = addressParts.filter(function (part, index) { return addressParts.indexOf(part) === index; }).join(', ');
