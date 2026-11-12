@@ -230,7 +230,7 @@
   function homePath() {
     if (state.isPlatform) return "/platform";
     if (state.managedSlug) return "/admin/" + state.managedSlug;
-    if (state.accountType === "tenant") return "/register-club"; // club account that still has to add its club
+    if (state.accountType === "tenant") return "/club-setup"; // club account that still has to add its club
     return "/me";
   }
   function requireUser(next) {
@@ -1949,7 +1949,7 @@
   async function viewMe(section) {
     if (!requireUser("/me")) return;
     if (state.managedSlug) return go("/admin/" + state.managedSlug); // owners and staff use the dashboard
-    if (state.accountType === "tenant") return go("/register-club"); // club account: add the club first
+    if (state.accountType === "tenant") return go("/club-setup"); // club account: add the club first
     return window.DS.player.render(section || "overview");
   }
 
@@ -2044,6 +2044,11 @@
     var qs = raw.indexOf("?"), path = qs === -1 ? raw : raw.slice(0, qs);
     var q = new URLSearchParams(qs === -1 ? "" : raw.slice(qs + 1));
     var m;
+    // Restore the current cross-tab session before rendering public account forms.
+    if (path === "/auth" || path === "/register-club" || path === "/club-setup") {
+      await refreshSession();
+      if ((location.hash || "#/").slice(1) !== raw) return;
+    }
     window.scrollTo(0, 0);
     stopLive();
     cleanupAuthPattern();
@@ -2070,8 +2075,11 @@
       if (state.isPlatform && (path === "/me" || path.indexOf("/me/") === 0 || path === "/register-club" || path === "/auth")) return go("/platform");
       // Signed-in people never see sign-in / sign-up / club sign-up again: send them to their own home.
       if (state.user && path === "/auth") return go(homePath());
-      if (state.user && path === "/register-club" && (state.managedSlug || state.accountType === "player")) {
-        return go(homePath());
+      if (state.user && path === "/register-club") return go(homePath());
+      if (path === "/club-setup") {
+        if (!state.user) return go("/auth?next=%2Fclub-setup");
+        if (state.isPlatform || state.managedSlug || state.accountType === "player") return go(homePath());
+        return viewRegisterClub();
       }
       if (path === "/") return await viewHome();
       if (path === "/auth") {
@@ -2113,7 +2121,15 @@
     if (window.DS && window.DS.ui) window.DS.ui.toast(friendly(e.reason), "err");
   });
   window.addEventListener("hashchange", render);
-  sb.auth.onAuthStateChange(function (ev) { if (ev === "SIGNED_OUT") refreshSession(); });
+  sb.auth.onAuthStateChange(function (ev) {
+    if (ev !== "SIGNED_IN" && ev !== "SIGNED_OUT" && ev !== "USER_UPDATED") return;
+    // Supabase callbacks must return before issuing more auth/database requests.
+    setTimeout(async function () {
+      await refreshSession();
+      var path = (location.hash || "#/").slice(1).split("?")[0];
+      if (path === "/auth" || path === "/register-club" || path === "/club-setup" || ev === "SIGNED_OUT") render();
+    }, 0);
+  });
   var startupAttempt = 0;
   async function startApp() {
     var attempt = ++startupAttempt, timer;
