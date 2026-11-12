@@ -43,6 +43,8 @@ function box(){return {innerHTML:'',querySelector:()=>({}),querySelectorAll:()=>
   assert.doesNotMatch(paid.innerHTML.split("Today's confirmed bookings")[0],/PAID-GUEST/);
   assert.match(paid.innerHTML,/PAID-GUEST/);
   assert.doesNotMatch(paid.innerHTML,/data-guest-pay/);
+  assert.match(paid.innerHTML,/data-proof="guest"/);
+  assert.ok(paid.innerHTML.indexOf('data-proof="guest"') < paid.innerHTML.indexOf('data-cx="guest"'));
   payments=[{booking_id:'guest',proof_path:'club/guest-proofs/receipt.png'}];
   const guestProof=box();await D.booking.queue(guestProof,{id:'club'});
   assert.match(guestProof.innerHTML,/booking-decision-action view-proof/);

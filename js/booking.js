@@ -1967,7 +1967,7 @@
               '</button>' +
             '</div>' +
             '<div class="flex items-center gap-2">' +
-              (py && py.proof_path ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span></button>' : '') +
+              ((py && py.proof_path) || (!b.player_id && paymentState === "paid") ? '<button type="button" class="booking-decision-action view-proof" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span></button>' : '') +
               (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now()) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span></button>' : '') +
               (b.status === "pending"
                 ? '<button class="booking-decision-action approve" data-ok="' + esc(b.id) + '" type="button" aria-label="Approve reservation" title="' + (py && py.proof_path ? 'Approve reservation' : 'Attach payment proof before approving') + '"' + (py && py.proof_path ? '' : ' disabled aria-disabled="true"') + '><span class="material-symbols-outlined" aria-hidden="true">check</span></button>' +
@@ -2095,7 +2095,12 @@
       });
       Array.prototype.forEach.call(box.querySelectorAll("[data-proof]"), function (b) {
         b.onclick = async function () {
-          var bk = byId[b.getAttribute("data-proof")], py = pay[bk.id], url = await signed(py.proof_path);
+          var bk = byId[b.getAttribute("data-proof")], py = pay[bk.id];
+          if (!py || !py.proof_path) {
+            D.ui.toast("No payment proof is attached to this guest reservation.", "info");
+            return;
+          }
+          var url = await signed(py.proof_path);
           var proof = document.createElement('dialog');
           proof.className = 'payment-proof-modal'; proof.setAttribute('aria-label','Payment Proof');
           proof.innerHTML = '<header><div><span class="payment-proof-eyebrow">Booking Payment</span><h2>Payment Proof</h2></div><button type="button" data-close aria-label="Close payment proof"><span class="material-symbols-outlined" aria-hidden="true">close</span></button></header><div class="payment-proof-details"><div><span>Amount Due</span><strong>' + money(bk.amount) + '</strong></div><div><span>Payer Reference</span><strong>' + esc(py.payer_reference || 'Not provided') + '</strong></div><div><span>Booking Reference</span><strong>' + esc(bk.reference_code) + '</strong></div></div><div class="payment-proof-image">' + (url ? '<img src="' + esc(url) + '" alt="Uploaded payment proof">' : D.ui.emptyState('Image unavailable','The payment proof could not be loaded. Please try again.','image_not_supported')) + '</div><footer><button type="button" class="btn ghost" data-close><span class="material-symbols-outlined" aria-hidden="true">close</span>Close</button></footer>';
