@@ -679,3 +679,5 @@
 
 /* Consistent sign-in card corners across screen sizes. */
 html body #app #ds-auth-screen .auth-card { border-radius:24px !important; overflow:hidden; }
+
+html body #app #ds-auth-screen.signup-screen .signup-card { border-radius:24px !important; overflow:hidden; }
