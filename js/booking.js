@@ -1188,9 +1188,9 @@
           '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
         '</div>';
       }
-      // Pending decisions must stay visible independently of the scheduled end time.
+      // Keep unpaid reservations visible until payment or a final status change.
       var bookingsResult = await sb.from("bookings").select("*").eq("tenant_id", t.id)
-        .or("status.eq.pending,and(status.eq.approved,ends_at.gte." + new Date().toISOString() + ")").order("starts_at");
+        .in("status", ["pending", "approved"]).order("starts_at");
       if (bookingsResult.error) {
         box.innerHTML = '<div class="booking-queue-error" role="alert"><h3>Unable to load reservations</h3><p>' + esc(nice(bookingsResult.error)) + '</p><button type="button" class="btn ghost" data-retry-queue>Retry</button></div>';
         box.querySelector("[data-retry-queue]").onclick = load;
@@ -1199,7 +1199,13 @@
       var bs = bookingsResult.data || [];
       var players = (await sb.from("club_players").select("id,display_name,phone").eq("tenant_id", t.id)).data || [];
       var courts = (await sb.from("courts").select("id,name,is_indoor").eq("tenant_id", t.id)).data || [];
-      var pays = bs.length ? (await sb.from("booking_payments").select("*").eq("tenant_id", t.id).in("booking_id", bs.map(function (b) { return b.id; }))).data || [] : [];
+      var paymentResult = bs.length ? await sb.from("booking_payments").select("*").eq("tenant_id", t.id).in("booking_id", bs.map(function (b) { return b.id; })) : { data: [] };
+      if (paymentResult.error) {
+        box.innerHTML = '<div class="booking-queue-error" role="alert"><h3>Unable to load payment status</h3><p>' + esc(nice(paymentResult.error)) + '</p><button type="button" class="btn ghost" data-retry-queue>Retry</button></div>';
+        box.querySelector("[data-retry-queue]").onclick = load;
+        return;
+      }
+      var pays = paymentResult.data || [];
       // The scoped RPC supplies real profile names without granting access to profile rows.
       var contacts = typeof sb.rpc === "function" ? await sb.rpc("club_player_contacts", { p_tenant_id: t.id }) : { data: [] };
       var contactMap = {};
@@ -1211,8 +1217,9 @@
       var pm = {}, cm = {}, pay = {};
       players.forEach(function (p) { pm[p.id] = p; }); courts.forEach(function (c) { cm[c.id] = c; }); pays.forEach(function (p) { pay[p.booking_id] = p; });
       var today = dayStr(tz);
-      var pending = bs.filter(function (b) { return b.status === "pending"; });
-      var approved = bs.filter(function (b) { return b.status === "approved"; });
+      function isPaid(booking) { return Number(booking.amount) === 0 || !!booking.paid_at || (booking.status === "approved" && !!pay[booking.id]); }
+      var pending = bs.filter(function (b) { return b.status === "pending" || !isPaid(b); });
+      var approved = bs.filter(function (b) { return b.status === "approved" && isPaid(b) && new Date(b.ends_at).getTime() > Date.now(); });
       var todayList = approved.filter(function (b) { return new Date(b.starts_at).toLocaleDateString("en-CA", { timeZone: tz }) === today; });
       var later = approved.filter(function (b) { return todayList.indexOf(b) === -1; });
       function row(b, withDecide) {
@@ -1227,7 +1234,7 @@
               ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Proof uploaded</span>'
               : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>No Proof</span>');
 
-        var paymentState = Number(b.amount) === 0 ? "free" : py ? (b.status === "approved" ? "paid" : "review") : "unpaid";
+        var paymentState = Number(b.amount) === 0 ? "free" : b.paid_at ? "paid" : py ? (b.status === "approved" ? "paid" : "review") : "unpaid";
         var paymentLabel = { free: "No payment due", paid: "Paid", review: "Pending verification", unpaid: "Unpaid" }[paymentState];
         var bookingDate = new Date(b.starts_at).toLocaleDateString("en-PH", { timeZone: tz, weekday: "short", month: "short", day: "numeric" });
         return '<article class="bcard reservation-review-card" data-b="' + esc(b.id) + '">' +
@@ -1246,7 +1253,8 @@
               (py ? '<button type="button" class="proof-icon-action" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">payments</span></button>' : '') +
             '</div>' +
             '<div class="flex items-center gap-2">' +
-              (withDecide
+              (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">payments</span></button>' : '') +
+              (b.status === "pending"
                 ? '<button class="booking-decision-action approve" data-ok="' + esc(b.id) + '" type="button" aria-label="Approve reservation" title="Approve reservation"><span class="material-symbols-outlined" aria-hidden="true">check</span></button>' +
                   '<button class="booking-decision-action reject" data-no="' + esc(b.id) + '" type="button" aria-label="Reject reservation" title="Reject reservation"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>'
                 : '<button class="booking-decision-action cancel" data-cx="' + esc(b.id) + '" type="button" aria-label="Cancel booking" title="Cancel booking"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>') +
@@ -1256,7 +1264,7 @@
         '</article>';
       }
       box.innerHTML = (contacts.error && players.length ? '<div class="booking-contact-warning" role="status">Customer profile details are temporarily unavailable. Showing club registration details.</div>' : '') + '<div class="booking-queues">' + [
-        { title: 'Needs approval', description: 'Review payment proof before approving.', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
+        { title: 'Needs approval', description: 'Review payments and unpaid reservations.', icon: 'pending_actions', items: pending, decide: true, empty: 'Nothing waiting in the queue.' },
         { title: "Today's confirmed bookings", description: "Confirmed reservations scheduled for today.", icon: 'today', items: todayList, empty: 'No confirmed bookings today.' },
         { title: 'Upcoming confirmed bookings', description: 'Confirmed reservations for the coming days.', icon: 'event_upcoming', items: later, empty: 'No other confirmed bookings.' }
       ].map(function (group) {
@@ -1277,6 +1285,30 @@
         if (r.error) { el.disabled = false; msg(card(el), nice(r.error), "err"); if (/invalid_state/.test(r.error.message || "")) load(); return; }
         load();
       }
+      Array.prototype.forEach.call(box.querySelectorAll("[data-guest-pay]"), function (button) {
+        button.onclick = function () {
+          var booking = byId[button.getAttribute("data-guest-pay")];
+          var dialog = document.createElement("dialog");
+          dialog.className = "confirmation-modal guest-payment-dialog";
+          dialog.setAttribute("aria-label", "Record guest payment");
+          dialog.innerHTML = '<form><h2>Record guest payment</h2><p>Confirm you received <strong>' + money(booking.amount) + '</strong> for ' + esc(booking.reference_code) + '.</p><label>Payment method<select name="method"><option value="cash">Cash</option><option value="gcash">GCash</option><option value="maya">Maya</option><option value="bank">Bank transfer</option></select></label><p class="msg" role="alert"></p><div class="guest-payment-actions"><button type="button" class="btn ghost" data-close>Cancel</button><button type="submit" class="btn">Record payment</button></div></form>';
+          dialog.querySelector("[data-close]").onclick = function () { dialog.close(); };
+          dialog.addEventListener("close", function () { dialog.remove(); if (button.isConnected) button.focus(); }, { once: true });
+          dialog.querySelector("form").onsubmit = async function (event) {
+            event.preventDefault();
+            var submit = dialog.querySelector('[type="submit"]');
+            submit.disabled = true;
+            try {
+              var result = await sb.rpc("record_guest_payment", { p_booking_id: booking.id, p_method: dialog.querySelector("select").value });
+              if (result.error) throw result.error;
+              dialog.close();
+              await load();
+            } catch (error) { submit.disabled = false; msg(dialog, nice(error), "err"); }
+          };
+          document.body.append(dialog);
+          dialog.showModal();
+        };
+      });
       Array.prototype.forEach.call(box.querySelectorAll("[data-ok]"), function (b) { b.onclick = async function () { if (await D.ui.confirmAction("Approve this booking and confirm the reserved court time?", { title: "Approve booking", confirmText: "Approve booking", danger: false })) decide(b, b.getAttribute("data-ok"), "approved", null); }; });
       Array.prototype.forEach.call(box.querySelectorAll("[data-no]"), function (b) {
         b.onclick = async function () {

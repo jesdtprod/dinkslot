@@ -3611,3 +3611,10 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .reservation-review-payment .payment-state-unpaid { color: #fca5a5; }
 .reservation-review-payment .payment-state-review { color: #fcd34d; }
 .reservation-review-payment :is(.payment-state-paid, .payment-state-free) { color: #6ee7b7; }
+
+.guest-payment-dialog form { display: flex; flex-direction: column; gap: 16px; }
+.guest-payment-dialog h2 { margin: 0; font-size: 16px; }
+.guest-payment-dialog label { display: flex; flex-direction: column; gap: 7px; color: #bccbd2; font-size: 12px; }
+.guest-payment-dialog select { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid #36424a; border-radius: 9px; background: #202a30; color: #e3ece6; }
+.guest-payment-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 14px; border-top: 1px solid #ffffff12; }
+.guest-payment-dialog .msg:empty { display: none; }
