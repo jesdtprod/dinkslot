@@ -1640,6 +1640,8 @@ body.tenant-dashboard-mode #app {
 
 /* Club inventory lines up with the full-width search panel above. */
 #ds-landing #clubs-section > .clubs-content { width: 100%; max-width: 1280px; }
+#ds-landing #clubs-section > .clubs-content { gap: 16px; }
+#ds-landing #clubs-section .clubs-content > div:first-child h2 { margin: 4px 0 0; }
 
 
 /* Search and club inventory share the same centered boxed width. */
