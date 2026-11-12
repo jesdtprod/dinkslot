@@ -1,5 +1,5 @@
 import { createGuestToken, guestTokenDigest } from "./guest-token.ts";
-import { issueGuestBookingToken, resolveGuestBooking } from "./guest-access.ts";
+import { issueGuestBookingToken, resolveGuestBooking, revokeGuestBookingTokens } from "./guest-access.ts";
 
 Deno.test("guest access accepts only active, unexpired records", async () => {
   const now = new Date("2026-11-12T12:00:00Z"), token = createGuestToken();
@@ -29,4 +29,10 @@ Deno.test("issuance stores only the hash and rejects invalid expiry or database 
   let failed = false;
   try { await issueGuestBookingToken({from: () => ({insert: () => Promise.resolve({error:{message:"failure"}})})}, "booking-1", expires, now); } catch { failed = true; }
   if (!failed) throw new Error("database failure ignored");
+});
+Deno.test("revocation targets active tokens for the specified booking", async () => {
+  const calls: unknown[] = [];
+  const query = { update: (row: unknown) => { calls.push(row); return query; }, eq: (key: string, value: string) => { calls.push([key, value]); return query; }, is: (key: string, value: null) => { calls.push([key, value]); return Promise.resolve({error:null}); } };
+  await revokeGuestBookingTokens({from: () => query}, "booking-1", new Date("2026-11-12T12:00:00Z"));
+  if (JSON.stringify(calls) !== JSON.stringify([{revoked_at:"2026-11-12T12:00:00.000Z"}, ["booking_id", "booking-1"], ["revoked_at", null]])) throw new Error("incorrect revocation scope");
 });

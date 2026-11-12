@@ -9,7 +9,8 @@
 - [x] Implement and unit-test server-side token lookup with expiry and revocation checks (not yet wired to an endpoint).
 - [x] Implement and unit-test server-side token issuance (not yet wired to booking or email).
 - [x] Add a token-authenticated guest booking status endpoint (not deployed or database-tested).
-- [ ] Implement token revocation and test guest access endpoints against the database.
+- [x] Implement and unit-test server-side token revocation (not exposed or database-tested).
+- [ ] Test guest access endpoints and service-role permissions against the database.
 - [ ] Add email-based access-link recovery with rate limiting and non-enumerating responses.
 - [ ] Reuse checkout with guest-authorized proof upload and cancellation; preserve existing member flow.
 - [x] Add guest booking status page wired to the status endpoint (not deployed or end-to-end tested).

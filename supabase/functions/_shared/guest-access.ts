@@ -37,3 +37,14 @@ export async function issueGuestBookingToken(
   if (error) throw new Error("guest_access_unavailable");
   return token;
 }
+// Revoke all active links after a trusted recovery or security event.
+export async function revokeGuestBookingTokens(
+  client: { from: (table: string) => any },
+  bookingId: string,
+  now: Date = new Date(),
+): Promise<void> {
+  if (!bookingId || !Number.isFinite(now.getTime())) throw new Error("invalid_guest_booking");
+  const { error } = await client.from("guest_booking_access_tokens")
+    .update({ revoked_at: now.toISOString() }).eq("booking_id", bookingId).is("revoked_at", null);
+  if (error) throw new Error("guest_access_unavailable");
+}
