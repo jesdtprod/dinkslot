@@ -5016,3 +5016,6 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 @media(max-width:767px) {
   .facility-account .facility-account-menu { position:fixed; top:72px; left:12px; right:12px; width:auto; max-width:none; max-height:calc(100dvh - 84px); box-sizing:border-box; overflow-y:auto; }
 }
+
+.bell .bellhead-copy { min-width:0; }
+.bell .bellhead-copy p { margin:3px 0 0; color:#91a5b2; font:400 11px/16px "Plus Jakarta Sans",sans-serif; }

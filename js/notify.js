@@ -51,7 +51,7 @@
     slot.innerHTML =
       '<div class="bell"><button type="button" class="bellbtn" aria-label="Notifications' + (unread ? ", " + unread + " unread" : "") + '" aria-expanded="' + openMenu + '">' +
       '<span class="mi">notifications</span><span class="bellbadge"' + (unread ? "" : " hidden") + ">" + (unread > 9 ? "9+" : unread) + "</span></button>" +
-      '<div class="bellmenu"' + (openMenu ? "" : " hidden") + '><div class="bellhead"><b>Notifications</b>' +
+      '<div class="bellmenu"' + (openMenu ? "" : " hidden") + '><div class="bellhead"><div class="bellhead-copy"><b>Notifications</b><p>Stay updated on your bookings and club activity.</p></div>' +
       (unread ? '<button type="button" class="linkbtn" id="markall"><span class="mi" aria-hidden="true">done_all</span>Mark All Read</button>' : "") + "</div>" +
       '<div class="notification-filters" role="group" aria-label="Filter notifications">' + [["all", "All", items.length], ["unread", "Unread", unread], ["read", "Read", items.length - unread]].map(function (filter) {
         return '<button type="button" class="notification-filter" data-notification-filter="' + filter[0] + '" aria-pressed="' + (notificationFilter === filter[0]) + '">' + filter[1] + '<span>' + filter[2] + '</span></button>';
