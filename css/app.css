@@ -3362,3 +3362,48 @@ body:has(#club-profile-stage) > .site-footer { margin-top: 0; }
   #ds-club-page .club-booking-buttons { justify-content: flex-start; }
   #ds-club-page .club-booking-actions .club-account-prompt { flex-direction: row; }
 }
+
+/* Booking follows the public club surface, type, and action system. */
+#ds-book-page {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--bg);
+  color: #dce6df;
+  font: 400 13px/1.65 "Plus Jakarta Sans", sans-serif;
+}
+#ds-book-page > :is(main, section) { position: relative; z-index: 1; }
+#ds-book-page > .auth-pattern {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, transparent, #000 32px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px);
+}
+#ds-book-page [data-purpose="breadcrumbs-context"] { background: #181f24; border-color: #303c43; }
+#ds-book-page .bg-carbon-900 { background: #181f24; border-color: #303c43; box-shadow: none; }
+#ds-book-page :is([data-c], .bg-carbon-950, .bg-carbon-850, .bg-carbon-800) { background-color: #202a30; }
+#ds-book-page :is(button, a)[class*="shadow-neon"],
+#ds-book-page [data-c] { box-shadow: none; }
+#ds-book-page :is(button, a):focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+#ds-book-page :is(h1, h2, h3) { font-family: "Plus Jakarta Sans", sans-serif; letter-spacing: -.025em; }
+#ds-book-page h1 { font-size: clamp(26px, 3vw, 36px); line-height: 1.2; }
+#ds-book-page h2 { font-size: 20px; line-height: 1.4; }
+#ds-book-page h3 { font-size: 16px; line-height: 1.5; }
+#ds-book-page :is(input, select) {
+  min-height: 44px;
+  border: 1px solid #36424a;
+  border-radius: 10px;
+  background: #202a30;
+  color: #dce6df;
+  font: 400 13px/1.6 "Plus Jakarta Sans", sans-serif;
+}
+#ds-book-page :is(#reserve, #reserve-sidebar) { min-height: 48px; border-radius: 12px; letter-spacing: 0; font-size: 13px; transform: none; box-shadow: none; }
+#ds-book-page aside > .bg-carbon-900 > .pointer-events-none { display: none; }
+body:has(#ds-book-page) > .site-footer { margin-top: 0; }
+@media (max-width: 767px) {
+  #ds-book-page :is(input, select) { font-size: 16px; }
+}

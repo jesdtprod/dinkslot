@@ -845,7 +845,7 @@
 
   // Bend only the decorative mesh; the form remains on a stationary surface.
   function mountAuthPattern(stage) {
-    var sharedBackdrop = stage.matches(".auth-stage, #club-signup-screen, #club-profile-stage");
+    var sharedBackdrop = stage.matches(".auth-stage, #club-signup-screen, #club-profile-stage, #ds-book-page");
     var glow;
     if (sharedBackdrop) {
       // Replace route-specific ambient artwork with the sign-in backdrop on every page.
@@ -2031,7 +2031,11 @@
   // Shared helpers for the club dashboard module (js/admin.js).
   window.DS = {
     sb: sb, state: state, esc: esc, $: $, go: go, setMsg: setMsg, friendly: friendly,
-    requireUser: requireUser, mediaUrl: mediaUrl, hoursText: hoursText, root: function () { return app; }
+    requireUser: requireUser, mediaUrl: mediaUrl, hoursText: hoursText, root: function () { return app; },
+    mountPublicBackdrop: function (stage) {
+      if (cleanupAuthPattern) cleanupAuthPattern();
+      cleanupAuthPattern = mountAuthPattern(stage);
+    }
   };
 
   // ----------------------------------------------------------------- router

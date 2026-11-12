@@ -496,6 +496,8 @@
           '</div>' +
         '</main>' +
       '</div>';
+    if (D.mountPublicBackdrop) D.mountPublicBackdrop(q("#ds-book-page", root));
+
 
     function drawCourtCards() {
       var box = q("#courtcards", root);
