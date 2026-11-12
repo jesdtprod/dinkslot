@@ -4443,3 +4443,6 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 #club-profile-stage > .auth-pattern { mask-image:linear-gradient(to bottom,transparent 0,#000 64px,#000 calc(100% - 32px),transparent); -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 64px,#000 calc(100% - 32px),transparent); }
 #ds-auth-screen .auth-stage { padding-top:32px; }
 @media(max-width:640px) { #ds-auth-screen .auth-stage { padding-top:24px; } }
+
+/* Continue the subtle court grid behind the public header. */
+body > .site-header::after { background-color:#10141a; background-image:radial-gradient(circle,#78958a55 1px,transparent 1.5px),linear-gradient(#78958a0a 1px,transparent 1px),linear-gradient(90deg,#78958a0a 1px,transparent 1px); background-size:36px 36px; backdrop-filter:none; -webkit-backdrop-filter:none; }
