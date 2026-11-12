@@ -615,3 +615,28 @@
 #app #ds-tenant-dashboard #sec .member-account-page .profile-shortcut:focus-visible { outline:2px solid #a3e635; outline-offset:2px; }
 @media(hover:hover) and (pointer:fine) { #app #ds-tenant-dashboard #sec .member-account-page .profile-shortcut:hover { border-color:#a3e63580; background:#a3e63514; } }
 @media(prefers-reduced-motion:reduce) { .profile-shortcut { transition:none !important; } }
+
+/* Club Admin Overview mirrors the member Overview's welcome panel. */
+#app #ds-tenant-dashboard #sec .admin-overview-header { position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:24px; padding:20px 28px; overflow:hidden; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); backdrop-filter:blur(6px); box-shadow:0 8px 24px #00000012,inset 0 1px 0 #ffffff05; color:#dce6df; font-family:"Plus Jakarta Sans",sans-serif; }
+.admin-overview-header::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; }
+.admin-overview-eyebrow { display:block; margin-bottom:4px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
+#app #ds-tenant-dashboard #sec .admin-overview-intro h1 { margin:0; color:#fff; font:700 36px/43.2px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
+.admin-overview-intro p { margin:2px 0 12px; color:#91a5b2; font:400 13px/21px "Plus Jakarta Sans",sans-serif; }
+.admin-overview-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+#app #ds-tenant-dashboard #sec .admin-overview-action { display:inline-flex; align-items:center; justify-content:center; gap:7px; box-sizing:border-box; min-height:38px; padding:8px 12px; border:1px solid #35434b; border-radius:10px; background:#202a30; color:#c8d6df; font:600 12px/18px "Plus Jakarta Sans",sans-serif; text-decoration:none; box-shadow:none; }
+#app #ds-tenant-dashboard #sec .admin-overview-action.is-primary { border-color:#a3e635; background:#a3e635; color:#142000; }
+.admin-overview-action .material-symbols-outlined { font-size:16px; line-height:1; }
+.admin-overview-action:focus-visible { outline:2px solid #a3e635; outline-offset:2px; }
+.admin-overview-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.admin-overview-summary > div { display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0; padding:14px; border:1px solid #91a5b21c; border-radius:9px; background:rgb(32 42 48 / 50%); }
+.admin-overview-summary > div > span { color:#9bafbd; font:500 9px/14px "JetBrains Mono",monospace; letter-spacing:.025em; text-transform:uppercase; }
+.admin-overview-summary strong { color:#a3e635; font:600 24px/30px "JetBrains Mono",monospace; }
+.admin-overview-summary small { color:#8297a5; font:400 9px/14px "Plus Jakarta Sans",sans-serif; }
+@media(max-width:1100px) { #app #ds-tenant-dashboard #sec .admin-overview-header { grid-template-columns:minmax(0,1fr); gap:20px; } }
+@media(max-width:639px) {
+  #app #ds-tenant-dashboard #sec .admin-overview-header { padding:16px; gap:16px; }
+  .admin-overview-header::before { left:16px; }
+  #app #ds-tenant-dashboard #sec .admin-overview-intro h1 { font-size:28px; line-height:34px; }
+  .admin-overview-summary > div { padding:10px 8px; gap:6px; }
+  .admin-overview-summary > div > span { font-size:8px; }
+}

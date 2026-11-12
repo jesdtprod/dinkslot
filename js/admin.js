@@ -285,6 +285,9 @@
     ui.setActive(section);
     ui.setTitle(meta[0], meta[1]);
     var sec = ui.main;
+    var stage = sec.parentElement;
+    stage.classList.toggle('member-workspace-stage', section === 'overview');
+    if (section === 'overview' && D.mountPublicBackdrop) D.mountPublicBackdrop(stage);
     sec.innerHTML = skeletonSection(section);
 
     var owner = ctx.role === "owner";
@@ -305,6 +308,14 @@
   }
 
   // -------------------------------------------------------------- overview
+  function overviewHeader(t, stats) {
+    var base = '#/admin/' + esc(t.slug);
+    var secondary = t.status === 'approved'
+      ? '<a class="admin-overview-action" href="#/c/' + esc(t.slug) + '"><span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>View Public Page</a>'
+      : '<a class="admin-overview-action" href="' + base + '/courts"><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>Court Matrix</a>';
+    return '<header class="admin-overview-header" aria-labelledby="dtitle"><div class="admin-overview-intro"><span class="admin-overview-eyebrow">Pickleball Club Management</span><h1 id="dtitle">Overview</h1><p id="dsub">Your courts, reservations, and daily operations in one place.</p><nav id="dact" class="admin-overview-actions" aria-label="Club quick actions"><a class="admin-overview-action is-primary" href="' + base + '/bookings?new=1"><span class="material-symbols-outlined" aria-hidden="true">event_available</span>Quick Booking</a>' + secondary + '</nav></div><div class="admin-overview-summary" aria-label="Club activity"><div><span>Active courts</span><strong>' + stats.active + '</strong><small>Of ' + stats.total + ' configured</small></div><div><span>Today&#39;s bookings</span><strong>' + stats.today + '</strong><small>Confirmed reservations</small></div><div><span>Pending requests</span><strong>' + stats.pending + '</strong><small>Awaiting review</small></div></div></header>';
+  }
+
   async function dashboardView(sec, ui) {
     var t = ctx.t, tz = t.timezone || "Asia/Manila";
     var now = new Date();
@@ -312,8 +323,6 @@
     var dayStart = zonedToUtc(todayStr + "T00:00", tz), dayEnd = new Date(dayStart.getTime() + 86400000);
     var seventyTwoHours = new Date(dayEnd.getTime() + 86400000 * 2);
 
-    var dateLong = now.toLocaleDateString("en-US", { timeZone: tz, weekday: "long", month: "short", day: "numeric", year: "numeric" });
-    var timeFormatted = now.toLocaleTimeString("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
 
     function count(build) {
       return build(sb.from("bookings").select("id", { count: "exact", head: true }).eq("tenant_id", t.id)).then(function (r) { return r.count || 0; });
@@ -335,6 +344,7 @@
     var st = (res[4] && res[4].data) || {};
     var recentBookings = (res[5] && res[5].data) || [];
     var courtsCount = courtsList.length;
+    var activeCourtsCount = courtsList.filter(function (court) { return court.status === 'active'; }).length;
     var firstCourt = courtsList[0] || { name: "Stadium Court 01", is_indoor: true, surface: "Acrylic Pro" };
 
     if (ui && ui.setStatusPill) {
@@ -347,6 +357,14 @@
     if (playerIds.length) {
       var plRes = await sb.from("club_players").select("id,display_name,phone").in("id", playerIds);
       (plRes.data || []).forEach(function (p) { playersMap[p.id] = p; });
+      // Staff-scoped contacts supply the real profile name and photo (avatar_path arrives with migration 0036).
+      try {
+        var ct = await sb.rpc("club_player_contacts", { p_tenant_id: t.id });
+        (ct.data || []).forEach(function (c) {
+          var pl = playersMap[c.player_id];
+          if (pl) { pl.display_name = c.full_name || pl.display_name; pl.avatar_path = c.avatar_path || null; }
+        });
+      } catch (e) { /* initials only */ }
     }
     var courtsMap = {};
     courtsList.forEach(function (c) { courtsMap[c.id] = c; });
@@ -366,38 +384,7 @@
 
 
     sec.innerHTML =
-      '<!-- Top Action Bar & Club Greeting -->' +
-      '<section class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">' +
-        '<div class="flex flex-col gap-space-xs">' +
-          '<div class="flex items-center gap-space-sm flex-wrap">' +
-            '<div class="inline-flex items-center gap-space-xs bg-primary/10 px-space-sm py-1 rounded-full border border-primary/20">' +
-              '<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>' +
-              '<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Venue Live Sync</span>' +
-            '</div>' +
-            '<span class="text-on-surface-variant font-label-md text-label-md">•</span>' +
-            '<span class="text-on-surface-variant font-label-md text-label-md">' + esc(dateLong) + '</span>' +
-            '<span class="text-on-surface-variant font-label-md text-label-md hidden md:inline">| Local Time ' + esc(timeFormatted) + ' (' + esc(tz) + ')</span>' +
-          '</div>' +
-          '<div class="flex items-baseline gap-space-sm">' +
-            '<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight" id="dtitle">Overview</h1>' +
-            '<span class="text-on-surface-variant font-body-md text-body-md" id="dsub">— How ' + esc(t.name) + ' is performing today</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="flex items-center gap-space-sm flex-wrap" id="dact">' +
-          '<a class="inline-flex items-center gap-space-xs bg-surface-container-high hover:bg-surface-bright text-on-surface px-space-md py-space-sm rounded-full font-label-md text-label-md transition-all no-underline border border-outline-variant/30" href="#/c/' + esc(ctx.slug) + '" target="_blank">' +
-            '<span class="material-symbols-outlined text-base">open_in_new</span>' +
-            '<span>View Public Page</span>' +
-          '</a>' +
-          '<a class="inline-flex items-center gap-space-xs bg-surface-container-high hover:bg-surface-bright text-on-surface px-space-md py-space-sm rounded-full font-label-md text-label-md transition-all no-underline border border-outline-variant/30" href="#/admin/' + esc(ctx.slug) + '/staff">' +
-            '<span class="material-symbols-outlined text-base">person_add</span>' +
-            '<span>Add Staff</span>' +
-          '</a>' +
-          '<a class="inline-flex items-center gap-space-xs bg-primary hover:bg-primary-fixed text-on-primary font-bold px-space-lg py-space-sm rounded-full font-label-md text-label-md shadow-[0_0_20px_rgba(163,230,53,0.35)] transition-all no-underline" href="#/admin/' + esc(ctx.slug) + '/bookings?new=1">' +
-            '<span class="material-symbols-outlined text-base">calendar_today</span>' +
-            '<span>Quick Book Slot</span>' +
-          '</a>' +
-        '</div>' +
-      '</section>' +
+      overviewHeader(t, {active:activeCourtsCount,total:courtsCount,today:todayN,pending:pending}) +
 
       '<section class="overview-metrics" aria-label="Facility summary">' + [
         { label: 'Needs approval', value: pending, unit: 'pending slips', icon: 'inbox', badge: pending ? 'Action required' : 'All clear', alert: pending > 0, foot: pending ? 'Review payment slips' : 'No pending approvals', href: '/bookings' },
@@ -472,7 +459,7 @@
                 var endFormatted = new Date(b.ends_at).toLocaleTimeString("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit" });
                 return '<tr class="hover:bg-surface-container transition-colors">' +
                   '<td class="py-space-sm px-space-md flex items-center gap-space-sm">' +
-                    '<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center font-label-sm text-label-sm font-bold text-primary">' + esc(initial) + '</div>' +
+                    '<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center font-label-sm text-label-sm font-bold text-primary overflow-hidden shrink-0">' + (p.avatar_path ? '<img src="' + esc(D.avatar.url(p.avatar_path)) + '" alt="" class="w-full h-full object-cover" loading="lazy">' : esc(initial)) + '</div>' +
                     '<div class="flex flex-col">' +
                       '<span class="font-body-md text-body-md text-on-surface font-semibold">' + esc(p.display_name || "Guest Player") + '</span>' +
                       '<span class="font-label-sm text-label-sm text-on-surface-variant">' + esc(b.reference_code) + '</span>' +
