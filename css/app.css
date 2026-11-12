@@ -3561,6 +3561,8 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-decision-action.view-proof { background: #ffffff05; color: #a3e635; border-color: #ffffff18; }
 .booking-decision-action.view-proof:hover { background: #a3e63512; border-color: #a3e63550; }
 .reservation-review-card .reservation-card-actions :is(button, .ds-action) { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: 36px; min-height: 36px; max-height: 36px; padding-block: 0; }
+.reservation-review-card .reservation-card-actions .booking-decision-action { flex: 0 0 36px; width: 36px; min-width: 36px; max-width: 36px; padding: 0; border-width: 1px; transform: none; }
+.reservation-review-card .reservation-card-actions .booking-decision-action > .material-symbols-outlined { display: grid; place-items: center; width: 18px; height: 18px; font-size: 18px; line-height: 1; }
 
 /* Compact approval guidance and its gap before reservation cards. */
 .booking-queue-description { margin-top: 3px; font-size: 11px; line-height: 18px; }
