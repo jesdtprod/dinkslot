@@ -3328,3 +3328,12 @@ body.club-registration-page > .site-footer { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .shared-auth-backdrop > .shared-auth-glow { animation: none; }
 }
+
+/* Connect the patterned page directly to the footer without an empty band. */
+body:has(#club-profile-stage) > .site-footer { margin-top: 0; }
+#ds-auth-screen .auth-stage.shared-auth-backdrop > .auth-pattern,
+#club-signup-screen.shared-auth-backdrop > .auth-pattern,
+#club-profile-stage.shared-auth-backdrop > .auth-pattern {
+  mask-image: linear-gradient(to bottom, transparent, #000 32px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px);
+}
