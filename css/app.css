@@ -4269,6 +4269,7 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 
 /* Public club navigation matches the booking context row. */
 #ds-club-page .club-page-context { margin:0 0 24px; padding:24px 0 0; min-height:32px; }
+#ds-club-page section[id] { scroll-margin-top:88px; }
 #ds-club-page .club-page-context .club-breadcrumb { gap:8px; font:400 12px/20px "JetBrains Mono",monospace; letter-spacing:0; }
 #ds-club-page .club-page-context .club-back-link { height:auto; min-height:20px; padding:0; gap:5px; border:0; border-radius:0; background:transparent; color:#a3e635; font:inherit; }
 #ds-club-page .club-page-context .club-breadcrumb-trail { gap:8px; padding:0; }

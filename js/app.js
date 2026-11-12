@@ -691,6 +691,7 @@
       "</div></div></div>";
 
     cleanupAuthPattern = mountAuthPattern($("#club-profile-stage"));
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 
     function drawDays() {
       var strip = $("#club-daystrip");
