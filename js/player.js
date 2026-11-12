@@ -1006,7 +1006,7 @@
             '<div class="relative mb-4">' +
               '<div id="mp-preview" class="w-24 h-24 rounded-full bg-[#161c26] border-2 border-brand-lime flex items-center justify-center text-brand-lime text-3xl font-extrabold font-mono shadow-lg shadow-brand-lime/20 ring-4 ring-brand-lime/10 overflow-hidden">' +
               '</div>' +
-              '<div class="absolute bottom-0 right-1 w-6 h-6 rounded-full bg-[#0a0e14] border-2 border-[#161c26] flex items-center justify-center" title="Turnstile Facial Biometrics Active">' +
+              '<div class="absolute bottom-0 right-1 w-6 h-6 rounded-full bg-[#0a0e14] border-2 border-[#161c26] flex items-center justify-center" title="Gate Access Facial Biometrics Active">' +
                 '<span class="w-2.5 h-2.5 rounded-full bg-brand-lime animate-pulse glow-dot"></span>' +
               '</div>' +
             '</div>' +

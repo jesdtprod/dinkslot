@@ -860,7 +860,7 @@
 
           submitBtn.classList.remove("opacity-80", "pointer-events-none", "bg-primary");
           submitBtn.classList.add("bg-emerald-400", "text-black");
-          submitBtn.innerHTML = '<span class="material-symbols-outlined text-xl">check_circle</span><span>' + esc(court.name || "Court") + ' Confirmed! Turnstile QR Ready</span>';
+          submitBtn.innerHTML = '<span class="material-symbols-outlined text-xl">check_circle</span><span>' + esc(court.name || "Court") + ' Confirmed! Gate Access QR Ready</span>';
 
           setTimeout(function () {
             el.innerHTML = '<div class="max-w-xl mx-auto py-12 px-6 text-center space-y-6 bg-surface-container rounded-3xl border border-primary/30 shadow-2xl">' +
@@ -1128,7 +1128,7 @@
                     '</div>' +
                     '<div class="flex items-center gap-2">' +
                       '<svg class="w-3.5 h-3.5 text-neon-lime shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
-                      '<span>Instant Turnstile QR Key on confirmation</span>' +
+                      '<span>Gate access QR available on confirmation</span>' +
                     '</div>' +
                     '<div class="flex items-center gap-2">' +
                       '<svg class="w-3.5 h-3.5 text-neon-lime shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>' +
