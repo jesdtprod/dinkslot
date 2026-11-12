@@ -4393,3 +4393,11 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
   body .site-header .site-brand > div:last-child > span:first-child { font-size:15px; }
   body .site-header .site-brand > div:last-child > span:last-child { font-size:6px; }
 }
+
+@media(max-width:767px) {
+  #nav.member-nav .facility-account summary > .facility-chevron,
+  #nav.member-nav .facility-account summary > .facility-account-text { display:none !important; }
+  #nav.member-nav .facility-account summary { display:flex; align-items:center; justify-content:center; box-sizing:border-box; width:40px; min-width:40px; height:40px; padding:5px; gap:0; list-style:none; }
+  #nav.member-nav .facility-account summary::after { content:none; }
+  #nav.member-nav .facility-account summary::-webkit-details-marker { display:none; }
+}
