@@ -306,3 +306,10 @@
 .member-find-page .club-search-heading p { margin:2px 0 0; color:#91a5b2; font:400 13px/21px "Plus Jakarta Sans",sans-serif; }
 #ds-tenant-dashboard #sec .member-find-page .club-directory-tools > .club-directory-search { margin-top:0; padding-top:0; }
 @media(max-width:639px) { #ds-tenant-dashboard #sec .member-find-page .club-search-heading h2 { font-size:28px; line-height:34px; } }
+
+/* Center discovery search controls and use clearly legible symbols. */
+#ds-tenant-dashboard #sec .member-find-page .club-directory-search { align-items:center; }
+#ds-tenant-dashboard #sec .member-find-page .club-directory-search > .material-symbols-outlined { display:flex; align-items:center; justify-content:center; width:22px; height:22px; font-size:22px; line-height:1; }
+#ds-tenant-dashboard #sec .member-find-page #btn-clear-search { box-sizing:border-box; flex:0 0 32px; width:32px; min-width:32px; height:32px; min-height:32px !important; align-self:center; margin:0; padding:0 !important; }
+#ds-tenant-dashboard #sec .member-find-page #btn-clear-search:not([hidden]) { display:inline-flex !important; align-items:center !important; justify-content:center !important; }
+#ds-tenant-dashboard #sec .member-find-page #btn-clear-search .material-symbols-outlined { display:flex; align-items:center; justify-content:center; width:22px; height:22px; font-size:22px !important; line-height:1 !important; }
