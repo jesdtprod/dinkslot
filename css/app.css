@@ -3762,3 +3762,58 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 
 .guest-proof-upload.has-receipt { border-style: solid; border-color: #a3e63560; }
 .guest-proof-upload.has-receipt .guest-proof-hint { color: #bfdba4; }
+
+/* Reference checkout: payment rail and receipt beside a reservation ledger. */
+.booking-payment-modal:has(.checkout-payment) { width: min(1040px, calc(100vw - 32px)); }
+.payment-panel.checkout-payment, .booking-payment-modal .payment-panel.checkout-payment { padding: 0; border: 0; background: transparent; }
+.checkout-payment .checkout-context { display: flex !important; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 0 0 14px; color: #95a3b4; font-size: 10px; }
+.checkout-context strong { color: #ccff80; margin-left: 6px; }
+.payment-panel .proof.checkout-form, .booking-payment-modal .payment-panel .proof.checkout-form { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; margin: 0; padding: 0; border: 0; background: transparent; align-items: start; }
+.checkout-payment-left { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.checkout-card { min-width: 0; padding: 18px; border: 1px solid #42493666; border-radius: 14px; background: #1c2026; }
+.checkout-card > header { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
+.checkout-card > header > .material-symbols-outlined { color: #ccff80; font-size: 21px; }
+.checkout-card header :is(h2,h3), .checkout-reservation h3 { margin: 0; font-size: 14px; line-height: 1.5; color: #f1f4ed; }
+.checkout-card header p { margin: 3px 0 0; font-size: 11px; color: #9aa5b2; }
+.checkout-payment .payment-method-groups { background: #0a0e14; }
+.checkout-payment .payment-group[aria-pressed="true"] { background: #ccff80; color: #213600; border-color: #ccff80; }
+.checkout-payment .payment-account-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin: 14px 0 18px; }
+.checkout-payment .qrtab { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 3px; padding: 9px; white-space: normal; }
+.checkout-payment .qrtab small { color: #aeb8bf; font-size: 10px; }
+.checkout-payment .qrtab[aria-pressed="true"] { border-color: #ccff80; background: #ccff8010; }
+.checkout-payment #qrside > .bg-white { max-width: 230px; margin-inline: auto; }
+.checkout-payment #qrside > div:last-child { padding: 12px; border: 1px solid #42493666; border-radius: 9px; background: #181c22; }
+.checkout-reservation > header { justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #ffffff12; }
+.checkout-hold { display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border: 1px solid #fbbf2440; border-radius: 7px; color: #fbbf24; background: #fbbf2410; font-size: 11px; }
+.checkout-hold .material-symbols-outlined { font-size: 14px; }
+.checkout-venue { display: flex; gap: 10px; margin: 16px 0; }
+.checkout-venue > .material-symbols-outlined { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; background: #31353c; color: #ccff80; }
+.checkout-venue span { color: #ccff80; font-size: 10px; }
+.checkout-venue h4 { margin: 3px 0; color: #eef3ef; font-size: 14px; }
+.checkout-venue p { margin: 0; color: #99a5b3; font-size: 11px; }
+.checkout-booking-details { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 0 0 16px; }
+.checkout-booking-details > div { padding: 10px; border: 1px solid #42493666; border-radius: 9px; background: #181c22; }
+.checkout-booking-details dt { color: #99a5b3; font-size: 10px; }
+.checkout-booking-details dd { margin: 4px 0 0; color: #e2e8e3; font-size: 11px; }
+.checkout-payment-note { padding: 13px; border: 1px solid #ccff8066; border-radius: 10px; background: #ccff8009; }
+.checkout-payment-note h4 { margin: 0; color: #ccff80; font-size: 11px; }
+.checkout-payment-note p { margin: 6px 0 10px; color: #afbac2; font-size: 11px; line-height: 1.6; }
+.checkout-payment-note > div { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+.checkout-payment-note strong { color: #ccff80; font: 600 12px/20px "JetBrains Mono",monospace; overflow-wrap: anywhere; }
+.checkout-copy { display: inline-flex; align-items: center; gap: 4px; padding: 5px 8px; border: 0; border-radius: 6px; background: #ccff80; color: #213600; cursor: pointer; font-size: 10px; }
+.checkout-copy .material-symbols-outlined { font-size: 14px; }
+.checkout-total { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 16px 0; padding-top: 15px; border-top: 1px solid #ffffff12; color: #d9e1df; font-size: 12px; }
+.checkout-total small { display: block; margin-top: 3px; color: #8895a4; font-size: 10px; }
+.checkout-total > strong { font: 700 23px/1.4 "JetBrains Mono",monospace; color: #ccff80; }
+.checkout-policies { padding: 10px; border: 1px solid #42493666; border-radius: 9px; background: #181c22; font-size: 11px; }
+.checkout-policies summary { color: #d3ddd8; cursor: pointer; }
+.checkout-policies p { color: #a9b5be; white-space: pre-line; line-height: 1.7; }
+.checkout-verification { margin: 12px 0; font-size: 10px; line-height: 1.6; color: #9cabb5; }
+.checkout-payment .checkout-actions, .booking-payment-modal .payment-panel .proof .checkout-actions { position: static; display: flex; flex-direction: column; gap: 8px; margin: 14px 0 0; padding: 0; border: 0; background: transparent; }
+.checkout-payment .checkout-submit { width: 100%; background: #ccff80; color: #213600; border: 0; font-weight: 700; cursor: pointer; }
+.checkout-actions > a { text-align: center; background: #31353c; color: #cbd5cf; text-decoration: none; }
+.checkout-payment .proof .payment-receipt-upload { flex-wrap: wrap; justify-content: center; min-height: 130px; text-align: center; background: #181c22; }
+.checkout-receipt-card .payment-receipt-copy { flex-basis: 100%; }
+.checkout-payment .proof .checkout-receipt-card .payment-receipt-browse { margin: 0; }
+.checkout-payment .msg:empty { display: none; }
+@media(max-width:700px) { .payment-panel .proof.checkout-form, .booking-payment-modal .payment-panel .proof.checkout-form { grid-template-columns: minmax(0,1fr); } .checkout-payment .payment-account-options { grid-template-columns: repeat(2,minmax(0,1fr)); } }

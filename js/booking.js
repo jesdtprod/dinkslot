@@ -167,7 +167,7 @@
         return '<button type="button" class="payment-group" data-group="' + esc(group) + '" aria-pressed="' + (group === selectedGroup) + '">' + esc(group) + '</button>';
       }).join("") + '</div><div class="payment-account-options" aria-label="Payment accounts">' + qrs.map(function (y, k) {
         if (paymentGroup(y) !== selectedGroup) return "";
-        return '<button type="button" class="qrtab" data-i="' + k + '" aria-pressed="' + (k === i) + '">' + esc(y.label) + '</button>';
+        return '<button type="button" class="qrtab" data-i="' + k + '" aria-pressed="' + (k === i) + '">' + '<strong>' + esc(y.label) + '</strong><small>' + esc(y.account_name || 'Receiver account') + '</small></button>';
       }).join("") + '</div>' +
         '<div class="p-3 bg-white rounded-2xl max-w-[210px] mx-auto sm:mx-0 shadow-lg flex items-center justify-center">' +
         (urls[x.qr_path] ? '<img class="w-full h-auto object-contain rounded-lg" src="' + esc(urls[x.qr_path]) + '" alt="' + esc(x.label) + ' QR">' : '<div class="w-40 h-40 flex items-center justify-center text-slate-400 font-mono text-xs">QR Preview</div>') +
@@ -176,34 +176,15 @@
         (x.account_name ? '<p class="text-slate-400 m-0">Name: <span class="text-slate-200 font-medium">' + esc(x.account_name) + "</span></p>" : "") +
         (x.account_number ? '<p class="text-slate-400 m-0">Account: <span class="text-neon-lime font-mono font-bold text-sm">' + esc(x.account_number) + "</span></p>" : "") + "</div>";
     }
-    el.innerHTML =
-      '<div class="payment-panel bg-carbon-900 rounded-2xl p-6 sm:p-7 border border-white/10 shadow-card-dark space-y-6">' +
-        '<div class="flex items-center justify-between pb-4 border-b border-white/10">' +
-          '<div class="flex items-center gap-3">' +
-            '<span class="w-7 h-7 rounded-lg bg-neon-lime text-carbon-950 font-black text-sm flex items-center justify-center shadow-sm">3</span>' +
-            '<h2 class="text-lg sm:text-xl font-bold text-white tracking-tight m-0">Pay &amp; Confirm Reservation</h2>' +
-          '</div>' +
-          '<span class="text-xs font-mono px-2.5 py-1 rounded bg-neon-lime/10 text-neon-lime border border-neon-lime/30 font-bold">Ref: ' + esc(b.reference_code) + '</span>' +
-        '</div>' +
-        '<div class="payment-overview-grid grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">' +
-          '<div id="qrside">' + qrSide(0) + '</div>' +
-          '<div class="payment-details-section space-y-4">' +
-            '<div><p class="text-xs font-mono uppercase text-slate-400 tracking-wider m-0">Amount to pay</p><p class="text-3xl font-black text-neon-lime font-mono m-0 mt-0.5">' + money(b.amount) + '</p></div>' +
-            '<div class="p-3 rounded-xl bg-carbon-850 border border-white/10"><p class="text-xs text-slate-400 m-0">Include this code in your payment note</p><p class="text-lg font-mono font-bold text-neon-lime m-0 tracking-wider">' + esc(b.reference_code) + '</p></div>' +
-            (info.payment_instructions ? '<div class="text-xs text-slate-300 p-3 rounded-xl bg-carbon-850/60 border border-white/5"><p class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1">Club Note</p>' + esc(info.payment_instructions) + '</div>' : '') +
-            (b.expires_at ? '<div class="flex items-center gap-2 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl"><span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span><span>Pay within <strong class="timer font-mono text-sm" data-exp="' + esc(b.expires_at) + '"></strong> or the slot is released.</span></div>' : '') +
-          '</div>' +
-        '</div>' +
-        '<form class="proof pt-4 border-t border-white/10 space-y-4">' +
-          '<h3 class="text-base font-bold text-white tracking-tight m-0">Upload Payment Proof</h3>' +
-          '<label class="payment-receipt-upload"><input id="pfile" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload payment screenshot" aria-describedby="payment-receipt-hint" required><span class="payment-receipt-icon material-symbols-outlined" aria-hidden="true">upload_file</span><span class="payment-receipt-copy"><strong class="payment-receipt-name">Upload payment screenshot</strong><small id="payment-receipt-hint">JPG, PNG or WebP, up to 5 MB</small></span><span class="payment-receipt-browse">Browse file</span></label>' +
-          '<p class="msg" role="alert"></p>' +
-          '<div class="flex items-center gap-3 pt-2">' +
-            '<button class="px-6 py-3.5 rounded-xl bg-neon-lime text-carbon-950 hover:bg-neon-glow font-black text-sm uppercase tracking-wider shadow-neon transition-all hover:scale-[1.02] border-0 cursor-pointer" type="submit">Submit proof &amp; Confirm</button>' +
-            '<a class="px-4 py-3.5 rounded-xl bg-carbon-800 hover:bg-carbon-700 text-slate-300 hover:text-white text-xs font-medium border border-white/10 no-underline transition" href="#/me">View My Bookings</a>' +
-          '</div>' +
-        '</form>' +
-      '</div>';
+    var courtResult = await sb.from("public_courts").select("name,club_slug,surface,is_indoor").eq("id", b.court_id).maybeSingle();
+    var checkoutCourt = courtResult.data || {};
+    var clubResult = checkoutCourt.club_slug ? await sb.from("public_clubs").select("name,timezone").eq("slug", checkoutCourt.club_slug).maybeSingle() : { data: null };
+    var checkoutClub = clubResult.data || {}, checkoutTz = checkoutClub.timezone || "Asia/Manila";
+    el.innerHTML = '<div class="payment-panel checkout-payment"><div class="checkout-context"><span>Step 3 of 3 &middot; Direct payment</span><span>Booking ref <strong>' + esc(b.reference_code) + '</strong></span></div><form class="proof checkout-form"><div class="checkout-payment-left"><section class="checkout-card checkout-method-card"><header><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span><div><h2>Payment &amp; Transfer Method</h2><p>Select an account and send the exact amount.</p></div></header><div id="qrside">' + qrSide(0) + '</div></section><section class="checkout-card checkout-receipt-card"><header><span class="material-symbols-outlined" aria-hidden="true">upload_file</span><div><h3>Attach payment receipt</h3><p>Upload your screenshot after completing the transfer.</p></div></header><label class="payment-receipt-upload"><input id="pfile" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload payment screenshot" aria-describedby="payment-receipt-hint" required><span class="payment-receipt-icon material-symbols-outlined" aria-hidden="true">cloud_upload</span><span class="payment-receipt-copy"><strong class="payment-receipt-name">Browse for your receipt screenshot</strong><small id="payment-receipt-hint">JPG, PNG or WebP, up to 5 MB</small></span><span class="payment-receipt-browse">Browse file</span></label></section></div><aside class="checkout-card checkout-reservation"><header><h3>Court Reservation</h3>' + (b.expires_at ? '<span class="checkout-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><strong class="timer" data-exp="' + esc(b.expires_at) + '"></strong></span>' : '') + '</header><div class="checkout-venue"><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span><div><span>' + esc(checkoutClub.name || 'Your reservation') + '</span><h4>' + esc(checkoutCourt.name || 'Court') + '</h4><p>' + esc([checkoutCourt.surface, checkoutCourt.is_indoor === true ? 'Indoor' : checkoutCourt.is_indoor === false ? 'Outdoor' : ''].filter(Boolean).join(' / ')) + '</p></div></div><dl class="checkout-booking-details"><div><dt>Date</dt><dd>' + esc(new Date(b.starts_at).toLocaleDateString('en-PH', { timeZone: checkoutTz, weekday: 'short', month: 'short', day: 'numeric' })) + '</dd></div><div><dt>Time slot</dt><dd>' + esc(timeOf(new Date(b.starts_at), checkoutTz) + ' - ' + timeOf(new Date(b.ends_at), checkoutTz)) + '</dd></div></dl><section class="checkout-payment-note"><h4>Payment note</h4><p>Include this booking code in your transfer note to help the club match your receipt.</p><div><strong>' + esc(b.reference_code) + '</strong><button type="button" class="checkout-copy" aria-label="Copy booking reference"><span class="material-symbols-outlined" aria-hidden="true">content_copy</span>Copy</button></div></section><div class="checkout-total"><span>Total amount due<small>Pay directly to the selected club account</small></span><strong>' + money(b.amount) + '</strong></div>' + (info.payment_instructions ? '<details class="checkout-policies"><summary>Club payment instructions</summary><p>' + esc(info.payment_instructions) + '</p></details>' : '') + '<p class="checkout-verification">' + (info.approval_required ? 'Your receipt will be reviewed by the club before confirmation.' : 'Your booking is confirmed after successful receipt submission.') + '</p><p class="msg" role="alert"></p><div class="checkout-actions"><button type="submit" class="checkout-submit">Submit proof &amp; Confirm Booking</button><a href="#/me/bookings">View My Bookings</a></div></aside></form></div>';
+    el.querySelector(".checkout-copy").onclick = async function () {
+      try { await navigator.clipboard.writeText(b.reference_code); this.textContent = "Copied!"; }
+      catch (error) { msg(q("form.proof", el), "Could not copy. Select the reference code manually.", "err"); }
+    };
     startTicker();
     function bindTabs() {
       Array.prototype.forEach.call(el.querySelectorAll(".payment-group"), function (button) {
@@ -240,7 +221,7 @@
     };
     q("form.proof", el).onsubmit = async function (e) {
       e.preventDefault();
-      var f = this, btn = q("button", f);
+      var f = this, btn = q('button[type="submit"]', f);
       btn.disabled = true; msg(f, "Uploading payment proof...", "");
       try {
         var file = q("#pfile", f).files[0];
