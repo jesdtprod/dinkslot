@@ -4420,3 +4420,11 @@ dialog.payment-instructions-modal[open] { display: flex; flex-direction: column;
 
 .bell .bellhead-copy { min-width:0; }
 .bell .bellhead-copy p { margin:3px 0 0; color:#91a5b2; font:400 11px/16px "Plus Jakarta Sans",sans-serif; }
+
+/* Compact stacked search controls on mobile. */
+@media(max-width:767px) {
+  #ds-landing .landing-search-controls { display:grid; grid-template-columns:minmax(0,1fr); gap:8px !important; }
+  #ds-landing .landing-search-controls > div { margin:0; }
+  #ds-landing .landing-search-controls > div:not(.landing-search-action) { min-height:48px; }
+  #ds-landing .landing-search-action button { min-height:44px; }
+}
