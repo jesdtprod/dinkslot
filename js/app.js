@@ -141,27 +141,35 @@
     try {
       var v = localStorage.getItem(PENDING_KEY);
       if (!v) return null;
-      localStorage.removeItem(PENDING_KEY);
       var o = JSON.parse(v);
       return o && Date.now() - o.at < 86400000 && (!o.join || /^[a-z0-9-]+$/.test(o.join)) ? o : null;
     } catch (e) { return null; }
   }
   async function resumePending() {
+    if (!state.user) return;
     var o = takePending();
-    if (!o || !state.user) return;
-    if (state.isPlatform) return go("/platform");
-    if (o.as) { // a Google sign-in cannot carry the account type, so set it now (locked after the first choice)
+    if (!o) return;
+    if (state.isPlatform) { try { localStorage.removeItem(PENDING_KEY); } catch (e) {} return go("/platform"); }
+    if (o.as && !state.accountType && !state.managedSlug) { // a Google sign-in cannot carry the account type, so set it now (locked after the first choice)
       var ct = await sb.rpc("choose_account_type", { p_type: o.as });
-      if (!ct.error) { state.accountType = o.as; renderNav(); }
+      if (ct.error) throw ct.error;
+      state.accountType = o.as; renderNav();
     }
     if (o.join) {
       var j = await sb.rpc("join_club", { p_slug: o.join, p_display_name: (o.dn || (state.user.email || "").split("@")[0] || "Player").slice(0, 60) });
-      if (j.error) return;
+      if (j.error) throw j.error;
     }
+    try { localStorage.removeItem(PENDING_KEY); } catch (e) {}
     if (o.next && o.next.charAt(0) === "/") go(o.next);
   }
 
-  async function refreshSession() {
+  var sessionRefresh = null;
+  function refreshSession() {
+    if (sessionRefresh) return sessionRefresh;
+    sessionRefresh = refreshSessionOnce().finally(function () { sessionRefresh = null; });
+    return sessionRefresh;
+  }
+  async function refreshSessionOnce() {
     var r = await sb.auth.getSession();
     state.user = r.data.session ? r.data.session.user : null;
     state.isPlatform = false;
