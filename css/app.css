@@ -4498,3 +4498,9 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
   #app > #club-signup-screen { padding-left:12px !important; padding-right:12px !important; }
   #club-signup-screen .club-signup-layout { box-sizing:border-box; width:100%; max-width:480px; }
 }
+
+/* Match sign-in's side gutters throughout the mobile landing page. */
+@media(max-width:640px) {
+  #ds-landing > section { box-sizing:border-box; padding-left:12px !important; padding-right:12px !important; }
+  #ds-landing > section > div:not(.pointer-events-none):not(.auth-pattern):not(.shared-auth-glow) { min-width:0; }
+}
