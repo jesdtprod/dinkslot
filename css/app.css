@@ -3522,3 +3522,7 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .payment-panel .proof :is(button[type="submit"], a) { min-height: 40px; padding: 9px 14px; font-size: 12px; border-radius: 9px; text-transform: none; letter-spacing: 0; transform: none; box-shadow: none; }
 .payment-panel button:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
 @media (max-width: 640px) { .booking-payment-content { padding: 16px; } .payment-panel .proof input { font-size: 16px; } }
+
+.booking-payment-timer { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 10px; border: 1px solid #fbbf2433; border-radius: 8px; background: #fbbf240d; color: #fcd34d; font: 600 11px/18px "Plus Jakarta Sans", sans-serif; font-variant-numeric: tabular-nums; }
+.booking-payment-timer .material-symbols-outlined { font-size: 15px; }
+.booking-payment-timer.is-expired { color: #fca5a5; border-color: #f8717133; background: #f871710d; }

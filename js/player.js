@@ -762,11 +762,25 @@
           '<h3>' + esc(club.name || 'Club unavailable') + ' &middot; ' + esc(court.name || 'Court unavailable') + '</h3>' +
           '<p class="clean-booking-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span>' + esc(addressStr || 'Location not provided') + '</p>' +
           '<div class="member-reservation-meta"><span><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>' + esc(whenStr) + '</span><span><span class="material-symbols-outlined" aria-hidden="true">schedule</span>' + minutes + ' minutes</span>' + (b.amount != null ? '<strong>' + money(b.amount) + '</strong>' : '') + '</div></div>' +
-          '<div class="clean-booking-actions">' + (canPay ? '<button type="button" data-pay="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">upload_file</span>Pay / Upload proof</button>' : '') + (isApproved ? '<button type="button" data-ticket="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>View Digital Pass</button>' : '') +
+          '<div class="clean-booking-actions">' + (isPending && !paymentSent && b.expires_at ? '<span class="booking-payment-timer" data-payment-expiry="' + esc(b.expires_at) + '"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span class="payment-time-left">Checking payment time...</span></span>' : '') + (canPay ? '<button type="button" data-pay="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">upload_file</span>Pay / Upload proof</button>' : '') + (isApproved ? '<button type="button" data-ticket="' + esc(b.id) + '" class="btn"><span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>View Digital Pass</button>' : '') +
           '<div><button type="button" data-cal="' + esc(b.id) + '" class="btn ghost"><span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>Calendar</button>' + (isLive ? '<button type="button" data-cancel="' + esc(b.id) + '" class="btn ghost"><span class="material-symbols-outlined" aria-hidden="true">close</span>Cancel Booking</button>' : '') + '</div></div></article>';
       }).join('');
 
+      updatePaymentTimers();
       bindActionEvents();
+    }
+
+    function updatePaymentTimers() {
+      sec.querySelectorAll("[data-payment-expiry]").forEach(function (badge) {
+        var remaining = Math.max(0, Math.ceil((new Date(badge.getAttribute("data-payment-expiry")).getTime() - Date.now()) / 1000));
+        var text = badge.querySelector(".payment-time-left");
+        text.textContent = remaining > 0 ? "Pay within " + Math.floor(remaining / 60) + ":" + String(remaining % 60).padStart(2, "0") : "Payment window expired";
+        badge.classList.toggle("is-expired", remaining === 0);
+        if (remaining === 0) {
+          var payButton = badge.closest("article").querySelector("[data-pay]");
+          if (payButton) { payButton.disabled = true; payButton.textContent = "Payment window expired"; }
+        }
+      });
     }
 
     function bindActionEvents() {
@@ -900,6 +914,14 @@
     }
 
     renderCards();
+    if (sec.__paymentTimer) clearInterval(sec.__paymentTimer);
+    if (typeof setInterval === "function" && bs.some(function (booking) { return booking.status === "pending" && booking.expires_at && !paymentByBooking[booking.id]; })) {
+      var paymentTimer = setInterval(function () {
+        if (!sec.isConnected) { clearInterval(paymentTimer); return; }
+        updatePaymentTimers();
+      }, 1000);
+      sec.__paymentTimer = paymentTimer;
+    }
     if (nextMatch) {
       function updateCountdown() {
         var target = q('#booking-live-countdown',sec);
