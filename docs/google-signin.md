@@ -10,6 +10,8 @@ Use the same Google Cloud project as the Gmail API if you have one.
 2. APIs and services > Credentials > **Create credentials > OAuth client ID** > Application type **Web application**.
 3. **Authorized JavaScript origins**
    - `https://jesdtprod.github.io`
+   - `http://localhost:8000`
+   - `http://127.0.0.1:8000`
    - `http://localhost:8080`
 4. **Authorized redirect URIs** (exactly this one, it is Supabase's callback, not the site's):
    - `https://achwxeisrakxdtzmfbrc.supabase.co/auth/v1/callback`
@@ -18,7 +20,7 @@ Use the same Google Cloud project as the Gmail API if you have one.
 ## 2. Supabase
 Dashboard > Authentication > Sign In / Providers > **Google** > enable > paste the Client ID and Client secret > Save.
 
-Also check Authentication > URL Configuration: Site URL `https://jesdtprod.github.io/dinkslot/` and the redirect list containing `https://jesdtprod.github.io/dinkslot/` and `http://localhost:8080` (already set earlier).
+Also check Authentication > URL Configuration: Site URL `https://jesdtprod.github.io/dinkslot/` and the redirect list containing `https://jesdtprod.github.io/dinkslot/` and add `http://localhost:8000/` and `http://127.0.0.1:8000/` for local development (plus `http://localhost:8080/` if used). These must be added to the hosted Supabase project; editing `supabase/config.toml` affects local Supabase only. Keep the production Site URL unchanged.
 
 ## 3. Check it
 - `https://achwxeisrakxdtzmfbrc.supabase.co/auth/v1/settings` should now show `"google":true` under `external`.
