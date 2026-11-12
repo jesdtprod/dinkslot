@@ -27,9 +27,16 @@
       function position() {
         var rect = trigger.getBoundingClientRect();
         panel.style.width = Math.min(kind === 'select' ? rect.width : 312, innerWidth - 24) + 'px';
-        var height = Math.min(panel.scrollHeight, innerHeight - 24);
-        panel.style.left = Math.max(12, Math.min(rect.left, innerWidth - panel.offsetWidth - 12)) + 'px';
-        panel.style.top = Math.max(12, Math.min(rect.bottom + 6, innerHeight - height - 12)) + 'px';
+        panel.style.maxHeight = (kind === 'select' ? 320 : innerHeight - 24) + 'px';
+        var gap = 6, edge = 12;
+        var below = Math.max(0, innerHeight - rect.bottom - gap - edge);
+        var above = Math.max(0, rect.top - gap - edge);
+        var desired = Math.min(panel.scrollHeight + 2, kind === 'select' ? 320 : innerHeight - edge * 2);
+        var opensBelow = below >= Math.min(desired, 180) || below >= above;
+        panel.style.maxHeight = Math.min(desired, opensBelow ? below : above) + 'px';
+        var height = panel.offsetHeight;
+        panel.style.left = Math.max(edge, Math.min(rect.left, innerWidth - panel.offsetWidth - edge)) + 'px';
+        panel.style.top = (opensBelow ? rect.bottom + gap : Math.max(edge, rect.top - gap - height)) + 'px';
       }
       panel.addEventListener('toggle', function (event) { trigger.setAttribute('aria-expanded', String(event.newState === 'open')); });
       panel.addEventListener('keydown', function (event) {
@@ -61,7 +68,7 @@
         if (ui.panel.matches(':popover-open')) return ui.close();
         draw(); ui.panel.showPopover(); ui.position();
         var selected = ui.panel.querySelector('[aria-selected="true"]:not(:disabled)') || ui.panel.querySelector('button:not(:disabled)');
-        if (selected) { selected.focus(); selected.scrollIntoView({block:'nearest'}); }
+        if (selected) { selected.focus({preventScroll:true}); ui.panel.scrollTop = Math.max(0, selected.offsetTop - ui.panel.clientHeight / 2); }
       };
       ui.panel.onclick = function (event) {
         var button = event.target.closest('[data-option]');
@@ -85,7 +92,7 @@
           typed = (Date.now() - lastTyped > 700 ? '' : typed) + event.key.toLowerCase(); lastTyped = Date.now();
           target = options.find(function (option) { return option.textContent.trim().toLowerCase().startsWith(typed); });
         }
-        if (target) { event.preventDefault(); target.focus(); target.scrollIntoView({block:'nearest'}); }
+        if (target) { event.preventDefault(); target.focus({preventScroll:true}); var top = target.offsetTop; if (top < ui.panel.scrollTop) ui.panel.scrollTop = top; else if (top + target.offsetHeight > ui.panel.scrollTop + ui.panel.clientHeight) ui.panel.scrollTop = top + target.offsetHeight - ui.panel.clientHeight; }
       });
       field.addEventListener('change', sync); sync();
       return {refresh:sync};
