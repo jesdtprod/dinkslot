@@ -296,7 +296,7 @@
               '<button type="button" id="side-toggle-btn" class="md:hidden p-2 rounded-full text-on-surface-variant hover:text-on-surface border-0 bg-transparent cursor-pointer flex items-center justify-center">' +
                 '<span class="material-symbols-outlined text-2xl">menu</span>' +
               '</button>' +
-              '<div class="flex items-center gap-space-xs bg-surface-container-high px-space-md py-space-xs rounded-full border border-outline-variant/30">' +
+              '<div class="dashboard-location-chip flex items-center gap-space-xs bg-surface-container-high px-space-md py-space-xs rounded-full border border-outline-variant/30">' +
                 '<span class="material-symbols-outlined text-primary text-sm">location_on</span>' +
                 '<span class="font-label-md text-label-md text-on-surface font-semibold truncate">' + esc(o.chip || ((h.title || "Facility") + (h.city ? ' - ' + h.city : ''))) + '</span>' +
               '</div>' +
