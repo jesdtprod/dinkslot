@@ -2098,7 +2098,8 @@
         b.onclick = async function () {
           var bk = byId[b.getAttribute("data-proof")], py = pay[bk.id];
           if (!py || !py.proof_path) {
-            D.ui.toast("No payment proof is attached to this guest reservation.", "info");
+            var paidInCash = String(bk.staff_payment_method || (py && py.method) || "").toLowerCase() === "cash";
+            D.ui.toast(paidInCash ? "Paid in cash. No payment proof is attached to this reservation." : "No payment proof is attached to this reservation.", "info");
             return;
           }
           var url = await signed(py.proof_path);
