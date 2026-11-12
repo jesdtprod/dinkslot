@@ -3750,3 +3750,12 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .guest-proof-upload small { color: #91a5b2; font-size: 10px; }
 .guest-proof-upload input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .guest-proof-upload:has(input:focus-visible) { outline: 2px solid var(--lime); outline-offset: 3px; }
+
+/* Let time-slot rows fill the selection card's available desktop height. */
+@media (min-width: 1024px) {
+  #ds-book-page .booking-layout #slotpanel:not([hidden]) { display: flex; flex-direction: column; }
+  #ds-book-page #slotpanel > .booking-time-section { display: flex; flex-direction: column; flex: 1; }
+  #ds-book-page .booking-time-section > #slots { flex: 1; grid-auto-rows: minmax(52px, 1fr); align-content: stretch; }
+  #ds-book-page #slots .slot-pill { height: 100%; min-height: 52px; padding-block: 8px; }
+  #ds-book-page .booking-time-section > p { flex-shrink: 0; }
+}
