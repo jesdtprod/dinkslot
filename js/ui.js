@@ -350,12 +350,14 @@
       aside.classList.add("-translate-x-full");
       aside.classList.remove("translate-x-0");
       if (backdrop) backdrop.classList.add("hidden");
+      if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "false");
     }
     function openDrawer() {
       if (!aside) return;
       aside.classList.remove("-translate-x-full");
       aside.classList.add("translate-x-0");
       if (backdrop) backdrop.classList.remove("hidden");
+      if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "true");
     }
     if (toggleBtn) {
       toggleBtn.onclick = function () {
@@ -364,6 +366,24 @@
       };
     }
     if (backdrop) backdrop.onclick = closeDrawer;
+    if (toggleBtn) { toggleBtn.setAttribute("aria-controls", "ds-side"); toggleBtn.setAttribute("aria-expanded", "false"); }
+    // Close for links, taps outside the drawer, and Escape even when the backdrop
+    // is covered by another header element.
+    if (root._drawerClick) root.removeEventListener("click", root._drawerClick);
+    root._drawerClick = function (event) {
+      if (!aside || !aside.classList.contains("translate-x-0")) return;
+      if (aside.contains(event.target)) {
+        if (event.target.closest("a[href]")) closeDrawer();
+      } else if (!toggleBtn || !toggleBtn.contains(event.target)) closeDrawer();
+    };
+    root.addEventListener("click", root._drawerClick);
+    if (root._drawerKeydown) root.removeEventListener("keydown", root._drawerKeydown);
+    root._drawerKeydown = function (event) {
+      if (event.key === "Escape" && aside && aside.classList.contains("translate-x-0")) {
+        closeDrawer(); if (toggleBtn) toggleBtn.focus();
+      }
+    };
+    root.addEventListener("keydown", root._drawerKeydown);
 
     var api = {
       main: root.querySelector("#sec"),
