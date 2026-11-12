@@ -3731,3 +3731,13 @@ dialog#booking-modal #nslots .slot-rate { margin-top: 0; line-height: 14px; }
 .payment-receipt-copy small { color: #91a5b2; font-size: 10px; line-height: 16px; }
 .payment-panel .proof .payment-receipt-browse { padding: 6px 10px; border: 1px solid #ffffff16; border-radius: 7px; background: #202a30; color: #c2d0d8; font-size: 11px; white-space: nowrap; }
 @media(max-width:480px) { .payment-panel .proof .payment-receipt-upload { flex-wrap: wrap; } .payment-panel .proof .payment-receipt-browse { margin-left: 48px; } }
+
+/* Keep date selection and the reservation ticket level at their bottom edges. */
+@media (min-width: 1024px) {
+  #ds-book-page .booking-layout:has(#slotpanel:not([hidden])) { align-items: stretch; }
+  #ds-book-page .booking-layout:has(#slotpanel:not([hidden])) > .booking-steps { display: flex; flex-direction: column; grid-row: 1; }
+  #ds-book-page .booking-layout:has(#slotpanel:not([hidden])) #slotpanel { flex: 1; }
+  #ds-book-page .booking-layout:has(#slotpanel:not([hidden])) > aside { display: contents; }
+  #ds-book-page .booking-layout:has(#slotpanel:not([hidden])) > aside > div:first-child { grid-column: 9 / -1; grid-row: 1; margin-top: 0; }
+  #ds-book-page .booking-layout:has(#slotpanel:not([hidden])) > aside > div:not(:first-child) { grid-column: 9 / -1; margin-top: 0; }
+}
