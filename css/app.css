@@ -3429,3 +3429,6 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 #ds-book-page #courtcards { gap: 12px; }
 #ds-book-page [data-purpose="step-choose-court"] > div:first-child { margin-bottom: 16px; }
 #ds-book-page .booking-steps > section.space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 24px; }
+
+/* Keep the booking context directly above the court selection cards. */
+#ds-book-page [data-purpose="breadcrumbs-context"] { padding: 0; margin-bottom: 24px; }

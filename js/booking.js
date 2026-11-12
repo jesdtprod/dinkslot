@@ -242,19 +242,6 @@
 
     root.innerHTML =
       '<div id="ds-book-page" class="book-public w-full min-h-screen text-slate-100 flex flex-col antialiased selection:bg-neon-lime selection:text-black">' +
-        '<section class="booking-context" data-purpose="breadcrumbs-context">' +
-          '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 text-xs">' +
-            '<nav class="club-breadcrumb" aria-label="Breadcrumb">' +
-              '<a class="club-back-link" href="#/c/' + esc(slug) + '"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>' + esc(club.name) + '</span></a>' +
-              '<ol class="club-breadcrumb-trail"><li class="club-breadcrumb-separator" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></li><li class="club-breadcrumb-current" aria-current="page">Court Booking</li></ol>' +
-            '</nav>' +
-            '<div class="booking-context-status">' +
-              '<span class="club-live-badge"><span class="booking-live-dot" aria-hidden="true"></span><span id="book-live-slots">Live Availability: Checking slots...</span></span>' +
-              '<span class="booking-timezone">Timezone: ' + esc(tz) + ' (PHT)</span>' +
-            '</div>' +
-          '</div>' +
-        '</section>' +
-
         '<!-- BookingMainLayout -->' +
         '<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">' +
           '<div class="mb-8">' +
@@ -267,6 +254,19 @@
             '</h1>' +
             '<p class="text-sm text-slate-400 mt-1 max-w-2xl m-0">Select your preferred outdoor court, time slot, and lock in your reservation with instant turnstile access.</p>' +
           '</div>' +
+
+        '<section class="booking-context" data-purpose="breadcrumbs-context">' +
+          '<div class="flex flex-wrap items-center justify-between gap-3 text-xs">' +
+            '<nav class="club-breadcrumb" aria-label="Breadcrumb">' +
+              '<a class="club-back-link" href="#/c/' + esc(slug) + '"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>' + esc(club.name) + '</span></a>' +
+              '<ol class="club-breadcrumb-trail"><li class="club-breadcrumb-separator" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></li><li class="club-breadcrumb-current" aria-current="page">Court Booking</li></ol>' +
+            '</nav>' +
+            '<div class="booking-context-status">' +
+              '<span class="club-live-badge"><span class="booking-live-dot" aria-hidden="true"></span><span id="book-live-slots">Live Availability: Checking slots...</span></span>' +
+              '<span class="booking-timezone">Timezone: ' + esc(tz) + ' (PHT)</span>' +
+            '</div>' +
+          '</div>' +
+        '</section>' +
 
           '<div class="booking-layout grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">' +
             '<!-- LEFT / MAIN INTERACTION COLUMN -->' +
