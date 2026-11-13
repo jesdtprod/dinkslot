@@ -2115,9 +2115,6 @@
       var pays = paymentResult.data || [];
       // The scoped RPC supplies real profile names without granting access to profile rows.
       var contacts = typeof sb.rpc === "function" ? await sb.rpc("club_player_contacts", { p_tenant_id: t.id }) : { data: [] };
-      var guestContacts = bs.some(function (b) { return b.source === "guest_online"; }) ? await sb.rpc("club_guest_booking_contacts", {p_tenant_id:t.id}) : {data:[]};
-      var guestEmailMap = {};
-      (guestContacts.data || []).forEach(function (contact) { guestEmailMap[contact.booking_id] = contact.email; });
       var contactMap = {};
       (contacts.data || []).forEach(function (contact) { contactMap[contact.player_id] = contact; });
       players.forEach(function (player) {
@@ -2151,7 +2148,6 @@
         return '<article class="bcard reservation-review-card" data-b="' + esc(b.id) + '">' +
           '<header class="reservation-review-header"><div class="reservation-customer"><span class="reservation-customer-avatar" aria-hidden="true">' + '<span class="reservation-avatar-initials">' + esc(initials) + '</span>' + (avatarSrc ? '<img src="' + esc(avatarSrc) + '" alt="" loading="lazy">' : '') + '</span><div class="reservation-customer-copy"><span class="reservation-customer-type ' + (b.player_id ? 'member' : 'guest') + '">' + (b.player_id ? 'Member' : 'Guest') + '</span><h4>' + esc(displayName) + '</h4><div class="reservation-customer-phone"><span class="material-symbols-outlined" aria-hidden="true">call</span><span>' + esc(p.phone || "Phone not provided") + '</span></div></div></div><div class="reservation-payment-status">' + statusBadge + '</div></header>' +
           '<dl class="reservation-review-details"><div><dt>Court</dt><dd>' + esc(c.name || "Court") + '</dd></div><div><dt>Amount</dt><dd class="reservation-review-amount">' + money(b.amount) + '</dd></div><div><dt>Date</dt><dd>' + esc(bookingDate) + '</dd></div><div><dt>Time</dt><dd>' + esc(timeOf(new Date(b.starts_at), tz) + " \u2013 " + timeOf(new Date(b.ends_at), tz)) + '</dd></div></dl>' +
-          (guestEmailMap[b.id] ? '<div class="reservation-review-reference reservation-guest-email"><span>Email</span><strong>' + esc(guestEmailMap[b.id]) + '</strong></div>' : '') +
           '<div class="reservation-review-reference"><span>Reference</span><strong>' + esc(b.reference_code || "Not available") + '</strong></div>' +
           '<div class="reservation-review-reference reservation-review-payment"><span>Payment</span><strong class="payment-state-' + paymentState + '">' + paymentLabel + '</strong></div>' +
           (!py && b.expires_at ? '<div class="reservation-review-hold"><span class="material-symbols-outlined" aria-hidden="true">schedule</span><span>Hold ends in <b class="timer" data-exp="' + esc(b.expires_at) + '"></b></span></div>' : '') +
