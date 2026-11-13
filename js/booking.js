@@ -281,7 +281,8 @@
     function wireGuestBookingLinks() {
       if (!ctx.guestToken) return;
       el.querySelectorAll('a[href="#/me/bookings"]').forEach(function (link) {
-        var href = "#/guest/booking?token=" + encodeURIComponent(ctx.guestToken);
+        var collection = ctx.guestCollectionToken || guestCollectionFromLocation();
+        var href = "#/guest/booking?token=" + encodeURIComponent(ctx.guestToken) + (collection ? "&collection=" + encodeURIComponent(collection) : "");
         link.href = href;
         link.textContent = "View My Booking";
         link.onclick = function (event) {
@@ -2953,6 +2954,17 @@
     };
   }
 
+  function guestCollectionFromLocation() {
+    var token = new URLSearchParams(location.hash.split("?")[1] || "").get("collection");
+    return /^[0-9a-f]{64}$/.test(token || "") ? token : "";
+  }
+
+  function guestBookingHeader() {
+    var collection = guestCollectionFromLocation();
+    var href = collection ? "#/guest/bookings?token=" + encodeURIComponent(collection) : "#/guest/recover";
+    return '<header class="guest-bookings-header guest-booking-header-actions"><div class="guest-booking-header-copy"><span>Guest Workspace</span><h1>My Booking</h1><p>Manage your court reservation, payment, and booking pass.</p></div><a class="guest-all-bookings" href="' + esc(href) + '"><span class="material-symbols-outlined" aria-hidden="true">event_note</span>View All Bookings</a></header>';
+  }
+
   function guestBookingsSkeleton() {
     var bar = function (name) { return '<span class="guest-loading-bar ds-skeleton ' + name + '"></span>'; };
     var card = '<article class="guest-collection-card guest-collection-placeholder" aria-hidden="true">' +
@@ -2968,7 +2980,7 @@
   function guestBookingDetailsSkeleton() {
     var item = '<div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>';
     return '<div id="ds-book-page" class="book-public guest-status-page"><main>' +
-      '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Booking</h1><p>Manage your court reservation, payment, and booking pass.</p></header>' +
+      guestBookingHeader() +
       '<div class="guest-booking-skeleton" role="status" aria-label="Loading booking details" style="display:block;min-height:0;background:transparent;">' +
         '<div class="skel-guest-panel" aria-hidden="true">' +
           '<div class="skel-guest-status-head">' +
@@ -3041,7 +3053,7 @@
               var access = await sb.functions.invoke("guest-bookings", { body: { token:token, booking_id:rows[index].booking.id } });
               if (!stage.isConnected) return;
               if (access.error || !/^[0-9a-f]{64}$/.test(access.data && access.data.token || "")) throw new Error("unavailable");
-              D.go("/guest/booking?token=" + encodeURIComponent(access.data.token) + (checkout ? "&checkout=1" : ""));
+              D.go("/guest/booking?token=" + encodeURIComponent(access.data.token) + "&collection=" + encodeURIComponent(token) + (checkout ? "&checkout=1" : ""));
             } catch (_) { button.disabled = false; D.ui.toast("Unable to open this booking. Refresh or request a new booking link.", "err"); }
           };
         });
@@ -3063,7 +3075,7 @@
     var root = D.root();
     root.innerHTML = '<div id="ds-book-page" class="book-public w-full min-h-screen text-slate-100 flex flex-col antialiased"><main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10"><div id="guest-checkout" class="w-full relative"></div></main></div>';
     if (D.mountPublicBackdrop) D.mountPublicBackdrop(root.querySelector("#ds-book-page"));
-    await payPanel(root.querySelector("#guest-checkout"), booking, { guestToken:token, club:club, court:court, onBack:function () { guestBookingStatus(token); } });
+    await payPanel(root.querySelector("#guest-checkout"), booking, { guestToken:token, guestCollectionToken:guestCollectionFromLocation(), club:club, court:court, onBack:function () { guestBookingStatus(token); } });
   }
 
   async function guestBookingStatus(token, checkout) {
@@ -3102,7 +3114,7 @@
     var tone = b.status === "approved" ? "confirmed" : b.status === "pending" ? "pending" : "closed";
     var note = b.gate_pass_available ? "Your booking is confirmed. Show your QR pass at the court." : b.status === "pending" ? (b.proof_submitted ? "Your payment proof has been submitted. The club will review your reservation." : "Complete your payment and upload your receipt before your hold expires.") : (b.reject_reason || b.cancel_reason || "This reservation is no longer active.");
     root.innerHTML = '<div id="ds-book-page" class="book-public guest-status-page"><main>' +
-      '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Booking</h1><p>Manage your court reservation, payment, and booking pass.</p></header>' +
+      guestBookingHeader() +
       '<section class="guest-booking-status"><header class="guest-status-heading"><div class="guest-club-identity"><div class="guest-club-logo">' + (clubLogo ? '<img src="' + esc(clubLogo) + '" alt="' + esc(club.name || 'Club') + ' logo">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</div><div class="guest-club-summary"><span class="guest-status-eyebrow">Reservation Details</span><div class="guest-club-title"><h2>' + esc(club.name || 'Club') + '</h2><span class="guest-status-badge ' + tone + '">' + esc(statusText) + '</span><div class="guest-court-badges"><span><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>' + esc(court.name || 'Court') + '</span>' + (court.surface ? '<span><span class="material-symbols-outlined" aria-hidden="true">layers</span>' + esc(court.surface) + '</span>' : '') + '</div></div></div></div>' +
       (clubContact ? '<div class="guest-club-contact">' + clubContact + '</div>' : '') + '</header>' +
       '<dl class="guest-status-details">' + [

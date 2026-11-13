@@ -4619,7 +4619,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-status-page > main { width:100%; max-width:1280px; margin:0 auto; padding:32px 24px; box-sizing:border-box; }
 .guest-bookings-header { position:relative; margin:0 0 24px; padding:24px 28px; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); backdrop-filter:blur(6px); }
 .guest-bookings-header::before { content:""; position:absolute; top:0; left:28px; width:52px; height:2px; background:#a3e635; }
-.guest-bookings-header > span { display:block; margin-bottom:4px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
+.guest-bookings-header > span, .guest-booking-header-copy > span { display:block; margin-bottom:4px; color:#a3e635; font:600 10px/16px "JetBrains Mono",monospace; letter-spacing:.12em; text-transform:uppercase; }
 .guest-bookings-header h1 { margin:0; color:#f1f5f2; font:700 36px/44px "Plus Jakarta Sans",sans-serif; letter-spacing:-.04em; }
 .guest-bookings-header p { margin:2px 0 12px; color:#91a5b2; font-size:13px; line-height:20px; }
 @media(max-width:639px) { .guest-bookings-header { padding:16px; } .guest-bookings-header::before { left:16px; } .guest-bookings-header h1 { font-size:28px; line-height:36px; } }
@@ -4847,3 +4847,11 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 #ds-club-page .club-before-book-list > li { display:grid; grid-template-columns:16px minmax(0,1fr); align-items:start; gap:10px; line-height:18px; }
 #ds-club-page .club-before-book-list > li > i { width:16px; margin:0; font-size:12px; line-height:18px; text-align:center; }
 #ds-club-page .club-before-book-list > li > span { min-width:0; }
+
+.guest-booking-header-actions { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.guest-booking-header-copy { min-width:0; }
+.guest-all-bookings { display:inline-flex; flex:none; align-items:center; justify-content:center; gap:8px; min-height:38px; box-sizing:border-box; padding:9px 14px; border:1px solid #91a5b230; border-radius:9px; background:#242e34; color:#dce6df; font-size:12px; font-weight:600; line-height:18px; text-decoration:none; }
+.guest-all-bookings .material-symbols-outlined { font-size:18px; }
+.guest-all-bookings:hover { background:#2c383f; border-color:#a3e63560; }
+.guest-all-bookings:focus-visible { outline:2px solid #a3e635; outline-offset:3px; }
+@media(max-width:639px) { .guest-booking-header-actions { flex-direction:column; align-items:stretch; gap:12px; } .guest-booking-header-actions p { margin-bottom:0; } .guest-all-bookings { width:100%; } }
