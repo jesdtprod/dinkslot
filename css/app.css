@@ -4744,3 +4744,10 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-recovery-form label { display:grid; gap:6px; color:#b8c7d0; font-size:12px; }
 .guest-recovery-form input { width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #35434b; border-radius:9px; background:#202a30; color:#f1f5f2; }
 .guest-recovery-captcha { max-width:100%; overflow:auto; }
+
+.club-guest-recovery { display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:14px; border:1px solid #a3e63530; border-radius:10px; background:#a3e63508; }
+.club-guest-recovery > .material-symbols-outlined { flex:none; font-size:20px; color:#a3e635; }
+.club-guest-recovery strong { color:#e1e9e4; font-size:12px; }
+.club-guest-recovery p { margin:5px 0 9px; color:#91a5b2; font-size:12px; line-height:18px; }
+.club-guest-recovery a { display:inline-flex; align-items:center; gap:8px; color:#a3e635; font-size:12px; font-weight:600; }
+.club-guest-recovery a:hover { text-decoration:underline; }
