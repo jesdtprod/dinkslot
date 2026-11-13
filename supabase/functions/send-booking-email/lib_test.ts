@@ -21,6 +21,16 @@ Deno.test("booking email includes available club details and approval QR", () =>
   }
 });
 
+Deno.test("approved email can embed both the club logo and ticket QR", () => {
+  const mail = planEmails(ctx({ status: "approved" }, { clubLogoUrl: "cid:club-logo" }), false)[0];
+  const bytes = new Uint8Array([1, 2, 3]);
+  const mime = buildMime({ fromName: "DINKSLOT", fromEmail: "sender@example.test", to: mail.to, subject: mail.subject, text: mail.text, html: mail.html, inline: [
+    { cid: "club-logo", type: "image/jpeg", filename: "club-logo.jpg", data: bytes },
+    { cid: "ticket-qr", type: "image/png", filename: "ticket.png", data: bytes },
+  ] }, "ALT", "REL");
+  if (!mail.html.includes('src="cid:club-logo"') || !mime.includes("Content-ID: <club-logo>") || !mime.includes("Content-ID: <ticket-qr>")) throw new Error("missing inline image");
+});
+
 Deno.test("guest recovery presents escaped booking links", () => {
   const mail = guestRecoveryEmail([{ club: "<Club>", ref: "DS-123", url: "https://example.test/booking?a=1&b=2" }]);
   if (mail.html.includes("<Club>") || !mail.html.includes("&lt;Club&gt;") || !mail.html.includes("a=1&amp;b=2") || !mail.html.includes("View Booking")) throw new Error("invalid recovery email");

@@ -50,6 +50,17 @@ Deno.serve(async (req) => {
   ]);
   if (!tenant) return json({ skipped: "tenant_not_found" });
 
+  // Embed the logo so email clients do not need to load it through an image proxy.
+  let clubLogo: Inline | undefined;
+  if (tenant.logo_path) {
+    try {
+      const { data: file, error } = await admin.storage.from("club-media").download(tenant.logo_path);
+      if (!error && file && file.size <= 2 * 1024 * 1024 && ["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        clubLogo = { cid: "club-logo", type: file.type, filename: "club-logo" + (file.type === "image/jpeg" ? ".jpg" : file.type === "image/png" ? ".png" : ".webp"), data: new Uint8Array(await file.arrayBuffer()) };
+      }
+    } catch (e) { console.error("Club logo unavailable", e instanceof Error ? e.message : String(e)); }
+  }
+
   async function emailOf(userId?: string | null): Promise<string | null> {
     if (!userId) return null;
     const { data } = await admin.auth.admin.getUserById(userId);
@@ -75,7 +86,7 @@ Deno.serve(async (req) => {
 
   const ctx: Ctx = {
     booking: b, clubName: tenant.name, clubSlug: tenant.slug, timezone: tenant.timezone || "Asia/Manila",
-    clubLogoUrl: tenant.logo_path ? admin.storage.from("club-media").getPublicUrl(tenant.logo_path).data.publicUrl : null,
+    clubLogoUrl: clubLogo ? "cid:club-logo" : null,
     clubAddress: [tenant.address, tenant.city, tenant.province, tenant.zip_code].filter(Boolean).join(", "),
     clubEmail: tenant.contact_email, clubPhone: tenant.contact_phone,
     courtName: court?.name ?? "Court", playerName: player?.display_name ?? b.guest_name ?? "Player",
@@ -96,9 +107,8 @@ Deno.serve(async (req) => {
     }
     try {
       // the approved email carries the ticket QR (same code as the ticket in the app) as an inline PNG
-      const inline: Inline[] | undefined = mail.qr
-        ? [{ cid: "ticket-qr", type: "image/png", filename: `booking-${mail.qr}.png`, data: bookingQrPng(mail.qr) }]
-        : undefined;
+      const inline: Inline[] = clubLogo ? [clubLogo] : [];
+      if (mail.qr) inline.push({ cid: "ticket-qr", type: "image/png", filename: `booking-${mail.qr}.png`, data: bookingQrPng(mail.qr) });
       const id = await mailer.send({
         fromName: "DINKSLOT", fromEmail: mailer.fromEmail, to: mail.to, replyTo: tenant.contact_email,
         subject: mail.subject, text: mail.text, html: mail.html, inline,
