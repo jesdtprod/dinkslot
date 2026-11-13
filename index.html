@@ -221,8 +221,9 @@
       var path = (qs === -1 ? raw : raw.slice(0, qs)) || "/";
       var mode = new URLSearchParams(qs === -1 ? "" : raw.slice(qs + 1)).get("mode");
       var cl = document.documentElement.classList;
-      cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club");
+      cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club", "boot-public-club");
       if (/^\/(admin|platform|me)(\/|\?|$)/.test(path)) cl.add("boot-dashboard");
+      else if (/^\/c\/[a-z0-9-]+(\/(join|book))?$/.test(path)) cl.add("boot-public-club");
       else if (path === "/register-club" || path === "/club-setup") cl.add("boot-club");
       else if (path === "/auth") cl.add(mode === "up" ? "boot-signup" : "boot-signin");
       else cl.add("boot-home");
@@ -234,10 +235,11 @@
     html.boot-signin body.app-booting #app-startup .signin-skeleton { display: block; }
     html.boot-signup body.app-booting #app-startup .signup-skeleton { display: block; }
     html.boot-club body.app-booting #app-startup .club-skeleton { display: block; }
+    html.boot-public-club body.app-booting #app-startup .public-club-skeleton { display: block; }
     html.boot-dashboard body.app-booting #app-startup .boot-skeleton { display: flex; }
-    html:not(.boot-dashboard):not(.boot-signin):not(.boot-signup):not(.boot-club) body.app-booting #app-startup .home-skeleton { display: block; }
+    html:not(.boot-dashboard):not(.boot-signin):not(.boot-signup):not(.boot-club):not(.boot-public-club) body.app-booting #app-startup .home-skeleton { display: block; }
 
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) {
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) {
       box-sizing: border-box;
       min-height: 100dvh;
       text-align: left;
@@ -245,13 +247,13 @@
       color: transparent;
       overflow-x: hidden;
     }
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) *,
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) *::before,
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) *::after {
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) *,
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) *::before,
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) *::after {
       box-sizing: border-box;
     }
 
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) :is(i, b) {
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) :is(i, b) {
       display: block;
       position: relative;
       overflow: hidden;
@@ -262,7 +264,7 @@
       font-weight: normal;
     }
 
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) :is(i, b)::after {
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) :is(i, b)::after {
       content: '';
       position: absolute;
       inset: 0;
@@ -276,7 +278,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .boot-skeleton) :is(i, b)::after {
+      :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) :is(i, b)::after {
         animation: none;
         display: none;
       }
@@ -950,6 +952,176 @@
       .skel-club-form { padding: 40px; gap: 18px; }
       .skel-club-form-title { height: 32px; }
     }
+
+    /* Public Club Page Skeleton (/c/<slug>) */
+    .skel-pub-wrap {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 16px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .skel-pub-crumb-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .skel-pub-crumb-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .skel-pub-crumb-left i { width: 84px; height: 28px; border-radius: 9999px; }
+    .skel-pub-crumb-left i:last-child { width: 140px; }
+    .skel-pub-crumb-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .skel-pub-crumb-right i { width: 112px; height: 28px; border-radius: 9999px; }
+    .skel-pub-crumb-right i:last-child { width: 72px; border-radius: 8px; }
+    .skel-pub-hero {
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+    .skel-pub-cover {
+      height: 210px;
+      width: 100%;
+      border-radius: 0 !important;
+    }
+    .skel-pub-hero-body {
+      padding: 0 18px 22px;
+      margin-top: -52px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .skel-pub-head-row {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .skel-pub-identity {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .skel-pub-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 18px !important;
+      flex-shrink: 0;
+    }
+    .skel-pub-title-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .skel-pub-title-col i:first-child { width: 240px; max-width: 85%; height: 30px; border-radius: 10px; }
+    .skel-pub-title-col i:last-child { width: 180px; max-width: 65%; height: 15px; border-radius: 6px; }
+    .skel-pub-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .skel-pub-cta-row b {
+      flex: 1 1 140px;
+      height: 44px;
+      border-radius: 12px;
+    }
+    .skel-pub-facts {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .skel-pub-facts b {
+      height: 58px;
+      border-radius: 12px;
+    }
+    .skel-pub-date-bar {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .skel-pub-date-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .skel-pub-date-top i { width: 220px; height: 22px; border-radius: 8px; }
+    .skel-pub-date-top b { width: 160px; height: 32px; border-radius: 10px; }
+    .skel-pub-days {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .skel-pub-days i { height: 52px; border-radius: 12px; }
+    .skel-pub-courts-head {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skel-pub-courts-head i:first-child { width: 180px; height: 24px; border-radius: 8px; }
+    .skel-pub-courts-head i:last-child { width: 260px; max-width: 85%; height: 14px; border-radius: 6px; }
+    .skel-pub-courts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .skel-pub-court-card {
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .skel-pub-court-img { height: 140px; border-radius: 12px; }
+    .skel-pub-court-card i { height: 16px; width: 65%; border-radius: 6px; }
+    .skel-pub-court-slots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .skel-pub-court-slots b { height: 32px; border-radius: 8px; }
+    @media (min-width: 640px) {
+      .skel-pub-wrap { padding: 24px 24px 72px; }
+      .skel-pub-cover { height: 280px; }
+      .skel-pub-hero-body { padding: 0 24px 24px; margin-top: -64px; }
+      .skel-pub-identity { flex-direction: row; align-items: flex-end; }
+      .skel-pub-avatar { width: 108px; height: 108px; }
+      .skel-pub-facts { grid-template-columns: repeat(2, 1fr); }
+      .skel-pub-days { grid-template-columns: repeat(7, 1fr); }
+      .skel-pub-courts-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .skel-pub-wrap { padding: 24px 32px 72px; }
+      .skel-pub-cover { height: 340px; }
+      .skel-pub-head-row { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+      .skel-pub-cta-row b { flex: 0 0 156px; }
+      .skel-pub-facts { grid-template-columns: repeat(4, 1fr); }
+      .skel-pub-courts-grid { grid-template-columns: repeat(3, 1fr); }
+    }
   </style>
   <style id="startup-critical">
     body.app-booting > :is(header,main,footer) { visibility:hidden; }
@@ -1171,7 +1343,45 @@
       </main>
     </div>
 
-    <!-- 5. DASHBOARD SKELETON (displayed on admin / platform / me routes) -->
+    <!-- 5. PUBLIC CLUB PAGE SKELETON (/c/<slug>) -->
+    <div class="public-club-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-links"><i></i><i></i><i></i></div>
+        <div class="skel-actions"><i class="skel-act-sec"></i><b class="skel-btn-pill"></b></div>
+      </header>
+      <div class="skel-pub-wrap">
+        <div class="skel-pub-crumb-row">
+          <div class="skel-pub-crumb-left"><i></i><i></i></div>
+          <div class="skel-pub-crumb-right"><i></i><i></i></div>
+        </div>
+        <div class="skel-pub-hero">
+          <b class="skel-pub-cover"></b>
+          <div class="skel-pub-hero-body">
+            <div class="skel-pub-head-row">
+              <div class="skel-pub-identity">
+                <b class="skel-pub-avatar"></b>
+                <div class="skel-pub-title-col"><i></i><i></i></div>
+              </div>
+              <div class="skel-pub-cta-row"><b></b><b></b></div>
+            </div>
+            <div class="skel-pub-facts"><b></b><b></b><b></b><b></b></div>
+          </div>
+        </div>
+        <div class="skel-pub-date-bar">
+          <div class="skel-pub-date-top"><i></i><b></b></div>
+          <div class="skel-pub-days"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="skel-pub-courts-head"><i></i><i></i></div>
+        <div class="skel-pub-courts-grid">
+          <div class="skel-pub-court-card"><b class="skel-pub-court-img"></b><i></i><div class="skel-pub-court-slots"><b></b><b></b><b></b></div></div>
+          <div class="skel-pub-court-card"><b class="skel-pub-court-img"></b><i></i><div class="skel-pub-court-slots"><b></b><b></b><b></b></div></div>
+          <div class="skel-pub-court-card"><b class="skel-pub-court-img"></b><i></i><div class="skel-pub-court-slots"><b></b><b></b><b></b></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. DASHBOARD SKELETON (displayed on admin / platform / me routes) -->
     <div class="boot-skeleton" aria-hidden="true"><aside><i></i><b></b><b></b><b></b><b></b><b></b></aside><div class="boot-skeleton-page"><header><i></i><b></b></header><main><i class="boot-title"></i><i class="boot-subtitle"></i><div class="boot-metrics"><b></b><b></b><b></b><b></b></div><div class="boot-panels"><b></b><b></b></div><b class="boot-table"></b></main></div></div>
   </div>
   <header class="site-header fixed top-0 w-full z-50">
@@ -1262,7 +1472,7 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <script src="js/config.js?v=2"></script>
   <script src="js/landing.js?v=441"></script>
-  <script src="js/app.js?v=460"></script>
+  <script src="js/app.js?v=488"></script>
   <script src="js/ui.js?v=462"></script>
   <script src="js/profile-controls.js?v=392"></script>
   <script src="js/notify.js?v=430"></script>

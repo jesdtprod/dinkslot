@@ -487,20 +487,37 @@
   }
 
   async function viewClub(slug) {
-    app.innerHTML = '<div class="pubwrap">' +
-      '<div class="h-44 sm:h-64 w-full rounded-2xl bg-surface-container-high/60 ds-skeleton mb-6"></div>' +
-      '<div class="flex items-center gap-4 mb-8">' +
-        '<div class="w-16 h-16 rounded-2xl bg-surface-container-high/60 ds-skeleton shrink-0"></div>' +
-        '<div class="flex flex-col gap-2 flex-1">' +
-          '<div class="h-6 w-48 bg-surface-container-high/70 rounded-lg ds-skeleton"></div>' +
-          '<div class="h-4 w-72 bg-surface-container-high/40 rounded ds-skeleton"></div>' +
+    app.innerHTML = '<div class="public-club-skeleton" role="status" aria-label="Loading club" style="display:block;">' +
+      '<div class="skel-pub-wrap">' +
+        '<div class="skel-pub-crumb-row">' +
+          '<div class="skel-pub-crumb-left"><i></i><i></i></div>' +
+          '<div class="skel-pub-crumb-right"><i></i><i></i></div>' +
+        '</div>' +
+        '<div class="skel-pub-hero">' +
+          '<b class="skel-pub-cover"></b>' +
+          '<div class="skel-pub-hero-body">' +
+            '<div class="skel-pub-head-row">' +
+              '<div class="skel-pub-identity">' +
+                '<b class="skel-pub-avatar"></b>' +
+                '<div class="skel-pub-title-col"><i></i><i></i></div>' +
+              '</div>' +
+              '<div class="skel-pub-cta-row"><b></b><b></b></div>' +
+            '</div>' +
+            '<div class="skel-pub-facts"><b></b><b></b><b></b><b></b></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="skel-pub-date-bar">' +
+          '<div class="skel-pub-date-top"><i></i><b></b></div>' +
+          '<div class="skel-pub-days"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>' +
+        '</div>' +
+        '<div class="skel-pub-courts-head"><i></i><i></i></div>' +
+        '<div class="skel-pub-courts-grid">' +
+          '<div class="skel-pub-court-card"><b class="skel-pub-court-img"></b><i></i><div class="skel-pub-court-slots"><b></b><b></b><b></b></div></div>' +
+          '<div class="skel-pub-court-card"><b class="skel-pub-court-img"></b><i></i><div class="skel-pub-court-slots"><b></b><b></b><b></b></div></div>' +
+          '<div class="skel-pub-court-card"><b class="skel-pub-court-img"></b><i></i><div class="skel-pub-court-slots"><b></b><b></b><b></b></div></div>' +
         '</div>' +
       '</div>' +
-      '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' +
-        '<div class="h-40 rounded-xl bg-surface-container-low border border-outline-variant/20 ds-skeleton"></div>' +
-        '<div class="h-40 rounded-xl bg-surface-container-low border border-outline-variant/20 ds-skeleton"></div>' +
-        '<div class="h-40 rounded-xl bg-surface-container-low border border-outline-variant/20 ds-skeleton"></div>' +
-      '</div></div>';
+    '</div>';
     var r = await sb.from("public_clubs").select("*").eq("slug", slug).maybeSingle();
     var c = r.data;
     if (!c) { app.innerHTML = '<div class="pubwrap"><h2>Club not found</h2><p>This club does not exist or is not approved yet.</p><a class="btn" href="#/">Back to clubs</a></div>'; return; }
@@ -2106,8 +2123,9 @@
 
   function syncBootRouteClass(path, mode) {
     var cl = document.documentElement.classList;
-    cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club");
+    cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club", "boot-public-club");
     if (/^\/(admin|platform|me)(\/|\?|$)/.test(path)) cl.add("boot-dashboard");
+    else if (/^\/c\/[a-z0-9-]+(\/(join|book))?$/.test(path)) cl.add("boot-public-club");
     else if (path === "/register-club" || path === "/club-setup") cl.add("boot-club");
     else if (path === "/auth") cl.add(mode === "up" ? "boot-signup" : "boot-signin");
     else cl.add("boot-home");
