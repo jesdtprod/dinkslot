@@ -687,7 +687,7 @@
           : '<div class="bg-dink-surface rounded-2xl border border-dink-border p-8 text-center text-slate-400"><i class="fa-solid fa-table-tennis-paddle-ball text-2xl text-slate-600 mb-2" aria-hidden="true"></i><p class="m-0">This club has not listed its courts yet.</p></div>') +
       "</section>" +
       // about + booking info
-      '<section class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">' +
+      '<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">' +
         '<div class="lg:col-span-2 bg-dink-surface p-6 rounded-2xl border border-dink-border shadow-md">' +
           '<h3 class="text-lg font-bold text-white font-display mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-info text-dink-lime" aria-hidden="true"></i> About ' + esc(c.name) + "</h3>" +
           (c.description ? '<p class="text-sm text-slate-300 leading-relaxed whitespace-pre-line m-0">' + esc(c.description) + "</p>"
