@@ -17,7 +17,7 @@ const D = {esc:escape,state:{user:{id:'user',email:'a@example.com'}},mediaUrl:x=
   const query = {select(){return this;},eq(){return this;},in(){return this;},order(){return this;},limit(){return this;},maybeSingle(){return Promise.resolve({data:rows[0]});},then(resolve,reject){return Promise.resolve({data:rows,count:7}).then(resolve,reject);}};
   return query;
 }}};
-const source = fs.readFileSync('js/player.js','utf8').replace('D.player = { render: render };','D.player = { render: render, overview: overviewView };');
+const source = fs.readFileSync('js/player.js','utf8').replace('D.player = { render: render, memberSkeleton: memberSkeleton };','D.player = { render: render, overview: overviewView };');
 vm.runInNewContext(source,{window:{DS:D},console,Date,Set,setInterval:()=>1,clearInterval(){}});
 function section(){
   const slot={innerHTML:'',setAttribute(){}};
@@ -38,7 +38,7 @@ function section(){
   assert.match(sec.innerHTML,/12 Real Street, Poblacion, Isulan/);
   assert.match(sec.innerHTML,/90 minutes/);
   assert.match(sec.innerHTML,/PHP 225.00/);
-  assert.match(sec.innerHTML,/Upcoming \(1\)/);
+  assert.match(sec.innerHTML,/Upcoming <span class="overview-filter-count">1<\/span>/);
   assert.doesNotMatch(sec.innerHTML,/Main Arena|DS-S54V8DJH1|Gate PIN:/);
   const home = sec.innerHTML.split('id="my-home-club"')[1];
   assert.match(home,/home-clubs-grid/);
@@ -61,9 +61,9 @@ function section(){
   assert.match(sec.slot.innerHTML,/LIVE-123/);
   bookings[0].status='approved';await onChange();
   assert.match(sec.slot.innerHTML,/No pending bookings/);
-  assert.match(sec.innerHTML,/Upcoming \(1\)/);
+  assert.match(sec.innerHTML,/Upcoming <span class="overview-filter-count">1<\/span>/);
   assert.equal(sec.__overviewFilter,'pending');assert.equal(subscriptions,1);
-  bookings[0].status='cancelled';await onChange();assert.match(sec.innerHTML,/Upcoming \(0\)/);
-  bookings[0].status='rejected';await onChange();assert.match(sec.innerHTML,/Pending \(0\)/);
+  bookings[0].status='cancelled';await onChange();assert.match(sec.innerHTML,/Upcoming <span class="overview-filter-count">0<\/span>/);
+  bookings[0].status='rejected';await onChange();assert.match(sec.innerHTML,/Pending <span class="overview-filter-count">0<\/span>/);
   console.log('Member booking records, location, duration, filters and empty states passed.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
