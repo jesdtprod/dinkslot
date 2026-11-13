@@ -4631,8 +4631,8 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-club-contact { display:flex; flex-wrap:wrap; gap:12px 24px; margin:16px 0 0; color:#91a5b2; font-size:12px; line-height:18px; }
 .guest-club-contact > span { display:flex; align-items:flex-start; gap:6px; min-width:0; overflow-wrap:anywhere; }
 .guest-club-contact .material-symbols-outlined { font-size:16px; color:#a3e635; flex:none; }
-.guest-status-heading { display:grid; grid-template-columns:minmax(0,1fr); align-items:center; gap:16px; padding-bottom:20px; border-bottom:1px solid #ffffff12; }
-.guest-status-heading .guest-club-contact { grid-column:1 / -1; margin:0; padding:14px 0 0; border-top:1px solid #ffffff0a; gap:10px 24px; }
+.guest-status-heading { display:grid; grid-template-columns:minmax(0,1fr); align-items:center; gap:16px; padding-bottom:0; border-bottom:1px solid #ffffff12; }
+.guest-status-heading .guest-club-contact { grid-column:1 / -1; margin:0; padding:16px 0; border-top:1px solid #ffffff0a; gap:10px 24px; }
 .guest-status-eyebrow { color:#a3e635; font:700 10px/16px "JetBrains Mono",monospace; letter-spacing:.06em; text-transform:uppercase; }
 .guest-status-heading h2 { margin:0; font-size:22px; font-weight:700; line-height:30px; letter-spacing:-.03em; color:#f1f5f2; }
 .guest-club-summary { min-width:0; }
@@ -4684,14 +4684,14 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-approved-layout .guest-status-note { align-items:center; }
 .guest-approved-layout .guest-status-actions { margin-top:0; }
 @media(max-width:639px) {
-  .guest-status-heading { gap:12px; padding-bottom:16px; }
+  .guest-status-heading { gap:12px; padding-bottom:0; }
   .guest-status-heading .guest-club-identity { display:grid; grid-template-columns:52px minmax(0,1fr); align-items:start; gap:12px; }
   .guest-status-heading .guest-club-logo { width:52px; height:52px; padding:4px; box-sizing:border-box; border-radius:12px; }
   .guest-status-heading .guest-status-eyebrow { display:block; font-size:9px; line-height:14px; }
   .guest-status-heading .guest-club-title { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; gap:8px; margin-top:3px; }
   .guest-status-heading h2 { font-size:20px; line-height:26px; overflow-wrap:anywhere; }
   .guest-status-heading > .guest-status-badge { margin-left:64px; padding:4px 8px; font-size:10px; line-height:16px; }
-  .guest-status-heading .guest-club-contact { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; padding-top:12px; }
+  .guest-status-heading .guest-club-contact { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; padding:12px 0; }
   .guest-club-contact > span { display:grid; grid-template-columns:16px minmax(0,1fr); align-items:start; gap:8px; line-height:19px; }
   .guest-club-contact > span > span:last-child { min-width:0; overflow-wrap:anywhere; }
   .guest-club-contact .material-symbols-outlined { line-height:19px; }
