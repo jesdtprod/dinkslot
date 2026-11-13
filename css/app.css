@@ -3165,6 +3165,9 @@ article.group > a.relative:first-child > img { position: absolute; inset: 0; wid
 .bell .bellhead { gap:12px; padding:14px 16px; border-bottom:1px solid #ffffff0c; }
 .bell .bellhead b { color:#dce4df; font-size:13px; }
 .bell .bellhead #markall { min-height:30px !important; padding:5px 8px !important; font-size:10px !important; }
+@media (min-width: 768px) {
+  .bell .bellhead #markall { flex-shrink:0; white-space:nowrap; }
+}
 .bell .belllist { padding:6px; max-height:min(420px,65dvh); scrollbar-width:none; }
 .bell .belllist::-webkit-scrollbar { display:none; }
 .bell .nitem { position:relative; display:flex; align-items:flex-start; justify-content:flex-start; gap:10px; width:100%; margin:0; padding:12px 10px; border:0; border-radius:8px; background:transparent; color:#a8b6ae; text-align:left; font:400 12px/19px "Plus Jakarta Sans",sans-serif; box-shadow:none; transition:background .15s; }
