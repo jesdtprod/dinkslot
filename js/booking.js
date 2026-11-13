@@ -2893,6 +2893,16 @@
     };
   }
 
+  function guestBookingsSkeleton() {
+    return '<div class="guest-collection-grid" role="status" aria-label="Loading bookings">' + Array.from({length:3}, function () {
+      return '<div class="guest-collection-card" aria-hidden="true"><div class="skeleton-pill ds-skeleton" style="width:110px;height:24px"></div><div class="skeleton-line ds-skeleton" style="width:75%;height:24px"></div><div class="skeleton-line ds-skeleton" style="width:90%;height:36px"></div><div class="skeleton-line ds-skeleton" style="width:100%;height:110px"></div><div class="skeleton-line ds-skeleton" style="width:100%;height:38px"></div></div>';
+    }).join('') + '</div>';
+  }
+
+  function guestBookingDetailsSkeleton() {
+    return '<div id="ds-book-page" class="book-public guest-status-page"><main><header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Booking</h1><p>Manage your court reservation, payment, and booking pass.</p></header><section class="guest-booking-status" role="status" aria-label="Loading booking details"><div aria-hidden="true"><div class="skeleton-line ds-skeleton" style="width:200px;max-width:100%;height:28px"></div><div class="skeleton-line ds-skeleton" style="width:70%;height:20px;margin-top:16px"></div><div class="guest-status-details">' + Array.from({length:8}, function () { return '<div class="ds-skeleton" style="height:72px;box-sizing:border-box"></div>'; }).join('') + '</div></div></section></main></div>';
+  }
+
   async function guestBookings(token) {
     var root = D.root(), page = 0, filter = "all", request = 0;
     if (!/^[0-9a-f]{64}$/.test(token || "")) {
@@ -2914,11 +2924,12 @@
     async function load() {
       var current = ++request;
       stage.querySelectorAll("[data-filter]").forEach(function (button) { button.setAttribute("aria-pressed", String(button.dataset.filter === filter)); });
-      results.innerHTML = bookingPassSkeleton(); pages.innerHTML = ""; summary.textContent = "Loading your bookings...";
+      results.innerHTML = guestBookingsSkeleton(); results.setAttribute("aria-busy", "true"); pages.innerHTML = ""; summary.textContent = ""; summary.hidden = true;
       try {
         var response = await sb.functions.invoke("guest-bookings", { body: { token:token, page:page, filter:filter } });
         if (!stage.isConnected || current !== request) return;
         if (response.error || !response.data || !Array.isArray(response.data.bookings)) throw response.error || new Error("unavailable");
+        results.setAttribute("aria-busy", "false"); summary.hidden = false;
         var rows = response.data.bookings, total = response.data.total || 0;
         if (!rows.length && total && page > 0) { page = Math.max(0, Math.ceil(total / 12) - 1); return load(); }
         summary.textContent = total ? total + (total === 1 ? " booking" : " bookings") + " · " + (page * 12 + 1) + "–" + Math.min((page + 1) * 12, total) + " shown" : "No bookings in this category.";
@@ -2958,7 +2969,7 @@
         }
       } catch (_) {
         if (!stage.isConnected || current !== request) return;
-        summary.textContent = "";
+        summary.textContent = ""; summary.hidden = true; results.setAttribute("aria-busy", "false");
         results.innerHTML = '<div class="guest-collection-empty"><h2>Unable to load your bookings</h2><p>Your link may have expired, or the service may be temporarily unavailable. Try Refresh or request a new secure link.</p><a href="#/guest/recover">Find My Bookings</a></div>';
       }
     }
@@ -2978,7 +2989,8 @@
       root.innerHTML = '<section class="panel"><h1>Booking link unavailable</h1><p>This link is invalid or has expired.</p><a class="btn" href="#/guest/recover">Request a new link</a></section>';
       return;
     }
-    root.innerHTML = '<div id="ds-book-page" class="book-public"><main>' + (checkout ? paymentSkeleton() : bookingPassSkeleton()) + '</main></div>';
+    root.innerHTML = checkout ? '<div id="ds-book-page" class="book-public"><main>' + paymentSkeleton() + '</main></div>' : guestBookingDetailsSkeleton();
+    if (D.mountPublicBackdrop) D.mountPublicBackdrop(root.querySelector("#ds-book-page"));
     var response = await sb.functions.invoke("guest-booking-status", { body: { token: token } });
     if (response.error || !response.data || !response.data.booking) {
       root.innerHTML = '<section class="panel"><h1>Unable to load booking</h1><p>The link may have expired or the service may be unavailable. Please try again or contact the club.</p><a class="btn" href="#/guest/recover">Request a new link</a></section>';
