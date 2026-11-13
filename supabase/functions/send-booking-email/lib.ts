@@ -47,17 +47,21 @@ export function fmtRange(startIso: string, endIso: string, tz: string): string {
 
 function layout(ctx: Ctx, heading: string, lines: string[], cta?: { label: string; url: string }, qr?: string): { text: string; html: string } {
   const text = [heading, "", ...lines, ...(qr ? ["", `Show this booking code at the court: ${qr}`] : []), ...(cta ? ["", `${cta.label}: ${cta.url}`] : []), "", `- ${ctx.clubName} (via DINKSLOT)`].join("\n");
-  const html = `<!doctype html><html><body style="margin:0;background:#10141a;font-family:Arial,Helvetica,sans-serif;color:#dfe2eb">
+  const detailNames = ["Court", "When", "Amount", "Booking code"];
+  const intro = lines.filter((line) => !detailNames.some((name) => line.startsWith(name + ": ")));
+  const detailLines = lines.filter((line) => detailNames.some((name) => line.startsWith(name + ": ")));
+  const html = `<!doctype html><html><body style="margin:0;background:#f3f5f2;font-family:Arial,Helvetica,sans-serif;color:#1c2930">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
-<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#181c22;border:1px solid #262a31;border-radius:16px">
-<tr><td style="padding:20px 24px;border-bottom:3px solid #a3e635;font-weight:700;font-size:16px;letter-spacing:.04em">${escHtml(ctx.clubName)}</td></tr>
-<tr><td style="padding:24px">
-<h1 style="margin:0 0 14px;font-size:20px;color:#ccff80">${escHtml(heading)}</h1>
-${lines.map((l) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.55">${escHtml(l)}</p>`).join("")}
-${qr ? `<p style="margin:18px 0 6px;text-align:center"><img src="cid:ticket-qr" width="220" height="220" alt="Booking QR code ${escHtml(qr)}" style="display:inline-block;width:220px;height:220px;border-radius:12px;background:#ffffff"></p><p style="margin:0 0 6px;text-align:center;font-size:13px;color:#c2cab0">Show this QR code at the court.<br>Booking code <b style="color:#ccff80;letter-spacing:.06em">${escHtml(qr)}</b></p>` : ""}
-${cta ? `<p style="margin:20px 0 4px"><a href="${escHtml(cta.url)}" style="background:#a3e635;color:#213600;text-decoration:none;font-weight:700;padding:11px 20px;border-radius:999px;display:inline-block">${escHtml(cta.label)}</a></p>` : ""}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#ffffff;border:1px solid #dfe6df;border-radius:16px">
+<tr><td style="padding:22px 28px;border-bottom:3px solid #a3e635;font-weight:700;font-size:16px;color:#172820">${escHtml(ctx.clubName)} <span style="font-size:12px;color:#66806d;font-weight:400">&nbsp; | &nbsp; DINKSLOT</span></td></tr>
+<tr><td style="padding:28px">
+<h1 style="margin:0 0 18px;font-size:24px;line-height:1.25;color:#172820">${escHtml(heading)}</h1>
+${intro.map((l) => `<p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#42535b">${escHtml(l)}</p>`).join("")}
+${detailLines.length ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;background:#f5f8f4;border:1px solid #e1e9df;border-radius:10px"><tr><td style="padding:16px 18px"><p style="margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:.06em;color:#527052;text-transform:uppercase">Reservation details</p>${detailLines.map((line) => { const split = line.indexOf(": "); return `<p style="margin:0 0 9px;font-size:14px;line-height:1.5;color:#33464a"><span style="color:#65776e">${escHtml(line.slice(0, split))}:</span> <strong style="color:#1c3025">${escHtml(line.slice(split + 2))}</strong></p>`; }).join("")}</td></tr></table>` : ""}
+${qr ? `<p style="margin:18px 0 6px;text-align:center"><img src="cid:ticket-qr" width="220" height="220" alt="Booking QR code ${escHtml(qr)}" style="display:inline-block;width:220px;height:220px;border-radius:12px;background:#ffffff"></p><p style="margin:0 0 6px;text-align:center;font-size:13px;color:#52665a">Show this QR code at the court.<br>Booking code <b style="color:#34551d;letter-spacing:.06em">${escHtml(qr)}</b></p>` : ""}
+${cta ? `<p style="margin:22px 0 4px"><a href="${escHtml(cta.url)}" style="background:#a3e635;color:#1e310b;text-decoration:none;font-size:14px;font-weight:700;padding:13px 20px;border-radius:8px;display:inline-block">${escHtml(cta.label)}</a></p>` : ""}
 </td></tr>
-<tr><td style="padding:14px 24px;font-size:12px;color:#8c947c;border-top:1px solid #262a31">Sent by ${escHtml(ctx.clubName)} through DINKSLOT. Book Your Slot. Own the Court.</td></tr>
+<tr><td style="padding:18px 28px;font-size:12px;line-height:1.5;color:#708078;border-top:1px solid #e8eee8">Sent by ${escHtml(ctx.clubName)} through DINKSLOT.<br>Book Your Slot. Own the Court.</td></tr>
 </table></td></tr></table></body></html>`;
   return { text, html };
 }
@@ -91,8 +95,8 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
 
   if (status === "pending") {
     toPlayer("booking_received", `Booking received - ${b.reference_code}`, "We received your booking",
-      ["Your booking request is in. Pay with the club's QR and upload your proof so the club can confirm it.", ...details(ctx)],
-      { label: "Pay and upload proof", url: myBookings });
+      ["Your reservation is on hold. Complete your payment and upload your proof so the club can review your booking.", ...details(ctx)],
+      { label: "Pay and Upload Proof", url: myBookings });
     toAdmins("booking_request", `New booking request - ${b.reference_code}`, "New booking request",
       [`${ctx.playerName} requested a court.`, ...details(ctx)]);
   } else if (status === "approved") {
