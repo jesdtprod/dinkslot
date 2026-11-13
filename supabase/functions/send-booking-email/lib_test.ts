@@ -21,14 +21,13 @@ Deno.test("booking email includes available club details and approval QR", () =>
   }
 });
 
-Deno.test("approved email can embed both the club logo and ticket QR", () => {
-  const mail = planEmails(ctx({ status: "approved" }, { clubLogoUrl: "cid:club-logo" }), false)[0];
+Deno.test("approved email uses a hosted club logo and an inline ticket QR", () => {
+  const mail = planEmails(ctx({ status: "approved" }, { clubLogoUrl: "https://example.test/logo.png" }), false)[0];
   const bytes = new Uint8Array([1, 2, 3]);
   const mime = buildMime({ fromName: "DINKSLOT", fromEmail: "sender@example.test", to: mail.to, subject: mail.subject, text: mail.text, html: mail.html, inline: [
-    { cid: "club-logo", type: "image/jpeg", filename: "club-logo.jpg", data: bytes },
     { cid: "ticket-qr", type: "image/png", filename: "ticket.png", data: bytes },
   ] }, "ALT", "REL");
-  if (!mail.html.includes('src="cid:club-logo"') || !mime.includes("Content-ID: <club-logo>") || !mime.includes("Content-ID: <ticket-qr>")) throw new Error("missing inline image");
+  if (!mail.html.includes('src="https://example.test/logo.png"') || mime.includes("Content-ID: <club-logo>") || !mime.includes("Content-ID: <ticket-qr>")) throw new Error("invalid logo or QR image");
 });
 
 Deno.test("guest recovery presents escaped booking links", () => {
@@ -39,8 +38,8 @@ Deno.test("guest recovery presents escaped booking links", () => {
 
 Deno.test("guest recovery header shows available DINKSLOT logo and contact details", () => {
   const links = [{ club: "Club", ref: "DS-123", url: "https://example.test/booking" }];
-  const html = guestRecoveryEmail(links, { logoUrl: "cid:dinkslot-logo", address: "Main Street", email: "help@example.test", phone: "09123456789" }).html;
-  for (const value of ["cid:dinkslot-logo", "Main Street", "help@example.test", "09123456789", "&#128205;", "&#9993;", "&#9742;"]) {
+  const html = guestRecoveryEmail(links, { logoUrl: "https://example.test/logo.png", address: "Main Street", email: "help@example.test", phone: "09123456789" }).html;
+  for (const value of ["https://example.test/logo.png", "Main Street", "help@example.test", "09123456789", "&#128205;", "&#9993;", "&#9742;"]) {
     if (!html.includes(value)) throw new Error("missing " + value);
   }
   if (guestRecoveryEmail(links).html.includes('src="cid:dinkslot-logo"')) throw new Error("unexpected logo when unavailable");
