@@ -277,6 +277,18 @@
     '</div>';
   }
 
+  function gcashAppLinks() {
+    var android = /Android/i.test(navigator.userAgent);
+    var ios = /iPad|iPhone|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    var store = android ? "https://play.google.com/store/apps/details?id=com.globe.gcash.android" : ios ? "https://apps.apple.com/app/gcash/id520020791" : "https://gcash.com";
+    var scheme = "gcash://com.mynt.gcash/app/006300000100";
+    return {
+      mobile: android || ios,
+      app: android ? "intent://com.mynt.gcash/app/006300000100#Intent;scheme=gcash;package=com.globe.gcash.android;S.browser_fallback_url=" + encodeURIComponent(store) + ";end" : scheme,
+      store: store
+    };
+  }
+
   async function payPanel(el, b, ctx) {
     function wireGuestBookingLinks() {
       if (!ctx.guestToken) return;
@@ -845,10 +857,21 @@
 
       var btnOpenApp = el.querySelector("#btn-open-app");
       if (btnOpenApp) {
-        btnOpenApp.textContent = /gcash/i.test(activeMethod) ? "Open GCash" : "Open payment app";
+        var isGCash = /gcash/i.test(activeMethod), appLinks = gcashAppLinks();
+        btnOpenApp.innerHTML = '<span class="material-symbols-outlined text-sm" aria-hidden="true">open_in_new</span><span>' + (isGCash ? "Open GCash" : "Open payment app") + '</span>';
+        if (isGCash && appLinks.mobile) {
+          var downloadLink = document.createElement("a");
+          downloadLink.className = "payment-app-download";
+          downloadLink.href = appLinks.store;
+          downloadLink.target = "_blank";
+          downloadLink.rel = "noopener noreferrer";
+          downloadLink.textContent = "GCash not installed? Download app";
+          btnOpenApp.parentElement.after(downloadLink);
+        }
         btnOpenApp.onclick = function () {
-          if (/gcash/i.test(activeMethod)) {
-            window.open("https://gcash.com/getting-started?redirect=gcash%3A%2F%2Fcom.mynt.gcash%2Fapp%2F006300000100", "_blank", "noopener");
+          if (isGCash) {
+            if (appLinks.mobile) window.location.assign(appLinks.app);
+            else D.ui.toast("Open GCash on your phone, then scan the QR or use the account details shown here.", "");
           } else {
             msg(q("form.proof", el) || el, "Open your " + activeMethod + " app, scan the saved QR, and send the exact amount.", "");
           }

@@ -4779,6 +4779,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-recovery-privacy .material-symbols-outlined { flex:none; color:#a3e635; font-size:16px; line-height:18px; }
 @media(max-width:767px) { #ds-book-page .guest-recovery-layout { grid-template-columns:minmax(0,1fr); gap:20px; } .guest-recovery-entry, .guest-recovery-help { padding:16px; } .guest-recovery-page .guest-recovery-form { flex:none; } .guest-recovery-page .guest-recovery-form > .btn { margin-top:0; } }
 
+.payment-app-download { display:block; margin-top:10px; color:#aabdc6; font-size:11px; line-height:18px; text-align:center; text-decoration:underline; text-underline-offset:3px; }
 .payment-unavailable { max-width:620px; margin:0 auto; padding:24px; display:grid; gap:18px; border:1px solid #91a5b22b; border-radius:14px; background:#182126; color:#d4dfdf; }
 .payment-unavailable-icon { display:grid; place-items:center; width:44px; height:44px; border-radius:10px; background:#a3e63514; color:#a3e635; }
 .payment-unavailable-label { color:#a3e635; font:600 11px/18px "JetBrains Mono",monospace; }
