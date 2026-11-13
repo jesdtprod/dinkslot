@@ -51,6 +51,16 @@ Deno.test("guest recovery header shows the DINKSLOT tagline", () => {
   if (!html.includes("https://example.test/logo.png") || !html.includes("Book Your Slot. Own the Court.") || html.includes("help@example.test") || html.includes("&#9993;")) throw new Error("invalid recovery header");
 });
 
+Deno.test("email-wide guest recovery provides one private My Bookings link", () => {
+  const url = "https://example.test/#/guest/bookings?token=abc&source=email";
+  const mail = guestRecoveryEmail([], {}, url);
+  for (const text of ["View My Bookings", "upcoming, pending, and past", "expires in 7 days", "token=abc&amp;source=email"]) {
+    if (!mail.html.includes(text)) throw new Error("missing collection recovery detail: " + text);
+  }
+  if (!mail.text.includes(url) || !mail.text.includes("Do not share")) throw new Error("missing plain-text private recovery link");
+  if ((mail.html.match(/>View My Bookings<\/a>/g) || []).length !== 1) throw new Error("expected a single collection action");
+});
+
 Deno.test("new pending booking: player gets 'received', each admin gets 'request' once", () => {
   const m = planEmails(ctx(), true);
   if (JSON.stringify(who(m)) !== JSON.stringify(["booking_received:player@x.com", "booking_request:owner@x.com", "booking_request:staff@x.com"].sort())) {

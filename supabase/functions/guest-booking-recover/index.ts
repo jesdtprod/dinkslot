@@ -1,5 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { issueGuestBookingToken } from "../_shared/guest-access.ts";
+import { collectionBookings, issueGuestCollectionToken } from "../_shared/guest-collection.ts";
 import { getMailer } from "../_shared/gmail-mailer.ts";
 import { guestRecoveryEmail } from "../send-booking-email/lib.ts";
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info","Access-Control-Allow-Methods":"POST, OPTIONS","Cache-Control":"no-store"};
@@ -21,23 +21,12 @@ Deno.serve(async(req)=>{
     const limit=await db.rpc("claim_guest_booking_attempt",{p_subject_hash:subject});
     if(limit.error || !limit.data) return json(generic);
     const mailer=getMailer(); if(!mailer) return json(generic);
-    const contacts=await db.from("guest_booking_contacts").select("booking_id").eq("email",email).limit(50);
-    if(contacts.error || !contacts.data?.length) return json(generic);
-    const ids=contacts.data.map((c:{booking_id:string})=>c.booking_id);
-    const bookings=await db.from("bookings").select("id,tenant_id,reference_code,ends_at").in("id",ids).eq("source","guest_online").is("deleted_at",null).order("starts_at",{ascending:false}).limit(10);
+    const bookings=await collectionBookings(db,email).limit(1);
     if(bookings.error || !bookings.data?.length) return json(generic);
-    const tenantIds=Array.from(new Set(bookings.data.map((booking:{tenant_id:string})=>booking.tenant_id)));
-    const tenants=await db.from("tenants").select("id,name").in("id",tenantIds);
-    if(tenants.error) return json(generic);
-    const tenantNames=new Map((tenants.data || []).map((tenant:{id:string,name:string})=>[tenant.id,tenant.name]));
     const site=Deno.env.get("SITE_URL") ?? "https://jesdtprod.github.io/dinkslot/";
-    const links:{ref:string,url:string,club:string}[]=[];
-    for(const booking of bookings.data){
-      const expiry=new Date(Math.max(Date.now()+30*86400000,Date.parse(booking.ends_at)+7*86400000));
-      const token=await issueGuestBookingToken(db,booking.id,expiry);
-      links.push({ref:booking.reference_code,club:tenantNames.get(booking.tenant_id) || "Club",url:site.replace(/\/?$/, "/")+"#/guest/booking?token="+encodeURIComponent(token)});
-    }
-    const {text,html}=guestRecoveryEmail(links, {logoUrl:site.replace(/\/?$/, "/") + "assets/dinkslot-logo.png"});
+    const token=await issueGuestCollectionToken(db,email);
+    const bookingsUrl=site.replace(/\/?$/, "/")+"#/guest/bookings?token="+encodeURIComponent(token);
+    const {text,html}=guestRecoveryEmail([], {logoUrl:site.replace(/\/?$/, "/") + "assets/dinkslot-logo.png"}, bookingsUrl);
     await mailer.send({fromName:"DINKSLOT",fromEmail:mailer.fromEmail,to:email,subject:"Your DINKSLOT Guest Booking Links",text,html});
   } catch { console.error("Guest booking recovery unavailable"); }
   return json(generic);

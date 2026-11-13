@@ -55,3 +55,19 @@ Guest booking entry remains disabled by GUEST_BOOKING_ENABLED in js/config.js un
 2026-11-13: Two simultaneous guest reservation requests for the same court and time produced one booking and one slot_taken response. The test booking and notification were hidden, and its guest contact and tokens removed. Registered-player overview, booking countdown and reservation-submit regression scripts passed after updating stale test harnesses; actual signed-in player checkout and email inbox delivery remain unverified.
 
 2026-11-13: A temporary guest booking using a connected test inbox received both the production DINKSLOT booking-received and recovery messages in Inbox. The recovery link opened the correct test booking in the local app. The booking and notification were hidden, and the guest contact and tokens removed. The updated recovery email was then deployed. Signed-in player checkout and approved-email inbox delivery remain unverified.
+
+
+## Guest My Bookings collection ? 2026-11-13
+
+- [x] Separate hashed, revocable seven-day recovery tokens scoped to a verified booking email; single-booking tokens cannot access the collection.
+- [x] RLS enabled and direct public/anon/authenticated table access revoked. Migration 20261113000046 applied to the linked Dink Slot project.
+- [x] Paginated collection endpoint (12 per page) with All, Upcoming, Pending, and Past filters across online guest bookings using the same email. No latest-10 history cap.
+- [x] Each booking opens the existing details, QR, and payment flow after a fresh email-ownership check. QR remains available only after approval.
+- [x] My Bookings page uses the guest workspace design; three desktop columns and one mobile column.
+- [x] Browser checks with fixture data: 12-record first page, second page, filters, detail exchange, payment route, and no horizontal overflow at 1440px / 390px.
+- [x] Live guest-bookings endpoint: scoped list and filters, invalid-token rejection, unowned booking rejection, owned single-booking exchange, and no contact email exposed. Temporary access tokens removed; no bookings or emails created.
+- [x] 29 email/access tests and Deno endpoint type checks passed.
+- [ ] Publish the frontend route before deploying recovery emails that link to it.
+- [ ] Deploy updated guest-booking-recover and verify its rendered collection email through the production recovery flow with recipient authorization.
+
+Deployment order: migration, guest-bookings and send-booking-email functions, frontend route, then guest-booking-recover. Existing individual booking links continue to work. Recovery mails use one View My Bookings action; existing per-booking notifications remain unchanged apart from the requested subject capitalization. Guest entry remains controlled by the existing localhost feature flag.

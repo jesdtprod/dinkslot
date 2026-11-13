@@ -2867,9 +2867,9 @@
     var root = D.root(), captcha = "", widget = null;
     root.innerHTML = '<div id="ds-book-page" class="book-public guest-status-page guest-recovery-page"><main>' +
       '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>Find Your Booking</h1><p>Recover your secure booking link and check your reservation.</p></header>' +
-      '<section class="guest-booking-status guest-recovery-layout"><div class="guest-recovery-entry"><div class="guest-recovery-intro"><span class="material-symbols-outlined" aria-hidden="true">mark_email_read</span><div><h2>Recover Your Booking</h2><p>Enter the email address you used when booking. We will send any matching booking links to your inbox.</p></div></div>' +
+      '<section class="guest-booking-status guest-recovery-layout"><div class="guest-recovery-entry"><div class="guest-recovery-intro"><span class="material-symbols-outlined" aria-hidden="true">mark_email_read</span><div><h2>Recover Your Booking</h2><p>Enter the email address you used when booking. We will email one secure link to all your guest bookings.</p></div></div>' +
       '<form class="guest-recovery-form"><label for="guest-recovery-email">Booking email address<input id="guest-recovery-email" type="email" placeholder="e.g. name@example.com" autocomplete="email" maxlength="254" required></label><div class="guest-recovery-captcha"></div><p class="msg" role="status" aria-live="polite"></p><button class="btn" type="submit"><span class="material-symbols-outlined" aria-hidden="true">send</span>Send Booking Links</button></form></div>' +
-      '<aside class="guest-recovery-help"><span class="guest-status-eyebrow">How It Works</span><ol><li><span>1</span><div><strong>Use your booking email</strong><p>Enter the same email address you provided for your guest reservation.</p></div></li><li><span>2</span><div><strong>Check your inbox</strong><p>Look for Your DINKSLOT Guest Booking Links. Check Spam if it does not appear.</p></div></li><li><span>3</span><div><strong>Open your booking</strong><p>View your status, complete payment for an active hold, or access your QR pass after approval.</p></div></li></ol><p class="guest-recovery-privacy"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Booking links are sent only to the email used for the reservation. No sign-in is needed.</p></aside></section></main></div>';
+      '<aside class="guest-recovery-help"><span class="guest-status-eyebrow">How It Works</span><ol><li><span>1</span><div><strong>Use your booking email</strong><p>Enter the same email address you provided for your guest reservation.</p></div></li><li><span>2</span><div><strong>Check your inbox</strong><p>Look for Your DINKSLOT Guest Booking Links. Check Spam if it does not appear.</p></div></li><li><span>3</span><div><strong>Open your booking</strong><p>See all your guest bookings, complete payment for an active hold, or access your QR pass after approval.</p></div></li></ol><p class="guest-recovery-privacy"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Booking links are sent only to the email used for the reservation. No sign-in is needed.</p></aside></section></main></div>';
     if (D.mountPublicBackdrop) D.mountPublicBackdrop(root.querySelector("#ds-book-page"));
     var form=root.querySelector("form"), captchaBox=form.querySelector(".guest-recovery-captcha"), message=form.querySelector(".msg"), submit=form.querySelector("button");
     (function mount(attempt) {
@@ -2886,10 +2886,82 @@
       try {
         var result=await sb.functions.invoke("guest-booking-recover",{body:{email:form.querySelector("input").value.trim(),captcha:captcha}});
         if(result.error || !result.data || !result.data.ok) throw new Error("recovery_unavailable");
-        message.textContent="If there are eligible guest bookings, a link will be sent to that email.";
+        message.textContent="If there are eligible guest bookings, a secure My Bookings link will be sent to that email.";
       } catch (_) {message.textContent="Unable to send your request. Please try again.";}
       finally {captcha="";if(widget!==null && window.turnstile) window.turnstile.reset(widget);submit.disabled=false;}
     };
+  }
+
+  async function guestBookings(token) {
+    var root = D.root(), page = 0, filter = "all", request = 0;
+    if (!/^[0-9a-f]{64}$/.test(token || "")) {
+      root.innerHTML = '<section class="panel"><h1>Booking link unavailable</h1><p>Request a secure link using your booking email.</p><a class="btn" href="#/guest/recover">Find My Bookings</a></section>';
+      return;
+    }
+    root.innerHTML = '<div id="ds-book-page" class="book-public guest-status-page guest-bookings-page"><main>' +
+      '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Bookings</h1><p>Manage your guest reservations, payments, and booking passes in one place.</p></header>' +
+      '<div class="guest-collection-toolbar"><div class="guest-collection-tabs" role="group" aria-label="Filter bookings">' +
+      [['all','All Bookings'],['upcoming','Upcoming'],['pending','Pending'],['past','Past']].map(function (tab) { return '<button type="button" data-filter="' + tab[0] + '" aria-pressed="' + (tab[0] === 'all') + '">' + tab[1] + '</button>'; }).join('') +
+      '</div><button type="button" class="guest-collection-refresh"><span class="material-symbols-outlined" aria-hidden="true">refresh</span>Refresh</button></div>' +
+      '<p class="guest-collection-summary" role="status" aria-live="polite"></p><div class="guest-collection-results"></div><nav class="guest-collection-pages" aria-label="Booking pages"></nav></main></div>';
+    var stage = root.querySelector(".guest-bookings-page"), results = stage.querySelector(".guest-collection-results"), summary = stage.querySelector(".guest-collection-summary"), pages = stage.querySelector(".guest-collection-pages");
+    if (D.mountPublicBackdrop) D.mountPublicBackdrop(stage);
+    stage.querySelectorAll("[data-filter]").forEach(function (button) {
+      button.onclick = function () { filter = button.dataset.filter; page = 0; load(); };
+    });
+    stage.querySelector(".guest-collection-refresh").onclick = function () { load(); };
+    async function load() {
+      var current = ++request;
+      stage.querySelectorAll("[data-filter]").forEach(function (button) { button.setAttribute("aria-pressed", String(button.dataset.filter === filter)); });
+      results.innerHTML = bookingPassSkeleton(); pages.innerHTML = ""; summary.textContent = "Loading your bookings...";
+      try {
+        var response = await sb.functions.invoke("guest-bookings", { body: { token:token, page:page, filter:filter } });
+        if (!stage.isConnected || current !== request) return;
+        if (response.error || !response.data || !Array.isArray(response.data.bookings)) throw response.error || new Error("unavailable");
+        var rows = response.data.bookings, total = response.data.total || 0;
+        if (!rows.length && total && page > 0) { page = Math.max(0, Math.ceil(total / 12) - 1); return load(); }
+        summary.textContent = total ? total + (total === 1 ? " booking" : " bookings") + " · " + (page * 12 + 1) + "–" + Math.min((page + 1) * 12, total) + " shown" : "No bookings in this category.";
+        results.innerHTML = rows.length ? '<div class="guest-collection-grid">' + rows.map(function (row, index) {
+          var b = row.booking, club = row.club || {}, court = row.court || {}, tz = club.timezone || "Asia/Manila";
+          var ended = new Date(b.ends_at).getTime() <= Date.now();
+          var label = { pending:"Pending Approval", approved:ended ? "Completed" : "Confirmed", cancelled:"Cancelled", rejected:"Rejected", expired:"Expired" }[b.status] || "Unavailable";
+          var tone = b.status === "pending" && !ended ? "pending" : b.status === "approved" && !ended ? "confirmed" : "closed";
+          var logo = club.logo_path ? D.mediaUrl(club.logo_path) : "";
+          var address = [club.address, club.city, club.province, club.zip_code].filter(Boolean).join(", ");
+          var date = new Date(b.starts_at).toLocaleDateString("en-PH", { timeZone:tz, weekday:"short", month:"short", day:"numeric", year:"numeric" });
+          var canPay = b.status === "pending" && !b.proof_submitted && new Date(b.expires_at).getTime() > Date.now() && new Date(b.starts_at).getTime() > Date.now();
+          return '<article class="guest-collection-card ' + tone + '"><div class="guest-collection-card-top"><span class="guest-status-badge ' + tone + '">' + esc(label) + '</span><span class="guest-collection-ref">' + esc(b.reference_code) + '</span></div>' +
+            '<div class="guest-collection-club"><div class="guest-club-logo">' + (logo ? '<img src="' + esc(logo) + '" alt="' + esc(club.name || 'Club') + ' logo">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</div><h2>' + esc(club.name || 'Club unavailable') + '</h2></div>' +
+            '<div class="guest-court-badges"><span><span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>' + esc(court.name || 'Court') + '</span>' + (court.surface ? '<span>' + esc(court.surface) + '</span>' : '') + '</div>' +
+            (address ? '<p class="guest-collection-address"><span class="material-symbols-outlined" aria-hidden="true">location_on</span>' + esc(address) + '</p>' : '') +
+            '<dl class="guest-collection-facts"><div><dt>Date</dt><dd>' + esc(date) + '</dd></div><div><dt>Time</dt><dd>' + esc(timeOf(new Date(b.starts_at), tz) + " – " + timeOf(new Date(b.ends_at), tz)) + '</dd></div><div><dt>Amount</dt><dd class="guest-collection-amount">' + esc(money(b.amount)) + '</dd></div><div><dt>Payment Proof</dt><dd>' + (b.proof_submitted ? 'Submitted' : 'Not submitted') + '</dd></div></dl>' +
+            '<div class="guest-collection-card-actions"><button type="button" data-open-booking="' + index + '"><span class="material-symbols-outlined" aria-hidden="true">event_note</span>View Booking</button>' + (canPay ? '<button type="button" class="guest-collection-pay" data-pay-booking="' + index + '">Pay and Upload Proof</button>' : '') + '</div></article>';
+        }).join('') + '</div>' : '<div class="guest-collection-empty"><span class="material-symbols-outlined" aria-hidden="true">event_note</span><h2>No ' + (filter === 'all' ? '' : esc(filter) + ' ') + 'bookings found</h2><p>Your guest bookings will appear here when you use the same email address.</p></div>';
+        results.querySelectorAll("[data-open-booking],[data-pay-booking]").forEach(function (button) {
+          button.onclick = async function () {
+            if (button.disabled) return;
+            var checkout = button.hasAttribute("data-pay-booking"), index = Number(checkout ? button.dataset.payBooking : button.dataset.openBooking);
+            button.disabled = true;
+            try {
+              var access = await sb.functions.invoke("guest-bookings", { body: { token:token, booking_id:rows[index].booking.id } });
+              if (!stage.isConnected) return;
+              if (access.error || !/^[0-9a-f]{64}$/.test(access.data && access.data.token || "")) throw new Error("unavailable");
+              D.go("/guest/booking?token=" + encodeURIComponent(access.data.token) + (checkout ? "&checkout=1" : ""));
+            } catch (_) { button.disabled = false; D.ui.toast("Unable to open this booking. Refresh or request a new booking link.", "err"); }
+          };
+        });
+        var totalPages = Math.ceil(total / 12);
+        if (totalPages > 1) {
+          pages.innerHTML = '<button type="button" data-page="previous"' + (page === 0 ? ' disabled' : '') + '>Previous</button><span>Page ' + (page + 1) + ' of ' + totalPages + '</span><button type="button" data-page="next"' + (page + 1 >= totalPages ? ' disabled' : '') + '>Next</button>';
+          pages.querySelectorAll("button").forEach(function (button) { button.onclick = function () { page += button.dataset.page === 'next' ? 1 : -1; load(); }; });
+        }
+      } catch (_) {
+        if (!stage.isConnected || current !== request) return;
+        summary.textContent = "";
+        results.innerHTML = '<div class="guest-collection-empty"><h2>Unable to load your bookings</h2><p>Your link may have expired, or the service may be temporarily unavailable. Try Refresh or request a new secure link.</p><a href="#/guest/recover">Find My Bookings</a></div>';
+      }
+    }
+    await load();
   }
 
   async function guestCheckout(booking, token, club, court) {
@@ -2989,5 +3061,5 @@
     }
   }
 
-    D.booking = { guestBookingRecover: guestBookingRecover, guestBookingStatus: guestBookingStatus, openPayment: openPayment, openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc, bookCourtSkeleton: bookCourtSkeleton, paymentSkeleton: paymentSkeleton, bookingPassSkeleton: bookingPassSkeleton, bookingConfirmSkeleton: bookingConfirmSkeleton };
+    D.booking = { guestBookings: guestBookings, guestBookingRecover: guestBookingRecover, guestBookingStatus: guestBookingStatus, openPayment: openPayment, openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc, bookCourtSkeleton: bookCourtSkeleton, paymentSkeleton: paymentSkeleton, bookingPassSkeleton: bookingPassSkeleton, bookingConfirmSkeleton: bookingConfirmSkeleton };
 })();
