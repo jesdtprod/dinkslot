@@ -2824,6 +2824,20 @@
     var tz = club.timezone || "Asia/Manila";
     var schedule = new Intl.DateTimeFormat("en-PH", { timeZone:tz, dateStyle:"medium", timeStyle:"short" }).format(new Date(b.starts_at));
     root.innerHTML = '<section class="panel guest-booking-status"><h1>Your booking</h1><p>Review your reservation and payment status.</p><dl><div><dt>Status</dt><dd>' + esc(statusText) + '</dd></div><div><dt>Club</dt><dd>' + esc(club.name || "Club") + '</dd></div><div><dt>Court</dt><dd>' + esc(court.name || "Court") + '</dd></div><div><dt>Schedule</dt><dd>' + esc(schedule) + '</dd></div><div><dt>Reference</dt><dd>' + esc(b.reference_code || "") + '</dd></div><div><dt>Payment proof</dt><dd>' + (b.proof_submitted ? 'Submitted' : 'Not submitted') + '</dd></div></dl><p>' + (b.gate_pass_available ? 'Your booking is confirmed.' : 'Your gate pass will be available after approval.') + '</p></section>';
+    if (b.status === "pending" && !b.proof_submitted && b.expires_at && new Date(b.expires_at).getTime() > Date.now() && new Date(b.starts_at).getTime() > Date.now()) {
+      var release = document.createElement("button");
+      release.type = "button"; release.className = "btn ghost guest-release-hold"; release.textContent = "Cancel & Release Slot";
+      root.querySelector(".guest-booking-status").appendChild(release);
+      release.onclick = async function () {
+        if (!await D.ui.confirmAction("Release this unpaid hold and make the time slot available again?", {title:"Cancel reservation", confirmText:"Release slot", danger:true})) return;
+        release.disabled = true;
+        try {
+          var result = await sb.functions.invoke("guest-booking-release", {body:{token:token}});
+          if (result.error || !result.data || !result.data.ok) throw new Error("release_failed");
+          await guestBookingStatus(token);
+        } catch (_) { release.disabled = false; D.ui.toast("Unable to release this slot. Please refresh or contact the club.", "err"); }
+      };
+    }
     if (b.status === "approved" && b.gate_pass_available && b.reference_code) {
       var panel = root.querySelector(".guest-booking-status");
       var pass = document.createElement("section");
