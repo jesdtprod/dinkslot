@@ -38,6 +38,9 @@ begin
   if tn.status <> 'approved' then raise exception 'club_not_approved' using errcode = '42501'; end if;
   if c.status <> 'active' then raise exception 'court_unavailable' using errcode = '42501'; end if;
 
+  -- Serialize retries for the same request before checking its idempotency record.
+  perform pg_advisory_xact_lock(hashtextextended(c.tenant_id || ':' || p_idempotency_key, 73));
+
   select booking_row.* into b from public.bookings booking_row join public.guest_booking_access_tokens t on t.booking_id=booking_row.id where booking_row.tenant_id=c.tenant_id and booking_row.source='guest_online' and booking_row.idempotency_key=p_idempotency_key and t.token_hash=p_token_hash and t.revoked_at is null and t.expires_at > now();
   if found then return b; end if;
 
