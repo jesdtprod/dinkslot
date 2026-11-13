@@ -4773,6 +4773,17 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-recovery-privacy .material-symbols-outlined { flex:none; color:#a3e635; font-size:16px; line-height:18px; }
 @media(max-width:767px) { #ds-book-page .guest-recovery-layout { grid-template-columns:minmax(0,1fr); gap:20px; } .guest-recovery-entry, .guest-recovery-help { padding:16px; } .guest-recovery-page .guest-recovery-form { flex:none; } .guest-recovery-page .guest-recovery-form > .btn { margin-top:0; } }
 
+.payment-unavailable { max-width:620px; margin:0 auto; padding:24px; display:grid; gap:18px; border:1px solid #91a5b22b; border-radius:14px; background:#182126; color:#d4dfdf; }
+.payment-unavailable-icon { display:grid; place-items:center; width:44px; height:44px; border-radius:10px; background:#a3e63514; color:#a3e635; }
+.payment-unavailable-label { color:#a3e635; font:600 11px/18px "JetBrains Mono",monospace; }
+.payment-unavailable h2 { margin:6px 0 8px; font-size:20px; line-height:28px; }
+.payment-unavailable p { margin:0; font-size:13px; line-height:21px; color:#aabdc6; }
+.payment-unavailable-reference { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; padding:12px; border-radius:8px; background:#10191e; font-size:12px; }
+.payment-unavailable-reference strong { font-family:"JetBrains Mono",monospace; }
+.payment-unavailable-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.payment-unavailable-actions .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:40px; font-size:12px; text-transform:none; }
+.payment-unavailable-actions .material-symbols-outlined { font-size:17px; }
+@media(max-width:639px) { .payment-unavailable { padding:18px; } .payment-unavailable-actions { display:grid; grid-template-columns:1fr; } }
 .guest-collection-toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
 .guest-collection-tabs { display:flex; flex-wrap:wrap; gap:5px; padding:5px; border:1px solid #91a5b22b; border-radius:10px; background:#18212680; }
 .guest-collection-toolbar button, .guest-collection-pages button, .guest-collection-card-actions button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:38px; padding:8px 12px; border:1px solid #91a5b225; border-radius:8px; background:#242e34; color:#d4dfdf; font:600 12px/18px "Plus Jakarta Sans",sans-serif; cursor:pointer; }

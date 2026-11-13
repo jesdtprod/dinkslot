@@ -338,7 +338,7 @@
 
     var club = ctx.club;
     if (!club) {
-      var tRes = await sb.from("public_clubs").select("id,name,address,timezone,slug").eq("id", b.tenant_id).maybeSingle();
+      var tRes = await sb.from("public_clubs").select("id,name,address,timezone,slug,contact_phone,contact_email").eq("id", b.tenant_id).maybeSingle();
       club = tRes.data || { name: "The Pickleshot Arena", motto: "Kinetic Velocity Club", address: "Outdoor Arena Alpha", timezone: "Asia/Manila", slug: "" };
     }
     var court = ctx.court;
@@ -377,7 +377,11 @@
       return rawQrs.some(function (row) { return paymentGroup(row) === name; });
     });
     if (!availableMethods.length) {
-      el.innerHTML = '<div class="panel"><h2>Payment accounts unavailable</h2><p>The club has not configured an active payment account. Please contact the club before sending payment.</p><a class="btn ghost" href="#/me/bookings">View My Bookings</a></div>';
+      var phone = String(club.contact_phone || "").replace(/[^\d+]/g, "");
+      el.innerHTML = '<section class="payment-unavailable"><span class="payment-unavailable-icon material-symbols-outlined" aria-hidden="true">account_balance_wallet</span><div><span class="payment-unavailable-label">' + esc(club.name || 'Club payment') + '</span><h2>Online payment is not set up yet</h2><p>This club has no active payment account. Contact the club for payment arrangements, or retry after the club updates its accounts.</p></div><div class="payment-unavailable-reference"><span>Booking reference</span><strong>' + esc(b.reference_code || '') + '</strong></div><p class="payment-unavailable-note">Your booking is still pending. Its payment deadline remains unchanged.</p><div class="payment-unavailable-actions">' +
+        (phone ? '<a class="btn ghost" href="tel:' + esc(phone) + '"><span class="material-symbols-outlined" aria-hidden="true">call</span>Contact Club</a>' : club.contact_email ? '<a class="btn ghost" href="mailto:' + esc(club.contact_email) + '"><span class="material-symbols-outlined" aria-hidden="true">mail</span>Email Club</a>' : '') +
+        '<button type="button" class="btn ghost" data-retry-payment><span class="material-symbols-outlined" aria-hidden="true">refresh</span>Retry</button><a class="btn ghost" href="#/me/bookings">View My Bookings</a></div></section>';
+      el.querySelector("[data-retry-payment]").onclick = function () { payPanel(el, b, ctx); };
       wireGuestBookingLinks();
       return;
     }
