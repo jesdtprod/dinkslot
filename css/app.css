@@ -4650,6 +4650,10 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-status-note .material-symbols-outlined { color:#a3e635; font-size:18px; flex:none; }
 .guest-status-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
 .guest-status-actions:empty { display:none; }
+#ds-book-page .guest-status-actions .guest-release-hold { background:#ef444410; border:1px solid #ef444430; color:#fca5a5; box-shadow:none; }
+#ds-book-page .guest-status-actions .guest-release-hold:hover:not(:disabled), .dink-payment-container #cancel-release-btn:hover:not(:disabled) { background:#ef444424; border-color:#ef444466; color:#fecaca; box-shadow:none; }
+#ds-book-page .guest-status-actions .guest-release-hold:focus-visible { outline:2px solid #fca5a5; outline-offset:3px; }
+
 .guest-booking-pass { margin-top:20px; padding-top:20px; border-top:1px solid #ffffff12; text-align:center; }
 @media(max-width:767px) { .guest-status-page > main { padding:20px 12px; } #ds-book-page .guest-booking-status { padding:16px; } #ds-book-page .guest-status-details { grid-template-columns:repeat(2,minmax(0,1fr)); } .guest-status-heading { align-items:flex-start; flex-wrap:wrap; } }
 @media(max-width:420px) { #ds-book-page .guest-status-details { grid-template-columns:minmax(0,1fr); } .guest-status-actions .btn { width:100%; justify-content:center; } }
