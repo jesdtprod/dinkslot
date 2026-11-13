@@ -735,8 +735,8 @@
             (c.contact_phone || c.contact_email ? '<li class="flex items-start gap-2.5"><i class="fa-solid fa-headset text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Questions:</strong> Contact the club at ' +
               esc([c.contact_phone, c.contact_email].filter(Boolean).join(" or ")) + ".</span></li>" : "") +
           "</ul>" +
-          (cfg.GUEST_BOOKING_ENABLED === true ? '<div class="club-guest-recovery"><span class="material-symbols-outlined" aria-hidden="true">travel_explore</span><div><strong>Already booked as a guest?</strong><p>Use your booking email to recover your secure link and check your reservation.</p><a href="#/guest/recover">Find Guest Booking <span aria-hidden="true">&rarr;</span></a></div></div>' : '') +
         "</div>" +
+          (cfg.GUEST_BOOKING_ENABLED === true ? '<div class="club-guest-recovery"><span class="material-symbols-outlined" aria-hidden="true">travel_explore</span><div><strong>Already booked as a guest?</strong><p>Use your booking email to recover your secure link and check your reservation.</p><a href="#/guest/recover">Find Guest Booking <span aria-hidden="true">&rarr;</span></a></div></div>' : '') +
       "</section>" +
       "</div></div></div>";
 
