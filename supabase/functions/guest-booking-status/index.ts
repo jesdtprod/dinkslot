@@ -27,6 +27,6 @@ Deno.serve(async (request) => {
       db.from("booking_payments").select("id").eq("booking_id", bookingId).is("deleted_at", null).not("proof_path", "is", null).limit(1),
     ]);
     if (club.error || court.error || payment.error) throw new Error("guest_status_unavailable");
-    return json({ booking: { guest_name: booking.guest_name, starts_at: booking.starts_at, ends_at: booking.ends_at, amount: booking.amount, status: booking.status, reference_code: booking.reference_code, expires_at: booking.expires_at, reject_reason: booking.reject_reason, cancel_reason: booking.cancel_reason, proof_submitted: !!payment.data?.length, gate_pass_available: booking.status === "approved" }, club: club.data, court: court.data });
+    return json({ booking: { id: bookingId, tenant_id: booking.tenant_id, court_id: booking.court_id, guest_name: booking.guest_name, starts_at: booking.starts_at, ends_at: booking.ends_at, amount: booking.amount, status: booking.status, reference_code: booking.reference_code, expires_at: booking.expires_at, reject_reason: booking.reject_reason, cancel_reason: booking.cancel_reason, proof_submitted: !!payment.data?.length, gate_pass_available: booking.status === "approved" }, club: club.data, court: court.data });
   } catch { return json({ error: "service_unavailable" }, 503); }
 });

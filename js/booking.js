@@ -280,7 +280,7 @@
     ctx = ctx || {};
     el.innerHTML = paymentSkeleton();
 
-    var ir = await sb.rpc("get_booking_info", { p_court_id: b.court_id });
+    var ir = ctx.guestToken ? await sb.functions.invoke("guest-booking-info", { body: { court_id: b.court_id, token: ctx.guestToken } }) : await sb.rpc("get_booking_info", { p_court_id: b.court_id });
     if (ir.error) {
       el.innerHTML = '<div class="p-6 rounded-2xl bg-surface-container border border-rose-500/30 text-center"><p class="text-rose-400 font-semibold">' + esc(nice(ir.error)) + '</p></div>';
       return;
@@ -341,7 +341,8 @@
     var attemptKey = uuid();
 
     var pathsWithQr = rawQrs.filter(function (x) { return x.qr_path; }).map(function (x) { return x.qr_path; });
-    if (pathsWithQr.length) {
+    if (ctx.guestToken) rawQrs.forEach(function (row) { if (row.qr_path && row.signed_url) urls[row.qr_path] = row.signed_url; });
+    if (pathsWithQr.length && !ctx.guestToken) {
       var su = await sb.storage.from("payment").createSignedUrls(pathsWithQr, 600);
       (su.data || []).forEach(function (x) { if (x.path && x.signedUrl) urls[x.path] = x.signedUrl; });
     }
@@ -978,23 +979,24 @@
         submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Uploading receipt...</span>';
 
         try {
-          var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
-          var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
-          if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
-          submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Submitting payment proof...</span>';
-
           var curAccounts = getAccountsForMethod(activeMethod);
           var curAccount = curAccounts[activeAccountIndex] || curAccounts[0];
           var methodString = activeMethod + (curAccount && curAccount.label ? " - " + curAccount.label : "");
-
-          var r = await sb.rpc("attach_payment_proof", {
-            p_booking_id: b.id,
-            p_proof_path: path,
-            p_payer_reference: null,
-            p_idempotency_key: attemptKey,
-            p_method: methodString
-          });
-          if (r.error) throw r.error;
+          var r;
+          if (ctx.guestToken) {
+            var form = new FormData();
+            form.append("token", ctx.guestToken); form.append("idempotency_key", attemptKey);
+            form.append("method", methodString.slice(0,40)); form.append("file", file);
+            r = await sb.functions.invoke("guest-payment-proof", { body: form });
+            if (r.error || !r.data || !r.data.ok) throw r.error || new Error("Payment proof could not be submitted.");
+          } else {
+            var path = b.tenant_id + "/proofs/" + D.state.user.id + "/" + b.id + "-" + attemptKey + "." + TYPES[file.type];
+            var up = await sb.storage.from("payment").upload(path, file, { contentType: file.type, upsert: false });
+            if (up.error && !/exist|duplicate|409/i.test(up.error.message || "")) throw up.error;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">refresh</span><span>Submitting payment proof...</span>';
+            r = await sb.rpc("attach_payment_proof", { p_booking_id: b.id, p_proof_path: path, p_payer_reference: null, p_idempotency_key: attemptKey, p_method: methodString });
+            if (r.error) throw r.error;
+          }
 
           submitBtn.classList.remove("opacity-80", "pointer-events-none", "bg-primary");
           submitBtn.classList.add("bg-emerald-400", "text-black");
@@ -1021,6 +1023,7 @@
                 '<a class="w-full sm:w-auto px-5 py-3 rounded-xl bg-surface-container-high hover:bg-surface-bright text-zinc-200 font-semibold text-xs border border-outline-variant/40 transition no-underline text-center" href="#/c/' + esc(club.slug || '') + '">Back to Club</a>' +
               '</div>' +
             '</div>';
+            if (ctx.guestToken) el.querySelectorAll('a[href="#/me/bookings"]').forEach(function (link) { link.href = "#/guest/booking?token=" + encodeURIComponent(ctx.guestToken); link.textContent = "View My Booking"; });
             if (ctx && ctx.onDone) ctx.onDone();
           }, 1200);
 
@@ -1036,6 +1039,8 @@
       };
     }
 
+    if (ctx.guestToken) el.querySelectorAll('a[href="#/me/bookings"]').forEach(function (link) { link.href = "#/guest/booking?token=" + encodeURIComponent(ctx.guestToken); link.textContent = "View My Booking"; });
+
     var cancelReleaseBtn = el.querySelector("#cancel-release-btn");
     if (cancelReleaseBtn) {
       cancelReleaseBtn.onclick = async function () {
@@ -1045,7 +1050,7 @@
         cancelReleaseBtn.disabled = true;
         cancelReleaseBtn.textContent = "Releasing...";
         var r;
-        try { r = await sb.rpc("cancel_booking", {
+        try { r = ctx.guestToken ? await sb.functions.invoke("guest-booking-release", { body: { token: ctx.guestToken } }) : await sb.rpc("cancel_booking", {
           p_booking_id: b.id,
           p_reason: "Player released slot from checkout",
           p_idempotency_key: uuid()
@@ -2829,6 +2834,13 @@
     var schedule = new Intl.DateTimeFormat("en-PH", { timeZone:tz, dateStyle:"medium", timeStyle:"short" }).format(new Date(b.starts_at));
     root.innerHTML = '<section class="panel guest-booking-status"><h1>Your booking</h1><p>Review your reservation and payment status.</p><dl><div><dt>Status</dt><dd>' + esc(statusText) + '</dd></div><div><dt>Club</dt><dd>' + esc(club.name || "Club") + '</dd></div><div><dt>Court</dt><dd>' + esc(court.name || "Court") + '</dd></div><div><dt>Schedule</dt><dd>' + esc(schedule) + '</dd></div><div><dt>Reference</dt><dd>' + esc(b.reference_code || "") + '</dd></div><div><dt>Payment proof</dt><dd>' + (b.proof_submitted ? 'Submitted' : 'Not submitted') + '</dd></div></dl><p>' + (b.gate_pass_available ? 'Your booking is confirmed.' : 'Your gate pass will be available after approval.') + '</p></section>';
     if (b.status === "pending" && !b.proof_submitted && b.expires_at && new Date(b.expires_at).getTime() > Date.now() && new Date(b.starts_at).getTime() > Date.now()) {
+      var pay = document.createElement("button");
+      pay.type = "button"; pay.className = "btn"; pay.textContent = "Pay / Upload Proof";
+      root.querySelector(".guest-booking-status").appendChild(pay);
+      pay.onclick = function () {
+        root.innerHTML = '<div id="ds-book-page" class="book-public"><main><div id="guest-checkout"></div></main></div>';
+        payPanel(root.querySelector("#guest-checkout"), b, { guestToken:token, club:club, court:court, onBack:function () { guestBookingStatus(token); } });
+      };
       var release = document.createElement("button");
       release.type = "button"; release.className = "btn ghost guest-release-hold"; release.textContent = "Cancel & Release Slot";
       root.querySelector(".guest-booking-status").appendChild(release);
