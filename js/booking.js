@@ -1000,7 +1000,7 @@
 
           submitBtn.classList.remove("opacity-80", "pointer-events-none", "bg-primary");
           submitBtn.classList.add("bg-emerald-400", "text-black");
-          submitBtn.innerHTML = '<span class="material-symbols-outlined text-xl">check_circle</span><span>' + esc(court.name || "Court") + ' Confirmed! Gate Access QR Ready</span>';
+          submitBtn.innerHTML = '<span class="material-symbols-outlined text-xl">check_circle</span><span>Payment proof submitted</span>';
 
           setTimeout(function () {
             el.classList.add('payment-success-view');
@@ -1074,14 +1074,15 @@
   // ============================================================ book page
   async function renderBook(slug) {
     var root = D.root();
-    if (!D.requireUser("/c/" + slug + "/book")) return;
+    var isGuest = !D.state.user && new URLSearchParams(location.hash.split("?")[1] || "").get("guest") === "1";
+    if (!isGuest && !D.requireUser("/c/" + slug + "/book")) return;
     root.innerHTML = bookCourtSkeleton(slug);
     var club = (await sb.from("public_clubs").select("*").eq("slug", slug).maybeSingle()).data;
     if (!club) { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Club not found</h2><p>This club does not exist or is not approved yet.</p><a class="inline-block mt-4 px-4 py-2 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm" href="#/">Back to clubs</a></div>'; return; }
-    var me = (await sb.from("club_players").select("id,status,display_name").eq("tenant_id", club.id)
+    var me = isGuest ? null : (await sb.from("club_players").select("id,status,display_name").eq("tenant_id", club.id)
       .eq("user_id", D.state.user.id).maybeSingle()).data;
-    if (!me) return D.go("/c/" + slug + "/join");
-    if (me.status === "blocked") { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Booking unavailable</h2><p>You are blocked from this club. Please contact the club.</p></div>'; return; }
+    if (!isGuest && !me) return D.go("/c/" + slug + "/join");
+    if (me && me.status === "blocked") { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Booking unavailable</h2><p>You are blocked from this club. Please contact the club.</p></div>'; return; }
     var courts = (await sb.from("public_courts").select("*").eq("club_slug", slug).order("name")).data || [];
     var tz = club.timezone || "Asia/Manila";
     var S = { court: null, info: null, date: "", slots: [], start: null, count: 1, bookingDays: 14, reserving: false };
@@ -1414,7 +1415,7 @@
           esc(S.court.name) + ' (' + esc(S.court.surface || "Silica Sand") + ' ' + (S.court.is_indoor ? "Indoor" : "Outdoor") + ')</span>';
       }
 
-      sb.rpc("get_booking_info", { p_court_id: id }).then(function (r) {
+      (isGuest ? sb.functions.invoke("guest-booking-info", { body: { court_id: id } }) : sb.rpc("get_booking_info", { p_court_id: id })).then(function (r) {
         if (r.error) return msg(q("#slotpanel", root), nice(r.error), "err");
         S.info = r.data;
         S.bookingDays = r.data.booking_window_days || 14;
@@ -1584,8 +1585,28 @@
       if (totalSidebar) totalSidebar.textContent = money(total);
     }
 
+    var guestCaptcha = "", guestWidget = null, guestTokens = {};
+    if (isGuest) {
+      var guestForm = document.createElement("section");
+      guestForm.className = "guest-booking-details";
+      guestForm.innerHTML = '<h2>Guest details</h2><p>We will email your secure booking link.</p><label>Full name<input id="guest-name" autocomplete="name" maxlength="60" required></label><label>Mobile number<input id="guest-phone" type="tel" autocomplete="tel" maxlength="30" required></label><label>Email address<input id="guest-email" type="email" autocomplete="email" maxlength="254" required></label><div id="guest-captcha"></div><p class="msg" role="alert"></p>';
+      q("#slotpanel", root).appendChild(guestForm);
+      (function mountGuestCaptcha(attempt) {
+        if (!guestForm.isConnected) return;
+        if (window.turnstile && window.DINKSLOT_CONFIG && window.DINKSLOT_CONFIG.TURNSTILE_SITE_KEY) {
+          guestWidget = window.turnstile.render(guestForm.querySelector("#guest-captcha"), { sitekey:window.DINKSLOT_CONFIG.TURNSTILE_SITE_KEY, theme:"dark", size:"flexible", callback:function (token) { guestCaptcha=token; }, "expired-callback":function () { guestCaptcha=""; }, "error-callback":function () { guestCaptcha=""; guestForm.querySelector(".msg").textContent="Human check unavailable. Please refresh and try again."; } });
+        } else if (attempt < 100) setTimeout(function () { mountGuestCaptcha(attempt + 1); }, 100);
+        else guestForm.querySelector(".msg").textContent="Human check could not load. Please refresh and try again.";
+      })(0);
+    }
     async function doReserve() {
       if (S.reserving || S.start == null || !rangeOk(S.start)) return;
+      if (isGuest) {
+        var nameField=q("#guest-name",root), phoneField=q("#guest-phone",root), emailField=q("#guest-email",root);
+        if (!nameField.reportValidity() || !phoneField.reportValidity() || !emailField.reportValidity() || nameField.value.trim().length < 2 || phoneField.value.trim().length < 7 || !guestCaptcha) {
+          guestForm.querySelector(".msg").textContent="Enter your details and complete the human check."; guestForm.scrollIntoView({behavior:"smooth",block:"center"}); return;
+        }
+      }
       S.reserving = true;
       var first = S.slots[S.start], last = S.slots[S.start + S.count - 1];
       var sig = S.court.id + "|" + first.s.toISOString() + "|" + last.e.toISOString();
@@ -1597,12 +1618,17 @@
       if (btn1) btn1.textContent = "Holding slot...";
       if (btn2) setReserveLabel(btn2, "Holding slot...");
       var r;
-      try { r = await sb.rpc("create_booking", {
-        p_court_id: S.court.id,
-        p_starts_at: first.s.toISOString(),
-        p_ends_at: last.e.toISOString(),
-        p_idempotency_key: keys[sig]
-      }); } catch (error) { r = { error: error }; }
+      try {
+        if (isGuest) {
+          if (!guestTokens[sig]) guestTokens[sig] = Array.from(crypto.getRandomValues(new Uint8Array(32)), function (v) { return v.toString(16).padStart(2,"0"); }).join("");
+          r = await sb.functions.invoke("guest-booking-create", {body:{court_id:S.court.id,starts_at:first.s.toISOString(),ends_at:last.e.toISOString(),request_key:keys[sig],name:nameField.value.trim(),phone:phoneField.value.trim(),email:emailField.value.trim(),captcha:guestCaptcha,access_token:guestTokens[sig]}});
+          guestCaptcha=""; if (guestWidget !== null && window.turnstile) window.turnstile.reset(guestWidget);
+          if (!r.error && r.data && r.data.token) { D.go("/guest/booking?token=" + encodeURIComponent(r.data.token)); return; }
+          if (!r.error) r.error = new Error("Unable to reserve this slot. Please try again.");
+        } else {
+          r = await sb.rpc("create_booking", { p_court_id:S.court.id, p_starts_at:first.s.toISOString(), p_ends_at:last.e.toISOString(), p_idempotency_key:keys[sig] });
+        }
+      } catch (error) { if (isGuest) { guestCaptcha=""; if (guestWidget !== null && window.turnstile) window.turnstile.reset(guestWidget); } r = { error: error }; }
       if (r.error) {
         S.reserving = false;
         if (btn1) btn1.textContent = "Reserve this slot";

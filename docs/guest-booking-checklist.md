@@ -5,7 +5,7 @@
 - [x] Prepare a private guest contact table migration (not applied or database-tested).
 - [x] Implement and unit-test token generation and hashing helpers (not yet wired to booking).
 - [x] Prepare a service-only guest reservation database function using the existing slot, pricing, and hold rules (not applied or database-tested).
-- [x] Prepare a CAPTCHA-verified guest reservation endpoint and per-email request limit (not deployed or end-to-end tested).
+- [x] Prepare guest entry, contact form, CAPTCHA verification, reservation endpoint, and per-email request limit (not deployed or end-to-end tested).
 - [ ] Test guest reservation rules, concurrent bookings, abuse controls, and idempotency against the database.
 - [x] Prepare a private hashed-token storage migration with expiry and revocation fields (not applied or database-tested).
 - [x] Implement and unit-test server-side token lookup with expiry and revocation checks (not yet wired to an endpoint).

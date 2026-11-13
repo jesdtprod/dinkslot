@@ -8,7 +8,7 @@ const label = {textContent:'Confirm & Pay'};
 const button = {disabled:false,querySelector:()=>label};
 let finish, calls = 0;
 const state = {court:{id:'court'},start:0,count:1,slots:[{s:new Date(),e:new Date(Date.now()+3600000)}],reserving:false};
-const context = {S:state,root:{},keys:{},uuid:()=> 'attempt',rangeOk:()=>true,
+const context = {isGuest:false,S:state,root:{},keys:{},uuid:()=> 'attempt',rangeOk:()=>true,
   q:selector=>selector==='#reserve-sidebar'?button:null,
   msg(){},nice:e=>e.message,sb:{rpc(){calls++;return new Promise(resolve=>{finish=resolve;});}}
 };

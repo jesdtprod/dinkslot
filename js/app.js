@@ -652,7 +652,7 @@
                 '<button type="button" data-scroll="club-dates" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-[12px] font-semibold text-slate-200 bg-dink-surfaceLight hover:bg-slate-700/80 border border-dink-border hover:border-slate-500 transition text-sm">' +
                   '<i class="fa-solid fa-calendar-check text-slate-400" aria-hidden="true"></i>Court Schedule</button>' +
               "</div>" +
-              (state.user ? "" : '<div class="club-account-prompt"><span class="club-account-note">Free account needed to book.</span><span class="club-account-returning">Already registered? <a class="club-account-signin" href="' + signInHref + '">Sign in<span aria-hidden="true"> &rarr;</span></a></span></div>') +
+              (state.user ? "" : '<div class="club-account-prompt"><a class="club-account-signin" href="#/c/' + esc(slug) + '/book?guest=1">Book as Guest</a><span class="club-account-returning">Already registered? <a class="club-account-signin" href="' + signInHref + '">Sign in<span aria-hidden="true"> &rarr;</span></a></span></div>') +
             "</div>" +
           "</div>" +
           '<div class="mt-6 pt-5 border-t border-dink-border/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">' +
@@ -707,7 +707,7 @@
         '<div class="bg-dink-surface p-6 rounded-2xl border border-dink-border shadow-md">' +
           '<h3 class="text-lg font-bold text-white font-display mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-dink-lime" aria-hidden="true"></i> Before You Book</h3>' +
           '<ul class="space-y-3 text-xs text-slate-300 list-none p-0 m-0">' +
-            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-user-check text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Account:</strong> A free DINKSLOT player account is needed to reserve a court.</span></li>' +
+            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-user-check text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Booking:</strong> Sign in or book as a guest.</span></li>' +
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-earth-asia text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Time zone:</strong> All times are shown in ' + esc(tz) + ".</span></li>" +
             (tiered ? '<li class="flex items-start gap-2.5"><i class="fa-solid fa-tags text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Pricing:</strong> Rates vary by time of day. Your total is shown before you confirm.</span></li>' : "") +
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-receipt text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Confirmation:</strong> The club reviews each request; you will see the status in My Bookings.</span></li>' +
@@ -2179,7 +2179,7 @@
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/join$/))) return await viewJoin(m[1]);
       if ((m = path.match(/^\/c\/([a-z0-9-]+)\/book$/))) {
         // Booking needs an account: visitors are sent to register (or sign in) for this club first.
-        if (!state.user) return go("/auth?mode=up&join=" + m[1] + "&next=" + encodeURIComponent("/c/" + m[1] + "/book"));
+        if (!state.user && q.get("guest") !== "1") return go("/auth?mode=up&join=" + m[1] + "&next=" + encodeURIComponent("/c/" + m[1] + "/book"));
         return await (await ensureViewModule("booking")).renderBook(m[1]);
       }
       if ((m = path.match(/^\/admin\/([a-z0-9-]+)(?:\/(courts|settings|bookings|profile|payments|staff|account))?$/))) {
