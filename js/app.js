@@ -2193,7 +2193,7 @@
       }
       if (path === "/register-club") return viewRegisterClub();
       if (path === "/guest/recover") return (await ensureViewModule("booking")).guestBookingRecover();
-      if (path === "/guest/booking") return await (await ensureViewModule("booking")).guestBookingStatus(q.get("token"));
+      if (path === "/guest/booking") return await (await ensureViewModule("booking")).guestBookingStatus(q.get("token"), q.get("checkout") === "1");
       if ((m = path.match(/^\/me(?:\/(find|clubs|bookings|profile))?$/))) return await viewMe(m[1]);
       if (path === "/platform") return await viewPlatform();
       if ((m = path.match(/^\/c\/([a-z0-9-]+)$/))) return await viewClub(m[1]);

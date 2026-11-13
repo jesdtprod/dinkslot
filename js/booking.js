@@ -1629,7 +1629,7 @@
           if (!guestTokens[sig]) guestTokens[sig] = Array.from(crypto.getRandomValues(new Uint8Array(32)), function (v) { return v.toString(16).padStart(2,"0"); }).join("");
           r = await sb.functions.invoke("guest-booking-create", {body:{court_id:S.court.id,starts_at:first.s.toISOString(),ends_at:last.e.toISOString(),request_key:keys[sig],name:nameField.value.trim(),phone:phoneField.value.trim(),email:emailField.value.trim(),captcha:guestCaptcha,access_token:guestTokens[sig]}});
           guestCaptcha=""; if (guestWidget !== null && window.turnstile) window.turnstile.reset(guestWidget);
-          if (!r.error && r.data && r.data.token) { D.go("/guest/booking?token=" + encodeURIComponent(r.data.token)); return; }
+          if (!r.error && r.data && r.data.token) { D.go("/guest/booking?token=" + encodeURIComponent(r.data.token) + "&checkout=1"); return; }
           if (!r.error) r.error = new Error("Unable to reserve this slot. Please try again.");
         } else {
           r = await sb.rpc("create_booking", { p_court_id:S.court.id, p_starts_at:first.s.toISOString(), p_ends_at:last.e.toISOString(), p_idempotency_key:keys[sig] });
@@ -2872,7 +2872,7 @@
     };
   }
 
-  async function guestBookingStatus(token) {
+  async function guestBookingStatus(token, checkout) {
     var root = D.root();
     if (!/^[0-9a-f]{64}$/.test(token || "")) {
       root.innerHTML = '<section class="panel"><h1>Booking link unavailable</h1><p>This link is invalid or has expired.</p><a class="btn" href="#/guest/recover">Request a new link</a></section>';
@@ -2909,6 +2909,7 @@
           await guestBookingStatus(token);
         } catch (_) { release.disabled = false; D.ui.toast("Unable to release this slot. Please refresh or contact the club.", "err"); }
       };
+      if (checkout) pay.onclick();
     }
     if (b.status === "approved" && b.gate_pass_available && b.reference_code) {
       var panel = root.querySelector(".guest-booking-status");
