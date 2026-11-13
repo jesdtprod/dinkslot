@@ -725,7 +725,7 @@
         "</div>" +
         '<div class="bg-dink-surface p-6 rounded-2xl border border-dink-border shadow-md">' +
           '<h3 class="text-lg font-bold text-white font-display mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-dink-lime" aria-hidden="true"></i> Before You Book</h3>' +
-          '<ul class="space-y-3 text-xs text-slate-300 list-none p-0 m-0">' +
+          '<ul class="club-before-book-list space-y-3 text-xs text-slate-300 list-none p-0 m-0">' +
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-user-check text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Booking:</strong> ' + (cfg.GUEST_BOOKING_ENABLED === true ? "Sign in or book as a guest." : "A free DINKSLOT player account is needed to reserve a court.") + '</span></li>' +
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-earth-asia text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Time zone:</strong> All schedules use ' + esc(tz) + '.</span></li>' +
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-tags text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Pricing:</strong> ' + (tiered ? 'Rates vary by time; check your total before payment.' : 'Your total is shown before payment.') + '</span></li>' +

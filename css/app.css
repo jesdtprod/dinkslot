@@ -4843,3 +4843,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .club-guest-recovery p { grid-column:1; margin:4px 0 0; }
 .club-guest-recovery a { grid-column:2; grid-row:1 / span 2; justify-self:end; }
 @media(max-width:639px) { .club-guest-recovery { align-items:flex-start; padding:16px; } .club-guest-recovery > div { display:flex; flex-direction:column; align-items:flex-start; gap:4px; } .club-guest-recovery p { margin:0; } .club-guest-recovery a { margin-top:6px; } }
+
+#ds-club-page .club-before-book-list > li { display:grid; grid-template-columns:16px minmax(0,1fr); align-items:start; gap:10px; line-height:18px; }
+#ds-club-page .club-before-book-list > li > i { width:16px; margin:0; font-size:12px; line-height:18px; text-align:center; }
+#ds-club-page .club-before-book-list > li > span { min-width:0; }
