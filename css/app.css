@@ -4826,3 +4826,14 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-collection-loading .guest-loading-label { width:48px; height:10px; }
 .guest-collection-loading .guest-loading-value { width:85%; height:14px; }
 .guest-collection-loading .guest-loading-button { width:100%; height:38px; border-radius:8px; }
+
+@media(max-width:767px) {
+  #ds-club-page .club-booking-actions { width:100%; gap:12px; }
+  #ds-club-page .club-booking-buttons { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; }
+  #ds-club-page .club-booking-buttons > :is(a,button) { width:100%; box-sizing:border-box; min-height:46px; }
+  #ds-club-page .club-booking-actions .club-account-prompt { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; gap:8px; text-align:center; }
+  #ds-club-page .club-account-prompt > .club-account-signin { justify-content:center; min-height:40px; box-sizing:border-box; padding:8px; border:1px solid #91a5b22b; border-radius:9px; background:#202a3080; font-size:12px; line-height:18px; white-space:normal; text-align:center; }
+  #ds-club-page .club-account-prompt > .club-account-signin:hover { background:#a3e6350d; border-color:#a3e63540; text-decoration:none; }
+  #ds-club-page .club-account-prompt > .club-account-returning { grid-column:1 / -1; justify-content:center; align-items:center; gap:6px; padding-top:4px; font-size:12px; line-height:20px; }
+  #ds-club-page .club-account-prompt > .club-account-note { grid-column:1 / -1; }
+}
