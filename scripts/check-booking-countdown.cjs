@@ -92,7 +92,7 @@ const D = {
 };
 
 const source = fs.readFileSync('js/player.js', 'utf8')
-  .replace('D.player = { render: render };', 'D.player = { render: render, bookings: bookingsView };');
+  .replace('D.player = { render: render, memberSkeleton: memberSkeleton };', 'D.player = { render: render, bookings: bookingsView };');
 
 vm.runInNewContext(source, { window: { DS: D, qrcode: null }, console, Date, Set });
 
