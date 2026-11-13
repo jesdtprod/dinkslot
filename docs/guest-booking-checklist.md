@@ -33,3 +33,5 @@ Validation performed locally: Deno type checks for all guest functions; 21 email
 Guest booking entry remains disabled by GUEST_BOOKING_ENABLED in js/config.js until the backend is deployed and verified.
 
 2026-11-13: Production migrations 37–45 applied; remote database reports up to date and the public schema linter reported no errors. Guest functions, database behavior and end-to-end flows still require validation before enabling guest booking.
+
+2026-11-13: Guest Edge Functions and updated send-booking-email deployed to production. Invalid-token/request smoke checks returned 401/400 as expected; service-only SQL privileges verified. Guest entry remains disabled. The project has no configured Gmail sender/webhook secrets and no booking webhook Vault entries, so email delivery and the full booking flow have not been tested.
