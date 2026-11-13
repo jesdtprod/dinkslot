@@ -19,7 +19,7 @@
 - [ ] Reuse checkout with guest-authorized proof upload; preserve existing member flow.
 - [x] Add guest booking status page wired to the status endpoint (not deployed or end-to-end tested).
 - [x] Render the guest QR pass only for an approved status returned by the endpoint (end-to-end testing pending).
-- [ ] Show guest contact and payment information in the admin approval queue.
+- [x] Prepare tenant-scoped guest email access and display it alongside existing guest contact and payment details in the admin queue (database and end-to-end testing pending).
 - [x] Prepare guest status emails and secure booking links using the existing Gmail sender (requires guest creation, migrations, deployment, and delivery tests).
 - [ ] Verify registered-player email delivery and status transitions; configure and deploy the webhook and mailer as needed.
 - [ ] Run database security, concurrent booking, payment, recovery, accessibility, and end-to-end tests.
