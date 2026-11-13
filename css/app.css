@@ -4597,6 +4597,9 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 #ds-book-page .payment-success-card > div:nth-child(3) > div > span:last-child { min-width:0; text-align:right; overflow-wrap:anywhere; }
 
 #ds-book-page .payment-success-card { display:flex; flex-direction:column; align-items:stretch; gap:20px; padding:32px 28px; }
+#ds-book-page > main:has(.payment-success-view) { display:flex; align-items:center; justify-content:center; width:100%; min-height:calc(100dvh - 64px); padding:24px 16px; box-sizing:border-box; }
+#ds-book-page .payment-success-view { width:100%; }
+#ds-book-page #guest-checkout.payment-success-view .payment-success-card { width:100%; max-width:576px; margin-left:auto; margin-right:auto; }
 #ds-book-page .payment-success-card > :not([hidden]) ~ :not([hidden]) { margin-top:0; }
 #ds-book-page .payment-success-card > div:nth-child(2) { display:flex; flex-direction:column; align-items:center; gap:8px; }
 #ds-book-page .payment-success-card h2, #ds-book-page .payment-success-card p { margin:0; }
