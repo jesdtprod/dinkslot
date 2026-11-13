@@ -4623,7 +4623,14 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-bookings-header h1 { margin:0; color:#f1f5f2; font:700 36px/44px "Plus Jakarta Sans",sans-serif; letter-spacing:-.04em; }
 .guest-bookings-header p { margin:2px 0 12px; color:#91a5b2; font-size:13px; line-height:20px; }
 @media(max-width:639px) { .guest-bookings-header { padding:16px; } .guest-bookings-header::before { left:16px; } .guest-bookings-header h1 { font-size:28px; line-height:36px; } }
-#ds-book-page .guest-booking-status { width:100%; margin:0; padding:24px; border:1px solid #35434b; border-radius:12px; background:#182126; }
+#ds-book-page .guest-booking-status { width:100%; margin:0; padding:24px; border:1px solid #91a5b22b; border-radius:10px; background:rgb(24 31 36 / 30%); backdrop-filter:blur(6px); }
+.guest-club-identity { display:flex; align-items:center; gap:14px; min-width:0; }
+.guest-club-logo { display:grid; place-items:center; width:64px; height:64px; flex:none; padding:5px; border:1px solid #ffffff12; border-radius:14px; background:#202a30; overflow:hidden; }
+.guest-club-logo img { width:100%; height:100%; object-fit:contain; border-radius:9px; }
+.guest-club-logo > .material-symbols-outlined { color:#a3e635; font-size:28px; }
+.guest-club-contact { display:flex; flex-wrap:wrap; gap:12px 24px; margin:16px 0 0; color:#91a5b2; font-size:12px; line-height:18px; }
+.guest-club-contact > span { display:flex; align-items:flex-start; gap:6px; min-width:0; overflow-wrap:anywhere; }
+.guest-club-contact .material-symbols-outlined { font-size:16px; color:#a3e635; flex:none; }
 .guest-status-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:20px; border-bottom:1px solid #ffffff12; }
 .guest-status-eyebrow { color:#a3e635; font:700 10px/16px "JetBrains Mono",monospace; letter-spacing:.06em; text-transform:uppercase; }
 .guest-status-heading h2 { margin:6px 0 4px; font-size:20px; line-height:28px; color:#f1f5f2; }
@@ -4631,7 +4638,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-status-badge { flex:none; padding:6px 10px; border:1px solid #91a5b240; border-radius:8px; background:#91a5b20a; color:#b5c2cd; font-size:11px; font-weight:600; }
 .guest-status-badge.pending { color:#facc15; border-color:#facc1535; background:#facc150a; }
 .guest-status-badge.confirmed { color:#a3e635; border-color:#a3e63540; background:#a3e6350d; }
-#ds-book-page .guest-status-details { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:20px 0; }
+#ds-book-page .guest-status-details { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:20px 0; }
 #ds-book-page .guest-status-details > div { display:flex; justify-content:flex-start; align-items:flex-start; gap:10px; min-width:0; padding:14px; border:1px solid #ffffff0d; border-radius:10px; background:#202a30; }
 .guest-status-details .material-symbols-outlined { flex:none; color:#a3e635; font-size:19px; }
 #ds-book-page .guest-status-details dt { font-size:11px; line-height:16px; color:#91a5b2; }

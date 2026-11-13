@@ -2911,6 +2911,17 @@
       await guestCheckout(b, token, club, court);
       return;
     }
+    if (club.slug) {
+      try {
+        var publicClub = await sb.from("public_clubs").select("logo_path,address,city,province,zip_code,contact_phone,contact_email").eq("slug", club.slug).maybeSingle();
+        if (!publicClub.error && publicClub.data) club = Object.assign({}, club, publicClub.data);
+      } catch (_) { /* The reservation remains usable if public club details are unavailable. */ }
+    }
+    var clubAddress = [club.address, club.city, club.province, club.zip_code].filter(Boolean).join(", ");
+    var clubLogo = club.logo_path ? D.mediaUrl(club.logo_path) : "";
+    var clubContact = [["location_on", clubAddress], ["call", club.contact_phone], ["mail", club.contact_email]].filter(function (item) { return item[1]; }).map(function (item) {
+      return '<span><span class="material-symbols-outlined" aria-hidden="true">' + item[0] + '</span><span>' + esc(item[1]) + '</span></span>';
+    }).join('');
     var statusText = { pending:"Pending approval", approved:"Confirmed", rejected:"Rejected", cancelled:"Cancelled", expired:"Expired" }[b.status] || "Unavailable";
     var tz = club.timezone || "Asia/Manila";
     var date = new Date(b.starts_at).toLocaleDateString("en-PH", {timeZone:tz,weekday:"short",month:"short",day:"numeric",year:"numeric"});
@@ -2919,9 +2930,10 @@
     var note = b.gate_pass_available ? "Your booking is confirmed. Show your QR pass at the court." : b.status === "pending" ? (b.proof_submitted ? "Your payment proof has been submitted. The club will review your reservation." : "Complete your payment and upload your receipt before your hold expires.") : (b.reject_reason || b.cancel_reason || "This reservation is no longer active.");
     root.innerHTML = '<div id="ds-book-page" class="book-public guest-status-page"><main>' +
       '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Booking</h1><p>Manage your court reservation, payment, and booking pass.</p></header>' +
-      '<section class="guest-booking-status"><header class="guest-status-heading"><div><span class="guest-status-eyebrow">Reservation Details</span><h2>' + esc(club.name || 'Club') + '</h2><p>' + esc(court.name || 'Court') + '</p></div><span class="guest-status-badge ' + tone + '">' + esc(statusText) + '</span></header>' +
+      '<section class="guest-booking-status"><header class="guest-status-heading"><div class="guest-club-identity"><div class="guest-club-logo">' + (clubLogo ? '<img src="' + esc(clubLogo) + '" alt="' + esc(club.name || 'Club') + ' logo">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</div><div><span class="guest-status-eyebrow">Reservation Details</span><h2>' + esc(club.name || 'Club') + '</h2><p>' + esc(court.name || 'Court') + (court.surface ? ' ? ' + esc(court.surface) : '') + '</p></div></div><span class="guest-status-badge ' + tone + '">' + esc(statusText) + '</span></header>' +
+      (clubContact ? '<div class="guest-club-contact">' + clubContact + '</div>' : '') +
       '<dl class="guest-status-details">' + [
-        ['calendar_today','Date',date], ['schedule','Time',time], ['payments','Amount',money(b.amount)], ['receipt_long','Payment proof',b.proof_submitted ? 'Submitted' : 'Not submitted'], ['tag','Booking reference',b.reference_code || 'Unavailable'], ['public','Time zone',tz]
+        ['calendar_today','Date',date], ['schedule','Time',time], ['payments','Amount',money(b.amount)], ['receipt_long','Payment proof',b.proof_submitted ? 'Submitted' : 'Not submitted'], ['tag','Booking reference',b.reference_code || 'Unavailable'], ['public','Time zone',tz], ['person','Guest',b.guest_name || 'Guest'], ['timelapse','Duration',Math.round((new Date(b.ends_at)-new Date(b.starts_at))/60000) + ' minutes']
       ].map(function (field) { return '<div><span class="material-symbols-outlined" aria-hidden="true">' + field[0] + '</span><div><dt>' + field[1] + '</dt><dd>' + esc(field[2]) + '</dd></div></div>'; }).join('') + '</dl>' +
       '<p class="guest-status-note ' + tone + '"><span class="material-symbols-outlined" aria-hidden="true">' + (b.gate_pass_available ? 'verified' : 'info') + '</span><span>' + esc(note) + '</span></p><div class="guest-status-actions"></div></section></main></div>';
     if (D.mountPublicBackdrop) D.mountPublicBackdrop(root.querySelector("#ds-book-page"));
