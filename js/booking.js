@@ -277,14 +277,19 @@
     '</div>';
   }
 
-  function gcashAppLinks() {
+  function paymentAppLinks(method) {
+    if (method !== "GCash" && method !== "Maya") return null;
     var android = /Android/i.test(navigator.userAgent);
     var ios = /iPad|iPhone|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    var store = android ? "https://play.google.com/store/apps/details?id=com.globe.gcash.android" : ios ? "https://apps.apple.com/app/gcash/id520020791" : "https://gcash.com";
-    var scheme = "gcash://com.mynt.gcash/app/006300000100";
+    var maya = method === "Maya";
+    var packageName = maya ? "com.paymaya" : "com.globe.gcash.android";
+    var protocol = maya ? "paymaya" : "gcash";
+    var path = maya ? "muph" : "com.mynt.gcash/app/006300000100";
+    // Maya publishes this cross-platform download link on its official website.
+    var store = maya ? "https://official.maya.ph/3xMF/w3xi2eyw" : android ? "https://play.google.com/store/apps/details?id=com.globe.gcash.android" : ios ? "https://apps.apple.com/app/gcash/id520020791" : "https://gcash.com";
     return {
       mobile: android || ios,
-      app: android ? "intent://com.mynt.gcash/app/006300000100#Intent;scheme=gcash;package=com.globe.gcash.android;S.browser_fallback_url=" + encodeURIComponent(store) + ";end" : scheme,
+      app: android ? "intent://" + path + "#Intent;scheme=" + protocol + ";package=" + packageName + ";S.browser_fallback_url=" + encodeURIComponent(store) + ";end" : protocol + "://" + path,
       store: store
     };
   }
@@ -449,9 +454,9 @@
               '<button type="button" class="flex-1 bg-surface-container-high hover:bg-surface-bright text-zinc-200 text-[11px] font-semibold py-1.5 px-2 rounded-lg border border-outline-variant/30 flex items-center justify-center gap-1 transition cursor-pointer" id="btn-save-qr">' +
                 '<span class="material-symbols-outlined text-sm">download</span> Save QR' +
               '</button>' +
-              '<button type="button" class="flex-1 bg-primary/15 hover:bg-primary/25 text-primary text-[11px] font-semibold py-1.5 px-2 rounded-lg border border-primary/30 flex items-center justify-center gap-1 transition cursor-pointer" id="btn-open-app">' +
+              (paymentAppLinks(activeMethod) ? '<button type="button" class="flex-1 bg-primary/15 hover:bg-primary/25 text-primary text-[11px] font-semibold py-1.5 px-2 rounded-lg border border-primary/30 flex items-center justify-center gap-1 transition cursor-pointer" id="btn-open-app">' +
                 '<span class="material-symbols-outlined text-sm">open_in_new</span> Open App' +
-              '</button>' +
+              '</button>' : '') +
             '</div>' +
           '</div>' +
           '<div class="md:col-span-7 flex flex-col gap-3">' +
@@ -857,24 +862,20 @@
 
       var btnOpenApp = el.querySelector("#btn-open-app");
       if (btnOpenApp) {
-        var isGCash = /gcash/i.test(activeMethod), appLinks = gcashAppLinks();
-        btnOpenApp.innerHTML = '<span class="material-symbols-outlined text-sm" aria-hidden="true">open_in_new</span><span>' + (isGCash ? "Open GCash" : "Open payment app") + '</span>';
-        if (isGCash && appLinks.mobile) {
+        var appLinks = paymentAppLinks(activeMethod);
+        btnOpenApp.innerHTML = '<span class="material-symbols-outlined text-sm" aria-hidden="true">open_in_new</span><span>Open App</span>';
+        if (appLinks.mobile) {
           var downloadLink = document.createElement("a");
           downloadLink.className = "payment-app-download";
           downloadLink.href = appLinks.store;
           downloadLink.target = "_blank";
           downloadLink.rel = "noopener noreferrer";
-          downloadLink.textContent = "GCash not installed? Download app";
+          downloadLink.textContent = activeMethod + " not installed? Download app";
           btnOpenApp.parentElement.after(downloadLink);
         }
         btnOpenApp.onclick = function () {
-          if (isGCash) {
-            if (appLinks.mobile) window.location.assign(appLinks.app);
-            else D.ui.toast("Open GCash on your phone, then scan the QR or use the account details shown here.", "");
-          } else {
-            msg(q("form.proof", el) || el, "Open your " + activeMethod + " app, scan the saved QR, and send the exact amount.", "");
-          }
+          if (appLinks.mobile) window.location.assign(appLinks.app);
+          else D.ui.toast("Open " + activeMethod + " on your phone, then scan the QR or use the account details shown here.", "");
         };
       }
     }
