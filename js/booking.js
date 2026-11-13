@@ -2887,6 +2887,13 @@
     };
   }
 
+  async function guestCheckout(booking, token, club, court) {
+    var root = D.root();
+    root.innerHTML = '<div id="ds-book-page" class="book-public w-full min-h-screen text-slate-100 flex flex-col antialiased"><main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10"><div id="guest-checkout" class="w-full relative"></div></main></div>';
+    if (D.mountPublicBackdrop) D.mountPublicBackdrop(root.querySelector("#ds-book-page"));
+    await payPanel(root.querySelector("#guest-checkout"), booking, { guestToken:token, club:club, court:court, onBack:function () { guestBookingStatus(token); } });
+  }
+
   async function guestBookingStatus(token, checkout) {
     var root = D.root();
     if (!/^[0-9a-f]{64}$/.test(token || "")) {
@@ -2901,8 +2908,7 @@
     }
     var b = response.data.booking, club = response.data.club || {}, court = response.data.court || {};
     if (checkout && b.status === "pending" && !b.proof_submitted && b.expires_at && new Date(b.expires_at).getTime() > Date.now() && new Date(b.starts_at).getTime() > Date.now()) {
-      root.innerHTML = '<div id="ds-book-page" class="book-public"><main><div id="guest-checkout"></div></main></div>';
-      await payPanel(root.querySelector("#guest-checkout"), b, { guestToken:token, club:club, court:court, onBack:function () { guestBookingStatus(token); } });
+      await guestCheckout(b, token, club, court);
       return;
     }
     var statusText = { pending:"Pending approval", approved:"Confirmed", rejected:"Rejected", cancelled:"Cancelled", expired:"Expired" }[b.status] || "Unavailable";
@@ -2925,8 +2931,7 @@
       pay.type = "button"; pay.className = "btn"; pay.textContent = "Pay / Upload Proof";
       root.querySelector(".guest-status-actions").appendChild(pay);
       pay.onclick = function () {
-        root.innerHTML = '<div id="ds-book-page" class="book-public"><main><div id="guest-checkout"></div></main></div>';
-        payPanel(root.querySelector("#guest-checkout"), b, { guestToken:token, club:club, court:court, onBack:function () { guestBookingStatus(token); } });
+        guestCheckout(b, token, club, court);
       };
       var release = document.createElement("button");
       release.type = "button"; release.className = "btn ghost guest-release-hold"; release.textContent = "Cancel & Release Slot";
