@@ -727,13 +727,9 @@
           '<h3 class="text-lg font-bold text-white font-display mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-dink-lime" aria-hidden="true"></i> Before You Book</h3>' +
           '<ul class="space-y-3 text-xs text-slate-300 list-none p-0 m-0">' +
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-user-check text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Booking:</strong> ' + (cfg.GUEST_BOOKING_ENABLED === true ? "Sign in or book as a guest." : "A free DINKSLOT player account is needed to reserve a court.") + '</span></li>' +
-            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-earth-asia text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Time zone:</strong> All times are shown in ' + esc(tz) + ".</span></li>" +
-            (tiered ? '<li class="flex items-start gap-2.5"><i class="fa-solid fa-tags text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Pricing:</strong> Rates vary by time of day. Your total is shown before you confirm.</span></li>' : "") +
-            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-receipt text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Confirmation:</strong> The club reviews your payment before confirming. Check My Bookings or your guest booking link for updates.</span></li>' +
-            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-wallet text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Payment:</strong> Pay and upload your receipt before the hold timer ends to keep your selected slot.</span></li>' +
-            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-qrcode text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Gate pass:</strong> Your QR pass becomes available once the club approves your booking.</span></li>' +
-            (c.contact_phone || c.contact_email ? '<li class="flex items-start gap-2.5"><i class="fa-solid fa-headset text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Questions:</strong> Contact the club at ' +
-              esc([c.contact_phone, c.contact_email].filter(Boolean).join(" or ")) + ".</span></li>" : "") +
+            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-wallet text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Payment:</strong> Pay and upload your receipt before the hold expires.</span></li>' +
+            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-receipt text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Confirmation:</strong> The club confirms your booking after reviewing payment.</span></li>' +
+            '<li class="flex items-start gap-2.5"><i class="fa-solid fa-qrcode text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Gate pass:</strong> Your QR pass is available after approval.</span></li>' +
           "</ul>" +
         "</div>" +
           (cfg.GUEST_BOOKING_ENABLED === true ? '<div class="club-guest-recovery"><span class="material-symbols-outlined" aria-hidden="true">travel_explore</span><div><strong>Already booked as a guest?</strong><p>Use your booking email to recover your secure link and check your reservation.</p><a href="#/guest/recover">Find Guest Booking <span aria-hidden="true">&rarr;</span></a></div></div>' : '') +
