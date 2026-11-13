@@ -3007,7 +3007,7 @@
     root.innerHTML = '<div id="ds-book-page" class="book-public guest-status-page guest-bookings-page"><main>' +
       '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Bookings</h1><p>Manage your guest reservations, payments, and booking passes in one place.</p></header>' +
       '<div class="guest-collection-toolbar"><div class="guest-collection-tabs" role="group" aria-label="Filter bookings">' +
-      [['all','All Bookings'],['upcoming','Upcoming'],['pending','Pending'],['past','Past']].map(function (tab) { return '<button type="button" data-filter="' + tab[0] + '" aria-pressed="' + (tab[0] === 'all') + '">' + tab[1] + '</button>'; }).join('') +
+      [['all','All Bookings'],['upcoming','Upcoming'],['pending','Pending'],['past','Past']].map(function (tab) { return '<button type="button" data-filter="' + tab[0] + '" aria-pressed="' + (tab[0] === 'all') + '"><span>' + tab[1] + '</span><span class="guest-tab-count" aria-label="Booking count">\u2014</span></button>'; }).join('') +
       '</div><div class="guest-collection-tools"><button type="button" class="guest-collection-refresh"><span class="material-symbols-outlined" aria-hidden="true">refresh</span>Refresh</button><span class="guest-collection-summary" role="status" aria-live="polite" hidden></span></div></div>' +
       '<div class="guest-collection-results"></div><nav class="guest-collection-pages" aria-label="Booking pages"></nav></main></div>';
     var stage = root.querySelector(".guest-bookings-page"), results = stage.querySelector(".guest-collection-results"), summary = stage.querySelector(".guest-collection-summary"), pages = stage.querySelector(".guest-collection-pages");
@@ -3032,6 +3032,11 @@
         if (quiet && opening) return;
         results.setAttribute("aria-busy", "false"); summary.hidden = false;
         var rows = response.data.bookings, total = response.data.total || 0;
+        stage.querySelectorAll("[data-filter]").forEach(function (button) {
+          var count = response.data.counts && response.data.counts[button.dataset.filter];
+          if (!Number.isFinite(count) && button.dataset.filter === filter) count = total;
+          if (Number.isFinite(count)) button.querySelector(".guest-tab-count").textContent = String(count);
+        });
         if (!rows.length && page > 0) { page = Math.max(0, Math.ceil(total / 12) - 1); return load(quiet, true); }
         var now = Date.now();
         var signature = JSON.stringify([filter,page,total,rows,rows.map(function (row) { var b = row.booking; return [Date.parse(b.ends_at) <= now,Date.parse(b.starts_at) <= now,Date.parse(b.expires_at) <= now]; })]);

@@ -38,3 +38,16 @@ Deno.test("collection token issuance fails closed on database errors", async () 
   try { await issueGuestCollectionToken({ from: () => ({ insert: () => Promise.resolve({ error: { message: "unavailable" } }) }) }, "guest@example.test"); } catch { failed = true; }
   if (!failed) throw new Error("database failure ignored");
 });
+
+Deno.test("collection counts use exact head queries scoped to the verified guest email", () => {
+  let options: any;
+  const scope: unknown[] = [];
+  const query = {
+    select: (_fields: string, config: unknown) => { options = config; return query; },
+    eq: (...args: unknown[]) => { scope.push(args); return query; },
+    is: (...args: unknown[]) => { scope.push(args); return query; },
+  };
+  collectionBookings({ from: () => query }, "verified@example.test", true);
+  if (options.count !== "exact" || options.head !== true) throw new Error("count query returns rows or uses an estimate");
+  if (JSON.stringify(scope) !== JSON.stringify([["guest_booking_contacts.email", "verified@example.test"], ["source", "guest_online"], ["deleted_at", null]])) throw new Error("count query is not scoped");
+});

@@ -30,9 +30,9 @@ export async function resolveGuestCollection(
 
 // Every read is scoped by the email resolved from the recovery token, never by
 // an email supplied by the browser. Pagination keeps the full history accessible.
-export function collectionBookings(db: { from: (table: string) => any }, email: string) {
+export function collectionBookings(db: { from: (table: string) => any }, email: string, head = false) {
   return db.from("bookings").select(
     "id,tenant_id,court_id,guest_name,starts_at,ends_at,amount,status,reference_code,expires_at,guest_booking_contacts!inner(email)",
-    { count: "exact" },
+    { count: "exact", head },
   ).eq("guest_booking_contacts.email", email).eq("source", "guest_online").is("deleted_at", null);
 }

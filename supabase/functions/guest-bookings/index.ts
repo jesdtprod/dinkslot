@@ -36,15 +36,26 @@ Deno.serve(async (req) => {
     const filter = body.filter === undefined ? "all" : body.filter;
     if (!Number.isInteger(page) || (page as number) < 0 || (page as number) > 100000 || !["all", "upcoming", "pending", "past"].includes(filter as string)) return json({ error: "invalid_request" }, 400);
     const now = new Date().toISOString();
-    let query = collectionBookings(db, email);
-    if (filter === "upcoming") query = query.eq("status", "approved").gt("ends_at", now);
-    if (filter === "pending") query = query.eq("status", "pending").gt("ends_at", now);
-    if (filter === "past") query = query.or(`ends_at.lte.${now},status.in.(cancelled,rejected,expired)`);
+    function categoryQuery(category: string, head = false) {
+      let query = collectionBookings(db, email!, head);
+      if (category === "upcoming") query = query.eq("status", "approved").gt("ends_at", now);
+      if (category === "pending") query = query.eq("status", "pending").gt("ends_at", now);
+      if (category === "past") query = query.or(`ends_at.lte.${now},status.in.(cancelled,rejected,expired)`);
+      return query;
+    }
     const start = (page as number) * 12;
-    const { data, error, count } = await query.order("starts_at", { ascending: false }).order("id", { ascending: false }).range(start, start + 11);
+    const categories = ["all", "upcoming", "pending", "past"].filter((category) => category !== filter);
+    const [listing, ...totals] = await Promise.all([
+      categoryQuery(filter as string).order("starts_at", { ascending: false }).order("id", { ascending: false }).range(start, start + 11),
+      ...categories.map((category) => categoryQuery(category, true)),
+    ]);
+    const { data, error, count } = listing;
     if (error) throw error;
+    if (totals.some((result) => result.error)) throw new Error("guest_collection_unavailable");
+    const counts: Record<string, number> = { [filter as string]: count || 0 };
+    categories.forEach((category, index) => { counts[category] = totals[index].count || 0; });
     const bookings = (data || []) as BookingRow[];
-    if (!bookings.length) return json({ bookings: [], total: count || 0, page });
+    if (!bookings.length) return json({ bookings: [], total: count || 0, counts, page });
     const [clubs, courts, payments] = await Promise.all([
       db.from("tenants").select("id,name,slug,timezone,logo_path,address,city,province,zip_code").in("id", [...new Set(bookings.map((b) => b.tenant_id))]),
       db.from("courts").select("id,tenant_id,name,surface").in("id", [...new Set(bookings.map((b) => b.court_id))]),
@@ -55,6 +66,6 @@ Deno.serve(async (req) => {
     return json({ bookings: bookings.map((b) => {
       const { guest_booking_contacts: _contacts, ...booking } = b;
       return { booking: { ...booking, proof_submitted: proofIds.has(b.id) }, club: clubs.data?.find((c) => c.id === b.tenant_id) || null, court: courts.data?.find((c) => c.id === b.court_id && c.tenant_id === b.tenant_id) || null };
-    }), total: count || 0, page });
+    }), total: count || 0, counts, page });
   } catch { return json({ error: "service_unavailable" }, 503); }
 });
