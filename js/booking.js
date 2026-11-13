@@ -2974,8 +2974,32 @@
       '</div></main></div>';
   }
 
+  function watchGuestCollectionUpdates(stage, refresh) {
+    var stopped = false;
+    function stop() {
+      if (stopped) return;
+      stopped = true;
+      clearInterval(timer);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", update);
+      window.removeEventListener("focus", update);
+    }
+    function update() {
+      if (!stage.isConnected) { stop(); return; }
+      if (!document.hidden) refresh();
+    }
+    var timer = setInterval(update, 10000);
+    var observer = new MutationObserver(function () { if (!stage.isConnected) stop(); });
+    observer.observe(D.root(), {childList:true});
+    document.addEventListener("visibilitychange", update);
+    window.addEventListener("focus", update);
+    return stop;
+  }
+
   async function guestBookings(token) {
     var root = D.root(), page = 0, filter = "all", request = 0;
+    var running = 0, opening = false, hasRendered = false, lastSignature = "", accessExpired = false;
+    var stopUpdates = function () {};
     if (!/^[0-9a-f]{64}$/.test(token || "")) {
       root.innerHTML = '<section class="panel"><h1>Booking link unavailable</h1><p>Request a secure link using your booking email.</p><a class="btn" href="#/guest/recover">Find My Bookings</a></section>';
       return;
@@ -2992,17 +3016,28 @@
       button.onclick = function () { filter = button.dataset.filter; page = 0; load(); };
     });
     stage.querySelector(".guest-collection-refresh").onclick = function () { load(); };
-    async function load() {
+    async function load(quiet, correctingPage) {
+      if (!stage.isConnected || (quiet && ((running && !correctingPage) || opening || document.hidden))) return;
       var current = ++request;
+      running++;
       stage.querySelectorAll("[data-filter]").forEach(function (button) { button.setAttribute("aria-pressed", String(button.dataset.filter === filter)); });
-      results.innerHTML = guestBookingsSkeleton(); results.setAttribute("aria-busy", "true"); pages.innerHTML = ""; summary.textContent = ""; summary.hidden = true;
+      if (!quiet) {
+        results.innerHTML = guestBookingsSkeleton(); results.setAttribute("aria-busy", "true"); pages.innerHTML = ""; summary.textContent = ""; summary.hidden = true;
+      }
       try {
         var response = await sb.functions.invoke("guest-bookings", { body: { token:token, page:page, filter:filter } });
         if (!stage.isConnected || current !== request) return;
+        accessExpired = !!(response.error && response.error.context && response.error.context.status === 401);
         if (response.error || !response.data || !Array.isArray(response.data.bookings)) throw response.error || new Error("unavailable");
+        if (quiet && opening) return;
         results.setAttribute("aria-busy", "false"); summary.hidden = false;
         var rows = response.data.bookings, total = response.data.total || 0;
-        if (!rows.length && total && page > 0) { page = Math.max(0, Math.ceil(total / 12) - 1); return load(); }
+        if (!rows.length && page > 0) { page = Math.max(0, Math.ceil(total / 12) - 1); return load(quiet, true); }
+        var now = Date.now();
+        var signature = JSON.stringify([filter,page,total,rows,rows.map(function (row) { var b = row.booking; return [Date.parse(b.ends_at) <= now,Date.parse(b.starts_at) <= now,Date.parse(b.expires_at) <= now]; })]);
+        if (quiet && hasRendered && signature === lastSignature) return;
+        lastSignature = signature; hasRendered = true;
+        pages.innerHTML = "";
         summary.textContent = total ? total + (total === 1 ? " booking" : " bookings") + " · " + (page * 12 + 1) + "–" + Math.min((page + 1) * 12, total) + " shown" : "No bookings in this category.";
         results.innerHTML = rows.length ? '<div class="guest-collection-grid">' + rows.map(function (row, index) {
           var b = row.booking, club = row.club || {}, court = row.court || {}, tz = club.timezone || "Asia/Manila";
@@ -3022,15 +3057,16 @@
         }).join('') + '</div>' : '<div class="guest-collection-empty"><span class="material-symbols-outlined" aria-hidden="true">event_note</span><h2>No ' + (filter === 'all' ? '' : esc(filter) + ' ') + 'bookings found</h2><p>Your guest bookings will appear here when you use the same email address.</p></div>';
         results.querySelectorAll("[data-open-booking],[data-pay-booking]").forEach(function (button) {
           button.onclick = async function () {
-            if (button.disabled) return;
+            if (button.disabled || opening) return;
             var checkout = button.hasAttribute("data-pay-booking"), index = Number(checkout ? button.dataset.payBooking : button.dataset.openBooking);
-            button.disabled = true;
+            button.disabled = true; opening = true;
             try {
               var access = await sb.functions.invoke("guest-bookings", { body: { token:token, booking_id:rows[index].booking.id } });
               if (!stage.isConnected) return;
               if (access.error || !/^[0-9a-f]{64}$/.test(access.data && access.data.token || "")) throw new Error("unavailable");
               D.go("/guest/booking?token=" + encodeURIComponent(access.data.token) + "&collection=" + encodeURIComponent(token) + (checkout ? "&checkout=1" : ""));
             } catch (_) { button.disabled = false; D.ui.toast("Unable to open this booking. Refresh or request a new booking link.", "err"); }
+            finally { opening = false; }
           };
         });
         var totalPages = Math.ceil(total / 12);
@@ -3040,11 +3076,16 @@
         }
       } catch (_) {
         if (!stage.isConnected || current !== request) return;
+        if (quiet && hasRendered && !accessExpired) return;
+        if (accessExpired) stopUpdates();
         summary.textContent = ""; summary.hidden = true; results.setAttribute("aria-busy", "false");
         results.innerHTML = '<div class="guest-collection-empty"><h2>Unable to load your bookings</h2><p>Your link may have expired, or the service may be temporarily unavailable. Try Refresh or request a new secure link.</p><a href="#/guest/recover">Find My Bookings</a></div>';
+      } finally {
+        running--;
       }
     }
     await load();
+    if (stage.isConnected && !accessExpired) stopUpdates = watchGuestCollectionUpdates(stage, function () { load(true); });
   }
 
   async function guestCheckout(booking, token, club, court) {
