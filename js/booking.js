@@ -277,6 +277,21 @@
   }
 
   async function payPanel(el, b, ctx) {
+    function wireGuestBookingLinks() {
+      if (!ctx.guestToken) return;
+      el.querySelectorAll('a[href="#/me/bookings"]').forEach(function (link) {
+        var href = "#/guest/booking?token=" + encodeURIComponent(ctx.guestToken);
+        link.href = href;
+        link.textContent = "View My Booking";
+        link.onclick = function (event) {
+          if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          history.replaceState(null, "", location.pathname + location.search + href);
+          guestBookingStatus(ctx.guestToken);
+          window.scrollTo({top:0,behavior:"smooth"});
+        };
+      });
+    }
     ctx = ctx || {};
     el.innerHTML = paymentSkeleton();
 
@@ -1023,7 +1038,7 @@
                 '<a class="w-full sm:w-auto px-5 py-3 rounded-xl bg-surface-container-high hover:bg-surface-bright text-zinc-200 font-semibold text-xs border border-outline-variant/40 transition no-underline text-center" href="#/c/' + esc(club.slug || '') + '">Back to Club</a>' +
               '</div>' +
             '</div>';
-            if (ctx.guestToken) el.querySelectorAll('a[href="#/me/bookings"]').forEach(function (link) { link.href = "#/guest/booking?token=" + encodeURIComponent(ctx.guestToken); link.textContent = "View My Booking"; });
+            wireGuestBookingLinks();
             if (ctx && ctx.onDone) ctx.onDone();
           }, 1200);
 
@@ -1039,7 +1054,7 @@
       };
     }
 
-    if (ctx.guestToken) el.querySelectorAll('a[href="#/me/bookings"]').forEach(function (link) { link.href = "#/guest/booking?token=" + encodeURIComponent(ctx.guestToken); link.textContent = "View My Booking"; });
+    wireGuestBookingLinks();
 
     var cancelReleaseBtn = el.querySelector("#cancel-release-btn");
     if (cancelReleaseBtn) {
