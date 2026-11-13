@@ -732,7 +732,6 @@
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-wallet text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Payment:</strong> Pay and upload your receipt before the hold expires.</span></li>' +
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-receipt text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Confirmation:</strong> The club confirms your booking after reviewing payment.</span></li>' +
             '<li class="flex items-start gap-2.5"><i class="fa-solid fa-qrcode text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Gate pass:</strong> Your QR pass is available after approval.</span></li>' +
-            (c.contact_phone || c.contact_email ? '<li class="flex items-start gap-2.5"><i class="fa-solid fa-headset text-dink-lime mt-0.5" aria-hidden="true"></i><span><strong>Need help?</strong> Contact the club at ' + esc(c.contact_phone || c.contact_email) + '.</span></li>' : '') +
           "</ul>" +
         "</div>" +
           (cfg.GUEST_BOOKING_ENABLED === true ? '<div class="club-guest-recovery"><span class="material-symbols-outlined" aria-hidden="true">travel_explore</span><div><strong>Already booked as a guest?</strong><p>Use your booking email to recover your secure link and check your reservation.</p><a href="#/guest/recover">Find Guest Booking <span aria-hidden="true">&rarr;</span></a></div></div>' : '') +
