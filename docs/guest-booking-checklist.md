@@ -2,12 +2,12 @@
 
 - [x] Create pre-implementation checkpoint.
 - [x] Include the club name in registered-player booking email subjects (code and unit tests; deployment pending).
-- [x] Prepare a private guest contact table migration (not applied or database-tested).
+- [x] Prepare a private guest contact table migration (applied to production; functional testing pending).
 - [x] Implement and unit-test token generation and hashing helpers (used by guest reservation; database verification pending).
-- [x] Prepare a service-only guest reservation database function using the existing slot, pricing, and hold rules (not applied or database-tested).
+- [x] Prepare a service-only guest reservation database function using the existing slot, pricing, and hold rules (applied to production; functional testing pending).
 - [x] Prepare guest entry, contact form, CAPTCHA verification, reservation endpoint, and per-email request limit (not deployed or end-to-end tested).
 - [ ] Test guest reservation rules, concurrent bookings, abuse controls, and idempotency against the database.
-- [x] Prepare a private hashed-token storage migration with expiry and revocation fields (not applied or database-tested).
+- [x] Prepare a private hashed-token storage migration with expiry and revocation fields (applied to production; functional testing pending).
 - [x] Implement and unit-test server-side token lookup with expiry and revocation checks (used by guest status and payment endpoints; database verification pending).
 - [x] Implement and unit-test server-side token issuance (used by guest emails and recovery; database verification pending).
 - [x] Add a token-authenticated guest booking status endpoint (not deployed or database-tested).
@@ -25,8 +25,11 @@
 - [x] Prepare guest status emails and secure booking links using the existing Gmail sender (requires guest creation, migrations, deployment, and delivery tests).
 - [ ] Verify registered-player email delivery and status transitions; configure and deploy the webhook and mailer as needed.
 - [ ] Run database security, concurrent booking, payment, recovery, accessibility, and end-to-end tests.
-- [ ] Apply migrations and deploy functions after validation; verify with real delivery and reservation flows.
+- [x] Apply guest booking migrations 37–45 to production and run the database linter.
+- [ ] Deploy functions after validation; verify with real delivery and reservation flows.
 
 Validation performed locally: Deno type checks for all guest functions; 21 email/token unit tests; booking, cancellation, navigation and approval regression checks; PostgreSQL parser checks for guest migrations (does not execute PL/pgSQL or enforce policies). Database, storage, CAPTCHA and real email delivery still require a configured Supabase test environment.
 
 Guest booking entry remains disabled by GUEST_BOOKING_ENABLED in js/config.js until the backend is deployed and verified.
+
+2026-11-13: Production migrations 37–45 applied; remote database reports up to date and the public schema linter reported no errors. Guest functions, database behavior and end-to-end flows still require validation before enabling guest booking.
