@@ -2040,7 +2040,23 @@
     });
     ui.main.innerHTML = '<div class="tiles" id="stats"></div>' +
       '<div class="searchrow"><span class="mi" aria-hidden="true">search</span><input id="sq" type="search" placeholder="Search clubs, owners, cities" aria-label="Search"></div>' +
-      '<p class="msg" role="alert"></p><div id="list" class="space-y-3"><div class="h-16 rounded-xl bg-surface-container-high/60 ds-skeleton"></div><div class="h-16 rounded-xl bg-surface-container-high/40 ds-skeleton"></div><div class="h-16 rounded-xl bg-surface-container-high/40 ds-skeleton"></div></div>';
+      '<p class="msg" role="alert"></p><div id="list" class="space-y-3">' +
+        Array.from({ length: 3 }, function () {
+          return '<div class="ds-skel-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">' +
+            '<div class="flex items-center gap-3 min-w-0">' +
+              '<div class="ds-skeleton ds-skel-bar w-10 h-10 rounded-xl shrink-0"></div>' +
+              '<div class="space-y-2 flex-1 min-w-0">' +
+                '<div class="ds-skeleton ds-skel-bar h-4 w-44 max-w-full"></div>' +
+                '<div class="ds-skeleton ds-skel-bar h-3 w-64 max-w-full"></div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex items-center gap-2 shrink-0">' +
+              '<div class="ds-skeleton ds-skel-bar h-8 w-20 rounded-full"></div>' +
+              '<div class="ds-skeleton ds-skel-bar h-8 w-20 rounded-full"></div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>';
     function draw() {
       var q = $("#sq").value.trim().toLowerCase();
       var rows = all.filter(function (c) {

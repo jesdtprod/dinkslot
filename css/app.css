@@ -1128,14 +1128,14 @@ body.tenant-dashboard-mode #app {
 
 
 
-/* Universal Skeleton Loader & Shimmer (unified with boot-skeleton style) */
+/* Universal Skeleton Loader & Shimmer (modern layered glass + 105deg sheen) */
 @keyframes ds-shimmer {
   to { transform: translateX(100%); }
 }
 .ds-skeleton {
   position: relative;
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 .ds-skeleton::after {
   content: "";
@@ -1143,13 +1143,24 @@ body.tenant-dashboard-mode #app {
   inset: 0;
   transform: translateX(-100%);
   background: linear-gradient(
-    90deg,
-    transparent 0%,
+    105deg,
+    transparent 15%,
     rgba(255, 255, 255, 0.06) 50%,
-    transparent 100%
+    transparent 85%
   );
   animation: boot-shimmer 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
+}
+.ds-skel-card {
+  background: rgba(255, 255, 255, 0.022);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+.ds-skel-bar {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 @media (prefers-reduced-motion: reduce) {
   .ds-skeleton::after { animation: none; display: none; }
@@ -3103,22 +3114,22 @@ body.app-booting #app-startup { position: fixed; inset: 0; z-index: 999; display
 .boot-skeleton { display: flex; min-height: 100dvh; text-align: left; background: #0a0e14; }
 .boot-skeleton aside { display: none; width: 256px; flex-shrink: 0; padding: 24px 16px; border-right: 1px solid rgba(255, 255, 255, 0.05); background: #0c1017; }
 .boot-dashboard .boot-skeleton aside { display: block; }
-.boot-skeleton :is(i,b) { display: block; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.04); border-radius: 12px; }
-.boot-skeleton :is(i,b)::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent); transform: translateX(-100%); animation: boot-shimmer 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-.boot-skeleton aside i { width: 140px; height: 32px; margin-bottom: 36px; border-radius: 8px; }
-.boot-skeleton aside b { height: 38px; margin-bottom: 10px; border-radius: 8px; }
+.boot-skeleton :is(i,b) { display: block; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.045); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 12px; }
+.boot-skeleton :is(i,b)::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 15%, rgba(255, 255, 255, 0.06) 50%, transparent 85%); transform: translateX(-100%); animation: boot-shimmer 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+.boot-skeleton aside i { width: 140px; height: 34px; margin-bottom: 32px; border-radius: 10px; }
+.boot-skeleton aside b { height: 40px; margin-bottom: 10px; border-radius: 10px; background: rgba(255, 255, 255, 0.03); }
 .boot-skeleton-page { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.boot-skeleton-page header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-.boot-skeleton-page header i { width: 160px; height: 28px; border-radius: 8px; }
-.boot-skeleton-page header b { width: 120px; height: 32px; border-radius: 9999px; }
-.boot-skeleton-page main { padding: 32px 24px; max-width: 1400px; width: 100%; margin: 0 auto; box-sizing: border-box; }
-.boot-title { width: 240px; height: 30px; margin-bottom: 12px; border-radius: 8px; }
-.boot-subtitle { width: 360px; max-width: 80%; height: 14px; margin-bottom: 28px; border-radius: 6px; }
-.boot-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
-.boot-metrics b { height: 130px; border-radius: 16px; }
-.boot-panels { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 24px; }
-.boot-panels b { height: 260px; border-radius: 16px; }
-.boot-table { height: 160px; border-radius: 16px; }
+.boot-skeleton-page header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: rgba(10, 14, 20, 0.92); }
+.boot-skeleton-page header i { width: 160px; height: 30px; border-radius: 9999px; }
+.boot-skeleton-page header b { width: 128px; height: 34px; border-radius: 9999px; }
+.boot-skeleton-page main { padding: 28px 24px; max-width: 1400px; width: 100%; margin: 0 auto; box-sizing: border-box; }
+.boot-title { width: 220px; max-width: 75%; height: 30px; margin-bottom: 10px; border-radius: 10px; }
+.boot-subtitle { width: 340px; max-width: 85%; height: 14px; margin-bottom: 24px; border-radius: 6px; }
+.boot-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 22px; }
+.boot-metrics b { height: 126px; border-radius: 18px; background: rgba(255, 255, 255, 0.025); border-color: rgba(255, 255, 255, 0.055); }
+.boot-panels { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 22px; }
+.boot-panels b { height: 240px; border-radius: 20px; background: rgba(255, 255, 255, 0.025); border-color: rgba(255, 255, 255, 0.055); }
+.boot-table { height: 170px; border-radius: 20px; background: rgba(255, 255, 255, 0.025); border-color: rgba(255, 255, 255, 0.055); }
 @keyframes boot-shimmer { to { transform: translateX(100%); } }
 @media (max-width: 767px) {
   .boot-dashboard .boot-skeleton aside { display: none; }

@@ -1031,3 +1031,77 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
   .admin-skeleton-toolbar { padding: 14px 16px; min-width: 0; overflow: hidden; }
   .admin-skeleton-court-card { min-width: 0; overflow: hidden; }
 }
+
+/* Unified Layered Glass Card vs. Shimmering Inner Block Hierarchy */
+:is(
+  .member-skeleton-card,
+  .admin-skeleton-card,
+  .admin-skeleton-metric,
+  .admin-skeleton-header,
+  .admin-skeleton-toolbar,
+  .admin-skeleton-court-card,
+  .book-skeleton-sidebar,
+  .payment-skeleton-sidebar,
+  .payment-skeleton-card,
+  .book-skeleton-step,
+  .book-skeleton-context,
+  .payment-skeleton-context
+) {
+  background: rgba(255, 255, 255, 0.022) !important;
+  border: 1px solid rgba(255, 255, 255, 0.055) !important;
+}
+:is(
+  .member-skeleton-card,
+  .admin-skeleton-card,
+  .admin-skeleton-metric,
+  .admin-skeleton-header,
+  .admin-skeleton-toolbar,
+  .admin-skeleton-court-card,
+  .book-skeleton-sidebar,
+  .payment-skeleton-sidebar,
+  .payment-skeleton-card,
+  .book-skeleton-step
+)::after {
+  display: none !important;
+}
+:is(
+  .skeleton-line,
+  .skeleton-pill,
+  .skeleton-icon,
+  .skeleton-chip,
+  .skeleton-tb-input,
+  .admin-skeleton-stat,
+  .admin-skeleton-court-cover,
+  .book-skeleton-slot,
+  .member-skeleton-btn
+) {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+:is(
+  .skeleton-line,
+  .skeleton-pill,
+  .skeleton-icon,
+  .skeleton-chip,
+  .skeleton-tb-input,
+  .admin-skeleton-stat,
+  .admin-skeleton-court-cover,
+  .book-skeleton-slot,
+  .member-skeleton-btn
+)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(105deg, transparent 15%, rgba(255, 255, 255, 0.06) 50%, transparent 85%);
+  animation: boot-shimmer 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.skeleton-line, .skeleton-pill, .skeleton-icon, .skeleton-chip, .skeleton-tb-input, .admin-skeleton-stat, .admin-skeleton-court-cover, .book-skeleton-slot, .member-skeleton-btn)::after {
+    animation: none;
+    display: none;
+  }
+}

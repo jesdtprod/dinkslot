@@ -277,6 +277,19 @@
     '</div>';
   }
 
+  function bookingCardsSkeleton() {
+    var card = '<div class="ds-skel-card p-5 flex flex-col gap-4">' +
+      '<div class="flex items-center justify-between gap-2"><div class="ds-skeleton ds-skel-bar h-6 w-28 rounded-full"></div><div class="ds-skeleton ds-skel-bar h-4 w-20"></div></div>' +
+      '<div class="space-y-2"><div class="ds-skeleton ds-skel-bar h-5 w-44 max-w-full"></div><div class="ds-skeleton ds-skel-bar h-3.5 w-32"></div></div>' +
+      '<div class="grid grid-cols-2 gap-3 pt-3 border-t border-white/5">' +
+        '<div class="space-y-1.5"><div class="ds-skeleton ds-skel-bar h-2.5 w-12"></div><div class="ds-skeleton ds-skel-bar h-3.5 w-24"></div></div>' +
+        '<div class="space-y-1.5"><div class="ds-skeleton ds-skel-bar h-2.5 w-12"></div><div class="ds-skeleton ds-skel-bar h-3.5 w-20"></div></div>' +
+      '</div>' +
+      '<div class="flex justify-end gap-2 pt-3 border-t border-white/5"><div class="ds-skeleton ds-skel-bar h-9 w-28 rounded-lg"></div></div>' +
+    '</div>';
+    return '<div class="booking-record-grid" role="status" aria-label="Loading bookings">' + card + card + card + '</div>';
+  }
+
   function paymentAppLinks(method) {
     if (method !== "GCash" && method !== "Maya") return null;
     var android = /Android/i.test(navigator.userAgent);
@@ -1815,10 +1828,7 @@
     async function load() {
       if (!alive(box)) { stop(); return; }
       if (!box.querySelector(".bcard")) {
-        box.innerHTML = '<div class="space-y-4">' +
-          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-        '</div>';
+        box.innerHTML = bookingCardsSkeleton();
       }
       var pl = (await sb.from("club_players").select("id").eq("user_id", D.state.user.id)).data || [];
       if (!pl.length) { box.innerHTML = D.ui.emptyState('No bookings yet', 'Your court reservations will appear here.', 'event_available', { href: '#/', label: 'Find a club' }); return; }
@@ -2177,10 +2187,7 @@
     async function load() {
       if (!alive(box)) { stop(); return; }
       if (!box.querySelector(".bcard")) {
-        box.innerHTML = '<div class="space-y-4">' +
-          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-          '<div class="h-44 rounded-2xl bg-surface-container-low border border-outline-variant/20 p-5 ds-skeleton"></div>' +
-        '</div>';
+        box.innerHTML = bookingCardsSkeleton();
       }
       // Keep unpaid reservations visible until payment or a final status change.
       var bookingsResult = await sb.from("bookings").select("*").eq("tenant_id", t.id)
@@ -2412,9 +2419,9 @@
     var deskResId = "RES-" + Math.floor(1000 + Math.random() * 9000);
 
     box.innerHTML =
-      '<section class="booking-launch">' +
+      '<section class="booking-launch admin-section-header">' +
         '<div class="booking-launch-copy"><span class="booking-launch-icon material-symbols-outlined" aria-hidden="true">person_add</span><div>' +
-          '<div class="booking-launch-title"><h2>Book for a customer</h2><span class="booking-launch-badge">Staff Desk</span></div>' +
+          '<span class="admin-overview-eyebrow">Pickleball Club Management</span><div class="booking-launch-title"><h2>Book for a customer</h2><span class="booking-launch-badge">Staff Desk</span></div>' +
           '<p>Reserve a court for a walk-in guest or registered player.</p>' +
         '</div></div>' +
         '<button id="nbtoggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="booking-modal" class="booking-launch-action"><span class="material-symbols-outlined" aria-hidden="true">add</span>New booking</button>' +
