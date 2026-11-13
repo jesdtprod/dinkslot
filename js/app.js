@@ -581,7 +581,9 @@
         p += "?court=" + encodeURIComponent(k.id) + "&date=" + dates[S.day] + "&len=" + S.dur;
         if (m != null) p += "&start=" + m;
       }
-      return state.user ? "#" + p : "#/auth?mode=up&join=" + encodeURIComponent(slug) + "&next=" + encodeURIComponent(p);
+      if (state.user) return "#" + p;
+      if (cfg.GUEST_BOOKING_ENABLED === true) return "#" + p + (p.includes("?") ? "&" : "?") + "guest=1";
+      return "#/auth?mode=up&join=" + encodeURIComponent(slug) + "&next=" + encodeURIComponent(p);
     }
     var signInHref = "#/auth?mode=in&join=" + encodeURIComponent(slug) + "&next=" + encodeURIComponent("/c/" + slug + "/book");
 
@@ -665,7 +667,7 @@
             '<div class="club-booking-actions flex flex-col gap-2 self-stretch lg:self-end lg:items-end">' +
               '<div class="club-booking-buttons flex flex-wrap sm:flex-nowrap items-center gap-3">' +
                 '<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[12px] font-bold text-black bg-dink-lime hover:bg-dink-limeHover active:scale-95 transition font-display text-sm uppercase tracking-wider no-underline" href="#club-courts" data-scroll="club-courts">' +
-                  '<i class="fa-solid fa-bolt-lightning text-sm" aria-hidden="true"></i>' + (state.user ? "Book a court" : "Sign up to book") + "</a>" +
+                  '<i class="fa-solid fa-bolt-lightning text-sm" aria-hidden="true"></i>' + (state.user || cfg.GUEST_BOOKING_ENABLED === true ? "Book a court" : "Sign up to book") + "</a>" +
                 '<button type="button" data-scroll="club-dates" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-[12px] font-semibold text-slate-200 bg-dink-surfaceLight hover:bg-slate-700/80 border border-dink-border hover:border-slate-500 transition text-sm">' +
                   '<i class="fa-solid fa-calendar-check text-slate-400" aria-hidden="true"></i>Court Schedule</button>' +
               "</div>" +
@@ -815,7 +817,7 @@
           '<div class="p-6 pt-2 bg-dink-surface">' +
             '<a href="' + esc(bookHref(k, selSlot ? selSlot.m : null)) + '" class="w-full py-3 rounded-[12px] bg-dink-lime hover:bg-dink-limeHover active:scale-[0.98] text-black font-bold font-display text-sm transition flex items-center justify-center gap-2 no-underline">' +
               '<i class="fa-solid ' + (selSlot ? "fa-check" : "fa-bolt-lightning") + ' text-xs" aria-hidden="true"></i>' +
-              esc((state.user ? "Book " : "Sign up to book ") + k.name + (selSlot ? " \u2022 " + timeLabel(selSlot.s) : "")) + "</a>" +
+              esc((state.user || cfg.GUEST_BOOKING_ENABLED === true ? "Book " : "Sign up to book ") + k.name + (selSlot ? " \u2022 " + timeLabel(selSlot.s) : "")) + "</a>" +
           "</div></article>";
       }).join("");
     }
