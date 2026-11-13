@@ -4631,7 +4631,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-club-contact { display:flex; flex-wrap:wrap; gap:12px 24px; margin:16px 0 0; color:#91a5b2; font-size:12px; line-height:18px; }
 .guest-club-contact > span { display:flex; align-items:flex-start; gap:6px; min-width:0; overflow-wrap:anywhere; }
 .guest-club-contact .material-symbols-outlined { font-size:16px; color:#a3e635; flex:none; }
-.guest-status-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:16px; padding-bottom:20px; border-bottom:1px solid #ffffff12; }
+.guest-status-heading { display:grid; grid-template-columns:minmax(0,1fr); align-items:center; gap:16px; padding-bottom:20px; border-bottom:1px solid #ffffff12; }
 .guest-status-heading .guest-club-contact { grid-column:1 / -1; margin:0; padding:14px 0 0; border-top:1px solid #ffffff0a; gap:10px 24px; }
 .guest-status-eyebrow { color:#a3e635; font:700 10px/16px "JetBrains Mono",monospace; letter-spacing:.06em; text-transform:uppercase; }
 .guest-status-heading h2 { margin:0; font-size:22px; font-weight:700; line-height:30px; letter-spacing:-.03em; color:#f1f5f2; }
@@ -4676,7 +4676,8 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-approved-layout .guest-pass-copy p { font-size:12px; line-height:18px; }
 .guest-approved-layout .guest-booking-qr { order:-1; width:200px; max-width:100%; }
 #ds-book-page .guest-approved-layout .guest-status-details { grid-template-columns:repeat(2,minmax(0,1fr)); flex:1; margin:0; }
-.guest-court-badges { display:flex; flex-wrap:wrap; gap:6px; margin:0; }
+.guest-court-badges { display:flex; flex-wrap:wrap; flex-basis:100%; gap:6px; margin:0; }
+.guest-club-title > .guest-status-badge { padding:4px 8px; font-size:11px; line-height:16px; white-space:nowrap; }
 .guest-court-badges > span { display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border:1px solid #91a5b22b; border-radius:7px; background:#202a30; color:#b9cbd5; font-size:11px; font-weight:600; line-height:16px; }
 .guest-court-badges > span:first-child { color:#a3e635; border-color:#a3e63540; background:#a3e6350d; }
 .guest-court-badges .material-symbols-outlined { font-size:15px; color:#a3e635; }
@@ -4687,7 +4688,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
   .guest-status-heading .guest-club-identity { display:grid; grid-template-columns:52px minmax(0,1fr); align-items:start; gap:12px; }
   .guest-status-heading .guest-club-logo { width:52px; height:52px; padding:4px; box-sizing:border-box; border-radius:12px; }
   .guest-status-heading .guest-status-eyebrow { display:block; font-size:9px; line-height:14px; }
-  .guest-status-heading .guest-club-title { display:flex; flex-direction:column; align-items:flex-start; gap:8px; margin-top:3px; }
+  .guest-status-heading .guest-club-title { display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; gap:8px; margin-top:3px; }
   .guest-status-heading h2 { font-size:20px; line-height:26px; overflow-wrap:anywhere; }
   .guest-status-heading > .guest-status-badge { margin-left:64px; padding:4px 8px; font-size:10px; line-height:16px; }
   .guest-status-heading .guest-club-contact { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; padding-top:12px; }
