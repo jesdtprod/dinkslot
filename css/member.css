@@ -445,10 +445,10 @@
   width: min(440px, calc(100vw - 24px));
   margin: 0 auto;
   border-radius: 24px;
-  background: #0d1218;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   color: #f1f5f9;
 }
 .booking-pass-skeleton-header {
@@ -468,7 +468,8 @@
   aspect-ratio: 1;
   margin: 0 auto;
   border-radius: 16px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 14px;
   box-sizing: border-box;
   display: flex;
@@ -480,7 +481,8 @@
   width: 100%;
   aspect-ratio: 1;
   border-radius: 10px;
-  background: #0d1218;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .booking-pass-skeleton-tear {
   position: relative;
