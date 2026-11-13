@@ -2904,6 +2904,7 @@
         ['calendar_today','Date',date], ['schedule','Time',time], ['payments','Amount',money(b.amount)], ['receipt_long','Payment proof',b.proof_submitted ? 'Submitted' : 'Not submitted'], ['tag','Booking reference',b.reference_code || 'Unavailable'], ['public','Time zone',tz]
       ].map(function (field) { return '<div><span class="material-symbols-outlined" aria-hidden="true">' + field[0] + '</span><div><dt>' + field[1] + '</dt><dd>' + esc(field[2]) + '</dd></div></div>'; }).join('') + '</dl>' +
       '<p class="guest-status-note ' + tone + '"><span class="material-symbols-outlined" aria-hidden="true">' + (b.gate_pass_available ? 'verified' : 'info') + '</span><span>' + esc(note) + '</span></p><div class="guest-status-actions"></div></section></main></div>';
+    if (D.mountPublicBackdrop) D.mountPublicBackdrop(root.querySelector("#ds-book-page"));
     if (b.status === "pending" && !b.proof_submitted && b.expires_at && new Date(b.expires_at).getTime() > Date.now() && new Date(b.starts_at).getTime() > Date.now()) {
       var pay = document.createElement("button");
       pay.type = "button"; pay.className = "btn"; pay.textContent = "Pay / Upload Proof";
