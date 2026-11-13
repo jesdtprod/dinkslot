@@ -518,12 +518,19 @@
 @media (max-width: 1024px) {
   .member-skeleton-header { flex-direction: column; align-items: stretch; gap: 16px; padding: 18px; }
   .member-skeleton-stats { width: 100%; }
-  .member-skeleton-stat { flex: 1; }
+  .member-skeleton-stat { flex: 1 1 0; min-width: 0; }
+  .member-skeleton-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .member-skeleton-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .member-skeleton-profile { grid-template-columns: minmax(0, 1fr); }
   .book-skeleton-grid,
   .payment-skeleton-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .book-skeleton-court-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .book-skeleton-slots {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 @media (max-width: 768px) {

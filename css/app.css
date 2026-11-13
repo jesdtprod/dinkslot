@@ -3131,6 +3131,10 @@ body.app-booting #app-startup { position: fixed; inset: 0; z-index: 999; display
 .boot-panels b { height: 240px; border-radius: 20px; background: rgba(255, 255, 255, 0.025); border-color: rgba(255, 255, 255, 0.055); }
 .boot-table { height: 170px; border-radius: 20px; background: rgba(255, 255, 255, 0.025); border-color: rgba(255, 255, 255, 0.055); }
 @keyframes boot-shimmer { to { transform: translateX(100%); } }
+@media (max-width: 1024px) {
+  .boot-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .boot-panels { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+}
 @media (max-width: 767px) {
   .boot-dashboard .boot-skeleton aside { display: none; }
   .boot-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -3143,7 +3147,7 @@ body.app-booting #app-startup { position: fixed; inset: 0; z-index: 999; display
 @media (prefers-reduced-motion: reduce) { .boot-skeleton :is(i,b)::after { animation: none; } }
 
 /* Responsive booking queues card grid */
-.booking-record-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; margin-top: 14px; }
+.booking-record-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 14px; margin-top: 14px; }
 @media (max-width: 640px) { .booking-record-grid { grid-template-columns: 1fr; } }
 
 /* member profile: photo, facts list, address picker */
