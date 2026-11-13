@@ -13,7 +13,7 @@
 - [x] Add a token-authenticated guest booking status endpoint (not deployed or database-tested).
 - [x] Implement and unit-test server-side token revocation (not exposed or database-tested).
 - [ ] Test guest access endpoints and service-role permissions against the database.
-- [ ] Add email-based access-link recovery with rate limiting and non-enumerating responses.
+- [x] Prepare email-based access-link recovery with CAPTCHA, rate limiting, and non-enumerating responses (not deployed or end-to-end tested).
 - [x] Prepare guest-authorized payment proof endpoint and service-only database function (not deployed or database-tested).
 - [x] Prepare guest unpaid-hold release endpoint and confirmation action (not deployed or database-tested).
 - [x] Prepare guest booking settings and token-authorized payment details endpoint (not deployed or database-tested).

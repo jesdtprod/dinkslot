@@ -2172,6 +2172,7 @@
         return viewAuth(ao);
       }
       if (path === "/register-club") return viewRegisterClub();
+      if (path === "/guest/recover") return (await ensureViewModule("booking")).guestBookingRecover();
       if (path === "/guest/booking") return await (await ensureViewModule("booking")).guestBookingStatus(q.get("token"));
       if ((m = path.match(/^\/me(?:\/(find|clubs|bookings|profile))?$/))) return await viewMe(m[1]);
       if (path === "/platform") return await viewPlatform();

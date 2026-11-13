@@ -2842,16 +2842,40 @@
     }
   }
 
+  function guestBookingRecover() {
+    var root = D.root(), captcha = "", widget = null;
+    root.innerHTML = '<section class="panel guest-booking-status"><h1>Find your guest booking</h1><p>Enter the email used for your reservation. If bookings are found, we will send secure links to that address.</p><form class="guest-recovery-form"><label>Email address<input type="email" autocomplete="email" maxlength="254" required></label><div class="guest-recovery-captcha"></div><p class="msg" role="status"></p><button class="btn" type="submit">Send booking links</button></form></section>';
+    var form=root.querySelector("form"), captchaBox=form.querySelector(".guest-recovery-captcha"), message=form.querySelector(".msg"), submit=form.querySelector("button");
+    (function mount(attempt) {
+      if (!form.isConnected) return;
+      if (window.turnstile && window.DINKSLOT_CONFIG && window.DINKSLOT_CONFIG.TURNSTILE_SITE_KEY) {
+        widget=window.turnstile.render(captchaBox,{sitekey:window.DINKSLOT_CONFIG.TURNSTILE_SITE_KEY,theme:"dark",size:"flexible",callback:function(value){captcha=value;},"expired-callback":function(){captcha="";},"error-callback":function(){captcha="";message.textContent="Human check unavailable. Please refresh and try again.";}});
+      } else if (attempt<100) setTimeout(function(){mount(attempt+1);},100);
+      else message.textContent="Human check could not load. Please refresh and try again.";
+    })(0);
+    form.onsubmit=async function(event){
+      event.preventDefault(); if(submit.disabled) return;
+      if(!captcha){message.textContent="Complete the human check first.";return;}
+      submit.disabled=true; message.textContent="Sending request...";
+      try {
+        var result=await sb.functions.invoke("guest-booking-recover",{body:{email:form.querySelector("input").value.trim(),captcha:captcha}});
+        if(result.error || !result.data || !result.data.ok) throw new Error("recovery_unavailable");
+        message.textContent="If there are eligible guest bookings, a link will be sent to that email.";
+      } catch (_) {message.textContent="Unable to send your request. Please try again.";}
+      finally {captcha="";if(widget!==null && window.turnstile) window.turnstile.reset(widget);submit.disabled=false;}
+    };
+  }
+
   async function guestBookingStatus(token) {
     var root = D.root();
     if (!/^[0-9a-f]{64}$/.test(token || "")) {
-      root.innerHTML = '<section class="panel"><h1>Booking link unavailable</h1><p>This link is invalid or has expired.</p></section>';
+      root.innerHTML = '<section class="panel"><h1>Booking link unavailable</h1><p>This link is invalid or has expired.</p><a class="btn" href="#/guest/recover">Request a new link</a></section>';
       return;
     }
     root.innerHTML = '<section class="panel"><p>Loading your reservation...</p></section>';
     var response = await sb.functions.invoke("guest-booking-status", { body: { token: token } });
     if (response.error || !response.data || !response.data.booking) {
-      root.innerHTML = '<section class="panel"><h1>Unable to load booking</h1><p>The link may have expired or the service may be unavailable. Please contact the club.</p></section>';
+      root.innerHTML = '<section class="panel"><h1>Unable to load booking</h1><p>The link may have expired or the service may be unavailable. Please try again or contact the club.</p><a class="btn" href="#/guest/recover">Request a new link</a></section>';
       return;
     }
     var b = response.data.booking, club = response.data.club || {}, court = response.data.court || {};
@@ -2896,5 +2920,5 @@
     }
   }
 
-    D.booking = { guestBookingStatus: guestBookingStatus, openPayment: openPayment, openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc, bookCourtSkeleton: bookCourtSkeleton, paymentSkeleton: paymentSkeleton, bookingPassSkeleton: bookingPassSkeleton, bookingConfirmSkeleton: bookingConfirmSkeleton };
+    D.booking = { guestBookingRecover: guestBookingRecover, guestBookingStatus: guestBookingStatus, openPayment: openPayment, openPass: openPass, renderBook: renderBook, myBookings: myBookings, queue: queue, adminNew: adminNew, zonedToUtc: zonedToUtc, bookCourtSkeleton: bookCourtSkeleton, paymentSkeleton: paymentSkeleton, bookingPassSkeleton: bookingPassSkeleton, bookingConfirmSkeleton: bookingConfirmSkeleton };
 })();
