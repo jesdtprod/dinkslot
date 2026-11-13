@@ -2164,7 +2164,7 @@
               (py ? '<button type="button" class="proof-icon-action" data-proof="' + esc(b.id) + '" aria-label="View payment proof" title="View Payment Proof"><span class="material-symbols-outlined" aria-hidden="true">payments</span></button>' : '') +
             '</div>' +
             '<div class="flex items-center gap-2">' +
-              (!b.player_id && (b.source === "walk_in" || b.guest_name) && !isPaid(b) && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now()) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span></button>' : '') +
+              (!b.player_id && b.source === "walk_in" && !isPaid(b) && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now()) ? '<button class="booking-decision-action approve" data-guest-pay="' + esc(b.id) + '" type="button" aria-label="Record guest payment" title="Record guest payment"><span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span></button>' : '') +
               (b.status === "pending"
                 ? '<button class="booking-decision-action approve" data-ok="' + esc(b.id) + '" type="button" aria-label="Approve reservation" title="' + (py && py.proof_path ? 'Approve reservation' : 'Attach payment proof before approving') + '"' + (py && py.proof_path ? '' : ' disabled aria-disabled="true"') + '><span class="material-symbols-outlined" aria-hidden="true">check</span></button>' +
                   '<button class="booking-decision-action reject" data-no="' + esc(b.id) + '" type="button" aria-label="Reject reservation" title="Reject reservation"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>'
@@ -2312,6 +2312,9 @@
   // Owner or staff books a court for a walk-in guest (name only) or for a registered player.
   // The database (create_admin_booking) checks membership, opening hours, slot grid, blocks and overlaps.
   function srcBadge(b) {
+    if (b.source === "guest_online") {
+      return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Online Guest</span>';
+    }
     if (b.source === "walk_in") {
       return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-mono font-medium"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Walk-in Guest</span>';
     }
