@@ -2894,17 +2894,15 @@
   }
 
   function guestBookingsSkeleton() {
-    var card = '<div class="skel-guest-card" aria-hidden="true">' +
-      '<div class="skel-guest-card-top"><i></i><i></i></div>' +
-      '<div class="skel-guest-card-club"><i></i><i></i></div>' +
-      '<div style="display:flex;gap:8px;"><i style="width:86px;height:24px;border-radius:7px;"></i><i style="width:74px;height:24px;border-radius:7px;"></i></div>' +
-      '<i style="width:82%;height:14px;border-radius:4px;"></i>' +
-      '<div class="skel-guest-card-facts"><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div></div>' +
-      '<b style="height:38px;border-radius:8px;margin-top:auto;"></b>' +
-    '</div>';
-    return '<div class="guest-bookings-skeleton" role="status" aria-label="Loading bookings" style="display:block;min-height:0;background:transparent;">' +
-      '<div class="skel-guest-cards">' + card + card + card + '</div>' +
-    '</div>';
+    var bar = function (name) { return '<span class="guest-loading-bar ds-skeleton ' + name + '"></span>'; };
+    var card = '<article class="guest-collection-card guest-collection-placeholder" aria-hidden="true">' +
+      '<div class="guest-collection-card-top">' + bar('guest-loading-badge') + bar('guest-loading-ref') + '</div>' +
+      '<div class="guest-collection-club">' + bar('guest-loading-logo') + bar('guest-loading-title') + '</div>' +
+      '<div class="guest-court-badges">' + bar('guest-loading-chip') + bar('guest-loading-chip') + '</div>' +
+      '<div class="guest-loading-address">' + bar('') + bar('') + '</div>' +
+      '<div class="guest-collection-facts">' + Array.from({length:4}, function () { return '<div class="guest-loading-fact">' + bar('guest-loading-label') + bar('guest-loading-value') + '</div>'; }).join('') + '</div>' +
+      '<div class="guest-collection-card-actions">' + bar('guest-loading-button') + '</div></article>';
+    return '<div class="guest-collection-grid guest-collection-loading" role="status" aria-label="Loading bookings">' + card + card + card + '</div>';
   }
 
   function guestBookingDetailsSkeleton() {
