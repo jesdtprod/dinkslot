@@ -14,6 +14,7 @@
 - [x] Implement and unit-test server-side token revocation (not exposed or database-tested).
 - [ ] Test guest access endpoints and service-role permissions against the database.
 - [ ] Add email-based access-link recovery with rate limiting and non-enumerating responses.
+- [x] Prepare guest-authorized payment proof endpoint and service-only database function (not deployed or database-tested).
 - [ ] Reuse checkout with guest-authorized proof upload and cancellation; preserve existing member flow.
 - [x] Add guest booking status page wired to the status endpoint (not deployed or end-to-end tested).
 - [x] Render the guest QR pass only for an approved status returned by the endpoint (end-to-end testing pending).
