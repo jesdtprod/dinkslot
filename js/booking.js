@@ -376,60 +376,33 @@
     var availableMethods = allMethods.filter(function (name) {
       return rawQrs.some(function (row) { return paymentGroup(row) === name; });
     });
-    if (!availableMethods.length) availableMethods = allMethods;
+    if (!availableMethods.length) {
+      el.innerHTML = '<div class="panel"><h2>Payment accounts unavailable</h2><p>The club has not configured an active payment account. Please contact the club before sending payment.</p><a class="btn ghost" href="#/me/bookings">View My Bookings</a></div>';
+      wireGuestBookingLinks();
+      return;
+    }
+
+    function paymentMethodLabel(method) {
+      if (method === "Bank Transfer") return '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">account_balance</span><span>Bank</span>';
+      var provider = method === "Maya" ? "maya" : "gcash";
+      return '<span class="payment-provider-logo payment-provider-' + provider + '" aria-hidden="true"></span><span class="sr-only">' + esc(method) + '</span>';
+    }
 
     var activeMethod = availableMethods[0];
     var activeAccountIndex = 0;
 
     function getAccountsForMethod(methodName) {
-      var matched = rawQrs.filter(function (row) { return paymentGroup(row) === methodName; });
-      if (matched.length) return matched;
-      return [
-        { id: '121590', kind: methodName.toLowerCase(), label: 'Receiver 1 (Primary)', account_name: 'John Mech', account_number: '09254525633', qr_path: null },
-        { id: '121591', kind: methodName.toLowerCase(), label: 'Receiver 2', account_name: 'Club Desk', account_number: '09254525633', qr_path: null },
-        { id: '121592', kind: methodName.toLowerCase(), label: 'Receiver 3', account_name: 'Backup Account', account_number: '09254525633', qr_path: null }
-      ];
-    }
-
-    function renderQrSvg() {
-      return '<svg class="w-full aspect-square text-black" fill="currentColor" viewBox="0 0 160 160">' +
-        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="10" y="10"></rect>' +
-        '<rect fill="currentColor" height="16" rx="2" width="16" x="22" y="22"></rect>' +
-        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="110" y="10"></rect>' +
-        '<rect fill="currentColor" height="16" rx="2" width="16" x="122" y="22"></rect>' +
-        '<rect fill="none" height="40" rx="4" stroke="currentColor" stroke-width="8" width="40" x="10" y="110"></rect>' +
-        '<rect fill="currentColor" height="16" rx="2" width="16" x="22" y="122"></rect>' +
-        '<rect height="8" width="8" x="60" y="14"></rect>' +
-        '<rect height="8" width="16" x="76" y="14"></rect>' +
-        '<rect height="16" width="8" x="68" y="26"></rect>' +
-        '<rect height="8" width="12" x="84" y="34"></rect>' +
-        '<rect height="8" width="16" x="14" y="60"></rect>' +
-        '<rect height="8" width="12" x="38" y="60"></rect>' +
-        '<rect height="18" width="8" x="14" y="76"></rect>' +
-        '<rect height="8" width="18" x="30" y="80"></rect>' +
-        '<rect fill="#0a0e14" height="34" rx="6" width="34" x="63" y="63"></rect>' +
-        '<circle cx="80" cy="80" fill="#a3e635" r="9"></circle>' +
-        '<rect height="12" width="12" x="60" y="108"></rect>' +
-        '<rect height="8" width="16" x="80" y="108"></rect>' +
-        '<rect height="10" width="20" x="68" y="128"></rect>' +
-        '<rect height="16" width="12" x="108" y="64"></rect>' +
-        '<rect height="8" width="18" x="128" y="64"></rect>' +
-        '<rect height="18" width="10" x="112" y="88"></rect>' +
-        '<rect height="24" width="14" x="132" y="84"></rect>' +
-        '<rect height="8" width="18" x="108" y="116"></rect>' +
-        '<rect height="14" width="14" x="132" y="116"></rect>' +
-        '<rect height="10" width="32" x="114" y="136"></rect>' +
-      '</svg>';
+      return rawQrs.filter(function (row) { return paymentGroup(row) === methodName; });
     }
 
     function renderQrCardContent(acc) {
       var qrHtml = (acc.qr_path && urls[acc.qr_path])
         ? '<img src="' + esc(urls[acc.qr_path]) + '" alt="' + esc(acc.label) + ' payment QR" class="w-full aspect-square object-contain rounded-lg"/>'
-        : renderQrSvg();
+        : '<div class="payment-qr-unavailable"><span class="material-symbols-outlined" aria-hidden="true">qr_code</span><strong>QR not available</strong><p>Use the account details to make your transfer.</p></div>';
       var labelTitle = activeMethod === "Bank Transfer" ? "Bank QR" : activeMethod + " QR";
       var accLabel = activeMethod === "Bank Transfer" ? "Bank Account Number" : activeMethod + " Mobile / Account Number";
-      var num = acc.account_number || "09254525633";
-      var merchant = acc.account_name || acc.label || club.name || "John Mech";
+      var num = acc.account_number || "Not provided";
+      var merchant = acc.account_name || acc.label || club.name || "Club account";
 
       return '<div class="absolute -top-16 -right-16 w-36 h-36 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>' +
         '<div class="bg-surface-container-low border border-primary/25 rounded-xl p-3 mb-5 flex items-center justify-between gap-2">' +
@@ -497,7 +470,7 @@
         var btnClass = isSel
           ? 'flex flex-col text-left p-2.5 rounded-xl border-2 border-primary bg-primary/10 text-white transition cursor-pointer'
           : 'flex flex-col text-left p-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-low hover:border-zinc-500 text-zinc-400 hover:text-zinc-200 transition cursor-pointer';
-        var merchant = acc.account_name || club.name || (i === 0 ? "John Mech" : i === 1 ? "Club Desk" : "Backup Account");
+        var merchant = acc.account_name || club.name || "Club account";
         return '<button type="button" class="receiver-subtab-btn ' + btnClass + '" data-acc-idx="' + i + '">' +
           '<div class="flex items-center justify-between w-full">' +
             '<span class="text-xs font-bold ' + (isSel ? 'text-primary' : 'text-zinc-300') + '">' + esc(acc.label || 'Receiver ' + (i + 1)) + '</span>' +
@@ -565,9 +538,8 @@
                 availableMethods.map(function (m) {
                   var isSel = m === activeMethod;
                   return '<button type="button" class="method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 ' +
-                    (isSel ? 'bg-primary text-on-primary font-bold shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent') + '" data-method="' + esc(m) + '">' +
-                    '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  +
-                    esc(m === "Bank Transfer" ? "Bank" : m) +
+                    (isSel ? 'bg-primary text-on-primary font-bold shadow-sm' : 'text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent') + '" aria-pressed="' + isSel + '" data-method="' + esc(m) + '">' +
+                    paymentMethodLabel(m) +
                   '</button>';
                 }).join("") +
               '</div>' +
@@ -836,13 +808,16 @@
 
       var btnCopyAcc = el.querySelector("#btn-copy-account");
       if (btnCopyAcc) {
+        btnCopyAcc.disabled = !curAccount.account_number;
         btnCopyAcc.onclick = function () {
-          copyText(curAccount.account_number || "09254525633", "gcash-toast");
+          copyText(curAccount.account_number || "", "gcash-toast");
         };
       }
 
       var btnSaveQr = el.querySelector("#btn-save-qr");
       if (btnSaveQr) {
+        btnSaveQr.disabled = !(curAccount.qr_path && urls[curAccount.qr_path]);
+        if (btnSaveQr.disabled) btnSaveQr.title = "No QR image is configured for this account";
         btnSaveQr.onclick = async function () {
           btnSaveQr.disabled = true;
           try {
@@ -886,7 +861,8 @@
           var isSel = b.getAttribute("data-method") === activeMethod;
           b.className = "method-select-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-display text-xs transition cursor-pointer border-0 " +
             (isSel ? "bg-primary text-on-primary font-bold shadow-sm" : "text-zinc-400 hover:text-white hover:bg-surface-container-high font-semibold bg-transparent");
-          b.innerHTML = '<span class="material-symbols-outlined payment-method-icon" aria-hidden="true">' + (m === "Bank Transfer" ? "account_balance" : "account_balance_wallet") + '</span>'  + esc(m === "Bank Transfer" ? "Bank" : m);
+          b.innerHTML = paymentMethodLabel(b.getAttribute("data-method"));
+          b.setAttribute("aria-pressed", String(isSel));
         });
         wireAccountsAndQr();
       };
