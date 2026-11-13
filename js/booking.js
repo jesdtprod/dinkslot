@@ -2894,13 +2894,38 @@
   }
 
   function guestBookingsSkeleton() {
-    return '<div class="guest-collection-grid" role="status" aria-label="Loading bookings">' + Array.from({length:3}, function () {
-      return '<div class="guest-collection-card" aria-hidden="true"><div class="skeleton-pill ds-skeleton" style="width:110px;height:24px"></div><div class="skeleton-line ds-skeleton" style="width:75%;height:24px"></div><div class="skeleton-line ds-skeleton" style="width:90%;height:36px"></div><div class="skeleton-line ds-skeleton" style="width:100%;height:110px"></div><div class="skeleton-line ds-skeleton" style="width:100%;height:38px"></div></div>';
-    }).join('') + '</div>';
+    var card = '<div class="skel-guest-card" aria-hidden="true">' +
+      '<div class="skel-guest-card-top"><i></i><i></i></div>' +
+      '<div class="skel-guest-card-club"><i></i><i></i></div>' +
+      '<div style="display:flex;gap:8px;"><i style="width:86px;height:24px;border-radius:7px;"></i><i style="width:74px;height:24px;border-radius:7px;"></i></div>' +
+      '<i style="width:82%;height:14px;border-radius:4px;"></i>' +
+      '<div class="skel-guest-card-facts"><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div></div>' +
+      '<b style="height:38px;border-radius:8px;margin-top:auto;"></b>' +
+    '</div>';
+    return '<div class="guest-bookings-skeleton" role="status" aria-label="Loading bookings" style="display:block;min-height:0;background:transparent;">' +
+      '<div class="skel-guest-cards">' + card + card + card + '</div>' +
+    '</div>';
   }
 
   function guestBookingDetailsSkeleton() {
-    return '<div id="ds-book-page" class="book-public guest-status-page"><main><header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Booking</h1><p>Manage your court reservation, payment, and booking pass.</p></header><section class="guest-booking-status" role="status" aria-label="Loading booking details"><div aria-hidden="true"><div class="skeleton-line ds-skeleton" style="width:200px;max-width:100%;height:28px"></div><div class="skeleton-line ds-skeleton" style="width:70%;height:20px;margin-top:16px"></div><div class="guest-status-details">' + Array.from({length:8}, function () { return '<div class="ds-skeleton" style="height:72px;box-sizing:border-box"></div>'; }).join('') + '</div></div></section></main></div>';
+    var item = '<div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>';
+    return '<div id="ds-book-page" class="book-public guest-status-page"><main>' +
+      '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Booking</h1><p>Manage your court reservation, payment, and booking pass.</p></header>' +
+      '<div class="guest-booking-skeleton" role="status" aria-label="Loading booking details" style="display:block;min-height:0;background:transparent;">' +
+        '<div class="skel-guest-panel" aria-hidden="true">' +
+          '<div class="skel-guest-status-head">' +
+            '<i class="skel-guest-status-logo"></i>' +
+            '<div class="skel-guest-status-meta">' +
+              '<i></i>' +
+              '<div class="skel-guest-status-title"><i></i><i></i></div>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap;"><i style="width:92px;height:24px;border-radius:7px;"></i><i style="width:80px;height:24px;border-radius:7px;"></i></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="skel-guest-details-grid">' + Array.from({length:8}, function () { return item; }).join('') + '</div>' +
+          '<b style="height:44px;border-radius:9px;"></b>' +
+          '<div style="display:flex;gap:10px;flex-wrap:wrap;"><b style="width:190px;height:42px;border-radius:9px;"></b><b style="width:170px;height:42px;border-radius:9px;"></b></div>' +
+        '</div>' +
+      '</div></main></div>';
   }
 
   async function guestBookings(token) {
@@ -2913,8 +2938,8 @@
       '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Bookings</h1><p>Manage your guest reservations, payments, and booking passes in one place.</p></header>' +
       '<div class="guest-collection-toolbar"><div class="guest-collection-tabs" role="group" aria-label="Filter bookings">' +
       [['all','All Bookings'],['upcoming','Upcoming'],['pending','Pending'],['past','Past']].map(function (tab) { return '<button type="button" data-filter="' + tab[0] + '" aria-pressed="' + (tab[0] === 'all') + '">' + tab[1] + '</button>'; }).join('') +
-      '</div><button type="button" class="guest-collection-refresh"><span class="material-symbols-outlined" aria-hidden="true">refresh</span>Refresh</button></div>' +
-      '<p class="guest-collection-summary" role="status" aria-live="polite"></p><div class="guest-collection-results"></div><nav class="guest-collection-pages" aria-label="Booking pages"></nav></main></div>';
+      '</div><div class="guest-collection-tools"><button type="button" class="guest-collection-refresh"><span class="material-symbols-outlined" aria-hidden="true">refresh</span>Refresh</button><span class="guest-collection-summary" role="status" aria-live="polite" hidden></span></div></div>' +
+      '<div class="guest-collection-results"></div><nav class="guest-collection-pages" aria-label="Booking pages"></nav></main></div>';
     var stage = root.querySelector(".guest-bookings-page"), results = stage.querySelector(".guest-collection-results"), summary = stage.querySelector(".guest-collection-summary"), pages = stage.querySelector(".guest-collection-pages");
     if (D.mountPublicBackdrop) D.mountPublicBackdrop(stage);
     stage.querySelectorAll("[data-filter]").forEach(function (button) {
