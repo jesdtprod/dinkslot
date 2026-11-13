@@ -38,7 +38,7 @@ Deno.serve(async(req)=>{
       links.push({ref:booking.reference_code,club:tenantNames.get(booking.tenant_id) || "Club",url:site.replace(/\/?$/, "/")+"#/guest/booking?token="+encodeURIComponent(token)});
     }
     const {text,html}=guestRecoveryEmail(links, {logoUrl:site.replace(/\/?$/, "/") + "assets/dinkslot-logo.png"});
-    await mailer.send({fromName:"DINKSLOT",fromEmail:mailer.fromEmail,to:email,subject:"Your DINKSLOT guest booking links",text,html});
+    await mailer.send({fromName:"DINKSLOT",fromEmail:mailer.fromEmail,to:email,subject:"Your DINKSLOT Guest Booking Links",text,html});
   } catch { console.error("Guest booking recovery unavailable"); }
   return json(generic);
 });

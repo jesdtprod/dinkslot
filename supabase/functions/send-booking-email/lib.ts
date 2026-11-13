@@ -105,31 +105,31 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
   };
 
   if (status === "pending") {
-    toPlayer("booking_received", `Booking received - ${b.reference_code}`, "We received your booking",
+    toPlayer("booking_received", `Booking Received - ${b.reference_code}`, "We received your booking",
       [ctx.proofSubmitted ? "Your payment proof has been received. The club will review it and confirm your reservation." : "Your reservation is on hold. Complete your payment and upload your proof so the club can review your booking.", ...details(ctx)],
       { label: ctx.proofSubmitted ? (ctx.guestBookingUrl ? "View Booking" : "View My Bookings") : "Pay and Upload Proof", url: myBookings });
-    toAdmins("booking_request", `New booking request - ${b.reference_code}`, "New booking request",
+    toAdmins("booking_request", `New Booking Request - ${b.reference_code}`, "New booking request",
       [`${ctx.playerName} requested a court.`, ...details(ctx)]);
   } else if (status === "approved") {
-    toPlayer("booking_approved", `Booking confirmed - ${b.reference_code}`, "Your booking is confirmed",
+    toPlayer("booking_approved", `Booking Confirmed - ${b.reference_code}`, "Your booking is confirmed",
       ["Your booking is approved. Keep this email: the QR code below is your ticket.", ...details(ctx)], { label: ctx.guestBookingUrl ? "View Booking" : "View My Bookings", url: myBookings }, b.reference_code);
     // bookings the club created itself (walk-in or for a player) do not need an alert to the club
     if (isInsert && (b.source ?? "online") === "online") {
-      toAdmins("booking_request", `New booking - ${b.reference_code}`, "New booking (auto-approved)",
+      toAdmins("booking_request", `New Booking - ${b.reference_code}`, "New booking (auto-approved)",
         [`${ctx.playerName} booked a court.`, ...details(ctx)]);
     }
   } else if (status === "rejected") {
-    toPlayer("booking_rejected", `Booking not approved - ${b.reference_code}`, "Your booking was not approved",
+    toPlayer("booking_rejected", `Booking Not Approved - ${b.reference_code}`, "Your booking was not approved",
       [`Reason: ${b.reject_reason || "not given"}`, ...details(ctx)], ctx.guestBookingUrl ? { label: "View Booking", url: ctx.guestBookingUrl } : { label: "Book Another Time", url: ctx.siteUrl });
   } else if (status === "cancelled") {
-    toPlayer("booking_cancelled", `Booking cancelled - ${b.reference_code}`, "Your booking was cancelled",
+    toPlayer("booking_cancelled", `Booking Cancelled - ${b.reference_code}`, "Your booking was cancelled",
       [...(b.cancel_reason ? [`Reason: ${b.cancel_reason}`] : []), ...details(ctx)], { label: ctx.guestBookingUrl ? "View Booking" : "View My Bookings", url: myBookings });
     if (b.cancelled_by && b.cancelled_by === ctx.playerUserId) {
-      toAdmins("booking_cancelled_admin", `Booking cancelled by player - ${b.reference_code}`, "A player cancelled",
+      toAdmins("booking_cancelled_admin", `Booking Cancelled by Player - ${b.reference_code}`, "A player cancelled",
         [`${ctx.playerName} cancelled their booking.`, ...details(ctx)]);
     }
   } else if (status === "expired") {
-    toPlayer("booking_expired", `Booking expired - ${b.reference_code}`, "Your booking expired",
+    toPlayer("booking_expired", `Booking Expired - ${b.reference_code}`, "Your booking expired",
       ["We did not receive payment in time, so the slot was released.", ...details(ctx)], ctx.guestBookingUrl ? { label: "View Booking", url: ctx.guestBookingUrl } : { label: "Book Again", url: ctx.siteUrl });
   }
   return out;
