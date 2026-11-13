@@ -67,9 +67,12 @@ Guest booking entry remains disabled by GUEST_BOOKING_ENABLED in js/config.js un
 - [x] Browser checks with fixture data: 12-record first page, second page, filters, detail exchange, payment route, and no horizontal overflow at 1440px / 390px.
 - [x] Live guest-bookings endpoint: scoped list and filters, invalid-token rejection, unowned booking rejection, owned single-booking exchange, and no contact email exposed. Temporary access tokens removed; no bookings or emails created.
 - [x] 29 email/access tests and Deno endpoint type checks passed.
-- [ ] Publish the frontend route before deploying recovery emails that link to it.
-- [ ] Deploy updated guest-booking-recover and verify its rendered collection email through the production recovery flow with recipient authorization.
+- [x] Published frontend verified: app.js v493 includes /guest/bookings and booking.js v504 exports guestBookings.
+- [x] Updated guest-booking-recover deployed after verifying the live frontend route. New recovery requests send a single View My Bookings collection link.
+- [ ] Verify a newly delivered collection recovery email end-to-end with recipient authorization; existing emails retain their original single-booking links.
 
 Deployment order: migration, guest-bookings and send-booking-email functions, frontend route, then guest-booking-recover. Existing individual booking links continue to work. Recovery mails use one View My Bookings action; existing per-booking notifications remain unchanged apart from the requested subject capitalization. Guest entry remains controlled by the existing localhost feature flag.
 
 Deployment status: migration, guest-bookings, and send-booking-email were deployed. Frontend publish was attempted after commit 79d374a, but GitHub returned 403 (current Git account 19zerocool90 has no write access to jesdtprod/dinkslot). The live frontend still serves app.js v491 / booking.js v502. The updated guest-booking-recover function was deliberately not deployed, so existing recovery emails continue using valid single-booking links. Finish by publishing the committed frontend using an account with repository write access, verify guestBookings is present on the live site, then deploy guest-booking-recover with JWT verification disabled (its own CAPTCHA and token protections apply). No sample email was sent for this change.
+
+2026-11-13 deployment follow-up: origin/main and the published site now include commit 79d374a. Verified both versioned frontend assets support the collection route. Deployed guest-booking-recover with the new email-wide token flow and latest shared email template; Deno type checks passed. This resolves the older per-booking recovery emails being generated. No new email was sent by the agent; the guest must request a fresh recovery email because previously delivered messages and their single-booking links cannot be changed.
