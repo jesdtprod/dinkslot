@@ -33,7 +33,7 @@
       [/^(?:apply|search|find courts)/i, 'check', 'primary']
     ];
     root.querySelectorAll('button, a.btn, a.pill, a.transactions-button, a.setup-action, a[class*="bg-"], label.qrfile').forEach(function (button) {
-      if (button.matches('#grid > article > a.relative:first-child,[role="switch"],.booking-decision-action,.reservation-view-proof,.notification-filter,.payment-group,.qrtab,.complete-payment-close,.payment-help-trigger,.payment-instructions-modal button,.checkout-copy,.transfer-copy,[data-save-qr]')) return;
+      if (button.matches('#mp-camera,#grid > article > a.relative:first-child,[role="switch"],.booking-decision-action,.reservation-view-proof,.notification-filter,.payment-group,.qrtab,.complete-payment-close,.payment-help-trigger,.payment-instructions-modal button,.checkout-copy,.transfer-copy,[data-save-qr]')) return;
       if (button.matches('[role="tab"],.profile-field-trigger,.datetime-trigger,.segbtn,.slot,.slot-btn,.bellbtn,.nitem,.proof-icon-action,[data-date],[data-month],[data-landing-section],.court-icon-action') || button.closest('#ds-toast-stack,.toast-region,.confirmation-modal,.guest-payment-dialog,.datetime-picker,.city-options,#ds-side,.facility-account-menu,#nslots,[role="tablist"],.club-public,.book-public,#ds-book-page,.dink-payment-container')) return;
       var copy = button.cloneNode(true);
       copy.querySelectorAll('svg,i,.material-symbols-outlined,.mi').forEach(function (node) { node.remove(); });
@@ -112,20 +112,22 @@
     upload: async function (file) {
       if (!AV_TYPES[file.type]) throw new Error("Only JPG, PNG or WebP images are allowed.");
       if (file.size > 2 * 1024 * 1024) throw new Error("The photo must be 2 MB or smaller.");
+      if (!D.state.user) throw new Error("Sign in to update your profile photo.");
       var uid = D.state.user.id, old = D.state.avatarPath;
       var path = uid + "/avatar-" + Date.now() + "." + AV_TYPES[file.type];
       var up = await D.sb.storage.from("avatars").upload(path, file, { contentType: file.type, upsert: false });
       if (up.error) throw new Error(D.friendly ? D.friendly(up.error) : up.error.message);
-      var x = await D.sb.from("profiles").update({ avatar_path: path }).eq("auth_user_id", uid);
-      if (x.error) { D.sb.storage.from("avatars").remove([path]).catch(function () {}); throw new Error(D.friendly ? D.friendly(x.error) : x.error.message); }
+      var x = await D.sb.from("profiles").update({ avatar_path: path }).eq("auth_user_id", uid).select("avatar_path").single();
+      if (x.error || !x.data || x.data.avatar_path !== path) { D.sb.storage.from("avatars").remove([path]).catch(function () {}); throw new Error(x.error ? (D.friendly ? D.friendly(x.error) : x.error.message) : "The photo could not be saved to your profile. Please try again."); }
       if (old && old !== path) D.sb.storage.from("avatars").remove([old]).catch(function () {});
       D.avatar.set(path);
       return path;
     },
     remove: async function () {
+      if (!D.state.user) throw new Error("Sign in to update your profile photo.");
       var uid = D.state.user.id, old = D.state.avatarPath;
-      var x = await D.sb.from("profiles").update({ avatar_path: null }).eq("auth_user_id", uid);
-      if (x.error) throw new Error(D.friendly ? D.friendly(x.error) : x.error.message);
+      var x = await D.sb.from("profiles").update({ avatar_path: null }).eq("auth_user_id", uid).select("avatar_path").single();
+      if (x.error || !x.data || x.data.avatar_path !== null) throw new Error(x.error ? (D.friendly ? D.friendly(x.error) : x.error.message) : "The photo could not be removed from your profile. Please try again.");
       if (old) D.sb.storage.from("avatars").remove([old]).catch(function () {});
       D.avatar.set(null);
     },

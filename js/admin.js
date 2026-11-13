@@ -778,8 +778,8 @@
     rateRows.forEach(function (x) { if (x.court_id) rateCount[x.court_id] = (rateCount[x.court_id] || 0) + 1; else clubRates++; });
 
     sec.innerHTML = '<div class="court-matrix">' +
-      '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs pb-space-sm border-b border-outline-variant/20">' +
-        '<div><h1 class="font-headline-lg text-on-surface">Court Matrix</h1><p class="font-body-md text-on-surface-variant">Configure courts, pricing, operating windows, and maintenance blocks.</p></div>' +
+      '<div class="admin-section-header">' +
+        '<div class="admin-section-header-copy"><span class="admin-overview-eyebrow">Pickleball Club Management</span><h1 class="font-headline-lg text-on-surface">Court Matrix</h1><p class="font-body-md text-on-surface-variant">Configure courts, pricing, operating windows, and maintenance blocks.</p></div>' +
         '<button class="px-space-md py-space-xs rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold transition-all shadow-[0_0_16px_rgba(163,230,53,0.25)] border-0 cursor-pointer flex items-center gap-1.5" id="addc" type="button"><span class="material-symbols-outlined text-base">add</span>Add Court</button>' +
       '</div>' +
       '<p class="msg" role="alert" id="cmsg"></p><div id="cform"></div>' +
@@ -951,7 +951,7 @@
 
     var PANELS = {};
     PANELS.profile =
-      '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">Club Profile</h1><p class="font-body-md text-on-surface-variant">Update venue information, location coordinates, and photography.</p></div>' +
+      '<div class="admin-section-header admin-section-header-copy"><span class="admin-overview-eyebrow">Pickleball Club Management</span><h1 class="font-headline-lg text-on-surface">Club Profile</h1><p class="font-body-md text-on-surface-variant">Update venue information, location coordinates, and photography.</p></div>' +
       '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
         '<header class="profile-details-heading"><h3>Profile Details</h3><p>Keep your club information, contact details, and location up to date.</p></header>' +
         '<form id="pf" class="flex flex-col gap-space-md">' +
@@ -977,17 +977,22 @@
 
 
     PANELS.payments =
-      '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">Payments &amp; Booking Rules</h1><p class="font-body-md text-on-surface-variant">Set how players pay, which QR codes they can use, and your booking rules.</p></div>' +
+      '<div class="admin-section-header admin-section-header-copy"><span class="admin-overview-eyebrow">Pickleball Club Management</span><h1 class="font-headline-lg text-on-surface">Payments &amp; Booking Rules</h1><p class="font-body-md text-on-surface-variant">Set how players pay, which QR codes they can use, and your booking rules.</p></div>' +
       // The settings form is empty on purpose: fields in the sections below belong to it through the form="paycfg"
       // attribute, so the QR cards (which sit between them) are NOT inside a form and Enter never saves settings by accident.
       '<form id="paycfg"></form>' +
       '<div class="pay-sections">' +
 
       // ---- 1. checkout -------------------------------------------------------------------------------------------
-      '<section class="pay-card"><header><h2>1. Checkout</h2><p>What players see when they pay for a booking.</p></header>' +
-        '<label class="pay-toggle"><input id="spe" form="paycfg" type="checkbox"' + (st.payment_enabled ? " checked" : "") + '><span><b>Players pay by scanning a QR code</b><small>Turn off if you collect payment another way. Players then only send a booking request.</small></span></label>' +
-        '<label class="pay-toggle"><input id="sar" form="paycfg" type="checkbox"' + (st.approval_required ? " checked" : "") + '><span><b>I approve every booking myself</b><small>Recommended. You check the payment proof, then approve or reject.</small></span></label>' +
-        '<label class="payment-instructions-field flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Payment instructions shown to players<textarea id="spi" form="paycfg" rows="3" placeholder="e.g. Send the exact amount and type your booking code in the message" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30">' + esc(st.payment_instructions || "") + '</textarea></label>' +
+      '<section class="pay-card checkout-settings"><header class="checkout-settings-heading"><span class="checkout-step">01</span><div><h2>Checkout</h2><p>Choose how players pay and how bookings get approved.</p></div><span class="checkout-settings-tag">Player experience</span></header>' +
+        '<div class="checkout-options">' +
+          '<label class="pay-toggle checkout-option"><span class="checkout-option-icon material-symbols-outlined" aria-hidden="true">qr_code_scanner</span><span class="checkout-option-copy"><b>QR code payments</b><small>Players scan your QR code and upload proof of payment. Turn off to collect payment another way.</small></span><input id="spe" form="paycfg" type="checkbox" role="switch"' + (st.payment_enabled ? " checked" : "") + '><span class="checkout-switch" aria-hidden="true"></span></label>' +
+          '<label class="pay-toggle checkout-option"><span class="checkout-option-icon material-symbols-outlined" aria-hidden="true">fact_check</span><span class="checkout-option-copy"><b>Manual booking approval</b><span class="checkout-recommended">Recommended</span><small>Review each booking and its payment proof, then approve or reject.</small></span><input id="sar" form="paycfg" type="checkbox" role="switch"' + (st.approval_required ? " checked" : "") + '><span class="checkout-switch" aria-hidden="true"></span></label>' +
+        '</div>' +
+        '<div class="checkout-instructions"><div class="checkout-instructions-heading"><span class="material-symbols-outlined" aria-hidden="true">notes</span><div><label for="spi">Payment instructions</label><p>Help players complete their payment. These instructions appear at checkout.</p></div></div>' +
+          '<textarea id="spi" form="paycfg" rows="7" placeholder="e.g. Send the exact amount and include your booking code in the message.">' + esc(st.payment_instructions || "") + '</textarea>' +
+          '<div class="checkout-instructions-note"><span class="material-symbols-outlined" aria-hidden="true">visibility</span>Visible to players when they book</div>' +
+        '</div>' +
       '</section>' +
 
       // ---- 2. payment methods (cards live here, outside the form) -------------------------------------------------------
@@ -1006,7 +1011,7 @@
       '</section></div>';
 
     PANELS.staff =
-      '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">Staff &amp; Team Roster</h1><p class="font-body-md text-on-surface-variant">Authorize team members to approve bookings and manage court operations.</p></div>' +
+      '<div class="admin-section-header admin-section-header-copy"><span class="admin-overview-eyebrow">Pickleball Club Management</span><h1 class="font-headline-lg text-on-surface">Staff &amp; Team Roster</h1><p class="font-body-md text-on-surface-variant">Authorize team members to approve bookings and manage court operations.</p></div>' +
       '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
         '<div id="stafflist" class="space-y-3"><div class="ds-skeleton" style="height:56px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05);"></div><div class="ds-skeleton" style="height:56px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);"></div></div>' +
         '<form id="stf" class="flex flex-col sm:flex-row items-end gap-space-sm bg-surface-container p-space-md dashboard-rounded border border-outline-variant/20 mt-space-sm">' +
@@ -1204,28 +1209,27 @@
   // Personal details (own row only) and the user's own bookings as a player.
   async function accountView(sec) {
     sec.innerHTML = '<div class="settings-page settings-account">' +
-      '<div class="flex flex-col gap-space-xs pb-space-sm border-b border-outline-variant/20"><h1 class="font-headline-lg text-on-surface">My Account</h1><p class="font-body-md text-on-surface-variant">Your personal staff credentials and private match history.</p></div>' +
-      '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
-        '<div class="flex items-center gap-space-md">' +
-          '<div id="mp-preview" class="w-20 h-20 rounded-full bg-surface-container-high border-2 border-primary flex items-center justify-center text-primary text-2xl font-bold overflow-hidden shrink-0"></div>' +
-          '<div class="flex flex-col gap-space-xs"><span class="font-label-md text-on-surface font-semibold">Profile photo</span>' +
-            '<span class="font-body-sm text-on-surface-variant">JPG, PNG or WebP, up to 2 MB. Shown in your account menu.</span>' +
-            '<div class="flex items-center gap-space-sm">' +
-              '<label for="mp-photo" class="px-space-md py-1.5 rounded-full bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/30 text-on-surface font-label-sm font-bold uppercase cursor-pointer">Change Photo</label>' +
-              '<input type="file" id="mp-photo" accept="image/jpeg,image/png,image/webp" hidden>' +
-              '<button type="button" id="mp-remove-photo" class="px-space-md py-1.5 rounded-full bg-transparent border border-outline-variant/30 text-on-surface-variant font-label-sm font-bold uppercase cursor-pointer" hidden>Remove</button>' +
-            '</div><p class="msg" id="mp-photo-msg" role="alert"></p></div>' +
-        '</div></div>' +
-      '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
-        '<form id="myprofile" class="flex flex-col gap-space-md">' +
-          '<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Full Name<input id="mp-name" maxlength="80" autocomplete="name" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-            '<label class="flex flex-col gap-1 font-label-sm text-on-surface-variant uppercase">Phone<input id="mp-phone" maxlength="30" autocomplete="tel" class="bg-surface-container px-3 py-2.5 dashboard-rounded text-on-surface border border-outline-variant/30"></label>' +
-          '</div>' +
-          '<p class="font-body-sm text-on-surface-variant">Signed in as: <strong class="text-on-surface">' + esc(D.state.user.email) + '</strong></p>' +
-          '<p class="msg" role="alert"></p>' +
-          '<button class="px-space-md py-2.5 rounded-full bg-primary hover:bg-primary-fixed text-on-primary font-label-md font-bold border-0 cursor-pointer self-start" type="submit">Save Profile</button>' +
-        '</form>' +
+      '<div class="admin-section-header admin-section-header-copy"><span class="admin-overview-eyebrow">Pickleball Club Management</span><h1 class="font-headline-lg text-on-surface">My Account</h1><p class="font-body-md text-on-surface-variant">Your personal staff credentials and private match history.</p></div>' +
+      '<div class="account-editor">' +
+        '<section class="account-photo-panel" aria-labelledby="account-photo-title">' +
+          '<span class="account-section-label">YOUR IDENTITY</span>' +
+          '<div class="account-avatar-wrap"><div id="mp-preview"></div><button type="button" class="account-avatar-mark material-symbols-outlined" id="mp-camera" aria-label="Change profile photo"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 7H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-4z"/><circle cx="12" cy="13" r="3.5"/></svg></button></div>' +
+          '<h2 id="account-photo-title">Profile photo</h2><p>A familiar face for your club.</p>' +
+          '<div class="account-photo-actions"><button type="button" id="mp-change-photo" class="account-upload"><span class="material-symbols-outlined" aria-hidden="true">upload</span>Change photo</button>' +
+            '<input type="file" id="mp-photo" class="account-photo-input" aria-label="Change profile photo" accept="image/jpeg,image/png,image/webp">' +
+            '<button type="button" id="mp-remove-photo" aria-label="Remove profile photo" title="Remove profile photo" hidden><span class="material-symbols-outlined" aria-hidden="true">delete</span></button></div>' +
+          '<span class="account-photo-hint">JPG, PNG or WebP &middot; Up to 2 MB</span><p class="msg" id="mp-photo-msg" role="alert"></p>' +
+        '</section>' +
+        '<section class="account-details-panel" aria-labelledby="account-details-title">' +
+          '<header class="account-details-heading"><span class="account-heading-icon material-symbols-outlined" aria-hidden="true">manage_accounts</span><div><h2 id="account-details-title">Personal details</h2><p>Manage how you appear across DINKSLOT.</p></div></header>' +
+          '<form id="myprofile">' +
+            '<div class="account-fields"><label for="mp-name">Full name<input id="mp-name" maxlength="80" autocomplete="name" placeholder="Your full name"></label>' +
+              '<label for="mp-phone">Phone number<input id="mp-phone" type="tel" maxlength="30" autocomplete="tel" placeholder="Add a phone number"></label></div>' +
+            '<div class="account-email"><span class="material-symbols-outlined" aria-hidden="true">mail</span><div><span>Signed in as</span><strong>' + esc(D.state.user.email) + '</strong></div></div>' +
+            '<p class="msg" role="alert"></p>' +
+            '<footer class="account-save-row"><span>Keep your contact details up to date.</span><button type="submit"><span class="material-symbols-outlined" aria-hidden="true">check</span>Save profile</button></footer>' +
+          '</form>' +
+        '</section>' +
       '</div>' +
       '<div class="bg-surface-container-low dashboard-rounded p-space-lg shadow-sm border border-outline-variant/20 flex flex-col gap-space-md">' +
         '<div><h3 class="font-headline-sm text-on-surface">Personal Court Bookings</h3><p class="font-body-sm text-on-surface-variant">Courts you personally reserved across DINKSLOT.</p></div>' +
@@ -1246,30 +1250,57 @@
       btn.disabled = false;
       setMsg(f, x.error ? friendly(x.error) : "Profile saved.", x.error ? "err" : "ok");
     };
-    var paintPhoto = function () {
-      var url = D.avatar.mine(), nm = (r.data && r.data.full_name) || D.state.user.email || "?";
-      q("#mp-preview", sec).innerHTML = url ? '<img src="' + esc(url) + '" alt="Profile photo" class="w-full h-full object-cover">' : esc(nm.trim().charAt(0).toUpperCase() || "?");
-      q("#mp-remove-photo", sec).hidden = !url;
-    };
-    paintPhoto();
-    q("#mp-photo", sec).onchange = async function () {
-      var input = this, file = input.files[0], pm = q("#mp-photo-msg", sec);
-      if (!file) return;
-      setMsg(pm, "", "");
-      q("#mp-preview", sec).style.opacity = "0.5";
-      try { await D.avatar.upload(file); setMsg(pm, "Photo updated.", "ok"); }
-      catch (err) { setMsg(pm, err.message || "Could not upload the photo.", "err"); }
-      q("#mp-preview", sec).style.opacity = "";
-      input.value = "";
-      paintPhoto();
-    };
-    q("#mp-remove-photo", sec).onclick = async function () {
+    var photoInput = q("#mp-photo", sec), photoPreview = q("#mp-preview", sec);
+    var photoRemove = q("#mp-remove-photo", sec), photoChange = q("#mp-change-photo", sec), photoCamera = q("#mp-camera", sec);
+    var photoBusy = false;
+    function photoMessage(message, kind) {
       var pm = q("#mp-photo-msg", sec);
-      this.disabled = true;
-      try { await D.avatar.remove(); setMsg(pm, "Photo removed.", "ok"); }
-      catch (err) { setMsg(pm, err.message || "Could not remove the photo.", "err"); }
-      this.disabled = false;
-      paintPhoto();
+      pm.textContent = message;
+      pm.className = "msg " + (kind || "");
+      pm.setAttribute("role", kind === "err" ? "alert" : "status");
+    }
+    function paintPhoto() {
+      var url = D.avatar.mine(), nm = val("#mp-name", sec) || D.state.user.email || "?";
+      photoPreview.innerHTML = url ? '<img src="' + esc(url) + '" alt="Profile photo">' : esc(nm.trim().charAt(0).toUpperCase() || "?");
+      photoRemove.hidden = !url;
+    }
+    function setPhotoBusy(busy) {
+      photoBusy = busy;
+      photoInput.disabled = photoChange.disabled = photoCamera.disabled = photoRemove.disabled = busy;
+      q(".account-photo-panel", sec).setAttribute("aria-busy", String(busy));
+      photoPreview.style.opacity = busy ? "0.5" : "";
+    }
+    photoChange.onclick = photoCamera.onclick = function () { if (!photoBusy) photoInput.click(); };
+    paintPhoto();
+    photoInput.onchange = async function () {
+      var file = this.files[0];
+      if (!file || photoBusy) return;
+      setPhotoBusy(true);
+      photoMessage("Uploading photo...", "");
+      try {
+        await D.avatar.upload(file);
+        paintPhoto();
+        photoMessage("Photo updated. Saved to your account.", "ok");
+      } catch (err) {
+        photoMessage(err.message || "Could not upload the photo. Please try again.", "err");
+      } finally {
+        photoInput.value = "";
+        setPhotoBusy(false);
+      }
+    };
+    photoRemove.onclick = async function () {
+      if (photoBusy) return;
+      setPhotoBusy(true);
+      photoMessage("Removing photo...", "");
+      try {
+        await D.avatar.remove();
+        paintPhoto();
+        photoMessage("Photo removed.", "ok");
+      } catch (err) {
+        photoMessage(err.message || "Could not remove the photo. Please try again.", "err");
+      } finally {
+        setPhotoBusy(false);
+      }
     };
     if (D.booking) D.booking.myBookings(q("#mybookings", sec));
   }
