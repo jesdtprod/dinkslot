@@ -42,13 +42,15 @@ Deno.serve(async (req) => {
   if (!b) return json({ skipped: "booking_not_found" });
   if (payload.type === "UPDATE" && payload.old_record?.status === b.status) return json({ skipped: "no_status_change" });
 
-  const [{ data: tenant }, { data: court }, { data: player }, { data: members }] = await Promise.all([
+  const [{ data: tenant }, { data: court }, { data: player }, { data: members }, proof] = await Promise.all([
     admin.from("tenants").select("id,name,slug,contact_email,contact_phone,address,city,province,zip_code,logo_path,timezone").eq("id", b.tenant_id).maybeSingle(),
     admin.from("courts").select("name").eq("id", b.court_id).maybeSingle(),
     b.player_id ? admin.from("club_players").select("display_name,user_id").eq("id", b.player_id).maybeSingle() : Promise.resolve({ data: null }),
     admin.from("tenant_members").select("user_id").eq("tenant_id", b.tenant_id).is("deleted_at", null),
+    admin.from("booking_payments").select("id").eq("booking_id", b.id).is("deleted_at", null).not("proof_path", "is", null).limit(1),
   ]);
   if (!tenant) return json({ skipped: "tenant_not_found" });
+  if (proof.error) return json({ error: "payment_status_unavailable" }, 503);
 
   async function emailOf(userId?: string | null): Promise<string | null> {
     if (!userId) return null;
@@ -74,6 +76,7 @@ Deno.serve(async (req) => {
   }
 
   const ctx: Ctx = {
+    proofSubmitted: !!proof.data?.length,
     booking: b, clubName: tenant.name, clubSlug: tenant.slug, timezone: tenant.timezone || "Asia/Manila",
     clubLogoUrl: tenant.logo_path ? admin.storage.from("club-media").getPublicUrl(tenant.logo_path).data.publicUrl : null,
     clubAddress: [tenant.address, tenant.city, tenant.province, tenant.zip_code].filter(Boolean).join(", "),

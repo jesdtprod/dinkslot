@@ -20,6 +20,7 @@ export interface Ctx {
   playerEmail: string | null;
   adminEmails: string[];
   guestBookingUrl?: string | null;
+  proofSubmitted?: boolean;
   siteUrl: string; // e.g. https://jesdtprod.github.io/dinkslot/
 }
 
@@ -105,8 +106,8 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
 
   if (status === "pending") {
     toPlayer("booking_received", `Booking received - ${b.reference_code}`, "We received your booking",
-      ["Your reservation is on hold. Complete your payment and upload your proof so the club can review your booking.", ...details(ctx)],
-      { label: "Pay and Upload Proof", url: myBookings });
+      [ctx.proofSubmitted ? "Your payment proof has been received. The club will review it and confirm your reservation." : "Your reservation is on hold. Complete your payment and upload your proof so the club can review your booking.", ...details(ctx)],
+      { label: ctx.proofSubmitted ? (ctx.guestBookingUrl ? "View Booking" : "View My Bookings") : "Pay and Upload Proof", url: myBookings });
     toAdmins("booking_request", `New booking request - ${b.reference_code}`, "New booking request",
       [`${ctx.playerName} requested a court.`, ...details(ctx)]);
   } else if (status === "approved") {

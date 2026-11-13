@@ -14,6 +14,15 @@ function ctx(over: Partial<Ctx["booking"]> = {}, c: Partial<Ctx> = {}): Ctx {
 }
 const who = (m: { to: string; template: string }[]) => m.map((x) => `${x.template}:${x.to}`).sort();
 
+Deno.test("pending booking email action reflects submitted proof", () => {
+  const unpaid = planEmails(ctx({}, { proofSubmitted: false }), true)[0];
+  if (!unpaid.html.includes("Pay and Upload Proof")) throw new Error("missing payment action");
+  for (const guest of [false, true]) {
+    const submitted = planEmails(ctx({}, { proofSubmitted: true, guestBookingUrl: guest ? "https://example.test/guest" : null }), true)[0];
+    if (!submitted.html.includes(guest ? "View Booking" : "View My Bookings") || submitted.html.includes("Pay and Upload Proof") || !submitted.text.includes("payment proof has been received")) throw new Error("incorrect submitted proof action");
+  }
+});
+
 Deno.test("booking email includes available club details and approval QR", () => {
   const mail = planEmails(ctx({ status: "approved" }, { clubLogoUrl: "https://example.test/logo.png", clubAddress: "Isulan", clubEmail: "club@example.test", clubPhone: "09123456789" }), false)[0];
   for (const value of ["https://example.test/logo.png", "Isulan", "club@example.test", "09123456789", "Court 1", "PHP 300.00", "DS-ABC123", 'cid:ticket-qr', "View My Bookings"]) {
