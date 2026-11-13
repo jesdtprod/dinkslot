@@ -4,7 +4,8 @@
 - [x] Include the club name in registered-player booking email subjects (code and unit tests; deployment pending).
 - [x] Prepare a private guest contact table migration (not applied or database-tested).
 - [x] Implement and unit-test token generation and hashing helpers (not yet wired to booking).
-- [ ] Implement and test server-side guest reservation, including slot and pricing rules, contact details, abuse protection, and idempotency.
+- [x] Prepare a service-only guest reservation database function using the existing slot, pricing, and hold rules (not applied or database-tested).
+- [ ] Implement an abuse-protected guest reservation endpoint and test reservation rules and idempotency against the database.
 - [x] Prepare a private hashed-token storage migration with expiry and revocation fields (not applied or database-tested).
 - [x] Implement and unit-test server-side token lookup with expiry and revocation checks (not yet wired to an endpoint).
 - [x] Implement and unit-test server-side token issuance (not yet wired to booking or email).
