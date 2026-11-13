@@ -2963,7 +2963,15 @@
       pass.className = "guest-booking-pass";
       pass.setAttribute("aria-label", "Your booking QR pass");
       pass.innerHTML = '<div class="guest-pass-copy"><span class="guest-status-eyebrow">Confirmed Booking</span><h2>Your Gate Pass</h2><p>Show this QR code to the club staff at the court.</p><strong>' + esc(b.reference_code) + '</strong></div><div class="guest-booking-qr"></div>';
-      panel.appendChild(pass);
+      var passLayout = document.createElement("div");
+      passLayout.className = "guest-approved-layout";
+      var bookingDetails = document.createElement("div");
+      bookingDetails.className = "guest-approved-details";
+      var detailsGrid = panel.querySelector(".guest-status-details");
+      panel.insertBefore(passLayout, detailsGrid);
+      passLayout.appendChild(pass);
+      passLayout.appendChild(bookingDetails);
+      [detailsGrid, panel.querySelector(".guest-status-note"), panel.querySelector(".guest-status-actions")].forEach(function (section) { if (section) bookingDetails.appendChild(section); });
       try {
         if (typeof window.qrcode !== "function") throw new Error("qr_unavailable");
         pass.querySelector(".guest-booking-qr").innerHTML = bookingQrSvg(b.reference_code, await loadQrLogo());
