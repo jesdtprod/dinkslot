@@ -4639,6 +4639,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-details-section { padding:14px; border:1px solid #ffffff0d; border-radius:12px; background:#1b242a; }
 .guest-details-section h3 { display:flex; align-items:center; gap:8px; margin:0 0 14px; color:#c1cec4; font:700 12px/18px "Plus Jakarta Sans",sans-serif; }
 .guest-details-section h3::before { content:""; width:6px; height:6px; border-radius:50%; background:#a3e635; }
+.guest-booking-details .guest-required-note { margin:-6px 0 14px; color:#9aaeb9; font-size:11px; line-height:16px; }
 .guest-details-fields { display:grid; grid-template-columns:minmax(0,1fr); gap:14px; }
 .guest-details-fields > label:last-child { grid-column:1 / -1; }
 .guest-booking-modal .guest-booking-details label { color:#a6b7ab; font-size:11px; }
