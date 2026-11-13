@@ -2892,19 +2892,29 @@
     }
     var statusText = { pending:"Pending approval", approved:"Confirmed", rejected:"Rejected", cancelled:"Cancelled", expired:"Expired" }[b.status] || "Unavailable";
     var tz = club.timezone || "Asia/Manila";
-    var schedule = new Intl.DateTimeFormat("en-PH", { timeZone:tz, dateStyle:"medium", timeStyle:"short" }).format(new Date(b.starts_at));
-    root.innerHTML = '<section class="panel guest-booking-status"><h1>Your booking</h1><p>Review your reservation and payment status.</p><dl><div><dt>Status</dt><dd>' + esc(statusText) + '</dd></div><div><dt>Club</dt><dd>' + esc(club.name || "Club") + '</dd></div><div><dt>Court</dt><dd>' + esc(court.name || "Court") + '</dd></div><div><dt>Schedule</dt><dd>' + esc(schedule) + '</dd></div><div><dt>Reference</dt><dd>' + esc(b.reference_code || "") + '</dd></div><div><dt>Payment proof</dt><dd>' + (b.proof_submitted ? 'Submitted' : 'Not submitted') + '</dd></div></dl><p>' + (b.gate_pass_available ? 'Your booking is confirmed.' : 'Your gate pass will be available after approval.') + '</p></section>';
+    var date = new Date(b.starts_at).toLocaleDateString("en-PH", {timeZone:tz,weekday:"short",month:"short",day:"numeric",year:"numeric"});
+    var time = timeOf(new Date(b.starts_at), tz) + " \u2013 " + timeOf(new Date(b.ends_at), tz);
+    var tone = b.status === "approved" ? "confirmed" : b.status === "pending" ? "pending" : "closed";
+    var note = b.gate_pass_available ? "Your booking is confirmed. Show your QR pass at the court." : b.status === "pending" ? (b.proof_submitted ? "Your payment proof has been submitted. The club will review your reservation." : "Complete your payment and upload your receipt before your hold expires.") : (b.reject_reason || b.cancel_reason || "This reservation is no longer active.");
+    root.innerHTML = '<div id="ds-book-page" class="book-public guest-status-page"><main>' +
+      '<header class="checkout-page-intro"><span>Pickleball Court Reservation</span><div><h1>Your booking</h1><span class="checkout-page-badge">Guest Booking</span></div><p>Review your reservation, payment status, and gate pass.</p></header>' +
+      '<section class="booking-context"><nav class="shared-booking-breadcrumb" aria-label="Breadcrumb"><a href="#/c/' + esc(club.slug || '') + '">Back to club</a><span aria-hidden="true"> / </span><span>' + esc(club.name || 'Club') + '</span><span aria-hidden="true"> / </span><strong>Your booking</strong></nav></section>' +
+      '<section class="guest-booking-status"><header class="guest-status-heading"><div><span class="guest-status-eyebrow">Reservation Details</span><h2>' + esc(club.name || 'Club') + '</h2><p>' + esc(court.name || 'Court') + '</p></div><span class="guest-status-badge ' + tone + '">' + esc(statusText) + '</span></header>' +
+      '<dl class="guest-status-details">' + [
+        ['calendar_today','Date',date], ['schedule','Time',time], ['payments','Amount',money(b.amount)], ['receipt_long','Payment proof',b.proof_submitted ? 'Submitted' : 'Not submitted'], ['tag','Booking reference',b.reference_code || 'Unavailable'], ['public','Time zone',tz]
+      ].map(function (field) { return '<div><span class="material-symbols-outlined" aria-hidden="true">' + field[0] + '</span><div><dt>' + field[1] + '</dt><dd>' + esc(field[2]) + '</dd></div></div>'; }).join('') + '</dl>' +
+      '<p class="guest-status-note ' + tone + '"><span class="material-symbols-outlined" aria-hidden="true">' + (b.gate_pass_available ? 'verified' : 'info') + '</span><span>' + esc(note) + '</span></p><div class="guest-status-actions"></div></section></main></div>';
     if (b.status === "pending" && !b.proof_submitted && b.expires_at && new Date(b.expires_at).getTime() > Date.now() && new Date(b.starts_at).getTime() > Date.now()) {
       var pay = document.createElement("button");
       pay.type = "button"; pay.className = "btn"; pay.textContent = "Pay / Upload Proof";
-      root.querySelector(".guest-booking-status").appendChild(pay);
+      root.querySelector(".guest-status-actions").appendChild(pay);
       pay.onclick = function () {
         root.innerHTML = '<div id="ds-book-page" class="book-public"><main><div id="guest-checkout"></div></main></div>';
         payPanel(root.querySelector("#guest-checkout"), b, { guestToken:token, club:club, court:court, onBack:function () { guestBookingStatus(token); } });
       };
       var release = document.createElement("button");
       release.type = "button"; release.className = "btn ghost guest-release-hold"; release.textContent = "Cancel & Release Slot";
-      root.querySelector(".guest-booking-status").appendChild(release);
+      root.querySelector(".guest-status-actions").appendChild(release);
       release.onclick = async function () {
         if (!await D.ui.confirmAction("Release this unpaid hold and make the time slot available again?", {title:"Cancel reservation", confirmText:"Release slot", danger:true})) return;
         release.disabled = true;
