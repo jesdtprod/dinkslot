@@ -42,6 +42,7 @@ begin
   if found then return b; end if;
 
   select * into s from public.tenant_settings where tenant_id = c.tenant_id and deleted_at is null;
+  if not found then raise exception 'booking_settings_unavailable' using errcode = 'P0002'; end if;
 
   if p_ends_at <= p_starts_at then raise exception 'invalid_time_range' using errcode = '22023'; end if;
   if p_starts_at <= now() then raise exception 'in_the_past' using errcode = '22023'; end if;

@@ -26,15 +26,19 @@ Deno.serve(async(req)=>{
     const ids=contacts.data.map((c:{booking_id:string})=>c.booking_id);
     const bookings=await db.from("bookings").select("id,tenant_id,reference_code,ends_at").in("id",ids).eq("source","guest_online").is("deleted_at",null).order("starts_at",{ascending:false}).limit(10);
     if(bookings.error || !bookings.data?.length) return json(generic);
+    const tenantIds=Array.from(new Set(bookings.data.map((booking:{tenant_id:string})=>booking.tenant_id)));
+    const tenants=await db.from("tenants").select("id,name").in("id",tenantIds);
+    if(tenants.error) return json(generic);
+    const tenantNames=new Map((tenants.data || []).map((tenant:{id:string,name:string})=>[tenant.id,tenant.name]));
     const site=Deno.env.get("SITE_URL") ?? "https://jesdtprod.github.io/dinkslot/";
-    const links:{ref:string,url:string}[]=[];
+    const links:{ref:string,url:string,club:string}[]=[];
     for(const booking of bookings.data){
       const expiry=new Date(Math.max(Date.now()+30*86400000,Date.parse(booking.ends_at)+7*86400000));
       const token=await issueGuestBookingToken(db,booking.id,expiry);
-      links.push({ref:booking.reference_code,url:site.replace(/\/?$/, "/")+"#/guest/booking?token="+encodeURIComponent(token)});
+      links.push({ref:booking.reference_code,club:tenantNames.get(booking.tenant_id) || "Club",url:site.replace(/\/?$/, "/")+"#/guest/booking?token="+encodeURIComponent(token)});
     }
-    const text="Your guest booking links:\n\n"+links.map((link)=>link.ref+": "+link.url).join("\n")+"\n\nIf you did not request these links, you may ignore this email.";
-    const html='<p>Your guest booking links:</p><ul>'+links.map((link)=>'<li>'+escHtml(link.ref)+': <a href="'+escHtml(link.url)+'">View booking</a></li>').join('')+'</ul><p>If you did not request these links, you may ignore this email.</p>';
+    const text="Your guest booking links:\n\n"+links.map((link)=>link.club+" - "+link.ref+": "+link.url).join("\n")+"\n\nIf you did not request these links, you may ignore this email.";
+    const html='<p>Your guest booking links:</p><ul>'+links.map((link)=>'<li>'+escHtml(link.club)+' - '+escHtml(link.ref)+': <a href="'+escHtml(link.url)+'">View booking</a></li>').join('')+'</ul><p>If you did not request these links, you may ignore this email.</p>';
     await mailer.send({fromName:"DINKSLOT",fromEmail:mailer.fromEmail,to:email,subject:"Your DINKSLOT guest booking links",text,html});
   } catch { console.error("Guest booking recovery unavailable"); }
   return json(generic);

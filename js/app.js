@@ -652,7 +652,7 @@
                 '<button type="button" data-scroll="club-dates" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-[12px] font-semibold text-slate-200 bg-dink-surfaceLight hover:bg-slate-700/80 border border-dink-border hover:border-slate-500 transition text-sm">' +
                   '<i class="fa-solid fa-calendar-check text-slate-400" aria-hidden="true"></i>Court Schedule</button>' +
               "</div>" +
-              (state.user ? "" : '<div class="club-account-prompt">' + (cfg.GUEST_BOOKING_ENABLED === true ? '<a class="club-account-signin" href="#/c/' + esc(slug) + '/book?guest=1">Book as Guest</a>' : '<span class="club-account-note">Free account needed to book.</span>') + '<span class="club-account-returning">Already registered? <a class="club-account-signin" href="' + signInHref + '">Sign in<span aria-hidden="true"> &rarr;</span></a></span></div>') +
+              (state.user ? "" : '<div class="club-account-prompt">' + (cfg.GUEST_BOOKING_ENABLED === true ? '<a class="club-account-signin" href="#/c/' + esc(slug) + '/book?guest=1">Book as Guest</a><a class="club-account-signin" href="#/guest/recover">Find Guest Booking</a>' : '<span class="club-account-note">Free account needed to book.</span>') + '<span class="club-account-returning">Already registered? <a class="club-account-signin" href="' + signInHref + '">Sign in<span aria-hidden="true"> &rarr;</span></a></span></div>') +
             "</div>" +
           "</div>" +
           '<div class="mt-6 pt-5 border-t border-dink-border/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">' +
