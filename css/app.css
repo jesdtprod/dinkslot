@@ -101,7 +101,7 @@
 }
 
 /* Non-Auth, Non-Landing & Non-Tenant Views Layout Wrapper */
-#app > :not(#ds-auth-screen):not(#ds-home-screen):not(#ds-landing):not(#ds-tenant-dashboard):not(#ds-club-page):not(#ds-book-page):not(#club-profile-stage) {
+#app > :not(#ds-auth-screen):not(#ds-home-screen):not(#ds-landing):not(#ds-tenant-dashboard):not(#ds-club-page):not(#ds-book-page):not(#club-profile-stage):not(.admin-skeleton-shell) {
   width: 100%;
   max-width: 960px;
   margin-left: auto;

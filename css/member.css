@@ -811,16 +811,30 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
   gap: 24px;
   width: 100%;
   max-width: 1400px;
+  min-width: 0;
   margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+.admin-skeleton .skeleton-line,
+.admin-skeleton .skeleton-pill,
+.admin-skeleton-topbar .skeleton-pill {
+  max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 }
 .admin-skeleton-shell {
   display: flex;
+  box-sizing: border-box;
   width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
   min-height: 100vh;
   background: #0a0e14;
   color: #e2e8f0;
   position: relative;
+  overflow-x: hidden;
 }
 .admin-skeleton-aside {
   width: 256px;
@@ -840,12 +854,14 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 }
 .admin-skeleton-body {
   width: 100%;
+  min-width: 0;
   padding-left: 256px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: #0a0e14;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 .admin-skeleton-topbar {
   height: 64px;
@@ -855,6 +871,7 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   padding: 0 24px;
   box-sizing: border-box;
   position: fixed;
@@ -866,6 +883,7 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 .admin-skeleton-main {
   padding: 88px 24px 32px;
   width: 100%;
+  min-width: 0;
   max-width: 1440px;
   margin: 0 auto;
   box-sizing: border-box;
@@ -882,6 +900,10 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .admin-skeleton-intro {
   display: flex;
@@ -984,8 +1006,8 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 /* Responsiveness: Tablet (768px - 1024px) */
 @media (max-width: 1024px) {
   .admin-skeleton-header { flex-direction: column; align-items: stretch; gap: 16px; padding: 20px; }
-  .admin-skeleton-stats { width: 100%; }
-  .admin-skeleton-stat { flex: 1; }
+  .admin-skeleton-stats { width: 100%; min-width: 0; }
+  .admin-skeleton-stat { flex: 1 1 0; min-width: 0; width: auto; }
   .admin-skeleton-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .admin-skeleton-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .admin-skeleton-grid-2 { grid-template-columns: minmax(0, 1fr); }
@@ -995,11 +1017,17 @@ body:has(.member-profile-modal[open]) { overflow:hidden; }
 @media (max-width: 767px) {
   .admin-skeleton-aside { display: none; }
   .admin-skeleton-body { padding-left: 0; }
-  .admin-skeleton-topbar { left: 0; padding: 0 16px; }
+  .admin-skeleton-topbar { left: 0; padding: 0 12px; }
+  .admin-skeleton-topbar > div:first-child .skeleton-pill:last-child { width: 120px !important; }
+  .admin-skeleton-topbar > div:last-child .skeleton-pill:last-child { width: 96px !important; }
   .admin-skeleton-main { padding: 80px 14px 24px; }
   .admin-skeleton-header { padding: 16px; }
-  .admin-skeleton-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .admin-skeleton-metric { height: 118px; padding: 14px; }
+  .admin-skeleton-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .admin-skeleton-stat { width: auto; min-width: 0; height: 60px; overflow: hidden; }
+  .admin-skeleton-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .admin-skeleton-metric { height: 118px; padding: 12px; min-width: 0; overflow: hidden; }
   .admin-skeleton-grid-3 { grid-template-columns: minmax(0, 1fr); }
-  .admin-skeleton-card { padding: 16px; }
+  .admin-skeleton-card { padding: 16px; min-width: 0; overflow: hidden; }
+  .admin-skeleton-toolbar { padding: 14px 16px; min-width: 0; overflow: hidden; }
+  .admin-skeleton-court-card { min-width: 0; overflow: hidden; }
 }
