@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
   if (payload.type === "UPDATE" && payload.old_record?.status === b.status) return json({ skipped: "no_status_change" });
 
   const [{ data: tenant }, { data: court }, { data: player }, { data: members }] = await Promise.all([
-    admin.from("tenants").select("id,name,slug,contact_email,timezone").eq("id", b.tenant_id).maybeSingle(),
+    admin.from("tenants").select("id,name,slug,contact_email,contact_phone,address,city,province,zip_code,logo_path,timezone").eq("id", b.tenant_id).maybeSingle(),
     admin.from("courts").select("name").eq("id", b.court_id).maybeSingle(),
     b.player_id ? admin.from("club_players").select("display_name,user_id").eq("id", b.player_id).maybeSingle() : Promise.resolve({ data: null }),
     admin.from("tenant_members").select("user_id").eq("tenant_id", b.tenant_id).is("deleted_at", null),
@@ -75,6 +75,9 @@ Deno.serve(async (req) => {
 
   const ctx: Ctx = {
     booking: b, clubName: tenant.name, clubSlug: tenant.slug, timezone: tenant.timezone || "Asia/Manila",
+    clubLogoUrl: tenant.logo_path ? admin.storage.from("club-media").getPublicUrl(tenant.logo_path).data.publicUrl : null,
+    clubAddress: [tenant.address, tenant.city, tenant.province, tenant.zip_code].filter(Boolean).join(", "),
+    clubEmail: tenant.contact_email, clubPhone: tenant.contact_phone,
     courtName: court?.name ?? "Court", playerName: player?.display_name ?? b.guest_name ?? "Player",
     playerUserId: player?.user_id ?? null, playerEmail: guestEmail || await emailOf(player?.user_id), guestBookingUrl, adminEmails,
     siteUrl: Deno.env.get("SITE_URL") ?? "https://jesdtprod.github.io/dinkslot/",

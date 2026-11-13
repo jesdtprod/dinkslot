@@ -1,5 +1,5 @@
 // Run: deno test supabase/functions/send-booking-email/lib_test.ts
-import { buildMime, type Ctx, escHtml, fmtRange, planEmails, safeEqual } from "./lib.ts";
+import { buildMime, type Ctx, escHtml, fmtRange, guestRecoveryEmail, planEmails, safeEqual } from "./lib.ts";
 
 function ctx(over: Partial<Ctx["booking"]> = {}, c: Partial<Ctx> = {}): Ctx {
   return {
@@ -13,6 +13,19 @@ function ctx(over: Partial<Ctx["booking"]> = {}, c: Partial<Ctx> = {}): Ctx {
   };
 }
 const who = (m: { to: string; template: string }[]) => m.map((x) => `${x.template}:${x.to}`).sort();
+
+Deno.test("booking email includes available club details and approval QR", () => {
+  const mail = planEmails(ctx({ status: "approved" }, { clubLogoUrl: "https://example.test/logo.png", clubAddress: "Isulan", clubEmail: "club@example.test", clubPhone: "09123456789" }), false)[0];
+  for (const value of ["https://example.test/logo.png", "Isulan", "club@example.test", "09123456789", "Court 1", "PHP 300.00", "DS-ABC123", 'cid:ticket-qr', "View My Bookings"]) {
+    if (!mail.html.includes(value)) throw new Error("missing " + value);
+  }
+});
+
+Deno.test("guest recovery presents escaped booking links", () => {
+  const mail = guestRecoveryEmail([{ club: "<Club>", ref: "DS-123", url: "https://example.test/booking?a=1&b=2" }]);
+  if (mail.html.includes("<Club>") || !mail.html.includes("&lt;Club&gt;") || !mail.html.includes("a=1&amp;b=2") || !mail.html.includes("View Booking")) throw new Error("invalid recovery email");
+  if (!mail.text.includes("DS-123")) throw new Error("missing plain text booking");
+});
 
 Deno.test("new pending booking: player gets 'received', each admin gets 'request' once", () => {
   const m = planEmails(ctx(), true);

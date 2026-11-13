@@ -8,6 +8,10 @@ export interface Ctx {
     cancelled_by?: string | null; source?: string | null; guest_name?: string | null;
   };
   clubName: string;
+  clubLogoUrl?: string | null;
+  clubAddress?: string | null;
+  clubEmail?: string | null;
+  clubPhone?: string | null;
   clubSlug: string;
   timezone: string;
   courtName: string;
@@ -53,7 +57,7 @@ function layout(ctx: Ctx, heading: string, lines: string[], cta?: { label: strin
   const html = `<!doctype html><html><body style="margin:0;background:#f3f5f2;font-family:Arial,Helvetica,sans-serif;color:#1c2930">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#ffffff;border:1px solid #dfe6df;border-radius:16px">
-<tr><td style="padding:22px 28px;border-bottom:3px solid #a3e635;font-weight:700;font-size:16px;color:#172820">${escHtml(ctx.clubName)} <span style="font-size:12px;color:#66806d;font-weight:400">&nbsp; | &nbsp; DINKSLOT</span></td></tr>
+<tr><td style="padding:22px 28px;border-bottom:3px solid #a3e635"><table role="presentation" cellpadding="0" cellspacing="0"><tr>${ctx.clubLogoUrl ? `<td valign="top" style="padding-right:14px"><img src="${escHtml(ctx.clubLogoUrl)}" alt="${escHtml(ctx.clubName)} logo" width="48" height="48" style="display:block;width:48px;height:48px;object-fit:contain;border-radius:8px"></td>` : ""}<td><div style="font-weight:700;font-size:16px;color:#172820">${escHtml(ctx.clubName)} <span style="font-size:12px;color:#66806d;font-weight:400">&nbsp; | &nbsp; DINKSLOT</span></div>${[ctx.clubAddress, ctx.clubEmail, ctx.clubPhone].filter(Boolean).map((value) => `<div style="margin-top:4px;font-size:12px;line-height:1.4;color:#65776e">${escHtml(value)}</div>`).join("")}</td></tr></table></td></tr>
 <tr><td style="padding:28px">
 <h1 style="margin:0 0 18px;font-size:24px;line-height:1.25;color:#172820">${escHtml(heading)}</h1>
 ${intro.map((l) => `<p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#42535b">${escHtml(l)}</p>`).join("")}
@@ -89,7 +93,7 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
     out.push({ template, to: ctx.playerEmail, subject: `${subject} - ${ctx.clubName}`, text, html, key, ...(qr ? { qr } : {}) });
   };
   const toAdmins = (template: string, subject: string, heading: string, lines: string[]) => {
-    const { text, html } = layout(ctx, heading, lines, { label: "Open the approval queue", url: queue });
+    const { text, html } = layout(ctx, heading, lines, { label: "Approval Queue", url: queue });
     for (const to of new Set(ctx.adminEmails)) out.push({ template, to, subject, text, html, key });
   };
 
@@ -101,7 +105,7 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
       [`${ctx.playerName} requested a court.`, ...details(ctx)]);
   } else if (status === "approved") {
     toPlayer("booking_approved", `Booking confirmed - ${b.reference_code}`, "Your booking is confirmed",
-      ["Your booking is approved. Keep this email: the QR code below is your ticket.", ...details(ctx)], { label: "View my bookings", url: myBookings }, b.reference_code);
+      ["Your booking is approved. Keep this email: the QR code below is your ticket.", ...details(ctx)], { label: ctx.guestBookingUrl ? "View Booking" : "View My Bookings", url: myBookings }, b.reference_code);
     // bookings the club created itself (walk-in or for a player) do not need an alert to the club
     if (isInsert && (b.source ?? "online") === "online") {
       toAdmins("booking_request", `New booking - ${b.reference_code}`, "New booking (auto-approved)",
@@ -109,19 +113,26 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
     }
   } else if (status === "rejected") {
     toPlayer("booking_rejected", `Booking not approved - ${b.reference_code}`, "Your booking was not approved",
-      [`Reason: ${b.reject_reason || "not given"}`, ...details(ctx)], ctx.guestBookingUrl ? { label: "View booking", url: ctx.guestBookingUrl } : { label: "Book another time", url: ctx.siteUrl });
+      [`Reason: ${b.reject_reason || "not given"}`, ...details(ctx)], ctx.guestBookingUrl ? { label: "View Booking", url: ctx.guestBookingUrl } : { label: "Book Another Time", url: ctx.siteUrl });
   } else if (status === "cancelled") {
     toPlayer("booking_cancelled", `Booking cancelled - ${b.reference_code}`, "Your booking was cancelled",
-      [...(b.cancel_reason ? [`Reason: ${b.cancel_reason}`] : []), ...details(ctx)], { label: "View my bookings", url: myBookings });
+      [...(b.cancel_reason ? [`Reason: ${b.cancel_reason}`] : []), ...details(ctx)], { label: ctx.guestBookingUrl ? "View Booking" : "View My Bookings", url: myBookings });
     if (b.cancelled_by && b.cancelled_by === ctx.playerUserId) {
       toAdmins("booking_cancelled_admin", `Booking cancelled by player - ${b.reference_code}`, "A player cancelled",
         [`${ctx.playerName} cancelled their booking.`, ...details(ctx)]);
     }
   } else if (status === "expired") {
     toPlayer("booking_expired", `Booking expired - ${b.reference_code}`, "Your booking expired",
-      ["We did not receive payment in time, so the slot was released.", ...details(ctx)], ctx.guestBookingUrl ? { label: "View booking", url: ctx.guestBookingUrl } : { label: "Book again", url: ctx.siteUrl });
+      ["We did not receive payment in time, so the slot was released.", ...details(ctx)], ctx.guestBookingUrl ? { label: "View Booking", url: ctx.guestBookingUrl } : { label: "Book Again", url: ctx.siteUrl });
   }
   return out;
+}
+
+export function guestRecoveryEmail(links: { ref: string; url: string; club: string }[]): { text: string; html: string } {
+  const text = "Your guest booking links:\n\n" + links.map((link) => link.club + " - " + link.ref + ": " + link.url).join("\n") + "\n\nIf you did not request these links, you may ignore this email.";
+  const cards = links.map((link) => `<tr><td style="padding:14px 16px;border:1px solid #e1e9df;border-radius:10px;background:#f5f8f4"><p style="margin:0 0 5px;font-size:15px;font-weight:700;color:#172820">${escHtml(link.club)}</p><p style="margin:0 0 12px;font-size:13px;color:#65776e">Booking code: <strong>${escHtml(link.ref)}</strong></p><a href="${escHtml(link.url)}" style="display:inline-block;padding:10px 16px;border-radius:8px;background:#a3e635;color:#1e310b;font-size:14px;font-weight:700;text-decoration:none">View Booking</a></td></tr><tr><td height="10"></td></tr>`).join("");
+  const html = `<!doctype html><html><body style="margin:0;background:#f3f5f2;font-family:Arial,Helvetica,sans-serif;color:#1c2930"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border:1px solid #dfe6df;border-radius:16px"><tr><td style="padding:22px 28px;border-bottom:3px solid #a3e635;font-size:16px;font-weight:700;color:#172820">DINKSLOT</td></tr><tr><td style="padding:28px"><h1 style="margin:0 0 14px;font-size:24px;line-height:1.25;color:#172820">Your Guest Bookings</h1><p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#42535b">Use a secure link below to view your booking details and status.</p><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${cards}</table><p style="margin:12px 0 0;font-size:13px;line-height:1.5;color:#65776e">If you did not request these links, you may ignore this email.</p></td></tr><tr><td style="padding:18px 28px;border-top:1px solid #e8eee8;font-size:12px;color:#708078">DINKSLOT &middot; Book Your Slot. Own the Court.</td></tr></table></td></tr></table></body></html>`;
+  return { text, html };
 }
 
 // ------------------------------------------------------------------ MIME

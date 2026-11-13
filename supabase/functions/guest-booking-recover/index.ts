@@ -1,7 +1,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { issueGuestBookingToken } from "../_shared/guest-access.ts";
 import { getMailer } from "../_shared/gmail-mailer.ts";
-import { escHtml } from "../send-booking-email/lib.ts";
+import { guestRecoveryEmail } from "../send-booking-email/lib.ts";
 const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, apikey, content-type, x-client-info","Access-Control-Allow-Methods":"POST, OPTIONS","Cache-Control":"no-store"};
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...cors,"Content-Type":"application/json"}});
 const generic={ok:true,message:"If there are eligible guest bookings, a link will be sent to that email."};
@@ -37,8 +37,7 @@ Deno.serve(async(req)=>{
       const token=await issueGuestBookingToken(db,booking.id,expiry);
       links.push({ref:booking.reference_code,club:tenantNames.get(booking.tenant_id) || "Club",url:site.replace(/\/?$/, "/")+"#/guest/booking?token="+encodeURIComponent(token)});
     }
-    const text="Your guest booking links:\n\n"+links.map((link)=>link.club+" - "+link.ref+": "+link.url).join("\n")+"\n\nIf you did not request these links, you may ignore this email.";
-    const html='<p>Your guest booking links:</p><ul>'+links.map((link)=>'<li>'+escHtml(link.club)+' - '+escHtml(link.ref)+': <a href="'+escHtml(link.url)+'">View booking</a></li>').join('')+'</ul><p>If you did not request these links, you may ignore this email.</p>';
+    const {text,html}=guestRecoveryEmail(links);
     await mailer.send({fromName:"DINKSLOT",fromEmail:mailer.fromEmail,to:email,subject:"Your DINKSLOT guest booking links",text,html});
   } catch { console.error("Guest booking recovery unavailable"); }
   return json(generic);
