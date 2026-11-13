@@ -2126,11 +2126,15 @@
     finally { delete pendingViewModules[name]; }
   }
 
-  function syncBootRouteClass(path, mode) {
+  function syncBootRouteClass(path, mode, checkout) {
     var cl = document.documentElement.classList;
-    cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club", "boot-public-club");
+    cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club", "boot-public-club", "boot-book-court", "boot-guest-recover", "boot-guest-bookings", "boot-guest-booking", "boot-guest-checkout");
     if (/^\/(admin|platform|me)(\/|\?|$)/.test(path)) cl.add("boot-dashboard");
-    else if (/^\/c\/[a-z0-9-]+(\/(join|book))?$/.test(path)) cl.add("boot-public-club");
+    else if (/^\/c\/[a-z0-9-]+\/book$/.test(path)) cl.add("boot-book-court");
+    else if (/^\/c\/[a-z0-9-]+(\/join)?$/.test(path)) cl.add("boot-public-club");
+    else if (path === "/guest/recover") cl.add("boot-guest-recover");
+    else if (path === "/guest/bookings") cl.add("boot-guest-bookings");
+    else if (path === "/guest/booking") cl.add(checkout === "1" ? "boot-guest-checkout" : "boot-guest-booking");
     else if (path === "/register-club" || path === "/club-setup") cl.add("boot-club");
     else if (path === "/auth") cl.add(mode === "up" ? "boot-signup" : "boot-signin");
     else cl.add("boot-home");
@@ -2140,7 +2144,7 @@
     var raw = (location.hash || "#/").slice(1) || "/";
     var qs = raw.indexOf("?"), path = qs === -1 ? raw : raw.slice(0, qs);
     var q = new URLSearchParams(qs === -1 ? "" : raw.slice(qs + 1));
-    syncBootRouteClass(path, q.get("mode"));
+    syncBootRouteClass(path, q.get("mode"), q.get("checkout"));
     var m;
     // Restore the current cross-tab session before rendering public account forms.
     if (path === "/auth" || path === "/register-club" || path === "/club-setup") {

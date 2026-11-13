@@ -219,11 +219,16 @@
     (function () {
       var h = location.hash || "", raw = h.slice(1), qs = raw.indexOf("?");
       var path = (qs === -1 ? raw : raw.slice(0, qs)) || "/";
-      var mode = new URLSearchParams(qs === -1 ? "" : raw.slice(qs + 1)).get("mode");
+      var q = new URLSearchParams(qs === -1 ? "" : raw.slice(qs + 1));
+      var mode = q.get("mode"), checkout = q.get("checkout");
       var cl = document.documentElement.classList;
-      cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club", "boot-public-club");
+      cl.remove("boot-dashboard", "boot-home", "boot-signin", "boot-signup", "boot-club", "boot-public-club", "boot-book-court", "boot-guest-recover", "boot-guest-bookings", "boot-guest-booking", "boot-guest-checkout");
       if (/^\/(admin|platform|me)(\/|\?|$)/.test(path)) cl.add("boot-dashboard");
-      else if (/^\/c\/[a-z0-9-]+(\/(join|book))?$/.test(path)) cl.add("boot-public-club");
+      else if (/^\/c\/[a-z0-9-]+\/book$/.test(path)) cl.add("boot-book-court");
+      else if (/^\/c\/[a-z0-9-]+(\/join)?$/.test(path)) cl.add("boot-public-club");
+      else if (path === "/guest/recover") cl.add("boot-guest-recover");
+      else if (path === "/guest/bookings") cl.add("boot-guest-bookings");
+      else if (path === "/guest/booking") cl.add(checkout === "1" ? "boot-guest-checkout" : "boot-guest-booking");
       else if (path === "/register-club" || path === "/club-setup") cl.add("boot-club");
       else if (path === "/auth") cl.add(mode === "up" ? "boot-signup" : "boot-signin");
       else cl.add("boot-home");
@@ -236,10 +241,15 @@
     html.boot-signup body.app-booting #app-startup .signup-skeleton { display: block; }
     html.boot-club body.app-booting #app-startup .club-skeleton { display: block; }
     html.boot-public-club body.app-booting #app-startup .public-club-skeleton { display: block; }
+    html.boot-book-court body.app-booting #app-startup .book-court-skeleton { display: block; }
+    html.boot-guest-recover body.app-booting #app-startup .guest-recover-skeleton { display: block; }
+    html.boot-guest-bookings body.app-booting #app-startup .guest-bookings-skeleton { display: block; }
+    html.boot-guest-booking body.app-booting #app-startup .guest-booking-skeleton { display: block; }
+    html.boot-guest-checkout body.app-booting #app-startup .guest-checkout-skeleton { display: block; }
     html.boot-dashboard body.app-booting #app-startup .boot-skeleton { display: flex; }
-    html:not(.boot-dashboard):not(.boot-signin):not(.boot-signup):not(.boot-club):not(.boot-public-club) body.app-booting #app-startup .home-skeleton { display: block; }
+    html:not(.boot-dashboard):not(.boot-signin):not(.boot-signup):not(.boot-club):not(.boot-public-club):not(.boot-book-court):not(.boot-guest-recover):not(.boot-guest-bookings):not(.boot-guest-booking):not(.boot-guest-checkout) body.app-booting #app-startup .home-skeleton { display: block; }
 
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) {
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .book-court-skeleton, .guest-recover-skeleton, .guest-bookings-skeleton, .guest-booking-skeleton, .guest-checkout-skeleton, .boot-skeleton) {
       box-sizing: border-box;
       min-height: 100dvh;
       text-align: left;
@@ -247,13 +257,13 @@
       color: transparent;
       overflow-x: hidden;
     }
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) *,
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) *::before,
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) *::after {
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .book-court-skeleton, .guest-recover-skeleton, .guest-bookings-skeleton, .guest-booking-skeleton, .guest-checkout-skeleton, .boot-skeleton) *,
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .book-court-skeleton, .guest-recover-skeleton, .guest-bookings-skeleton, .guest-booking-skeleton, .guest-checkout-skeleton, .boot-skeleton) *::before,
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .book-court-skeleton, .guest-recover-skeleton, .guest-bookings-skeleton, .guest-booking-skeleton, .guest-checkout-skeleton, .boot-skeleton) *::after {
       box-sizing: border-box;
     }
 
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) :is(i, b) {
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .book-court-skeleton, .guest-recover-skeleton, .guest-bookings-skeleton, .guest-booking-skeleton, .guest-checkout-skeleton, .boot-skeleton) :is(i, b) {
       display: block;
       position: relative;
       overflow: hidden;
@@ -264,7 +274,7 @@
       font-weight: normal;
     }
 
-    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) :is(i, b)::after {
+    :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .book-court-skeleton, .guest-recover-skeleton, .guest-bookings-skeleton, .guest-booking-skeleton, .guest-checkout-skeleton, .boot-skeleton) :is(i, b)::after {
       content: '';
       position: absolute;
       inset: 0;
@@ -278,7 +288,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .boot-skeleton) :is(i, b)::after {
+      :is(.home-skeleton, .signin-skeleton, .signup-skeleton, .club-skeleton, .public-club-skeleton, .book-court-skeleton, .guest-recover-skeleton, .guest-bookings-skeleton, .guest-booking-skeleton, .guest-checkout-skeleton, .boot-skeleton) :is(i, b)::after {
         animation: none;
         display: none;
       }
@@ -1122,6 +1132,175 @@
       .skel-pub-facts { grid-template-columns: repeat(4, 1fr); }
       .skel-pub-courts-grid { grid-template-columns: repeat(3, 1fr); }
     }
+
+    /* Guest Pages & Book Court Skeletons */
+    .skel-guest-wrap {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .skel-guest-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skel-guest-header i:nth-child(1) { width: 112px; height: 12px; border-radius: 4px; }
+    .skel-guest-header i:nth-child(2) { width: 220px; max-width: 75%; height: 30px; border-radius: 10px; }
+    .skel-guest-header i:nth-child(3) { width: 340px; max-width: 92%; height: 14px; border-radius: 6px; }
+    .skel-guest-panel {
+      padding: 20px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    /* Guest Recover */
+    .skel-guest-recover-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .skel-guest-recover-box {
+      padding: 20px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .skel-guest-recover-intro { display: flex; align-items: flex-start; gap: 12px; }
+    .skel-guest-recover-intro i { width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0; }
+    .skel-guest-recover-intro > div { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .skel-guest-recover-intro > div i:first-child { width: 180px; height: 20px; border-radius: 8px; }
+    .skel-guest-recover-intro > div i:last-child { width: 92%; height: 28px; border-radius: 6px; }
+    .skel-guest-recover-steps { display: flex; flex-direction: column; gap: 16px; margin: 6px 0; }
+    .skel-guest-recover-step { display: flex; align-items: flex-start; gap: 10px; }
+    .skel-guest-recover-step i { width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0; }
+    .skel-guest-recover-step > div { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .skel-guest-recover-step > div i:first-child { width: 140px; height: 14px; border-radius: 5px; }
+    .skel-guest-recover-step > div i:last-child { width: 90%; height: 26px; border-radius: 6px; }
+    /* Guest Bookings */
+    .skel-guest-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .skel-guest-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      flex: 1;
+      padding: 5px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .skel-guest-tabs i { height: 34px; border-radius: 8px; }
+    .skel-guest-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .skel-guest-card {
+      padding: 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .skel-guest-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .skel-guest-card-top i:first-child { width: 108px; height: 24px; border-radius: 8px; }
+    .skel-guest-card-top i:last-child { width: 88px; height: 14px; border-radius: 4px; }
+    .skel-guest-card-club { display: flex; align-items: center; gap: 10px; }
+    .skel-guest-card-club i:first-child { width: 40px; height: 40px; border-radius: 9px; flex-shrink: 0; }
+    .skel-guest-card-club i:last-child { width: 65%; height: 18px; border-radius: 6px; }
+    .skel-guest-card-facts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 14px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .skel-guest-card-facts > div { display: flex; flex-direction: column; gap: 6px; }
+    .skel-guest-card-facts > div i:first-child { width: 48px; height: 10px; border-radius: 4px; }
+    .skel-guest-card-facts > div i:last-child { width: 85%; height: 14px; border-radius: 5px; }
+    /* Guest Booking Status */
+    .skel-guest-status-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .skel-guest-status-logo { width: 56px; height: 56px; border-radius: 12px; flex-shrink: 0; }
+    .skel-guest-status-meta { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .skel-guest-status-meta > i:first-child { width: 118px; height: 11px; border-radius: 4px; }
+    .skel-guest-status-title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .skel-guest-status-title i:first-child { width: 200px; max-width: 70%; height: 26px; border-radius: 8px; }
+    .skel-guest-status-title i:last-child { width: 110px; height: 24px; border-radius: 8px; }
+    .skel-guest-details-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .skel-guest-detail-item {
+      padding: 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .skel-guest-detail-item > i { width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0; }
+    .skel-guest-detail-item > div { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .skel-guest-detail-item > div i:first-child { width: 64px; height: 11px; border-radius: 4px; }
+    .skel-guest-detail-item > div i:last-child { width: 82%; height: 15px; border-radius: 5px; }
+    /* Guest Checkout & Book Court */
+    .skel-guest-two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .skel-guest-two-col-main { display: flex; flex-direction: column; gap: 18px; }
+    .skel-guest-slots-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .skel-guest-slots-grid b { height: 42px; border-radius: 10px; }
+    @media (min-width: 421px) {
+      .skel-guest-details-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 640px) {
+      .skel-guest-wrap { padding: 28px 24px 72px; }
+      .skel-guest-tabs { display: flex; flex: 0 0 auto; }
+      .skel-guest-tabs i { width: 92px; }
+      .skel-guest-cards { grid-template-columns: repeat(2, 1fr); }
+      .skel-guest-status-logo { width: 64px; height: 64px; }
+      .skel-guest-slots-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (min-width: 768px) {
+      .skel-guest-recover-grid { grid-template-columns: repeat(2, 1fr); }
+      .skel-guest-details-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .skel-guest-wrap { padding: 32px 32px 72px; }
+      .skel-guest-cards { grid-template-columns: repeat(3, 1fr); }
+      .skel-guest-two-col { grid-template-columns: minmax(0, 1fr) 360px; }
+    }
   </style>
   <style id="startup-critical">
     body.app-booting > :is(header,main,footer) { visibility:hidden; }
@@ -1381,7 +1560,188 @@
       </div>
     </div>
 
-    <!-- 6. DASHBOARD SKELETON (displayed on admin / platform / me routes) -->
+    <!-- 6. BOOK A COURT SKELETON (/c/<slug>/book) -->
+    <div class="book-court-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-links"><i></i><i></i><i></i></div>
+        <div class="skel-actions"><i class="skel-act-sec"></i><b class="skel-btn-pill"></b></div>
+      </header>
+      <div class="skel-guest-wrap">
+        <div class="skel-guest-header"><i></i><i></i><i></i></div>
+        <div class="skel-guest-two-col">
+          <div class="skel-guest-two-col-main">
+            <div class="skel-guest-panel">
+              <i style="width:160px;height:20px;border-radius:6px;"></i>
+              <div class="skel-pub-courts-grid" style="grid-template-columns:repeat(3,1fr);">
+                <b style="height:82px;border-radius:12px;"></b><b style="height:82px;border-radius:12px;"></b><b style="height:82px;border-radius:12px;"></b>
+              </div>
+            </div>
+            <div class="skel-guest-panel">
+              <i style="width:180px;height:20px;border-radius:6px;"></i>
+              <b style="height:44px;border-radius:10px;"></b>
+              <div class="skel-guest-slots-grid">
+                <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+              </div>
+            </div>
+          </div>
+          <div class="skel-guest-panel">
+            <i style="width:150px;height:20px;border-radius:6px;"></i>
+            <b style="height:64px;border-radius:12px;"></b>
+            <i style="width:85%;height:14px;border-radius:5px;"></i>
+            <i style="width:70%;height:14px;border-radius:5px;"></i>
+            <b style="height:48px;border-radius:12px;margin-top:8px;"></b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. GUEST RECOVER SKELETON (/guest/recover) -->
+    <div class="guest-recover-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-links"><i></i><i></i><i></i></div>
+        <div class="skel-actions"><i class="skel-act-sec"></i><b class="skel-btn-pill"></b></div>
+      </header>
+      <div class="skel-guest-wrap">
+        <div class="skel-guest-header"><i></i><i></i><i></i></div>
+        <div class="skel-guest-panel">
+          <div class="skel-guest-recover-grid">
+            <div class="skel-guest-recover-box">
+              <div class="skel-guest-recover-intro"><i></i><div><i></i><i></i></div></div>
+              <i style="width:140px;height:12px;border-radius:4px;margin-top:4px;"></i>
+              <b style="height:46px;border-radius:9px;"></b>
+              <b style="height:66px;border-radius:9px;"></b>
+              <b style="height:44px;border-radius:9px;margin-top:auto;"></b>
+            </div>
+            <div class="skel-guest-recover-box">
+              <i style="width:100px;height:12px;border-radius:4px;"></i>
+              <div class="skel-guest-recover-steps">
+                <div class="skel-guest-recover-step"><i></i><div><i></i><i></i></div></div>
+                <div class="skel-guest-recover-step"><i></i><div><i></i><i></i></div></div>
+                <div class="skel-guest-recover-step"><i></i><div><i></i><i></i></div></div>
+              </div>
+              <i style="width:90%;height:14px;border-radius:5px;margin-top:auto;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. GUEST BOOKINGS COLLECTION SKELETON (/guest/bookings) -->
+    <div class="guest-bookings-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-links"><i></i><i></i><i></i></div>
+        <div class="skel-actions"><i class="skel-act-sec"></i><b class="skel-btn-pill"></b></div>
+      </header>
+      <div class="skel-guest-wrap">
+        <div class="skel-guest-header"><i></i><i></i><i></i></div>
+        <div class="skel-guest-toolbar">
+          <div class="skel-guest-tabs"><i></i><i></i><i></i><i></i></div>
+          <i style="width:96px;height:38px;border-radius:8px;"></i>
+        </div>
+        <i style="width:160px;height:14px;border-radius:4px;"></i>
+        <div class="skel-guest-cards">
+          <div class="skel-guest-card">
+            <div class="skel-guest-card-top"><i></i><i></i></div>
+            <div class="skel-guest-card-club"><i></i><i></i></div>
+            <div style="display:flex;gap:8px;"><i style="width:86px;height:24px;border-radius:7px;"></i><i style="width:74px;height:24px;border-radius:7px;"></i></div>
+            <i style="width:82%;height:14px;border-radius:4px;"></i>
+            <div class="skel-guest-card-facts"><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div></div>
+            <b style="height:38px;border-radius:8px;margin-top:auto;"></b>
+          </div>
+          <div class="skel-guest-card">
+            <div class="skel-guest-card-top"><i></i><i></i></div>
+            <div class="skel-guest-card-club"><i></i><i></i></div>
+            <div style="display:flex;gap:8px;"><i style="width:86px;height:24px;border-radius:7px;"></i><i style="width:74px;height:24px;border-radius:7px;"></i></div>
+            <i style="width:75%;height:14px;border-radius:4px;"></i>
+            <div class="skel-guest-card-facts"><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div></div>
+            <b style="height:38px;border-radius:8px;margin-top:auto;"></b>
+          </div>
+          <div class="skel-guest-card">
+            <div class="skel-guest-card-top"><i></i><i></i></div>
+            <div class="skel-guest-card-club"><i></i><i></i></div>
+            <div style="display:flex;gap:8px;"><i style="width:86px;height:24px;border-radius:7px;"></i><i style="width:74px;height:24px;border-radius:7px;"></i></div>
+            <i style="width:88%;height:14px;border-radius:4px;"></i>
+            <div class="skel-guest-card-facts"><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div><div><i></i><i></i></div></div>
+            <b style="height:38px;border-radius:8px;margin-top:auto;"></b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. GUEST BOOKING STATUS SKELETON (/guest/booking) -->
+    <div class="guest-booking-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-links"><i></i><i></i><i></i></div>
+        <div class="skel-actions"><i class="skel-act-sec"></i><b class="skel-btn-pill"></b></div>
+      </header>
+      <div class="skel-guest-wrap">
+        <div class="skel-guest-header"><i></i><i></i><i></i></div>
+        <div class="skel-guest-panel">
+          <div class="skel-guest-status-head">
+            <i class="skel-guest-status-logo"></i>
+            <div class="skel-guest-status-meta">
+              <i></i>
+              <div class="skel-guest-status-title"><i></i><i></i></div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;"><i style="width:92px;height:24px;border-radius:7px;"></i><i style="width:80px;height:24px;border-radius:7px;"></i></div>
+            </div>
+          </div>
+          <div class="skel-guest-details-grid">
+            <div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>
+            <div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>
+            <div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>
+            <div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>
+            <div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>
+            <div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>
+            <div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>
+            <div class="skel-guest-detail-item"><i></i><div><i></i><i></i></div></div>
+          </div>
+          <b style="height:44px;border-radius:9px;"></b>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;"><b style="width:190px;height:42px;border-radius:9px;"></b><b style="width:170px;height:42px;border-radius:9px;"></b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. GUEST CHECKOUT SKELETON (/guest/booking?checkout=1) -->
+    <div class="guest-checkout-skeleton" aria-hidden="true">
+      <header class="skel-nav">
+        <div class="skel-brand"><i class="skel-logo"></i><i class="skel-name"></i></div>
+        <div class="skel-links"><i></i><i></i><i></i></div>
+        <div class="skel-actions"><i class="skel-act-sec"></i><b class="skel-btn-pill"></b></div>
+      </header>
+      <div class="skel-guest-wrap">
+        <div class="skel-guest-header"><i></i><i></i><i></i></div>
+        <div class="skel-guest-two-col">
+          <div class="skel-guest-two-col-main">
+            <div class="skel-guest-panel">
+              <i style="width:180px;height:20px;border-radius:6px;"></i>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"><b style="height:40px;border-radius:10px;"></b><b style="height:40px;border-radius:10px;"></b><b style="height:40px;border-radius:10px;"></b></div>
+            </div>
+            <div class="skel-guest-panel">
+              <i style="width:160px;height:20px;border-radius:6px;"></i>
+              <b style="height:170px;border-radius:12px;"></b>
+            </div>
+            <div class="skel-guest-panel">
+              <i style="width:160px;height:20px;border-radius:6px;"></i>
+              <b style="height:110px;border-radius:12px;"></b>
+              <b style="height:46px;border-radius:12px;"></b>
+            </div>
+          </div>
+          <div class="skel-guest-panel">
+            <i style="width:140px;height:20px;border-radius:6px;"></i>
+            <b style="height:56px;border-radius:10px;"></b>
+            <i style="width:85%;height:14px;border-radius:5px;"></i>
+            <i style="width:70%;height:14px;border-radius:5px;"></i>
+            <b style="height:42px;border-radius:10px;margin-top:8px;"></b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. DASHBOARD SKELETON (displayed on admin / platform / me routes) -->
     <div class="boot-skeleton" aria-hidden="true"><aside><i></i><b></b><b></b><b></b><b></b><b></b></aside><div class="boot-skeleton-page"><header><i></i><b></b></header><main><i class="boot-title"></i><i class="boot-subtitle"></i><div class="boot-metrics"><b></b><b></b><b></b><b></b></div><div class="boot-panels"><b></b><b></b></div><b class="boot-table"></b></main></div></div>
   </div>
   <header class="site-header fixed top-0 w-full z-50">
@@ -1472,7 +1832,7 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <script src="js/config.js?v=3"></script>
   <script src="js/landing.js?v=441"></script>
-  <script src="js/app.js?v=493"></script>
+  <script src="js/app.js?v=494"></script>
   <script src="js/ui.js?v=462"></script>
   <script src="js/profile-controls.js?v=392"></script>
   <script src="js/notify.js?v=430"></script>
