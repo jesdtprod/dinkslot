@@ -2878,13 +2878,18 @@
       root.innerHTML = '<section class="panel"><h1>Booking link unavailable</h1><p>This link is invalid or has expired.</p><a class="btn" href="#/guest/recover">Request a new link</a></section>';
       return;
     }
-    root.innerHTML = '<section class="panel"><p>Loading your reservation...</p></section>';
+    root.innerHTML = '<div id="ds-book-page" class="book-public"><main>' + (checkout ? paymentSkeleton() : bookingPassSkeleton()) + '</main></div>';
     var response = await sb.functions.invoke("guest-booking-status", { body: { token: token } });
     if (response.error || !response.data || !response.data.booking) {
       root.innerHTML = '<section class="panel"><h1>Unable to load booking</h1><p>The link may have expired or the service may be unavailable. Please try again or contact the club.</p><a class="btn" href="#/guest/recover">Request a new link</a></section>';
       return;
     }
     var b = response.data.booking, club = response.data.club || {}, court = response.data.court || {};
+    if (checkout && b.status === "pending" && !b.proof_submitted && b.expires_at && new Date(b.expires_at).getTime() > Date.now() && new Date(b.starts_at).getTime() > Date.now()) {
+      root.innerHTML = '<div id="ds-book-page" class="book-public"><main><div id="guest-checkout"></div></main></div>';
+      await payPanel(root.querySelector("#guest-checkout"), b, { guestToken:token, club:club, court:court, onBack:function () { guestBookingStatus(token); } });
+      return;
+    }
     var statusText = { pending:"Pending approval", approved:"Confirmed", rejected:"Rejected", cancelled:"Cancelled", expired:"Expired" }[b.status] || "Unavailable";
     var tz = club.timezone || "Asia/Manila";
     var schedule = new Intl.DateTimeFormat("en-PH", { timeZone:tz, dateStyle:"medium", timeStyle:"short" }).format(new Date(b.starts_at));
@@ -2909,7 +2914,6 @@
           await guestBookingStatus(token);
         } catch (_) { release.disabled = false; D.ui.toast("Unable to release this slot. Please refresh or contact the club.", "err"); }
       };
-      if (checkout) pay.onclick();
     }
     if (b.status === "approved" && b.gate_pass_available && b.reference_code) {
       var panel = root.querySelector(".guest-booking-status");
