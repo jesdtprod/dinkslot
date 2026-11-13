@@ -823,40 +823,40 @@ html body #app #ds-auth-screen.signup-screen .signup-card { border-radius:24px !
 .account-editor .account-photo-input { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
 
 /* Checkout configuration: payment and review controls. */
-#app #ds-tenant-dashboard #sec .checkout-settings { gap:24px; padding:24px; border:1px solid #91a5b22b; border-radius:14px; background:linear-gradient(135deg,#1b2228,#171d22); font-family:"Plus Jakarta Sans",sans-serif; }
+#app #ds-tenant-dashboard #sec .checkout-settings { gap:18px; padding:20px; border:1px solid #91a5b22b; border-radius:14px; background:linear-gradient(135deg,#1b2228,#171d22); font-family:"Plus Jakarta Sans",sans-serif; }
 .checkout-settings-heading { display:flex; align-items:center; gap:14px; }
 .checkout-step { display:grid; place-items:center; flex:0 0 42px; height:42px; border:1px solid #a3e63530; border-radius:12px; background:#a3e6350b; color:#a3e635; font:600 14px/20px "JetBrains Mono",monospace; }
 #app #ds-tenant-dashboard #sec .checkout-settings-heading h2 { margin:0; color:#f1f5f2; font:650 20px/28px "Plus Jakarta Sans",sans-serif; letter-spacing:-.025em; }
 #app #ds-tenant-dashboard #sec .checkout-settings-heading p { margin:3px 0 0; color:#91a5b2; font-size:12px; line-height:20px; }
 .checkout-settings-tag { margin-left:auto; flex-shrink:0; padding:5px 9px; border:1px solid #91a5b223; border-radius:6px; color:#91a5b2; font:500 10px/16px "JetBrains Mono",monospace; }
-.checkout-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
-#app #ds-tenant-dashboard #sec .checkout-option { position:relative; display:flex; align-items:flex-start; gap:14px; box-sizing:border-box; min-width:0; margin:0; padding:20px; border:1px solid #91a5b22b; border-radius:12px; background:#202a3044; transition:border-color .18s,background .18s; }
+.checkout-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+#app #ds-tenant-dashboard #sec .checkout-option { position:relative; display:flex; align-items:flex-start; gap:14px; box-sizing:border-box; min-width:0; margin:0; padding:14px 16px; border:1px solid #91a5b22b; border-radius:10px; background:#202a3044; transition:border-color .18s,background .18s; }
 #app #ds-tenant-dashboard #sec .checkout-option:has(input:checked) { border-color:#a3e63540; background:#a3e63505; }
 #app #ds-tenant-dashboard #sec .checkout-option:hover { border-color:#91a5b260; }
 .checkout-option-icon { flex:0 0 22px; margin-top:1px; color:#91a5b2; font-size:22px; }
 .checkout-option:has(input:checked) .checkout-option-icon { color:#a3e635; }
 .checkout-option-copy { flex:1; min-width:0; }
-#app #ds-tenant-dashboard #sec .checkout-option b { display:block; color:#e2eae5; font:600 13px/21px "Plus Jakarta Sans",sans-serif; }
-#app #ds-tenant-dashboard #sec .checkout-option small { display:block; margin-top:8px; color:#91a5b2; font:400 12px/20px "Plus Jakarta Sans",sans-serif; }
-.checkout-recommended { display:inline-block; margin-top:5px; padding:1px 6px; border-radius:4px; background:#a3e63510; color:#a3e635; font-size:9px; line-height:16px; }
+#app #ds-tenant-dashboard #sec .checkout-option b { display:inline; color:#e2eae5; font:600 13px/21px "Plus Jakarta Sans",sans-serif; }
+#app #ds-tenant-dashboard #sec .checkout-option small { display:block; margin-top:5px; color:#91a5b2; font:400 12px/20px "Plus Jakarta Sans",sans-serif; }
+.checkout-recommended { display:inline-block; margin:0 0 0 8px; vertical-align:middle; padding:1px 6px; border-radius:4px; background:#a3e63510; color:#a3e635; font-size:9px; line-height:16px; }
 #app #ds-tenant-dashboard #sec .checkout-option input { position:absolute; width:1px; height:1px; margin:0; opacity:0; }
 .checkout-switch { position:relative; display:block; flex:0 0 36px; height:21px; margin-top:1px; border:1px solid #52616b; border-radius:20px; background:#35434b; transition:background .18s; }
 .checkout-switch::after { content:""; position:absolute; top:3px; left:3px; width:13px; height:13px; border-radius:50%; background:#c8d6df; transition:transform .18s; }
 .checkout-option input:checked + .checkout-switch { border-color:#a3e635; background:#a3e635; }
 .checkout-option input:checked + .checkout-switch::after { transform:translateX(15px); background:#182200; }
 .checkout-option input:focus-visible + .checkout-switch { outline:2px solid #a3e635; outline-offset:4px; }
-.checkout-instructions { border-top:1px solid #91a5b21c; padding-top:22px; }
-.checkout-instructions-heading { display:flex; align-items:flex-start; gap:10px; margin-bottom:14px; }
+.checkout-instructions { border-top:1px solid #91a5b21c; padding-top:16px; }
+.checkout-instructions-heading { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
 .checkout-instructions-heading > .material-symbols-outlined { margin-top:1px; color:#91a5b2; font-size:20px; }
 #app #ds-tenant-dashboard #sec .checkout-instructions-heading label { color:#e2eae5; font:600 13px/20px "Plus Jakarta Sans",sans-serif; }
 #app #ds-tenant-dashboard #sec .checkout-instructions-heading p { margin:4px 0 0; color:#91a5b2; font:400 12px/20px "Plus Jakarta Sans",sans-serif; }
-#app #ds-tenant-dashboard #sec .checkout-instructions textarea { display:block; box-sizing:border-box; width:100%; min-height:180px; margin:0; padding:16px 18px; border:1px solid #91a5b22b; border-radius:10px; background:#202a30; color:#dce6df; font:400 13px/23px "Plus Jakarta Sans",sans-serif; resize:vertical; }
+#app #ds-tenant-dashboard #sec .checkout-instructions textarea { display:block; box-sizing:border-box; width:100%; min-height:154px; margin:0; padding:12px 14px; border:1px solid #91a5b22b; border-radius:10px; background:#202a30; color:#dce6df; font:400 13px/21px "Segoe UI",Arial,sans-serif; letter-spacing:normal; text-transform:none; resize:vertical; }
 #app #ds-tenant-dashboard #sec .checkout-instructions textarea:focus { outline:2px solid #a3e63570; outline-offset:2px; border-color:#a3e635; }
 .checkout-instructions textarea::placeholder { color:#718591; }
-.checkout-instructions-note { display:flex; align-items:center; gap:6px; margin-top:10px; color:#8297a5; font-size:10px; line-height:18px; }
+.checkout-instructions-note { display:flex; align-items:center; gap:6px; margin-top:7px; color:#8297a5; font-size:10px; line-height:18px; }
 .checkout-instructions-note .material-symbols-outlined { font-size:15px; }
 @media(max-width:900px) { .checkout-options { grid-template-columns:minmax(0,1fr); } }
-@media(max-width:639px) { #app #ds-tenant-dashboard #sec .checkout-settings { padding:18px; gap:20px; } .checkout-settings-heading { gap:10px; flex-wrap:wrap; } .checkout-settings-tag { display:none; } .checkout-settings-heading > div { flex:1; min-width:0; } #app #ds-tenant-dashboard #sec .checkout-option { padding:16px; gap:10px; } }
+@media(max-width:639px) { #app #ds-tenant-dashboard #sec .checkout-settings { padding:16px; gap:16px; } .checkout-settings-heading { gap:10px; flex-wrap:wrap; } .checkout-settings-tag { display:none; } .checkout-settings-heading > div { flex:1; min-width:0; } #app #ds-tenant-dashboard #sec .checkout-option { padding:16px; gap:10px; } }
 @media(prefers-reduced-motion:reduce) { .checkout-option,.checkout-switch,.checkout-switch::after { transition:none !important; } }
 
 #app #ds-tenant-dashboard #sec .account-editor .account-avatar-mark { display:grid; place-items:center; padding:0; min-width:28px; min-height:28px; width:28px; height:28px; border:3px solid #1b2228; border-radius:50%; background:#a3e635; color:#142000; font-size:15px; cursor:pointer; }
