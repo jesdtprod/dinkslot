@@ -36,13 +36,10 @@ Deno.test("guest recovery presents escaped booking links", () => {
   if (!mail.text.includes("DS-123")) throw new Error("missing plain text booking");
 });
 
-Deno.test("guest recovery header shows available DINKSLOT logo and contact details", () => {
+Deno.test("guest recovery header shows the DINKSLOT tagline", () => {
   const links = [{ club: "Club", ref: "DS-123", url: "https://example.test/booking" }];
-  const html = guestRecoveryEmail(links, { logoUrl: "https://example.test/logo.png", address: "Main Street", email: "help@example.test", phone: "09123456789" }).html;
-  for (const value of ["https://example.test/logo.png", "Main Street", "help@example.test", "09123456789", "&#128205;", "&#9993;", "&#9742;"]) {
-    if (!html.includes(value)) throw new Error("missing " + value);
-  }
-  if (guestRecoveryEmail(links).html.includes('src="cid:dinkslot-logo"')) throw new Error("unexpected logo when unavailable");
+  const html = guestRecoveryEmail(links, { logoUrl: "https://example.test/logo.png", email: "help@example.test" }).html;
+  if (!html.includes("https://example.test/logo.png") || !html.includes("Book Your Slot. Own the Court.") || html.includes("help@example.test") || html.includes("&#9993;")) throw new Error("invalid recovery header");
 });
 
 Deno.test("new pending booking: player gets 'received', each admin gets 'request' once", () => {
