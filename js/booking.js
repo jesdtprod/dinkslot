@@ -2868,7 +2868,7 @@
     root.innerHTML = '<div id="ds-book-page" class="book-public guest-status-page guest-recovery-page"><main>' +
       '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>Find Your Booking</h1><p>Recover your secure booking link and check your reservation.</p></header>' +
       '<section class="guest-booking-status guest-recovery-layout"><div class="guest-recovery-entry"><div class="guest-recovery-intro"><span class="material-symbols-outlined" aria-hidden="true">mark_email_read</span><div><h2>Recover Your Booking</h2><p>Enter the email address you used when booking. We will email one secure link to all your guest bookings.</p></div></div>' +
-      '<form class="guest-recovery-form"><label for="guest-recovery-email">Booking email address<input id="guest-recovery-email" type="email" placeholder="e.g. name@example.com" autocomplete="email" maxlength="254" required></label><div class="guest-recovery-captcha"></div><p class="msg" role="status" aria-live="polite"></p><button class="btn" type="submit"><span class="material-symbols-outlined" aria-hidden="true">send</span>Send Booking Links</button></form></div>' +
+      '<form class="guest-recovery-form"><label for="guest-recovery-email">Booking Email Address<input id="guest-recovery-email" type="email" placeholder="e.g. name@example.com" autocomplete="email" maxlength="254" required></label><div class="guest-recovery-captcha"></div><p class="msg" role="status" aria-live="polite"></p><button class="btn" type="submit"><span class="material-symbols-outlined" aria-hidden="true">send</span>Send Booking Links</button></form></div>' +
       '<aside class="guest-recovery-help"><span class="guest-status-eyebrow">How It Works</span><ol><li><span>1</span><div><strong>Use your booking email</strong><p>Enter the same email address you provided for your guest reservation.</p></div></li><li><span>2</span><div><strong>Check your inbox</strong><p>Look for Your DINKSLOT Guest Booking Links. Check Spam if it does not appear.</p></div></li><li><span>3</span><div><strong>Open your booking</strong><p>See all your guest bookings, complete payment for an active hold, or access your QR pass after approval.</p></div></li></ol><p class="guest-recovery-privacy"><span class="material-symbols-outlined" aria-hidden="true">lock</span>Booking links are sent only to the email used for the reservation. No sign-in is needed.</p></aside></section></main></div>';
     if (D.mountPublicBackdrop) D.mountPublicBackdrop(root.querySelector("#ds-book-page"));
     var form=root.querySelector("form"), captchaBox=form.querySelector(".guest-recovery-captcha"), message=form.querySelector(".msg"), submit=form.querySelector("button");
@@ -2886,6 +2886,7 @@
       try {
         var result=await sb.functions.invoke("guest-booking-recover",{body:{email:form.querySelector("input").value.trim(),captcha:captcha}});
         if(result.error || !result.data || !result.data.ok) throw new Error("recovery_unavailable");
+        form.querySelector("input").value="";
         message.textContent="If there are eligible guest bookings, a secure My Bookings link will be sent to that email.";
       } catch (_) {message.textContent="Unable to send your request. Please try again.";}
       finally {captcha="";if(widget!==null && window.turnstile) window.turnstile.reset(widget);submit.disabled=false;}
