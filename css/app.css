@@ -4855,3 +4855,8 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-all-bookings:hover { background:#2c383f; border-color:#a3e63560; }
 .guest-all-bookings:focus-visible { outline:2px solid #a3e635; outline-offset:3px; }
 @media(max-width:639px) { .guest-booking-header-actions { flex-direction:column; align-items:stretch; gap:12px; } .guest-booking-header-actions p { margin-bottom:0; } .guest-all-bookings { width:100%; } }
+
+/* Browser autofill can suppress an input's background image; keep its icon above the field instead. */
+.guest-field-control { display:block; position:relative; min-width:0; width:100%; }
+.guest-field-control > .material-symbols-outlined { position:absolute; z-index:1; left:12px; top:50%; transform:translateY(-50%); color:#9aaeb9; font-size:16px; line-height:1; pointer-events:none; }
+#app .guest-field-control > input { position:relative; z-index:0; width:100%; box-sizing:border-box; padding-left:38px; }
