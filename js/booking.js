@@ -2930,8 +2930,8 @@
     var note = b.gate_pass_available ? "Your booking is confirmed. Show your QR pass at the court." : b.status === "pending" ? (b.proof_submitted ? "Your payment proof has been submitted. The club will review your reservation." : "Complete your payment and upload your receipt before your hold expires.") : (b.reject_reason || b.cancel_reason || "This reservation is no longer active.");
     root.innerHTML = '<div id="ds-book-page" class="book-public guest-status-page"><main>' +
       '<header class="guest-bookings-header"><span>Guest Workspace</span><h1>My Booking</h1><p>Manage your court reservation, payment, and booking pass.</p></header>' +
-      '<section class="guest-booking-status"><header class="guest-status-heading"><div class="guest-club-identity"><div class="guest-club-logo">' + (clubLogo ? '<img src="' + esc(clubLogo) + '" alt="' + esc(club.name || 'Club') + ' logo">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</div><div><span class="guest-status-eyebrow">Reservation Details</span><h2>' + esc(club.name || 'Club') + '</h2><p>' + esc(court.name || 'Court') + (court.surface ? ' ? ' + esc(court.surface) : '') + '</p></div></div><span class="guest-status-badge ' + tone + '">' + esc(statusText) + '</span></header>' +
-      (clubContact ? '<div class="guest-club-contact">' + clubContact + '</div>' : '') +
+      '<section class="guest-booking-status"><header class="guest-status-heading"><div class="guest-club-identity"><div class="guest-club-logo">' + (clubLogo ? '<img src="' + esc(clubLogo) + '" alt="' + esc(club.name || 'Club') + ' logo">' : '<span class="material-symbols-outlined" aria-hidden="true">sports_tennis</span>') + '</div><div><span class="guest-status-eyebrow">Reservation Details</span><h2>' + esc(club.name || 'Club') + '</h2><p>' + esc(court.name || 'Court') + (court.surface ? ' &bull; ' + esc(court.surface) : '') + '</p></div></div><span class="guest-status-badge ' + tone + '">' + esc(statusText) + '</span>' +
+      (clubContact ? '<div class="guest-club-contact">' + clubContact + '</div>' : '') + '</header>' +
       '<dl class="guest-status-details">' + [
         ['calendar_today','Date',date], ['schedule','Time',time], ['payments','Amount',money(b.amount)], ['receipt_long','Payment proof',b.proof_submitted ? 'Submitted' : 'Not submitted'], ['tag','Booking reference',b.reference_code || 'Unavailable'], ['public','Time zone',tz], ['person','Guest',b.guest_name || 'Guest'], ['timelapse','Duration',Math.round((new Date(b.ends_at)-new Date(b.starts_at))/60000) + ' minutes']
       ].map(function (field) { return '<div><span class="material-symbols-outlined" aria-hidden="true">' + field[0] + '</span><div><dt>' + field[1] + '</dt><dd>' + esc(field[2]) + '</dd></div></div>'; }).join('') + '</dl>' +
@@ -2962,7 +2962,7 @@
       var pass = document.createElement("section");
       pass.className = "guest-booking-pass";
       pass.setAttribute("aria-label", "Your booking QR pass");
-      pass.innerHTML = '<h2>Booking QR pass</h2><p>Show this pass at the court.</p><div class="guest-booking-qr"></div>';
+      pass.innerHTML = '<div class="guest-pass-copy"><span class="guest-status-eyebrow">Confirmed Booking</span><h2>Your Gate Pass</h2><p>Show this QR code to the club staff at the court.</p><strong>' + esc(b.reference_code) + '</strong></div><div class="guest-booking-qr"></div>';
       panel.appendChild(pass);
       try {
         if (typeof window.qrcode !== "function") throw new Error("qr_unavailable");
