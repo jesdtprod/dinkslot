@@ -3598,7 +3598,12 @@ body:has(#ds-book-page) > .site-footer { margin-top: 0; }
 .booking-queue:has(.booking-queue-description) > .app-empty-state { margin-top: 16px; }
 
 /* A clear customer-first layout for staff reservation review. */
-.booking-queue .booking-record-grid > .reservation-review-card { padding: 16px; border-radius: 12px; }
+.booking-queue .booking-record-grid > .reservation-review-card { box-sizing:border-box; padding:16px; border-radius:12px; }
+.reservation-review-card > .reservation-review-header { margin:0; padding:0; }
+.reservation-review-card .reservation-customer-copy { display:grid; align-content:center; gap:3px; }
+.reservation-review-card .reservation-customer-copy .reservation-customer-type { justify-self:start; margin:0; }
+.reservation-review-card .reservation-customer-copy .reservation-customer-phone { margin:0; }
+.reservation-review-card > .reservation-card-actions { margin-bottom:0; padding-bottom:0; }
 .reservation-review-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .reservation-customer { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .reservation-customer-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
