@@ -39,3 +39,5 @@ Guest booking entry remains disabled by GUEST_BOOKING_ENABLED in js/config.js un
 2026-11-13: Production read-only smoke checks verified anonymous users can retrieve booking limits without payment details; unknown guest tokens cannot retrieve booking status, release holds, or obtain payment details. Database inspection confirmed RLS and no direct anon/authenticated SELECT on guest contacts, access tokens, or attempt records. Valid-token operations, concurrency and full payment/email flows remain untested.
 
 2026-11-13: Gmail sender credentials and booking webhook Vault entries configured. The webhook authenticated successfully in a no-email smoke test, and a temporary protected OAuth probe confirmed the refresh token can obtain an access token; the probe was removed. Actual email delivery and end-to-end guest booking remain untested; guest entry remains disabled.
+
+2026-11-13: An explicitly authorized test email to the configured sender was accepted by Gmail. The first database-to-function request timed out during DNS resolution; a retry with a longer timeout succeeded. Inbox receipt and booking-triggered delivery still require confirmation.
