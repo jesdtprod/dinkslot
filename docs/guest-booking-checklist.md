@@ -30,7 +30,7 @@
 
 Validation performed locally: Deno type checks for all guest functions; 21 email/token unit tests; booking, cancellation, navigation and approval regression checks; PostgreSQL parser checks for guest migrations (does not execute PL/pgSQL or enforce policies). Database, storage, CAPTCHA and real email delivery still require a configured Supabase test environment.
 
-Guest booking entry remains disabled by GUEST_BOOKING_ENABLED in js/config.js until the backend is deployed and verified.
+Guest booking entry is enabled by GUEST_BOOKING_ENABLED in js/config.js for both local development and GitHub Pages. The dated notes below describe earlier rollout checkpoints.
 
 2026-11-13: Production migrations 37–45 applied; remote database reports up to date and the public schema linter reported no errors. Guest functions, database behavior and end-to-end flows still require validation before enabling guest booking.
 
