@@ -4623,6 +4623,16 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-booking-details label { display:grid; gap:5px; color:#b8c7d0; font-size:12px; }
 .guest-booking-details input { width:100%; min-width:0; box-sizing:border-box; padding:10px 12px; border:1px solid #35434b; border-radius:9px; background:#202a30; color:#f1f5f2; }
 .guest-booking-details #guest-captcha { max-width:100%; overflow:auto; }
+.guest-booking-modal { width:min(520px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); margin:auto; padding:0; border:1px solid #35434b; border-radius:16px; background:#172026; color:#e7efea; overflow:auto; }
+.guest-booking-modal::backdrop { background:rgba(5,10,13,.78); }
+.guest-booking-modal .guest-booking-details { margin:0; padding:24px; border:0; background:transparent; }
+.guest-details-header { display:flex; justify-content:space-between; gap:16px; }
+.guest-details-header span { color:#a3e635; font:700 10px/1.4 "JetBrains Mono",monospace; letter-spacing:.08em; }
+.guest-details-header h2 { margin:5px 0; font-size:20px; }
+.guest-details-header p { color:#9aaeb9; font-size:13px; line-height:1.5; }
+.guest-details-close { width:34px; height:34px; flex:none; border:1px solid #35434b; border-radius:9px; background:#202a30; color:#cbd5db; font-size:22px; cursor:pointer; }
+.guest-details-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:4px; }
+.guest-details-actions .btn { min-height:40px; }
 /* Guest contact fields should not stretch the reservation summary. */
 @media (min-width: 1024px) {
   #ds-book-page .booking-layout:has(.guest-booking-details) > aside > div:first-child { align-self:start; }
@@ -4630,7 +4640,7 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 }
 @media (min-width: 640px) {
   .guest-booking-details { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 14px; }
-  .guest-booking-details > :is(h2,p,#guest-captcha) { grid-column:1 / -1; }
+  .guest-booking-details > :is(header,p,#guest-captcha,.guest-details-actions) { grid-column:1 / -1; }
   .guest-booking-details > label:has(#guest-email) { grid-column:1 / -1; }
 }
 

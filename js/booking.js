@@ -1585,26 +1585,31 @@
       if (totalSidebar) totalSidebar.textContent = money(total);
     }
 
-    var guestCaptcha = "", guestWidget = null, guestTokens = {};
+    var guestCaptcha = "", guestWidget = null, guestTokens = {}, guestCaptchaMounting = false, mountGuestCaptcha;
     if (isGuest) {
-      var guestForm = document.createElement("section");
-      guestForm.className = "guest-booking-details";
-      guestForm.innerHTML = '<h2>Guest details</h2><p>We will email your secure booking link.</p><label>Full name<input id="guest-name" autocomplete="name" maxlength="60" required></label><label>Mobile number<input id="guest-phone" type="tel" autocomplete="tel" maxlength="30" required></label><label>Email address<input id="guest-email" type="email" autocomplete="email" maxlength="254" required></label><div id="guest-captcha"></div><p class="msg" role="alert"></p>';
-      q("#slotpanel", root).appendChild(guestForm);
-      (function mountGuestCaptcha(attempt) {
+      var guestForm = document.createElement("dialog");
+      guestForm.className = "guest-booking-modal";
+      guestForm.setAttribute("aria-labelledby", "guest-details-title");
+      guestForm.innerHTML = '<div class="guest-booking-details"><header class="guest-details-header"><div><span>GUEST BOOKING</span><h2 id="guest-details-title">Your details</h2><p>We will email your secure booking link.</p></div><button type="button" class="guest-details-close" aria-label="Close guest details">&times;</button></header><label>Full name<input id="guest-name" autocomplete="name" maxlength="60" required></label><label>Mobile number<input id="guest-phone" type="tel" autocomplete="tel" maxlength="30" required></label><label>Email address<input id="guest-email" type="email" autocomplete="email" maxlength="254" required></label><div id="guest-captcha"></div><p class="msg" role="alert"></p><div class="guest-details-actions"><button type="button" class="btn ghost guest-details-cancel">Cancel</button><button type="button" class="btn guest-details-submit">Continue to Payment</button></div></div>';
+      root.appendChild(guestForm);
+      guestForm.querySelector(".guest-details-close").onclick = function () { guestForm.close(); };
+      guestForm.querySelector(".guest-details-cancel").onclick = function () { guestForm.close(); };
+      guestForm.querySelector(".guest-details-submit").onclick = function () { doReserve(); };
+      mountGuestCaptcha = function (attempt) {
         if (!guestForm.isConnected) return;
         if (window.turnstile && window.DINKSLOT_CONFIG && window.DINKSLOT_CONFIG.TURNSTILE_SITE_KEY) {
           guestWidget = window.turnstile.render(guestForm.querySelector("#guest-captcha"), { sitekey:window.DINKSLOT_CONFIG.TURNSTILE_SITE_KEY, theme:"dark", size:"flexible", callback:function (token) { guestCaptcha=token; }, "expired-callback":function () { guestCaptcha=""; }, "error-callback":function () { guestCaptcha=""; guestForm.querySelector(".msg").textContent="Human check unavailable. Please refresh and try again."; } });
         } else if (attempt < 100) setTimeout(function () { mountGuestCaptcha(attempt + 1); }, 100);
         else guestForm.querySelector(".msg").textContent="Human check could not load. Please refresh and try again.";
-      })(0);
+      };
     }
     async function doReserve() {
       if (S.reserving || S.start == null || !rangeOk(S.start)) return;
       if (isGuest) {
+        if (!guestForm.open) { guestForm.showModal(); if (!guestCaptchaMounting) { guestCaptchaMounting = true; mountGuestCaptcha(0); } return; }
         var nameField=q("#guest-name",root), phoneField=q("#guest-phone",root), emailField=q("#guest-email",root);
         if (!nameField.reportValidity() || !phoneField.reportValidity() || !emailField.reportValidity() || nameField.value.trim().length < 2 || phoneField.value.trim().length < 7 || !guestCaptcha) {
-          guestForm.querySelector(".msg").textContent="Enter your details and complete the human check."; guestForm.scrollIntoView({behavior:"smooth",block:"center"}); return;
+          guestForm.querySelector(".msg").textContent="Enter your details and complete the human check."; return;
         }
       }
       S.reserving = true;
@@ -1614,6 +1619,7 @@
       var btn1 = q("#reserve", root), btn2 = q("#reserve-sidebar", root);
       if (btn1) btn1.disabled = true;
       if (btn2) btn2.disabled = true;
+      if (isGuest) guestForm.querySelector(".guest-details-submit").disabled = true;
       msg(q("#slotpanel", root), "", "");
       if (btn1) btn1.textContent = "Holding slot...";
       if (btn2) setReserveLabel(btn2, "Holding slot...");
@@ -1631,6 +1637,7 @@
       } catch (error) { if (isGuest) { guestCaptcha=""; if (guestWidget !== null && window.turnstile) window.turnstile.reset(guestWidget); } r = { error: error }; }
       if (r.error) {
         S.reserving = false;
+        if (isGuest) { guestForm.querySelector(".guest-details-submit").disabled = false; guestForm.querySelector(".msg").textContent = nice(r.error); }
         if (btn1) btn1.textContent = "Reserve this slot";
         if (btn2) setReserveLabel(btn2, "Confirm & Pay");
         msg(q("#slotpanel", root), nice(r.error), "err");
