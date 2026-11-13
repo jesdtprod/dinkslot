@@ -37,6 +37,15 @@ Deno.test("guest recovery presents escaped booking links", () => {
   if (!mail.text.includes("DS-123")) throw new Error("missing plain text booking");
 });
 
+Deno.test("guest recovery header shows available DINKSLOT logo and contact details", () => {
+  const links = [{ club: "Club", ref: "DS-123", url: "https://example.test/booking" }];
+  const html = guestRecoveryEmail(links, { logoUrl: "cid:dinkslot-logo", address: "Main Street", email: "help@example.test", phone: "09123456789" }).html;
+  for (const value of ["cid:dinkslot-logo", "Main Street", "help@example.test", "09123456789", "&#128205;", "&#9993;", "&#9742;"]) {
+    if (!html.includes(value)) throw new Error("missing " + value);
+  }
+  if (guestRecoveryEmail(links).html.includes('src="cid:dinkslot-logo"')) throw new Error("unexpected logo when unavailable");
+});
+
 Deno.test("new pending booking: player gets 'received', each admin gets 'request' once", () => {
   const m = planEmails(ctx(), true);
   if (JSON.stringify(who(m)) !== JSON.stringify(["booking_received:player@x.com", "booking_request:owner@x.com", "booking_request:staff@x.com"].sort())) {
