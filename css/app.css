@@ -4727,7 +4727,13 @@ body > .site-footer::before { content:""; position:absolute; top:0; left:0; righ
 .guest-booking-modal .guest-booking-details input { min-height:38px; padding-top:8px; padding-bottom:8px; border:1px solid #ffffff12; background:#202a30; font-size:12px; }
 .guest-booking-modal .guest-booking-details > .msg:empty { display:none; }
 .guest-booking-modal #guest-captcha { margin:2px 0; }
-@media(max-width:480px) { .guest-details-actions .btn { flex:1; justify-content:center; } .guest-details-body { padding:16px; } .guest-details-fields { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:480px) {
+  .guest-details-actions { flex-direction:column-reverse; align-items:stretch; padding:14px 16px; }
+  .guest-details-actions .btn { display:inline-flex; flex:none; width:100%; box-sizing:border-box; min-height:44px; justify-content:center; align-items:center; gap:8px; white-space:nowrap; line-height:20px; }
+  .guest-details-actions .btn .material-symbols-outlined { flex:none; font-size:18px; line-height:1; }
+  .guest-details-body { padding:16px; }
+  .guest-details-fields { grid-template-columns:minmax(0,1fr); }
+}
 /* Guest contact fields should not stretch the reservation summary. */
 @media (min-width: 1024px) {
   #ds-book-page .booking-layout:has(.guest-booking-details) > aside > div:first-child { align-self:start; }
