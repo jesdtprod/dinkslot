@@ -21,6 +21,7 @@ export interface Ctx {
   adminEmails: string[];
   guestBookingUrl?: string | null;
   proofSubmitted?: boolean;
+  event?: "payment_proof_received";
   siteUrl: string; // e.g. https://jesdtprod.github.io/dinkslot/
 }
 
@@ -90,7 +91,7 @@ function details(ctx: Ctx): string[] {
 // Decide who gets which email for a booking that just reached `status`.
 // isInsert: the booking was just created. cancelledByPlayer: the player cancelled it.
 export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
-  const b = ctx.booking, status = b.status, key = `${b.id}:${status}`;
+  const b = ctx.booking, status = b.status, key = `${b.id}:${ctx.event || status}`;
   const myBookings = ctx.guestBookingUrl || ctx.siteUrl.replace(/\/?$/, "/") + "#/me";
   const queue = ctx.siteUrl.replace(/\/?$/, "/") + `#/admin/${ctx.clubSlug}/bookings`;
   const out: Mail[] = [];
@@ -104,6 +105,14 @@ export function planEmails(ctx: Ctx, isInsert: boolean): Mail[] {
     for (const to of new Set(ctx.adminEmails)) out.push({ template, to, subject, text, html, key });
   };
 
+  if (ctx.event === "payment_proof_received") {
+    if (status === "pending" && ctx.proofSubmitted) {
+      toPlayer("payment_proof_received", `Payment Proof Received - ${b.reference_code}`, "Payment Proof Received",
+        ["Your payment proof has been received and is pending verification. No further upload is needed. The club will confirm your reservation after reviewing your payment.", ...details(ctx)],
+        { label: ctx.guestBookingUrl ? "View Booking" : "View My Bookings", url: myBookings });
+    }
+    return out;
+  }
   if (status === "pending") {
     toPlayer("booking_received", `Booking Received - ${b.reference_code}`, "We received your booking",
       [ctx.proofSubmitted ? "Your payment proof has been received. The club will review it and confirm your reservation." : "Your reservation is on hold. Complete your payment and upload your proof so the club can review your booking.", ...details(ctx)],

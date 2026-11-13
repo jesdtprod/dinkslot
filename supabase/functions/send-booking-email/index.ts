@@ -4,7 +4,7 @@
 // (Gmail API over HTTPS), and records every attempt in email_log.
 //
 // Idempotency: email_log has a unique index on (idempotency_key, to_address) and the key is
-// "<booking_id>:<status>", so a replayed webhook never sends the same email twice.
+// "<booking_id>:<status-or-event>", so a replayed webhook never sends the same email twice.
 //
 // Secrets (Supabase secrets, never in the repo):
 //   WEBHOOK_SECRET, GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, GMAIL_SENDER
@@ -27,10 +27,11 @@ Deno.serve(async (req) => {
   if (!expected) return json({ error: "server_misconfigured" }, 500);
   if (!safeEqual(req.headers.get("x-webhook-secret") ?? "", expected)) return json({ error: "unauthorized" }, 401);
 
-  let payload: { type?: string; record?: { id?: string }; old_record?: { status?: string } | null };
+  let payload: { type?: string; event?: string; record?: { id?: string }; old_record?: { status?: string } | null };
   try { payload = await req.json(); } catch { return json({ error: "bad_request" }, 400); }
   const bookingId = payload.record?.id;
   if (!bookingId || (payload.type !== "INSERT" && payload.type !== "UPDATE")) return json({ error: "bad_request" }, 400);
+  const proofEvent = payload.type === "UPDATE" && payload.event === "payment_proof_received";
 
   const mailer = getMailer();
   if (!mailer) return json({ skipped: "email_not_configured" }); // nothing logged, so it can be sent once configured
@@ -39,8 +40,9 @@ Deno.serve(async (req) => {
 
   // Re-read everything from the database; never trust the webhook body for content.
   const { data: b } = await admin.from("bookings").select("*").eq("id", bookingId).maybeSingle();
-  if (!b) return json({ skipped: "booking_not_found" });
-  if (payload.type === "UPDATE" && payload.old_record?.status === b.status) return json({ skipped: "no_status_change" });
+  if (!b || b.deleted_at) return json({ skipped: "booking_not_found" });
+  if (proofEvent && b.status !== "pending") return json({ skipped: "booking_already_decided" });
+  if (!proofEvent && payload.type === "UPDATE" && payload.old_record?.status === b.status) return json({ skipped: "no_status_change" });
 
   const [{ data: tenant }, { data: court }, { data: player }, { data: members }, proof] = await Promise.all([
     admin.from("tenants").select("id,name,slug,contact_email,contact_phone,address,city,province,zip_code,logo_path,timezone").eq("id", b.tenant_id).maybeSingle(),
@@ -51,6 +53,7 @@ Deno.serve(async (req) => {
   ]);
   if (!tenant) return json({ skipped: "tenant_not_found" });
   if (proof.error) return json({ error: "payment_status_unavailable" }, 503);
+  if (proofEvent && !proof.data?.length) return json({ skipped: "no_payment_proof" });
 
   async function emailOf(userId?: string | null): Promise<string | null> {
     if (!userId) return null;
@@ -76,6 +79,7 @@ Deno.serve(async (req) => {
   }
 
   const ctx: Ctx = {
+    ...(proofEvent ? { event: "payment_proof_received" as const } : {}),
     proofSubmitted: !!proof.data?.length,
     booking: b, clubName: tenant.name, clubSlug: tenant.slug, timezone: tenant.timezone || "Asia/Manila",
     clubLogoUrl: tenant.logo_path ? admin.storage.from("club-media").getPublicUrl(tenant.logo_path).data.publicUrl : null,

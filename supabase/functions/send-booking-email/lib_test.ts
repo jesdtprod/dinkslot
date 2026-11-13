@@ -23,6 +23,27 @@ Deno.test("pending booking email action reflects submitted proof", () => {
   }
 });
 
+Deno.test("proof upload acknowledgement uses View Booking and a separate idempotency key", () => {
+  for (const guest of [false, true]) {
+    const context = ctx({}, { proofSubmitted: true, event: "payment_proof_received", guestBookingUrl: guest ? "https://example.test/guest" : null });
+    const mails = planEmails(context, false);
+    if (mails.length !== 1 || mails[0].to !== context.playerEmail) throw new Error("proof acknowledgement must go only to the booking owner");
+    const mail = mails[0];
+    if (mail.subject !== "Payment Proof Received - DS-ABC123 - The Pickleshot" || mail.template !== "payment_proof_received") throw new Error("wrong proof acknowledgement");
+    if (!mail.html.includes(guest ? "View Booking" : "View My Bookings") || mail.html.includes("Pay and Upload Proof") || !mail.text.includes("No further upload is needed")) throw new Error("stale payment instruction");
+    if (mail.key !== "B1:payment_proof_received" || mail.qr || mail.html.includes("cid:ticket-qr")) throw new Error("invalid proof idempotency or premature gate pass");
+    if (planEmails(context, false)[0].key !== mail.key) throw new Error("replayed proof event uses a different key");
+  }
+});
+
+Deno.test("proof acknowledgements require active proof and a pending booking", () => {
+  if (planEmails(ctx({}, { event: "payment_proof_received", proofSubmitted: false }), false).length) throw new Error("proofless booking acknowledged");
+  for (const status of ["approved", "cancelled", "rejected", "expired"]) {
+    if (planEmails(ctx({status}, {event:"payment_proof_received",proofSubmitted:true}), false).length) throw new Error("decided booking received pending-proof email");
+  }
+  if (planEmails(ctx({}, {event:"payment_proof_received",proofSubmitted:true,playerEmail:null}), false).length) throw new Error("guest without email received acknowledgement");
+});
+
 Deno.test("booking email includes available club details and approval QR", () => {
   const mail = planEmails(ctx({ status: "approved" }, { clubLogoUrl: "https://example.test/logo.png", clubAddress: "Isulan", clubEmail: "club@example.test", clubPhone: "09123456789" }), false)[0];
   for (const value of ["https://example.test/logo.png", "Isulan", "club@example.test", "09123456789", "Court 1", "PHP 300.00", "DS-ABC123", 'cid:ticket-qr', "View My Bookings"]) {
