@@ -56,6 +56,7 @@
     var r = await sb.rpc("court_slot_rates", { p_court_id: court.id, p_date: date }), by = {};
     (r.data || []).forEach(function (x) { by[x.start_min] = Number(x.hourly_rate); });
     slots.forEach(function (x) { x.rate = by[x.m] != null ? by[x.m] : Number(court.hourly_rate); });
+    return r.error || null;
   }
   function slotsTotal(slots, start, count, step) {
     var t = 0;
@@ -1092,16 +1093,23 @@
     var isGuest = !D.state.user && new URLSearchParams(location.hash.split("?")[1] || "").get("guest") === "1";
     if (!isGuest && !D.requireUser("/c/" + slug + "/book")) return;
     root.innerHTML = bookCourtSkeleton(slug);
-    var club = (await sb.from("public_clubs").select("*").eq("slug", slug).maybeSingle()).data;
+    var initial = await Promise.all([
+      sb.from("public_clubs").select("*").eq("slug", slug).maybeSingle(),
+      sb.from("public_courts").select("*").eq("club_slug", slug).order("name")
+    ]);
+    var club = initial[0].data;
     if (!club) { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Club not found</h2><p>This club does not exist or is not approved yet.</p><a class="inline-block mt-4 px-4 py-2 rounded-xl bg-neon-lime text-carbon-950 font-bold text-sm" href="#/">Back to clubs</a></div>'; return; }
     var me = isGuest ? null : (await sb.from("club_players").select("id,status,display_name").eq("tenant_id", club.id)
       .eq("user_id", D.state.user.id).maybeSingle()).data;
     if (!isGuest && !me) return D.go("/c/" + slug + "/join");
     if (me && me.status === "blocked") { root.innerHTML = '<div class="max-w-xl mx-auto py-16 text-center text-slate-300"><h2>Booking unavailable</h2><p>You are blocked from this club. Please contact the club.</p></div>'; return; }
-    var courts = (await sb.from("public_courts").select("*").eq("club_slug", slug).order("name")).data || [];
+    var courts = initial[1].data || [];
     var tz = club.timezone || "Asia/Manila";
-    var S = { court: null, info: null, date: "", slots: [], start: null, count: 1, bookingDays: 14, reserving: false };
     var pre = new URLSearchParams(location.hash.split("?")[1] || "");
+    var requestedDate = pre.get("date"), todayDate = dayStr(tz);
+    var S = { court: null, info: null, date: /^\d{4}-\d{2}-\d{2}$/.test(requestedDate || "") && requestedDate >= todayDate ? requestedDate : todayDate, slots: [], start: null, count: 1, bookingDays: 14, reserving: false, slotKey: "", loadingSlotKey: "" };
+    pre.delete("date");
+    var courtRequest = 0, slotRequest = 0;
 
     function addDays(ymd, n) {
       var d = new Date(ymd + "T12:00:00Z");
@@ -1347,8 +1355,8 @@
           '<div id="booking-step3-wrapper" class="w-full relative" hidden></div>' +
         '</main>' +
       '</div>';
-    if (D.mountPublicBackdrop) D.mountPublicBackdrop(q("#ds-book-page", root));
-
+    var bookingStage = q("#ds-book-page", root);
+    if (D.mountPublicBackdrop) D.mountPublicBackdrop(bookingStage);
 
     function drawCourtCards() {
       var box = q("#courtcards", root);
@@ -1420,6 +1428,11 @@
     function pickCourt(id) {
       S.court = courts.filter(function (c) { return c.id === id; })[0];
       if (!S.court) return;
+      var currentCourt = ++courtRequest;
+      S.info = null; S.start = null; S.slots = []; S.slotKey = "";
+      var duration = q("#bn", root);
+      if (duration) { duration.disabled = true; duration.innerHTML = '<option>Loading durations...</option>'; }
+      msg(q("#slotpanel", root), "", "");
       drawCourtCards();
       q("#slotpanel", root).hidden = false;
       q("#paypanel", root).hidden = true;
@@ -1430,8 +1443,12 @@
           esc(S.court.name) + ' (' + esc(S.court.surface || "Silica Sand") + ' ' + (S.court.is_indoor ? "Indoor" : "Outdoor") + ')</span>';
       }
 
-      (isGuest ? sb.functions.invoke("guest-booking-info", { body: { court_id: id } }) : sb.rpc("get_booking_info", { p_court_id: id })).then(function (r) {
-        if (r.error) return msg(q("#slotpanel", root), nice(r.error), "err");
+      var infoRequest = isGuest ? sb.functions.invoke("guest-booking-info", { body: { court_id: id } }) : sb.rpc("get_booking_info", { p_court_id: id });
+      var infoTimeout;
+      Promise.race([infoRequest, new Promise(function (_, reject) { infoTimeout = setTimeout(function () { reject(new Error("Booking settings timed out. Please retry.")); }, 12000); })]).then(function (r) {
+        clearTimeout(infoTimeout);
+        if (!bookingStage.isConnected || currentCourt !== courtRequest) return;
+        if (r.error || !r.data) throw r.error || new Error("Booking settings unavailable.");
         S.info = r.data;
         S.bookingDays = r.data.booking_window_days || 14;
         var step = S.court.slot_minutes, mn = Math.max(1, Math.ceil(r.data.min_hours * 60 / step)), mx = Math.max(mn, Math.floor(r.data.max_hours * 60 / step));
@@ -1444,7 +1461,7 @@
           opts += '<option value="' + n + '">' + esc(hrSuffix) + '</option>';
         }
         var bn = q("#bn", root);
-        if (bn) bn.innerHTML = opts;
+        if (bn) { bn.innerHTML = opts; bn.disabled = false; }
         S.count = mn;
         S.start = null;
         var pl = +pre.get("len");
@@ -1455,21 +1472,36 @@
         pre.delete("len");
 
         var today = dayStr(tz), last = addDays(today, S.bookingDays);
-        var pd = pre.get("date"); pre.delete("date");
-        if (pd && pd >= today && pd <= last) S.date = pd;
-        else if (!S.date || S.date < today) S.date = today;
+        if (!S.date || S.date < today || S.date > last) S.date = today;
 
         var bd = q("#bd", root);
         if (bd) { bd.min = today; bd.max = last; bd.value = S.date; bd.dispatchEvent(new Event('input', { bubbles: true })); }
         drawQuickDays();
-        drawSlots();
+        var slotKey = S.court.id + "|" + S.date;
+        if (S.slotKey === slotKey) { paint(); applyRequestedStart(S.court); summary(); }
+        else if (S.loadingSlotKey !== slotKey) drawSlots();
+      }).catch(function () {
+        clearTimeout(infoTimeout);
+        if (!bookingStage.isConnected || currentCourt !== courtRequest) return;
+        S.info = null; S.start = null; summary();
+        if (duration) { duration.disabled = true; duration.innerHTML = '<option>Unavailable</option>'; }
+        var box = q("#slots", root);
+        box.innerHTML = '<div class="col-span-full text-xs text-slate-400 py-4">Unable to load booking settings. <button type="button" class="btn sm ghost" data-retry-times>Retry</button></div>';
+        box.querySelector("[data-retry-times]").onclick = function () { pickCourt(id); };
+        var live = q("#book-live-slots", root); if (live) live.textContent = "Availability unavailable";
       });
+      drawQuickDays();
+      drawSlots();
     }
 
     async function drawSlots() {
       if (S.reserving) return;
       var c = S.court, box = q("#slots", root);
       if (!c || !box || !/^\d{4}-\d{2}-\d{2}$/.test(S.date)) return;
+      var currentSlots = ++slotRequest, date = S.date, slotKey = c.id + "|" + date;
+      S.loadingSlotKey = slotKey; S.slotKey = ""; S.slots = [];
+      var liveInd = q("#book-live-slots", root);
+      if (liveInd) liveInd.textContent = "Live Availability: Checking slots...";
       var step = c.slot_minutes;
       box.innerHTML = '<div class="col-span-full grid grid-cols-2 sm:grid-cols-4 gap-2.5">' + Array(8).fill('<div class="h-16 rounded-xl bg-carbon-850/60 ds-skeleton border border-white/5"></div>').join('') + '</div>';
       S.start = null;
@@ -1480,11 +1512,31 @@
         slots.push({ s: s, e: new Date(s.getTime() + step * 60000), m: m });
       }
       if (!slots.length) {
+        S.loadingSlotKey = "";
         box.innerHTML = '<p class="text-xs text-slate-400 col-span-full py-4 text-center">No available time slots on this date.</p>';
+        if (liveInd) liveInd.textContent = "Live Availability: 0 slots open on " + date;
         return;
       }
-      await attachRates(c, S.date, slots);
-      var av = await sb.rpc("court_availability", { p_court_id: c.id, p_from: slots[0].s.toISOString(), p_to: slots[slots.length - 1].e.toISOString() });
+      var av;
+      try {
+        var availabilityTimeout;
+        var values = await Promise.race([
+          Promise.all([attachRates(c, date, slots), sb.rpc("court_availability", { p_court_id: c.id, p_from: slots[0].s.toISOString(), p_to: slots[slots.length - 1].e.toISOString() })]),
+          new Promise(function (_, reject) { availabilityTimeout = setTimeout(function () { reject(new Error("Availability timed out")); }, 12000); })
+        ]);
+        clearTimeout(availabilityTimeout);
+        if (!bookingStage.isConnected || currentSlots !== slotRequest || S.court.id !== c.id || S.date !== date) return;
+        if (values[0] || values[1].error) throw values[0] || values[1].error;
+        av = values[1];
+      } catch (_) {
+        clearTimeout(availabilityTimeout);
+        if (!bookingStage.isConnected || currentSlots !== slotRequest) return;
+        S.loadingSlotKey = ""; S.slots = []; S.start = null; summary();
+        box.innerHTML = '<div class="col-span-full text-xs text-slate-400 py-4">Unable to check times. <button type="button" class="btn sm ghost" data-retry-times>Retry</button></div>';
+        box.querySelector("[data-retry-times]").onclick = function () { drawSlots(); };
+        if (liveInd) liveInd.textContent = "Availability unavailable";
+        return;
+      }
       var taken = (av.data || []).map(function (r) { return [new Date(r.starts_at), new Date(r.ends_at)]; });
       var now = Date.now();
       var freeCount = 0;
@@ -1495,9 +1547,14 @@
       var liveInd = q("#book-live-slots", root);
       if (liveInd) liveInd.textContent = "Live Availability: " + freeCount + " slots open on " + S.date;
 
-      S.slots = slots;
+      S.slots = slots; S.slotKey = slotKey; S.loadingSlotKey = "";
       paint();
+      applyRequestedStart(c);
+    }
 
+    function applyRequestedStart(c) {
+      if (!S.info || S.slotKey !== c.id + "|" + S.date) return;
+      var slots = S.slots;
       var pm = pre.get("start");
       if (pm != null && pre.get("court") === c.id) {
         pre.delete("start");
@@ -1508,14 +1565,14 @@
     }
 
     function rangeOk(i) {
-      if (i == null || i + S.count > S.slots.length) return false;
+      if (!S.info || S.loadingSlotKey || i == null || i + S.count > S.slots.length) return false;
       for (var k = i; k < i + S.count; k++) if (S.slots[k].off) return false;
       return true;
     }
 
     function paint() {
       var box = q("#slots", root);
-      if (!box) return;
+      if (!box || !S.info || S.loadingSlotKey) return;
       box.innerHTML = S.slots.map(function (x, i) {
         var inRange = S.start != null && i >= S.start && i < S.start + S.count;
         var isPeak = S.court && S.court.rate_max != null && x.rate != null && Number(x.rate) >= Number(S.court.rate_max) && Number(S.court.rate_max) > Number(S.court.rate_min);
@@ -1561,6 +1618,7 @@
       var dateSidebar = q("#summary-date", root);
       var feeSidebar = q("#summary-court-fee", root);
       var totalSidebar = q("#summary-total-amount", root);
+      if (dateSidebar && S.date) dateSidebar.textContent = new Date(S.date + "T12:00:00Z").toLocaleDateString("en-PH", {timeZone:"UTC",weekday:"short",month:"short",day:"numeric",year:"numeric"});
 
       if (S.start == null || !rangeOk(S.start)) {
         if (banner) banner.hidden = true;
@@ -1697,6 +1755,8 @@
     var reserveSidebarBtn = q("#reserve-sidebar", root);
     if (reserveSidebarBtn) reserveSidebarBtn.onclick = doReserve;
 
+    if (bd) { bd.value = S.date; bd.min = dayStr(tz); }
+    drawQuickDays();
     if (bd && D.ui && D.ui.dateTimePickers) D.ui.dateTimePickers(bd.parentElement, tz);
     drawCourtCards();
     var pendingBookingId = pre.get("booking");
